@@ -26,7 +26,10 @@ impl<'a> EsmParser<'a> {
         header: TachographHeader,
         data: &mut BinFile,
     ) -> Result<TachographData> {
-        debug!("EsmParser::read_by_data_type - {:?}", header.data_type);
+        debug!(
+            "EsmParser::read_by_data_type - Type: {:?}, Generation: {:?}",
+            header.data_type, header.generation
+        );
         match header.data_type {
             TachographDataType::VU => match header.generation {
                 TachographDataGeneration::FirstGeneration => Ok(TachographData::VUGen1(
@@ -42,7 +45,9 @@ impl<'a> EsmParser<'a> {
                     data.skip_n_bytes::<2>()?
                 }
                 match header.generation {
-                    TachographDataGeneration::FirstGeneration => Err(Error::NotImplemented),
+                    TachographDataGeneration::FirstGeneration => Ok(TachographData::CardGen1(
+                        gen1::CardData::from_data(header, data)?,
+                    )),
                     TachographDataGeneration::SecondGeneration => Err(Error::NotImplemented),
                     _ => Err(Error::InvalidDataGeneration),
                 }

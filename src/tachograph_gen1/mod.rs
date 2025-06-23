@@ -1,5 +1,7 @@
 mod address;
 mod bcd_string;
+mod card_data;
+mod card_response_data_parameter;
 mod card_slot_status;
 mod company_locks;
 mod control_activity;
@@ -21,6 +23,8 @@ mod vu_transfer_response_parameter_data;
 
 pub use address::Address;
 pub use bcd_string::BCDString;
+pub use card_data::CardData;
+pub use card_response_data_parameter::CardResponseParameterData;
 pub use card_slot_status::CardSlotStatus;
 pub use company_locks::{CompanyLocks, CompanyLocksRecord};
 pub use control_activity::ControlActivity;

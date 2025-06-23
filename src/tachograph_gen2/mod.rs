@@ -1,3 +1,4 @@
+mod card_response_parameter_data;
 mod certificate;
 mod data_info;
 mod vu_activity;
@@ -9,6 +10,7 @@ mod vu_events;
 mod vu_speed;
 mod vu_transfer_response_parameter_data;
 
+pub use card_response_parameter_data::CardResponseParameterData;
 pub use certificate::Certificate;
 pub use data_info::DataInfo;
 pub use vu_activity::VUActivity;

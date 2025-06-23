@@ -1,6 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
-// use log::debug;
 
 use crate::{
     gen2::{

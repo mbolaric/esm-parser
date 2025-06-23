@@ -4,5 +4,5 @@ use crate::tacho::VUTransferResponseParameterID;
 pub struct VUTransferResponseParameterItem<D> {
     pub type_id: VUTransferResponseParameterID,
     pub position: u32,
-    pub data: D, //VUTransferResponseParameterData,
+    pub data: D,
 }

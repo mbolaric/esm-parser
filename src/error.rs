@@ -8,6 +8,11 @@ pub enum Error {
     InvalidHeaderData,
     InvalidDataGeneration,
     InvalidDataParse(String),
+    DuplicateCardFile,
+    SignatureBeforeCardFile,
+    PartialCardFile,
+    UnsupportedCardType,
+    UnknownCardType,
     NotImplemented,
 }
 

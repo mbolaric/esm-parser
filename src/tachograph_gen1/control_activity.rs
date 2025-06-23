@@ -1,5 +1,3 @@
-use log::debug;
-
 use crate::{
     gen1::FullCardNumber,
     tacho::{ControlTypeCode, TimeReal},
