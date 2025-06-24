@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Use private action
-      uses: mbolaric/binary-data@v4
+      uses: mbolaric/binary-data@latest
     - uses: actions/checkout@v4
     - name: Build
       run: cargo build --verbose
