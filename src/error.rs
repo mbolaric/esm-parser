@@ -1,5 +1,7 @@
 use core::fmt;
 
+use crate::tacho::CardFileID;
+
 #[derive(Debug)]
 pub enum Error {
     File(std::io::Error),
@@ -14,6 +16,7 @@ pub enum Error {
     UnsupportedCardType,
     UnknownCardType,
     NotImplemented,
+    MissingCardFile(String),
 }
 
 impl fmt::Display for Error {

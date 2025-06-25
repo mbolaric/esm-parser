@@ -1,11 +1,13 @@
+use std::fmt::Display;
+
 use crate::impl_enum_from_u16;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[repr(u16)]
 pub enum CardFileID {
     Unknown = 0,
-    IC = 5,
     ICC = 2,
+    IC = 5,
     Tachograph = 0x500,
     ApplicationIdentification = 0x501,
     EventsData = 0x502,
@@ -29,6 +31,12 @@ pub enum CardFileID {
     CACertificate = 0xC108,
     LinkCertificate = 0xC109,
     MF = 0x3F00,
+}
+
+impl Display for CardFileID {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 impl_enum_from_u16!(
