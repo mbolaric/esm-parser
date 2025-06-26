@@ -1,4 +1,3 @@
-mod card_icc_identification;
 mod common;
 mod consts;
 mod error;
@@ -21,6 +20,5 @@ pub mod gen1 {
 pub mod gen2 {
     pub use super::tachograph_gen2::*;
 }
-pub use card_icc_identification::CardIccIdentification;
 pub use parser::EsmParser;
 pub use tachograph_data::TachographData;

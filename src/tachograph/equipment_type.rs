@@ -1,8 +1,10 @@
+use core::fmt;
+
 use crate::impl_enum_from_u8;
 
 #[derive(Debug, PartialEq)]
 #[repr(u8)]
-pub enum EquipmentTypeCode {
+pub enum EquipmentType {
     Reserved = 0,
     DriverCard = 1,
     WorkshopCard = 2,
@@ -24,8 +26,14 @@ pub enum EquipmentTypeCode {
     NullCard = 255,
 }
 
+impl fmt::Display for EquipmentType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl_enum_from_u8!(
-    EquipmentTypeCode {
+    EquipmentType {
         Reserved = 0,
         DriverCard = 1,
         WorkshopCard = 2,

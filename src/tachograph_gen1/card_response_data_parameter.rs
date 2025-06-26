@@ -1,8 +1,11 @@
+use crate::gen1::Card;
+
 #[derive(Debug)]
 pub enum CardResponseParameterData {
     Unsupported,
-    DriverCard,
+    DriverCard(Card),
     CompanyCard,
-    WorkshopCard,
+    WorkshopCard(Card),
     ControlCard,
+    Unknown(Card),
 }

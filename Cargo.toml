@@ -2,7 +2,7 @@
 name = "esm"
 version = "0.1.0"
 authors = ["Milan Bolaric"]
-edition = "2021"
+edition = "2024"
 
 [profile.release]
 strip = true

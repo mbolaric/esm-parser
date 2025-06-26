@@ -1,7 +1,7 @@
 use crate::{
+    Readable,
     gen1::FullCardNumber,
     tacho::{ControlTypeCode, TimeReal},
-    Readable,
 };
 
 #[derive(Debug)]
@@ -51,9 +51,6 @@ impl Readable<ControlActivity> for ControlActivity {
             control_activities.push(ControlActivityRecord::read(reader)?);
         }
 
-        Ok(Self {
-            no_of_controls,
-            control_activities,
-        })
+        Ok(Self { no_of_controls, control_activities })
     }
 }

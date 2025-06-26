@@ -17,6 +17,7 @@ pub enum Error {
     UnknownCardType,
     NotImplemented,
     MissingCardFile(String),
+    NotSupportedCardType(String),
 }
 
 impl fmt::Display for Error {

@@ -1,5 +1,6 @@
 mod address;
 mod bcd_string;
+mod card;
 mod card_data;
 mod card_response_data_parameter;
 mod card_slot_status;
@@ -23,6 +24,7 @@ mod vu_transfer_response_parameter_data;
 
 pub use address::Address;
 pub use bcd_string::BCDString;
+pub use card::Card;
 pub use card_data::CardData;
 pub use card_response_data_parameter::CardResponseParameterData;
 pub use card_slot_status::CardSlotStatus;
