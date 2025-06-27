@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
 
-use crate::tacho::{CardFileID, CardItem, TachographHeader};
+use crate::tacho::{CardFileID, TachographHeader};
 use crate::{Error, Readable, Result};
 
 pub enum CardGeneration {
@@ -46,27 +46,19 @@ pub trait Card<D> {
 }
 
 impl<D> dyn Card<D> {
-    pub fn get_mem_reader(
-        card_file_id: &CardFileID,
-        data: &HashMap<CardFileID, CardItem<CardDataFile>>,
-    ) -> Result<BinMemoryBuffer> {
-        let reader: Option<BinMemoryBuffer> = data.get(card_file_id).and_then(|card_item: &CardItem<CardDataFile>| {
-            card_item.data.data.as_ref().map(|bin_data| BinMemoryBuffer::from(bin_data.clone()))
-            //card_item.data.data.as_ref().and_then(|bin_data| Some(BinMemoryBuffer::from(bin_data.clone())))
-        });
+    pub fn get_mem_reader(card_file_id: &CardFileID, data: &HashMap<CardFileID, CardDataFile>) -> Result<BinMemoryBuffer> {
+        let reader: Option<BinMemoryBuffer> = data
+            .get(card_file_id)
+            .and_then(|card_item: &CardDataFile| card_item.data.as_ref().map(|bin_data| BinMemoryBuffer::from(bin_data.clone())));
         if let Some(mem_reader) = reader {
             return Ok(mem_reader);
         }
         Err(Error::MissingCardFile(card_file_id.to_string()))
     }
 
-    fn procces_card_data_file(
-        current_card_item: CardItem<CardDataFile>,
-        card_items: &mut HashMap<CardFileID, CardItem<CardDataFile>>,
-    ) -> Result<String> {
-        let data_file = &current_card_item.data;
+    fn procces_card_data_file(data_file: CardDataFile, card_items: &mut HashMap<CardFileID, CardDataFile>) -> Result<String> {
         let mut card_file_notes = "".to_owned();
-        match current_card_item.card_file_id {
+        match data_file.card_file_id {
             CardFileID::ICC
             | CardFileID::IC
             | CardFileID::Tachograph
@@ -88,25 +80,24 @@ impl<D> dyn Card<D> {
             | CardFileID::MF
             | CardFileID::CardCertificate
             | CardFileID::CACertificate => {
-                let card_file_temp = card_items.get_mut(&current_card_item.card_file_id);
+                let card_file_temp = card_items.get_mut(&data_file.card_file_id);
                 if data_file.appendix == 0 {
                     if card_file_temp.is_some() {
                         return Err(Error::DuplicateCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes = format!("[{}] {}", &current_card_item.card_file_id, &data_file.card_file_notes);
+                        card_file_notes = format!("[{}] {}", &data_file.card_file_id, &data_file.card_file_notes);
                     }
-                    card_items.insert(current_card_item.card_file_id.clone(), current_card_item);
+                    card_items.insert(data_file.card_file_id.clone(), data_file);
                 } else {
                     // Signature
                     if card_file_temp.is_none() {
                         return Err(Error::SignatureBeforeCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes =
-                            format!("[{} (signature)] {}", &current_card_item.card_file_id, &data_file.card_file_notes);
+                        card_file_notes = format!("[{} (signature)] {}", &data_file.card_file_id, &data_file.card_file_notes);
                     }
-                    card_file_temp.unwrap().data.signature = data_file.data.clone()
+                    card_file_temp.unwrap().signature = data_file.data.clone()
                 }
             }
             _ => return Err(Error::UnknownCardType),
@@ -117,18 +108,18 @@ impl<D> dyn Card<D> {
 
     pub fn from_data<R: ReadBytes + BinSeek>(
         reader: &mut R,
-        parse_card: &(dyn Fn(&HashMap<CardFileID, CardItem<CardDataFile>>, &String) -> Result<D>),
+        parse_card: &(dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>),
     ) -> Result<D> {
-        let mut card_data_files: HashMap<CardFileID, CardItem<CardDataFile>> = HashMap::new();
+        let mut card_data_files: HashMap<CardFileID, CardDataFile> = HashMap::new();
         let mut card_notes: String = "".to_owned();
 
         while reader.pos()? < reader.len()? {
-            let data_file = CardDataFile::read(reader)?;
-            debug!("Card::from_data - {:?}", data_file.card_file_id.clone());
+            let current_data_file = CardDataFile::read(reader)?;
+            debug!("Card::from_data - {:?}", current_data_file.card_file_id.clone());
 
-            let current_card_item = CardItem { card_file_id: data_file.card_file_id.clone(), data: data_file.clone() };
+            //let current_card_item = CardItem { card_file_id: current_data_file.card_file_id.clone(), data: current_data_file.clone() };
 
-            let mut temp_notes = <dyn Card<D>>::procces_card_data_file(current_card_item, &mut card_data_files)?;
+            let mut temp_notes = <dyn Card<D>>::procces_card_data_file(current_data_file, &mut card_data_files)?;
             if !temp_notes.is_empty() {
                 temp_notes = format!("{}\r\n", temp_notes);
             }

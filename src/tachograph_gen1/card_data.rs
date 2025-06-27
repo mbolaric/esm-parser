@@ -4,7 +4,7 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::gen1::{Card, CardResponseParameterData};
-use crate::tacho::{self, ApplicationIdentification, CardDataFile, CardFileID, CardItem, EquipmentType, TachographHeader};
+use crate::tacho::{self, ApplicationIdentification, CardDataFile, CardFileID, EquipmentType, TachographHeader};
 use crate::{Readable, Result};
 
 #[derive(Debug)]
@@ -15,7 +15,7 @@ pub struct CardData {
 
 impl CardData {
     fn parse_application_identification(
-        card_data_files: &HashMap<CardFileID, CardItem<CardDataFile>>,
+        card_data_files: &HashMap<CardFileID, CardDataFile>,
     ) -> Result<ApplicationIdentification> {
         let mut reader = <dyn tacho::Card<CardResponseParameterData>>::get_mem_reader(
             &CardFileID::ApplicationIdentification,
@@ -28,7 +28,7 @@ impl CardData {
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<CardData> {
         let card_data_responses = <dyn tacho::Card<CardResponseParameterData>>::from_data(
             reader,
-            &|card_data_files: &HashMap<CardFileID, CardItem<CardDataFile>>, card_notes: &String| {
+            &|card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String| {
                 CardData::parse_card(card_data_files, card_notes)
             },
         )?;
@@ -38,10 +38,7 @@ impl CardData {
         Ok(Self { header, card_data_responses })
     }
 
-    fn parse_card(
-        card_data_files: &HashMap<CardFileID, CardItem<CardDataFile>>,
-        card_notes: &String,
-    ) -> Result<CardResponseParameterData> {
+    fn parse_card(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String) -> Result<CardResponseParameterData> {
         debug!("CardData::parse_card - {:?}, Note: {:?}", card_data_files, card_notes);
         let application_identification = CardData::parse_application_identification(card_data_files)?;
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
