@@ -1,0 +1,13 @@
+use std::collections::HashMap;
+
+use crate::tacho::{CardDataFile, CardFileID};
+use crate::{Error, Result};
+
+#[derive(Debug)]
+pub struct ControlCard {}
+
+impl ControlCard {
+    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<Box<ControlCard>> {
+        Err(Error::NotImplemented)
+    }
+}

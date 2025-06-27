@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
-use crate::gen1::{Card, CardResponseParameterData};
+use crate::gen1::{CardResponseParameterData, CompanyCard, ControlCard, DriverCard, WorkshopCard};
 use crate::tacho::{self, ApplicationIdentification, CardDataFile, CardFileID, EquipmentType, TachographHeader};
 use crate::{Readable, Result};
 
@@ -44,10 +44,10 @@ impl CardData {
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
         // FIXME: Replace Card with concrete card type
         match application_identification.type_of_tachograph_card_id {
-            EquipmentType::DriverCard => Ok(CardResponseParameterData::DriverCard(Card::parse(card_data_files)?)),
-            EquipmentType::CompanyCard => Ok(CardResponseParameterData::CompanyCard(Card::parse(card_data_files)?)),
-            EquipmentType::ControlCard => Ok(CardResponseParameterData::ControlCard(Card::parse(card_data_files)?)),
-            EquipmentType::WorkshopCard => Ok(CardResponseParameterData::WorkshopCard(Card::parse(card_data_files)?)),
+            EquipmentType::DriverCard => Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files)?)),
+            EquipmentType::CompanyCard => Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files)?)),
+            EquipmentType::ControlCard => Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files)?)),
+            EquipmentType::WorkshopCard => Ok(CardResponseParameterData::WorkshopCard(WorkshopCard::parse(card_data_files)?)),
             _ => Ok(CardResponseParameterData::Unsupported),
         }
     }
