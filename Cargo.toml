@@ -3,6 +3,8 @@ name = "esm-parser"
 version = "0.1.0"
 authors = ["Milan Bolaric"]
 edition = "2024"
+readme = "README.md"
+license-file = "LICENSE"
 
 [profile.release]
 strip = true

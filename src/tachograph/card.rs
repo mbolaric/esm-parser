@@ -22,6 +22,24 @@ pub struct CardDataFile {
     pub data: Option<Vec<u8>>,
 }
 
+impl CardDataFile {
+    fn vector_into_reader(&self, data: &Option<Vec<u8>>) -> Result<BinMemoryBuffer> {
+        let reader = data.as_ref().map(|bin_data| BinMemoryBuffer::from(bin_data.clone()));
+        if let Some(mem_reader) = reader {
+            return Ok(mem_reader);
+        }
+        Err(Error::MissingCardFile(self.card_file_id.to_string()))
+    }
+
+    pub fn data_into_reader(&self) -> Result<BinMemoryBuffer> {
+        self.vector_into_reader(&self.data)
+    }
+
+    pub fn signature_into_reader(&self) -> Result<BinMemoryBuffer> {
+        self.vector_into_reader(&self.signature)
+    }
+}
+
 impl Readable<CardDataFile> for CardDataFile {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardDataFile> {
         let card_file_id: CardFileID = reader.read_u16::<BigEndian>()?.into();
