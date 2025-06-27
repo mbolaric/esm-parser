@@ -1,5 +1,5 @@
 [package]
-name = "esm"
+name = "esm-parser"
 version = "0.1.0"
 authors = ["Milan Bolaric"]
 edition = "2024"

@@ -22,7 +22,8 @@ pub enum EquipmentType {
     MemberStateCA = 14,
     ExternalGnssConnetion = 15,
     Unused = 16,
-    Unknown = 17,
+    DriverKey = 170,
+    Unknown = 254,
     NullCard = 255,
 }
 
@@ -51,7 +52,8 @@ impl_enum_from_u8!(
         MemberStateCA = 14,
         ExternalGnssConnetion = 15,
         Unused = 16,
-        Unknown = 17,
+        DriverKey = 170,
+        Unknown = 254,
         NullCard = 255,
     }
 );

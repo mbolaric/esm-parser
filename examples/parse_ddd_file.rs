@@ -1,6 +1,6 @@
 mod helpers;
 
-use esm::EsmParser;
+use esm_parser::EsmParser;
 use helpers::init_logging;
 use log::debug;
 

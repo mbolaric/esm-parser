@@ -4,11 +4,8 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::gen1::{Card, CardResponseParameterData};
-use crate::tacho::{
-    self, ApplicationIdentification, CardChipIdentification, CardDataFile, CardFileID, CardIccIdentification, CardItem,
-    EquipmentType, TachographHeader,
-};
-use crate::{Error, Readable, Result};
+use crate::tacho::{self, ApplicationIdentification, CardDataFile, CardFileID, CardItem, EquipmentType, TachographHeader};
+use crate::{Readable, Result};
 
 #[derive(Debug)]
 pub struct CardData {
@@ -17,24 +14,12 @@ pub struct CardData {
 }
 
 impl CardData {
-    fn parse_ic(card_data_files: &HashMap<CardFileID, CardItem<CardDataFile>>) -> Result<CardChipIdentification> {
-        let mut reader = <dyn tacho::Card<CardResponseParameterData>>::get_mem_reader(&CardFileID::IC, &card_data_files)?;
-        let card_chip_identification = CardChipIdentification::read(&mut reader)?;
-        Ok(card_chip_identification)
-    }
-
-    fn parse_icc(card_data_files: &HashMap<CardFileID, CardItem<CardDataFile>>) -> Result<CardIccIdentification> {
-        let mut reader = <dyn tacho::Card<CardResponseParameterData>>::get_mem_reader(&CardFileID::ICC, &card_data_files)?;
-        let card_icc_identification = CardIccIdentification::read(&mut reader)?;
-        Ok(card_icc_identification)
-    }
-
     fn parse_application_identification(
         card_data_files: &HashMap<CardFileID, CardItem<CardDataFile>>,
     ) -> Result<ApplicationIdentification> {
         let mut reader = <dyn tacho::Card<CardResponseParameterData>>::get_mem_reader(
             &CardFileID::ApplicationIdentification,
-            &card_data_files,
+            card_data_files,
         )?;
         let application_identification = ApplicationIdentification::read(&mut reader)?;
         Ok(application_identification)
@@ -58,12 +43,15 @@ impl CardData {
         card_notes: &String,
     ) -> Result<CardResponseParameterData> {
         debug!("CardData::parse_card - {:?}, Note: {:?}", card_data_files, card_notes);
-        let application_identification = CardData::parse_application_identification(&card_data_files)?;
+        let application_identification = CardData::parse_application_identification(card_data_files)?;
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
+        // FIXME: Replace Card with concrete card type
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => Ok(CardResponseParameterData::DriverCard(Card::parse(card_data_files)?)),
+            EquipmentType::CompanyCard => Ok(CardResponseParameterData::CompanyCard(Card::parse(card_data_files)?)),
+            EquipmentType::ControlCard => Ok(CardResponseParameterData::ControlCard(Card::parse(card_data_files)?)),
             EquipmentType::WorkshopCard => Ok(CardResponseParameterData::WorkshopCard(Card::parse(card_data_files)?)),
-            _ => Ok(CardResponseParameterData::Unknown(Card::parse(card_data_files)?)),
+            _ => Ok(CardResponseParameterData::Unsupported),
         }
     }
 }

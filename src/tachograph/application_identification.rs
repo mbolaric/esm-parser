@@ -13,9 +13,6 @@ impl Readable<ApplicationIdentification> for ApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<ApplicationIdentification> {
         let type_of_tachograph_card_id = reader.read_u8()?.into();
         let card_structure_version = CardStructureVersion::read(reader)?;
-
-        // FIXME: Parse all data if exists
-
         Ok(Self { type_of_tachograph_card_id, card_structure_version })
     }
 }

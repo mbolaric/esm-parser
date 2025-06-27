@@ -23,9 +23,7 @@ pub struct CardDataFile {
 }
 
 impl Readable<CardDataFile> for CardDataFile {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<CardDataFile> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardDataFile> {
         let card_file_id: CardFileID = reader.read_u16::<BigEndian>()?.into();
         let appendix = reader.read_u8()?;
         let size = reader.read_u16::<BigEndian>()? as u32;
@@ -38,14 +36,7 @@ impl Readable<CardDataFile> for CardDataFile {
             Some(reader.read_into_vec(size)?)
         };
 
-        Ok(Self {
-            card_file_id,
-            appendix,
-            card_file_notes,
-            size,
-            signature: None,
-            data,
-        })
+        Ok(Self { card_file_id, appendix, card_file_notes, size, signature: None, data })
     }
 }
 
@@ -59,17 +50,12 @@ impl<D> dyn Card<D> {
         card_file_id: &CardFileID,
         data: &HashMap<CardFileID, CardItem<CardDataFile>>,
     ) -> Result<BinMemoryBuffer> {
-        let reader: Option<BinMemoryBuffer> =
-            data.get(card_file_id)
-                .and_then(|card_item: &CardItem<CardDataFile>| {
-                    card_item
-                        .data
-                        .data
-                        .as_ref()
-                        .and_then(|bin_data| Some(BinMemoryBuffer::from(bin_data.clone())))
-                });
-        if reader.is_some() {
-            return Ok(reader.unwrap());
+        let reader: Option<BinMemoryBuffer> = data.get(card_file_id).and_then(|card_item: &CardItem<CardDataFile>| {
+            card_item.data.data.as_ref().map(|bin_data| BinMemoryBuffer::from(bin_data.clone()))
+            //card_item.data.data.as_ref().and_then(|bin_data| Some(BinMemoryBuffer::from(bin_data.clone())))
+        });
+        if let Some(mem_reader) = reader {
+            return Ok(mem_reader);
         }
         Err(Error::MissingCardFile(card_file_id.to_string()))
     }
@@ -78,7 +64,7 @@ impl<D> dyn Card<D> {
         current_card_item: CardItem<CardDataFile>,
         card_items: &mut HashMap<CardFileID, CardItem<CardDataFile>>,
     ) -> Result<String> {
-        let mut data_file = &current_card_item.data;
+        let data_file = &current_card_item.data;
         let mut card_file_notes = "".to_owned();
         match current_card_item.card_file_id {
             CardFileID::ICC
@@ -108,21 +94,17 @@ impl<D> dyn Card<D> {
                         return Err(Error::DuplicateCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes = format!(
-                            "[{}] {}",
-                            &current_card_item.card_file_id, &data_file.card_file_notes
-                        );
+                        card_file_notes = format!("[{}] {}", &current_card_item.card_file_id, &data_file.card_file_notes);
                     }
+                    card_items.insert(current_card_item.card_file_id.clone(), current_card_item);
                 } else {
                     // Signature
                     if card_file_temp.is_none() {
                         return Err(Error::SignatureBeforeCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes = format!(
-                            "[{} (signature)] {}",
-                            &current_card_item.card_file_id, &data_file.card_file_notes
-                        );
+                        card_file_notes =
+                            format!("[{} (signature)] {}", &current_card_item.card_file_id, &data_file.card_file_notes);
                     }
                     card_file_temp.unwrap().data.signature = data_file.data.clone()
                 }
@@ -130,7 +112,6 @@ impl<D> dyn Card<D> {
             _ => return Err(Error::UnknownCardType),
         }
 
-        card_items.insert(current_card_item.card_file_id.clone(), current_card_item);
         Ok(card_file_notes)
     }
 
@@ -145,13 +126,9 @@ impl<D> dyn Card<D> {
             let data_file = CardDataFile::read(reader)?;
             debug!("Card::from_data - {:?}", data_file.card_file_id.clone());
 
-            let current_card_item = CardItem {
-                card_file_id: data_file.card_file_id.clone(),
-                data: data_file.clone(),
-            };
+            let current_card_item = CardItem { card_file_id: data_file.card_file_id.clone(), data: data_file.clone() };
 
-            let mut temp_notes =
-                <dyn Card<D>>::procces_card_data_file(current_card_item, &mut card_data_files)?;
+            let mut temp_notes = <dyn Card<D>>::procces_card_data_file(current_card_item, &mut card_data_files)?;
             if !temp_notes.is_empty() {
                 temp_notes = format!("{}\r\n", temp_notes);
             }
