@@ -3,9 +3,12 @@ use std::collections::HashMap;
 use log::trace;
 
 use crate::{
-    Error, Readable, Result,
+    Error, Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
-    tacho::{self, CardChipIdentification, CardDataFile, CardFileID, CardIccIdentification},
+    tacho::{
+        self, CardChipIdentification, CardDataFile, CardEventData, CardEventDataParams, CardFileID, CardIccIdentification,
+        TimeReal,
+    },
 };
 
 #[derive(Debug)]
@@ -13,6 +16,8 @@ pub struct DriverCard {
     pub card_chip_identification: CardChipIdentification,
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
+    pub card_download: Option<TimeReal>,
+    pub card_event_data: Option<CardEventData>,
 }
 
 impl DriverCard {
@@ -33,6 +38,8 @@ impl DriverCard {
         let card_icc_identification = DriverCard::parse_icc(card_data_files)?;
 
         let mut application_identification: Option<DriverCardApplicationIdentification> = None;
+        let mut card_download: Option<TimeReal> = None;
+        let mut card_event_data: Option<CardEventData> = None;
 
         for card_item in card_data_files.iter() {
             let card_file = card_item.1;
@@ -40,6 +47,13 @@ impl DriverCard {
                 CardFileID::ApplicationIdentification => {
                     application_identification =
                         Some(DriverCardApplicationIdentification::read(&mut card_file.data_into_reader()?)?);
+                }
+                CardFileID::CardDownload => {
+                    card_download = Some(TimeReal::read(&mut card_file.data_into_reader()?)?);
+                }
+                CardFileID::EventsData => {
+                    let params = CardEventDataParams::new(11);
+                    card_event_data = Some(CardEventData::read(&mut card_file.data_into_reader()?, &params)?);
                 }
                 CardFileID::IC | CardFileID::ICC => trace!("Already parsed: {:?}", card_item.0),
                 _ => trace!("Not Parsed: {:?}", card_item.0),
@@ -55,6 +69,8 @@ impl DriverCard {
             card_chip_identification,
             card_icc_identification,
             application_identification: application_identification.unwrap(),
+            card_download,
+            card_event_data,
         }))
     }
 }
