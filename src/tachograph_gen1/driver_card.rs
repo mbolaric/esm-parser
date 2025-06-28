@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use log::trace;
+use log::{debug, trace};
 
 use crate::{
     Error, Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
     tacho::{
-        self, CardChipIdentification, CardDataFile, CardEventData, CardEventDataParams, CardFileID, CardIccIdentification,
-        TimeReal,
+        self, ApplicationIdentification, CardChipIdentification, CardDataFile, CardEventData, CardEventDataParams, CardFileID,
+        CardIccIdentification, TimeReal,
     },
 };
 
@@ -52,8 +52,11 @@ impl DriverCard {
                     card_download = Some(TimeReal::read(&mut card_file.data_into_reader()?)?);
                 }
                 CardFileID::EventsData => {
-                    let params = CardEventDataParams::new(11);
-                    card_event_data = Some(CardEventData::read(&mut card_file.data_into_reader()?, &params)?);
+                    debug!("DriverCard::parse - {:?}", application_identification);
+                    if let Some(app_iden) = &application_identification {
+                        let params = CardEventDataParams::new(6, app_iden.no_events_per_type);
+                        card_event_data = Some(CardEventData::read(&mut card_file.data_into_reader()?, &params)?);
+                    }
                 }
                 CardFileID::IC | CardFileID::ICC => trace!("Already parsed: {:?}", card_item.0),
                 _ => trace!("Not Parsed: {:?}", card_item.0),
