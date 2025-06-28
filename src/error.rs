@@ -16,6 +16,7 @@ pub enum Error {
     NotImplemented,
     MissingCardFile(String),
     NotSupportedCardType(String),
+    CorruptedDrivingLicenceNumber,
 }
 
 impl fmt::Display for Error {

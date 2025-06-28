@@ -6,8 +6,8 @@ use crate::{
     Error, Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
     tacho::{
-        self, ApplicationIdentification, CardChipIdentification, CardDataFile, CardEventData, CardEventDataParams, CardFileID,
-        CardIccIdentification, TimeReal,
+        self, CardChipIdentification, CardDataFile, CardDrivingLicenceInformation, CardEventData, CardEventDataParams,
+        CardFileID, CardIccIdentification, TimeReal,
     },
 };
 
@@ -18,6 +18,7 @@ pub struct DriverCard {
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
     pub card_event_data: Option<CardEventData>,
+    pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
 }
 
 impl DriverCard {
@@ -40,23 +41,40 @@ impl DriverCard {
         let mut application_identification: Option<DriverCardApplicationIdentification> = None;
         let mut card_download: Option<TimeReal> = None;
         let mut card_event_data: Option<CardEventData> = None;
+        let mut card_driving_license_info: Option<CardDrivingLicenceInformation> = None;
 
         for card_item in card_data_files.iter() {
+            debug!("DriverCard::parse - {:?}", card_item.0,);
             let card_file = card_item.1;
+            let mut reader = card_file.data_into_reader()?;
             match card_item.0 {
                 CardFileID::ApplicationIdentification => {
-                    application_identification =
-                        Some(DriverCardApplicationIdentification::read(&mut card_file.data_into_reader()?)?);
+                    application_identification = Some(DriverCardApplicationIdentification::read(&mut reader)?);
                 }
                 CardFileID::CardDownload => {
-                    card_download = Some(TimeReal::read(&mut card_file.data_into_reader()?)?);
+                    card_download = Some(TimeReal::read(&mut reader)?);
                 }
                 CardFileID::EventsData => {
-                    debug!("DriverCard::parse - {:?}", application_identification);
+                    debug!("DriverCard::parse - Application Identification: {:?}", application_identification);
                     if let Some(app_iden) = &application_identification {
                         let params = CardEventDataParams::new(6, app_iden.no_events_per_type);
-                        card_event_data = Some(CardEventData::read(&mut card_file.data_into_reader()?, &params)?);
+                        card_event_data = Some(CardEventData::read(&mut reader, &params)?);
                     }
+                }
+                CardFileID::FaultsData
+                | CardFileID::DriverActivityData
+                | CardFileID::VehiclesUsed
+                | CardFileID::Places
+                | CardFileID::CurrentUsage
+                | CardFileID::ControlActivityData
+                | CardFileID::Identification => {
+                    debug!("Not Implemented")
+                }
+                CardFileID::DrivingLicenseInfo => {
+                    card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
+                }
+                CardFileID::SpecificConditions | CardFileID::CardCertificate | CardFileID::CACertificate => {
+                    debug!("Not Implemented")
                 }
                 CardFileID::IC | CardFileID::ICC => trace!("Already parsed: {:?}", card_item.0),
                 _ => trace!("Not Parsed: {:?}", card_item.0),
@@ -74,6 +92,7 @@ impl DriverCard {
             application_identification: application_identification.unwrap(),
             card_download,
             card_event_data,
+            card_driving_license_info,
         }))
     }
 }
