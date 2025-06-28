@@ -17,6 +17,7 @@ pub enum Error {
     MissingCardFile(String),
     NotSupportedCardType(String),
     CorruptedDrivingLicenceNumber,
+    UnknownCardTypeDecoding,
 }
 
 impl fmt::Display for Error {

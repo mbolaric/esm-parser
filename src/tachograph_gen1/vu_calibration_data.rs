@@ -1,10 +1,10 @@
 use binary_data::BigEndian;
 
 use crate::{
-    gen1::{Address, FullCardNumber, Name, VehicleRegistrationIdentification},
-    helpers::vec_u8_to_string,
-    tacho::{CalibrationPurposeCode, OdometerShort, TimeReal},
     Readable,
+    gen1::{Address, FullCardNumber, VehicleRegistrationIdentification},
+    helpers::vec_u8_to_string,
+    tacho::{CalibrationPurposeCode, Name, OdometerShort, TimeReal},
 };
 
 #[derive(Debug)]
@@ -29,9 +29,7 @@ pub struct VuCalibrationRecord {
 }
 
 impl Readable<VuCalibrationRecord> for VuCalibrationRecord {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<VuCalibrationRecord> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCalibrationRecord> {
         let calibration_purpose = reader.read_u8()?.into();
         let workshop_name = Name::read(reader)?;
         let workshop_address = Address::read(reader)?;
@@ -79,18 +77,13 @@ pub struct VUCalibrationData {
 }
 
 impl Readable<VUCalibrationData> for VUCalibrationData {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<VUCalibrationData> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VUCalibrationData> {
         let no_of_vu_calibrations = reader.read_u8()?;
         let mut vu_calibrations: Vec<VuCalibrationRecord> = Vec::new();
         for _ in 0..no_of_vu_calibrations {
             vu_calibrations.push(VuCalibrationRecord::read(reader)?);
         }
 
-        Ok(Self {
-            no_of_vu_calibrations,
-            calibrations: vu_calibrations,
-        })
+        Ok(Self { no_of_vu_calibrations, calibrations: vu_calibrations })
     }
 }

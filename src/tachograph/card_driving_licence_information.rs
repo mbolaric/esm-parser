@@ -1,4 +1,8 @@
-use crate::{Error, Readable, gen1::Name, helpers::vec_u8_to_string, tacho::NationNumericCode};
+use crate::{
+    Error, Readable,
+    helpers::vec_u8_to_string,
+    tacho::{Name, NationNumericCode},
+};
 
 #[derive(Debug)]
 pub struct CardDrivingLicenceInformation {

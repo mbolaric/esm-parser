@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use log::{debug, trace};
 
 use crate::{
-    Error, Readable, ReadableWithParams, Result,
+    Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
     tacho::{
-        self, ApplicationIdentification, CardChipIdentification, CardDataFile, CardDrivingLicenceInformation, CardEventData,
-        CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID, CardIccIdentification, TimeReal,
+        self, CardChipIdentification, CardDataFile, CardDrivingLicenceInformation, CardEventData, CardEventDataParams,
+        CardFaultData, CardFaultDataParams, CardFileID, CardIccIdentification, Identification, IdentificationParams, TimeReal,
     },
 };
 
@@ -20,6 +20,7 @@ pub struct DriverCard {
     pub card_event_data: Option<CardEventData>,
     pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
     pub card_fault_data: Option<CardFaultData>,
+    pub identification: Option<Identification>,
 }
 
 impl DriverCard {
@@ -56,6 +57,7 @@ impl DriverCard {
         let mut card_event_data: Option<CardEventData> = None;
         let mut card_driving_license_info: Option<CardDrivingLicenceInformation> = None;
         let mut card_fault_data: Option<CardFaultData> = None;
+        let mut identification: Option<Identification> = None;
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - {:?}", card_item.0,);
@@ -77,9 +79,12 @@ impl DriverCard {
                 | CardFileID::VehiclesUsed
                 | CardFileID::Places
                 | CardFileID::CurrentUsage
-                | CardFileID::ControlActivityData
-                | CardFileID::Identification => {
+                | CardFileID::ControlActivityData => {
                     debug!("Not Implemented")
+                }
+                CardFileID::Identification => {
+                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
+                    identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::DrivingLicenseInfo => {
                     card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
@@ -102,6 +107,7 @@ impl DriverCard {
             card_event_data,
             card_driving_license_info,
             card_fault_data,
+            identification,
         }))
     }
 }

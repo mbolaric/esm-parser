@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::impl_enum_from_u8;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 #[repr(u8)]
 pub enum EquipmentType {
     Reserved = 0,
