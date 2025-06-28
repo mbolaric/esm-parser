@@ -51,19 +51,19 @@ impl ReadableWithParams<CardEventData> for CardEventData {
 
         let mut event_records: Vec<Vec<CardEventRecord>> = Vec::new();
         for _ in 0..no_of_records {
-            let mut events: Vec<CardEventRecord> = Vec::new();
+            let mut records: Vec<CardEventRecord> = Vec::new();
 
             for _ in 0..no_of_events_per_type {
                 let record = CardEventRecord::read(reader)?;
-                if record.event_fault_type != EventFaultType::GNSSNofurtherDetails
+                if record.event_fault_type != EventFaultType::NoFurtherDetails
                     || record.begin_time.get_data() != 0
                     || record.end_time.get_data() != 0
                 {
-                    events.push(record);
+                    records.push(record);
                 }
             }
-            if events.len() > 0 {
-                event_records.push(events);
+            if records.len() > 0 {
+                event_records.push(records);
             }
         }
 
