@@ -46,7 +46,7 @@ pub use card_fault_data::{CardFaultData, CardFaultDataParams, CardFaultRecord};
 pub use card_file_id::CardFileID;
 pub use card_icc_identification::CardIccIdentification;
 pub use card_identification::CardIdentification;
-pub use card_number::{CardNumber, CardNumberDriver, CardNumberOwner, CardNumberParams};
+pub use card_number::{CardNumber, CardNumberParams};
 pub use card_slot_status::CardSlotStatusCode;
 pub use card_structure_version::CardStructureVersion;
 pub use control_type_code::ControlTypeCode;
