@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
+use binary_data::BinSeek;
 use log::{debug, trace};
 
 use crate::{
     Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
     tacho::{
-        self, CardChipIdentification, CardDataFile, CardDrivingLicenceInformation, CardEventData, CardEventDataParams,
-        CardFaultData, CardFaultDataParams, CardFileID, CardIccIdentification, Identification, IdentificationParams, TimeReal,
+        self, CardChipIdentification, CardDataFile, CardDriverActivity, CardDriverActivityParams, CardDrivingLicenceInformation,
+        CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID, CardIccIdentification,
+        Identification, IdentificationParams, TimeReal,
     },
 };
 
@@ -21,6 +23,7 @@ pub struct DriverCard {
     pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
     pub card_fault_data: Option<CardFaultData>,
     pub identification: Option<Identification>,
+    pub card_driver_activity: Option<CardDriverActivity>,
 }
 
 impl DriverCard {
@@ -58,6 +61,7 @@ impl DriverCard {
         let mut card_driving_license_info: Option<CardDrivingLicenceInformation> = None;
         let mut card_fault_data: Option<CardFaultData> = None;
         let mut identification: Option<Identification> = None;
+        let mut card_driver_activity: Option<CardDriverActivity> = None;
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - {:?}", card_item.0,);
@@ -75,12 +79,12 @@ impl DriverCard {
                     let params = CardFaultDataParams::new(application_identification.no_faults_per_type);
                     card_fault_data = Some(CardFaultData::read(&mut reader, &params)?);
                 }
-                CardFileID::DriverActivityData
-                | CardFileID::VehiclesUsed
-                | CardFileID::Places
-                | CardFileID::CurrentUsage
-                | CardFileID::ControlActivityData => {
-                    debug!("Not Implemented")
+                CardFileID::DriverActivityData => {
+                    let params = CardDriverActivityParams::new(application_identification.card_activity_length_range);
+                    card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
+                }
+                CardFileID::VehiclesUsed | CardFileID::Places | CardFileID::CurrentUsage | CardFileID::ControlActivityData => {
+                    trace!("{:?} Not Implemented", card_item.0)
                 }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
@@ -90,7 +94,7 @@ impl DriverCard {
                     card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
                 }
                 CardFileID::SpecificConditions | CardFileID::CardCertificate | CardFileID::CACertificate => {
-                    debug!("Not Implemented")
+                    trace!("{:?} Not Implemented", card_item.0)
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
                     trace!("Already parsed: {:?}", card_item.0)
@@ -108,6 +112,7 @@ impl DriverCard {
             card_driving_license_info,
             card_fault_data,
             identification,
+            card_driver_activity,
         }))
     }
 }

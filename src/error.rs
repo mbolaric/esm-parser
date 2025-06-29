@@ -18,6 +18,8 @@ pub enum Error {
     NotSupportedCardType(String),
     CorruptedDrivingLicenceNumber,
     UnknownCardTypeDecoding,
+    RecordOutOfRange(String),
+    CardActivityRecord(String),
 }
 
 impl fmt::Display for Error {
