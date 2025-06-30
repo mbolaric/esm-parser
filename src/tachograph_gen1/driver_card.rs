@@ -7,9 +7,10 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
     tacho::{
-        self, CardChipIdentification, CardDataFile, CardDriverActivity, CardDriverActivityParams, CardDrivingLicenceInformation,
-        CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID, CardIccIdentification,
-        Identification, IdentificationParams, SpecificCondition, SpecificConditions, SpecificConditionsParams, TimeReal,
+        self, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
+        CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
+        CardIccIdentification, Identification, IdentificationParams, SpecificCondition, SpecificConditions,
+        SpecificConditionsParams, TimeReal,
     },
 };
 
@@ -25,6 +26,7 @@ pub struct DriverCard {
     pub identification: Option<Identification>,
     pub card_driver_activity: Option<CardDriverActivity>,
     pub specific_conditions: Option<SpecificConditions>,
+    pub control_activity_data: Option<CardControlActivityData>,
 }
 
 impl DriverCard {
@@ -64,6 +66,7 @@ impl DriverCard {
         let mut identification: Option<Identification> = None;
         let mut card_driver_activity: Option<CardDriverActivity> = None;
         let mut specific_conditions: Option<SpecificConditions> = None;
+        let mut control_activity_data: Option<CardControlActivityData> = None;
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - {:?}", card_item.0,);
@@ -85,8 +88,11 @@ impl DriverCard {
                     let params = CardDriverActivityParams::new(application_identification.card_activity_length_range);
                     card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
-                CardFileID::VehiclesUsed | CardFileID::Places | CardFileID::CurrentUsage | CardFileID::ControlActivityData => {
+                CardFileID::VehiclesUsed | CardFileID::Places | CardFileID::CurrentUsage => {
                     trace!("{:?} Not Implemented", card_item.0)
+                }
+                CardFileID::ControlActivityData => {
+                    control_activity_data = Some(CardControlActivityData::read(&mut reader)?);
                 }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
@@ -120,6 +126,7 @@ impl DriverCard {
             identification,
             card_driver_activity,
             specific_conditions,
+            control_activity_data,
         }))
     }
 }
