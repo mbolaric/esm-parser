@@ -9,7 +9,7 @@ use crate::{
     tacho::{
         self, CardChipIdentification, CardDataFile, CardDriverActivity, CardDriverActivityParams, CardDrivingLicenceInformation,
         CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID, CardIccIdentification,
-        Identification, IdentificationParams, TimeReal,
+        Identification, IdentificationParams, SpecificCondition, SpecificConditions, SpecificConditionsParams, TimeReal,
     },
 };
 
@@ -24,6 +24,7 @@ pub struct DriverCard {
     pub card_fault_data: Option<CardFaultData>,
     pub identification: Option<Identification>,
     pub card_driver_activity: Option<CardDriverActivity>,
+    pub specific_conditions: Option<SpecificConditions>,
 }
 
 impl DriverCard {
@@ -62,6 +63,7 @@ impl DriverCard {
         let mut card_fault_data: Option<CardFaultData> = None;
         let mut identification: Option<Identification> = None;
         let mut card_driver_activity: Option<CardDriverActivity> = None;
+        let mut specific_conditions: Option<SpecificConditions> = None;
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - {:?}", card_item.0,);
@@ -93,7 +95,11 @@ impl DriverCard {
                 CardFileID::DrivingLicenseInfo => {
                     card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
                 }
-                CardFileID::SpecificConditions | CardFileID::CardCertificate | CardFileID::CACertificate => {
+                CardFileID::SpecificConditions => {
+                    let params = SpecificConditionsParams::new(56);
+                    specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
+                }
+                CardFileID::CardCertificate | CardFileID::CACertificate => {
                     trace!("{:?} Not Implemented", card_item.0)
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
@@ -113,6 +119,7 @@ impl DriverCard {
             card_fault_data,
             identification,
             card_driver_activity,
+            specific_conditions,
         }))
     }
 }
