@@ -9,7 +9,7 @@ use crate::{
     tacho::{
         self, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
-        CardIccIdentification, Identification, IdentificationParams, SpecificCondition, SpecificConditions,
+        CardIccIdentification, CurrentUsage, Identification, IdentificationParams, SpecificCondition, SpecificConditions,
         SpecificConditionsParams, TimeReal,
     },
 };
@@ -27,6 +27,7 @@ pub struct DriverCard {
     pub card_driver_activity: Option<CardDriverActivity>,
     pub specific_conditions: Option<SpecificConditions>,
     pub control_activity_data: Option<CardControlActivityData>,
+    pub current_usage: Option<CurrentUsage>,
 }
 
 impl DriverCard {
@@ -67,6 +68,7 @@ impl DriverCard {
         let mut card_driver_activity: Option<CardDriverActivity> = None;
         let mut specific_conditions: Option<SpecificConditions> = None;
         let mut control_activity_data: Option<CardControlActivityData> = None;
+        let mut current_usage: Option<CurrentUsage> = None;
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - {:?}", card_item.0,);
@@ -88,7 +90,11 @@ impl DriverCard {
                     let params = CardDriverActivityParams::new(application_identification.card_activity_length_range);
                     card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
-                CardFileID::VehiclesUsed | CardFileID::Places | CardFileID::CurrentUsage => {
+                CardFileID::VehiclesUsed | CardFileID::Places => {
+                    trace!("{:?} Not Implemented", card_item.0)
+                }
+                CardFileID::CurrentUsage => {
+                    current_usage = Some(CurrentUsage::read(&mut reader)?);
                     trace!("{:?} Not Implemented", card_item.0)
                 }
                 CardFileID::ControlActivityData => {
@@ -127,6 +133,7 @@ impl DriverCard {
             card_driver_activity,
             specific_conditions,
             control_activity_data,
+            current_usage,
         }))
     }
 }
