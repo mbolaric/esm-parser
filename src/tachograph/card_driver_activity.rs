@@ -1,8 +1,7 @@
 use binary_data::{BigEndian, BinRingMemoryBuffer, BinSeek, ReadBytes};
 
 use crate::{
-    Error, Readable, ReadableWithParams, Result,
-    gen1::BCDString,
+    BCDString, Error, Readable, ReadableWithParams, Result,
     tacho::{ActivitySource, ActivityType, CardSlotNumber, DrivingCrew, TimeReal},
 };
 
