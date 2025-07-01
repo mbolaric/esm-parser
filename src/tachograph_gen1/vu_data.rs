@@ -2,12 +2,12 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::{
+    Result,
     gen1::{VUActivity, VUCalibration, VUControl, VUTransferResponseParameterData},
     tacho::{
-        self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem,
-        VUTransferResponseParameterReader,
+        self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
     },
-    tachograph, Result,
+    tachograph,
 };
 
 #[derive(Debug)]
@@ -17,28 +17,20 @@ pub struct VUData {
 }
 
 impl VUData {
-    pub fn from_data<R: ReadBytes + BinSeek>(
-        header: TachographHeader,
-        reader: &mut R,
-    ) -> Result<VUData> {
+    pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<VUData> {
         let transfer_res_params = <dyn tacho::VUData<VUTransferResponseParameterData>>::from_data(
             reader,
-            &|trep_id: VUTransferResponseParameterID, reader: &mut R| {
-                VUData::parse_trep(trep_id, reader)
-            },
+            &|trep_id: VUTransferResponseParameterID, reader: &mut R| VUData::parse_trep(trep_id, reader),
         )?;
 
-        Ok(VUData {
-            header,
-            transfer_res_params,
-        })
+        Ok(VUData { header, transfer_res_params })
     }
 
     fn parse_trep<R: ReadBytes + BinSeek>(
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_trep - {:?}", trep_id);
+        debug!("VUData::parse_trep - Trep ID: {:?}", trep_id);
         match trep_id {
             VUTransferResponseParameterID::Control => {
                 let vu_control = VUControl::from_data(trep_id, reader)?;
@@ -54,12 +46,8 @@ impl VUData {
                 let vu_calibration = VUCalibration::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Calibration(vu_calibration))
             }
-            VUTransferResponseParameterID::CardDownload => {
-                Ok(VUTransferResponseParameterData::CardDownload)
-            }
-            VUTransferResponseParameterID::OddballCrashDump => {
-                Ok(VUTransferResponseParameterData::OddballCrashDump)
-            }
+            VUTransferResponseParameterID::CardDownload => Ok(VUTransferResponseParameterData::CardDownload),
+            VUTransferResponseParameterID::OddballCrashDump => Ok(VUTransferResponseParameterData::OddballCrashDump),
             _ => Ok(VUTransferResponseParameterData::Unknown),
         }
     }

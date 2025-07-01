@@ -34,10 +34,7 @@ impl TimeReal {
 impl Readable<TimeReal> for TimeReal {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<TimeReal> {
         let data = reader.read_u32::<BigEndian>()?;
-
         let date_time = chrono::DateTime::from_timestamp(data as i64, 0);
-
-        println!("{:?}", date_time);
         Ok(Self { data, date_time })
     }
 }

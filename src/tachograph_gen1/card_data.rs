@@ -33,13 +33,13 @@ impl CardData {
             },
         )?;
 
-        debug!("CardData::from_data - {:?}, Note: {:?}", header, card_data_responses);
+        debug!("CardData::from_data - Header: {:?}, Note: {:?}", header, card_data_responses);
 
         Ok(Self { header, card_data_responses })
     }
 
     fn parse_card(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String) -> Result<CardResponseParameterData> {
-        debug!("CardData::parse_card - {:?}, Note: {:?}", card_data_files, card_notes);
+        debug!("CardData::parse_card - Data Files Count: {:?}, Note: {:?}", card_data_files.len(), card_notes);
         let application_identification = CardData::parse_application_identification(card_data_files)?;
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
         // FIXME: Replace Card with concrete card type

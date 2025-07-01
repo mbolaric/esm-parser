@@ -137,9 +137,9 @@ impl Readable<CardDriverActivityRecord> for CardDriverActivityRecord {
             let activity_info = CardDriverActivityInfo::read(reader)?;
             activity_infos.push(activity_info);
             activity_counter += 1;
-            if activity_counter > 2440 {
+            if activity_counter > 1440 {
                 return Err(Error::CardActivityRecord(
-                    "Card with ActivityDailyRecord has more than 2440 activities in day".to_owned(),
+                    "Card with ActivityDailyRecord has more than 1440 activities in day".to_owned(),
                 ));
             }
         }

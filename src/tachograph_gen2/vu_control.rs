@@ -2,9 +2,9 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::{
+    Result,
     gen2::{Certificate, DataInfo, VUActivity},
     tacho::VUTransferResponseParameterID,
-    Result,
 };
 
 #[derive(Debug)]
@@ -15,22 +15,18 @@ pub struct VUControl {
 }
 
 impl VUControl {
-    pub fn from_data<R: ReadBytes + BinSeek>(
-        trep_id: VUTransferResponseParameterID,
-        reader: &mut R,
-    ) -> Result<VUControl> {
-        debug!("VUControl::from_data - {:?}", trep_id);
+    pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUControl> {
+        debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
         let member_state_certificate = DataInfo::read(reader, trep_id.clone())?;
         let vu_certificate = DataInfo::read(reader, trep_id.clone())?;
         let vehicle_identification_number = DataInfo::read(reader, trep_id.clone())?;
 
-        let vehicle_registration_identification =
-            if trep_id == VUTransferResponseParameterID::Gen2v2Control {
-                // FIXME:
-                DataInfo::read(reader, trep_id.clone())?
-            } else {
-                DataInfo::read(reader, trep_id.clone())?
-            };
+        let vehicle_registration_identification = if trep_id == VUTransferResponseParameterID::Gen2v2Control {
+            // FIXME:
+            DataInfo::read(reader, trep_id.clone())?
+        } else {
+            DataInfo::read(reader, trep_id.clone())?
+        };
 
         let current_date_time = DataInfo::read(reader, trep_id.clone())?;
         let downloadale_period = DataInfo::read(reader, trep_id.clone())?;
@@ -40,10 +36,6 @@ impl VUControl {
         let control_activity = DataInfo::read(reader, trep_id.clone())?;
         let signature = Some(DataInfo::read(reader, trep_id.clone())?);
 
-        Ok(Self {
-            trep_id,
-            member_state_certificates: Vec::new(),
-            activities: Vec::new(),
-        })
+        Ok(Self { trep_id, member_state_certificates: Vec::new(), activities: Vec::new() })
     }
 }

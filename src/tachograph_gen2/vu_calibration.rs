@@ -1,19 +1,16 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
+use crate::Result;
 use crate::gen2::DataInfo;
 use crate::tacho::VUTransferResponseParameterID;
-use crate::Result;
 
 #[derive(Debug)]
 pub struct VUCalibration {}
 
 impl VUCalibration {
-    pub fn from_data<R: ReadBytes + BinSeek>(
-        trep_id: VUTransferResponseParameterID,
-        reader: &mut R,
-    ) -> Result<VUCalibration> {
-        debug!("VUCalibration::from_data - {:?}", trep_id);
+    pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUCalibration> {
+        debug!("VUCalibration::from_data - Trep ID: {:?}", trep_id);
         let identification = DataInfo::read(reader, trep_id.clone())?;
         let sensor_paired = DataInfo::read(reader, trep_id.clone())?;
         let sensor_external_gnss_coupled = DataInfo::read(reader, trep_id.clone())?;

@@ -7,7 +7,7 @@ use crate::{Error, Result};
 pub struct WorkshopCard {}
 
 impl WorkshopCard {
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<Box<WorkshopCard>> {
+    pub fn parse(_card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<Box<WorkshopCard>> {
         Err(Error::NotImplemented)
     }
 }

@@ -1,19 +1,16 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
+use crate::Result;
 use crate::gen2::DataInfo;
 use crate::tacho::VUTransferResponseParameterID;
-use crate::Result;
 
 #[derive(Debug)]
 pub struct VUActivity {}
 
 impl VUActivity {
-    pub fn from_data<R: ReadBytes + BinSeek>(
-        trep_id: VUTransferResponseParameterID,
-        reader: &mut R,
-    ) -> Result<VUActivity> {
-        debug!("VUControlActivity::from_data - {:?}", trep_id);
+    pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUActivity> {
+        debug!("VUControlActivity::from_data - Trep ID: {:?}", trep_id);
         let date_of_day_downloaded = DataInfo::read(reader, trep_id.clone())?;
         let odometer_value_midnight = DataInfo::read(reader, trep_id.clone())?;
         let card_iw = DataInfo::read(reader, trep_id.clone())?;

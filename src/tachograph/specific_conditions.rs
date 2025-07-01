@@ -32,7 +32,7 @@ impl Readable<SpecificConditionRecord> for SpecificConditionRecord {
 
 #[derive(Debug)]
 pub struct SpecificConditions {
-    specific_conditions: Vec<SpecificConditionRecord>,
+    pub specific_conditions: Vec<SpecificConditionRecord>,
 }
 
 impl ReadableWithParams<SpecificConditions> for SpecificConditions {

@@ -2,8 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::gen1::{
-    CardSlotStatus, CompanyLocks, ControlActivity, DownloadActivity, DownloadablePeriod,
-    VehicleRegistrationIdentification,
+    CardSlotStatus, CompanyLocks, ControlActivity, DownloadActivity, DownloadablePeriod, VehicleRegistrationIdentification,
 };
 use crate::helpers::vec_u8_to_string;
 use crate::tacho::{TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader};
@@ -25,11 +24,8 @@ pub struct VUControl {
 }
 
 impl VUTransferResponseParameterReader<VUControl> for VUControl {
-    fn from_data<R: ReadBytes + BinSeek>(
-        trep_id: VUTransferResponseParameterID,
-        reader: &mut R,
-    ) -> Result<VUControl> {
-        debug!("VUControl::from_data - {:?}", trep_id);
+    fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUControl> {
+        debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
         let member_state_certificate = reader.read_into_vec(194)?;
         let vu_certificate = reader.read_into_vec(194)?;
         let vehicle_identification_number = vec_u8_to_string(reader.read_into_vec(17)?)?;

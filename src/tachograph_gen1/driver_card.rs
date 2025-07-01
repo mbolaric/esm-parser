@@ -8,8 +8,8 @@ use crate::{
     tacho::{
         self, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
-        CardIccIdentification, CurrentUsage, Identification, IdentificationParams, SpecificCondition, SpecificConditions,
-        SpecificConditionsParams, TimeReal,
+        CardIccIdentification, CurrentUsage, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams,
+        TimeReal,
     },
 };
 
@@ -83,7 +83,7 @@ impl DriverCard {
             DriverCard::new(card_chip_identification, card_icc_identification, application_identification.clone());
 
         for card_item in card_data_files.iter() {
-            debug!("DriverCard::parse - {:?}", card_item.0,);
+            debug!("DriverCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
             match card_item.0 {
