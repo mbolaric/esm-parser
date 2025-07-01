@@ -1,15 +1,14 @@
-use std::collections::HashMap;
-
 use log::{debug, trace};
+use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardResponseParameterData, DriverCardApplicationIdentification},
+    gen1::{CardResponseParameterData, DriverCardApplicationIdentification, VehiclesUsedRecord},
     tacho::{
         self, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
         CardIccIdentification, CurrentUsage, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams,
-        TimeReal,
+        TimeReal, VehiclesUsed, VehiclesUsedParams,
     },
 };
 
@@ -27,6 +26,7 @@ pub struct DriverCard {
     pub specific_conditions: Option<SpecificConditions>,
     pub control_activity_data: Option<CardControlActivityData>,
     pub current_usage: Option<CurrentUsage>,
+    pub vehicles_used: Option<VehiclesUsed<VehiclesUsedRecord>>,
 }
 
 impl DriverCard {
@@ -48,6 +48,7 @@ impl DriverCard {
             specific_conditions: None,
             control_activity_data: None,
             current_usage: None,
+            vehicles_used: None,
         }
     }
     fn parse_ic(card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<CardChipIdentification> {
@@ -103,6 +104,8 @@ impl DriverCard {
                     driver_card.card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
                 CardFileID::VehiclesUsed => {
+                    let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
+                    driver_card.vehicles_used = Some(VehiclesUsed::<VehiclesUsedRecord>::read(&mut reader, &params)?);
                     trace!("{:?} Not Implemented", card_item.0)
                 }
                 CardFileID::Places => {
