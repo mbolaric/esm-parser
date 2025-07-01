@@ -1,7 +1,7 @@
 #[derive(Debug, PartialEq)]
 #[repr(u8)]
 pub enum ActivitySource {
-    Tacho,
+    Automatic,
     Manual,
     Unknown,
 }
