@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{Readable, gen1::BCDString};
+use crate::{BCDString, Readable};
 
 #[derive(Debug)]
 pub struct StringDate {

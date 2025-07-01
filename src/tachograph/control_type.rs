@@ -3,7 +3,7 @@ use crate::impl_enum_from_u8;
 // FIXME: Check if thet are all posibilities
 #[derive(Debug, PartialEq)]
 #[repr(u8)]
-pub enum ControlTypeCode {
+pub enum ControlType {
     CardDownloaded = 0x80,
     VUDownloaded = 0x40,
     PrintingDisplay = 0x30,
@@ -13,7 +13,7 @@ pub enum ControlTypeCode {
 }
 
 impl_enum_from_u8!(
-    ControlTypeCode {
+    ControlType {
         CardDownloaded = 0x80,
         VUDownloaded = 0x40,
         PrintingDisplay = 0x30,

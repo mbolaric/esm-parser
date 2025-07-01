@@ -25,6 +25,10 @@ impl TimeReal {
     pub fn get_data(&self) -> u32 {
         self.data
     }
+
+    pub fn has_data(&self) -> bool {
+        self.data != 0
+    }
 }
 
 impl Readable<TimeReal> for TimeReal {

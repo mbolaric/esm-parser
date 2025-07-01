@@ -1,4 +1,4 @@
-use crate::{Readable, gen1::BCDString, helpers::vec_u8_to_string};
+use crate::{BCDString, Readable, helpers::vec_u8_to_string};
 
 #[derive(Debug)]
 pub struct EmbedderIcAssemblerId {
@@ -8,9 +8,7 @@ pub struct EmbedderIcAssemblerId {
 }
 
 impl Readable<EmbedderIcAssemblerId> for EmbedderIcAssemblerId {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<EmbedderIcAssemblerId> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<EmbedderIcAssemblerId> {
         let country_code = vec_u8_to_string(reader.read_into_vec(2)?)?;
         let module_embedder = BCDString::decode(&reader.read_bytes::<1>()?);
         let manufacturer_information = reader.read_into_vec(2)?;
