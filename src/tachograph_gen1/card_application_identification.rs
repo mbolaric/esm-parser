@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct DriverCardApplicationIdentification {
+pub struct CardApplicationIdentification {
     pub type_of_tachograph_card_id: EquipmentType,
     pub card_structure_version: CardStructureVersion,
     pub no_events_per_type: u8,
@@ -16,10 +16,8 @@ pub struct DriverCardApplicationIdentification {
     pub no_of_place_records: u8,
 }
 
-impl Readable<DriverCardApplicationIdentification> for DriverCardApplicationIdentification {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<DriverCardApplicationIdentification> {
+impl Readable<CardApplicationIdentification> for CardApplicationIdentification {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardApplicationIdentification> {
         let type_of_tachograph_card_id = reader.read_u8()?.into();
         let card_structure_version = CardStructureVersion::read(reader)?;
         let no_events_per_type = reader.read_u8()?;

@@ -135,8 +135,6 @@ impl<D> dyn Card<D> {
             let current_data_file = CardDataFile::read(reader)?;
             debug!("Card::from_data - {:?}", current_data_file.card_file_id.clone());
 
-            //let current_card_item = CardItem { card_file_id: current_data_file.card_file_id.clone(), data: current_data_file.clone() };
-
             let mut temp_notes = <dyn Card<D>>::procces_card_data_file(current_data_file, &mut card_data_files)?;
             if !temp_notes.is_empty() {
                 temp_notes = format!("{}\r\n", temp_notes);
