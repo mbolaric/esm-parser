@@ -3,12 +3,12 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardResponseParameterData, DriverCardApplicationIdentification, VehiclesUsedRecord},
+    gen1::{CardResponseParameterData, DriverCardApplicationIdentification, PlaceRecord, VehiclesUsedRecord},
     tacho::{
         self, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
-        CardIccIdentification, CurrentUsage, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams,
-        TimeReal, VehiclesUsed, VehiclesUsedParams,
+        CardIccIdentification, CardPlaces, CardPlacesParams, CurrentUsage, Identification, IdentificationParams,
+        SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsed, VehiclesUsedParams,
     },
 };
 
@@ -27,6 +27,7 @@ pub struct DriverCard {
     pub control_activity_data: Option<CardControlActivityData>,
     pub current_usage: Option<CurrentUsage>,
     pub vehicles_used: Option<VehiclesUsed<VehiclesUsedRecord>>,
+    pub card_places: Option<CardPlaces<PlaceRecord>>,
 }
 
 impl DriverCard {
@@ -49,6 +50,7 @@ impl DriverCard {
             control_activity_data: None,
             current_usage: None,
             vehicles_used: None,
+            card_places: None,
         }
     }
     fn parse_ic(card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<CardChipIdentification> {
@@ -106,10 +108,10 @@ impl DriverCard {
                 CardFileID::VehiclesUsed => {
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
                     driver_card.vehicles_used = Some(VehiclesUsed::<VehiclesUsedRecord>::read(&mut reader, &params)?);
-                    trace!("{:?} Not Implemented", card_item.0)
                 }
                 CardFileID::Places => {
-                    trace!("{:?} Not Implemented", card_item.0)
+                    let params = CardPlacesParams::new(application_identification.no_of_place_records, 1);
+                    driver_card.card_places = Some(CardPlaces::<PlaceRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::CurrentUsage => {
                     driver_card.current_usage = Some(CurrentUsage::read(&mut reader)?);
