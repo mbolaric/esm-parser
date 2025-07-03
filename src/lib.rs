@@ -8,7 +8,7 @@ mod tachograph_data;
 mod tachograph_gen1;
 mod tachograph_gen2;
 
-pub(crate) use common::*;
+pub use common::*;
 pub use consts::*;
 pub use error::{Error, Result};
 pub mod tacho {

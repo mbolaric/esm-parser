@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardApplicationIdentification, CardData, CardResponseParameterData, PlaceRecord, VehiclesUsedRecord},
+    gen1::{CardApplicationIdentification, CardData, CardResponseParameterData, Certificate, PlaceRecord, VehiclesUsedRecord},
     tacho::{
         CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
@@ -28,6 +28,8 @@ pub struct DriverCard {
     pub current_usage: Option<CurrentUsage>,
     pub vehicles_used: Option<VehiclesUsed<VehiclesUsedRecord>>,
     pub card_places: Option<CardPlaces<PlaceRecord>>,
+    pub card_certificate: Option<Certificate>,
+    pub ca_certificate: Option<Certificate>,
     pub card_notes: String,
 }
 
@@ -53,6 +55,8 @@ impl DriverCard {
             current_usage: None,
             vehicles_used: None,
             card_places: None,
+            card_certificate: None,
+            ca_certificate: None,
             card_notes,
         }
     }
@@ -116,10 +120,10 @@ impl DriverCard {
                     driver_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
                 }
                 CardFileID::CardCertificate => {
-                    trace!("{:?} Not Implemented", card_item.0)
+                    driver_card.card_certificate = Some(Certificate::read(&mut reader)?);
                 }
                 CardFileID::CACertificate => {
-                    trace!("{:?} Not Implemented", card_item.0)
+                    driver_card.ca_certificate = Some(Certificate::read(&mut reader)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
                     trace!("Already parsed: {:?}", card_item.0)
