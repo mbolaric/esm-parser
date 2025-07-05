@@ -1,8 +1,8 @@
 use crate::{
     Readable,
-    gen1::{Address, SerialNumber, SoftwareIdentification},
+    gen1::{Address, SoftwareIdentification},
     helpers::vec_u8_to_string,
-    tacho::{Name, TimeReal},
+    tacho::{ExtendedSerialNumber, Name, TimeReal},
 };
 
 #[derive(Debug)]
@@ -10,7 +10,7 @@ pub struct VUIdentification {
     pub manufacturer_name: Name,
     pub manufacturer_address: Address,
     pub part_number: String,
-    pub serial_number: SerialNumber,
+    pub serial_number: ExtendedSerialNumber,
     pub software_identification: SoftwareIdentification,
     pub manufacturing_date: TimeReal,
     pub approval_number: String,
@@ -21,7 +21,7 @@ impl Readable<VUIdentification> for VUIdentification {
         let manufacturer_name = Name::read(reader)?;
         let manufacturer_address = Address::read(reader)?;
         let part_number = vec_u8_to_string(reader.read_into_vec(16)?)?.trim().to_string();
-        let serial_number = SerialNumber::read(reader)?;
+        let serial_number = ExtendedSerialNumber::read(reader)?;
         let software_identification = SoftwareIdentification::read(reader)?;
 
         let manufacturing_date = TimeReal::read(reader)?;
