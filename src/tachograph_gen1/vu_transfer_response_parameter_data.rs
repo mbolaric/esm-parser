@@ -1,5 +1,5 @@
 use crate::{
-    gen1::{VUActivity, VUCalibration, VUControl},
+    gen1::{VUActivity, VUCalibration, VUControl, VuEvents},
     tacho::VUTransferResponseParameter,
 };
 
@@ -8,7 +8,7 @@ pub enum VUTransferResponseParameterData {
     Unknown,
     Control(VUControl),
     Activity(VUActivity),
-    Events,
+    Events(VuEvents),
     Speed,
     Calibration(VUCalibration),
     CardDownload,

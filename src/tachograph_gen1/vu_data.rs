@@ -3,7 +3,7 @@ use log::debug;
 
 use crate::{
     Result,
-    gen1::{VUActivity, VUCalibration, VUControl, VUTransferResponseParameterData},
+    gen1::{VUActivity, VUCalibration, VUControl, VUTransferResponseParameterData, VuEvents},
     tacho::{
         self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
     },
@@ -40,7 +40,10 @@ impl VUData {
                 let vu_activities = VUActivity::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Activity(vu_activities))
             }
-            VUTransferResponseParameterID::Events => Ok(VUTransferResponseParameterData::Events),
+            VUTransferResponseParameterID::Events => {
+                let vu_events = VuEvents::from_data(trep_id, reader)?;
+                Ok(VUTransferResponseParameterData::Events(vu_events))
+            }
             VUTransferResponseParameterID::Speed => Ok(VUTransferResponseParameterData::Speed),
             VUTransferResponseParameterID::Calibration => {
                 let vu_calibration = VUCalibration::from_data(trep_id, reader)?;
