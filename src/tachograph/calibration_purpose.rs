@@ -1,7 +1,7 @@
 use crate::impl_enum_from_u8;
 
 #[derive(Debug)]
-pub enum CalibrationPurposeCode {
+pub enum CalibrationPurpose {
     Reserved = 0,
     Activation = 1,
     FirstInstallation = 2,
@@ -13,7 +13,7 @@ pub enum CalibrationPurposeCode {
 }
 
 impl_enum_from_u8!(
-    CalibrationPurposeCode {
+    CalibrationPurpose {
         Reserved = 0,
         Activation = 1,
         FirstInstallation = 2,

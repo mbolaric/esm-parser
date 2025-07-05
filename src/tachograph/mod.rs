@@ -1,7 +1,7 @@
 mod activity_source;
 mod activity_type;
 mod application_identification;
-mod calibration_purpose_code;
+mod calibration_purpose;
 mod card;
 mod card_chip_identification;
 mod card_control_activity_data;
@@ -55,7 +55,7 @@ mod vu_transfer_response_parameter_reader;
 pub use activity_source::ActivitySource;
 pub use activity_type::ActivityType;
 pub use application_identification::ApplicationIdentification;
-pub use calibration_purpose_code::CalibrationPurposeCode;
+pub use calibration_purpose::CalibrationPurpose;
 pub use card::*;
 pub use card_chip_identification::CardChipIdentification;
 pub use card_control_activity_data::CardControlActivityData;

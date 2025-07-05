@@ -4,12 +4,12 @@ use crate::{
     Readable,
     gen1::{Address, VehicleRegistrationIdentification},
     helpers::vec_u8_to_string,
-    tacho::{CalibrationPurposeCode, FullCardNumber, Name, OdometerShort, TimeReal},
+    tacho::{CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal},
 };
 
 #[derive(Debug)]
 pub struct VuCalibrationRecord {
-    pub calibration_purpose: CalibrationPurposeCode,
+    pub calibration_purpose: CalibrationPurpose,
     pub workshop_name: Name,
     pub workshop_address: Address,
     pub workshop_card_number: FullCardNumber,
