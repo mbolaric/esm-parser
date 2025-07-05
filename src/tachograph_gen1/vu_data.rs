@@ -3,7 +3,7 @@ use log::debug;
 
 use crate::{
     Readable, Result,
-    gen1::{VUActivity, VUCalibration, VUControl, VUTransferResponseParameterData, VuDetailedSpeed, VuEvents},
+    gen1::{VUActivity, VUTransferResponseParameterData, VuDetailedSpeed, VuEvents, VuOverview, VuTechnicalData},
     tacho::{
         self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
     },
@@ -33,7 +33,7 @@ impl VUData {
         debug!("VUData::parse_trep - Trep ID: {:?}", trep_id);
         match trep_id {
             VUTransferResponseParameterID::Overview => {
-                let vu_control = VUControl::from_data(trep_id, reader)?;
+                let vu_control = VuOverview::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Control(vu_control))
             }
             VUTransferResponseParameterID::Activities => {
@@ -49,7 +49,7 @@ impl VUData {
                 Ok(VUTransferResponseParameterData::Speed(vu_speed))
             }
             VUTransferResponseParameterID::TechnicalData => {
-                let vu_calibration = VUCalibration::from_data(trep_id, reader)?;
+                let vu_calibration = VuTechnicalData::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Calibration(vu_calibration))
             }
             VUTransferResponseParameterID::CardDownload => Ok(VUTransferResponseParameterData::CardDownload),

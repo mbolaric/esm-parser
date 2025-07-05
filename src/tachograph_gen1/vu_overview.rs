@@ -9,7 +9,7 @@ use crate::tacho::{TimeReal, VUTransferResponseParameterID, VUTransferResponsePa
 use crate::{Readable, Result};
 
 #[derive(Debug)]
-pub struct VUControl {
+pub struct VuOverview {
     pub member_state_certificate: Vec<u8>,
     pub vu_certificate: Vec<u8>,
     pub vehicle_identification_number: String,
@@ -23,8 +23,8 @@ pub struct VUControl {
     pub signature: Option<Vec<u8>>,
 }
 
-impl VUTransferResponseParameterReader<VUControl> for VUControl {
-    fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUControl> {
+impl VUTransferResponseParameterReader<VuOverview> for VuOverview {
+    fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuOverview> {
         debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
         let member_state_certificate = reader.read_into_vec(194)?;
         let vu_certificate = reader.read_into_vec(194)?;
