@@ -1,11 +1,11 @@
 use crate::{
     Readable,
-    tacho::{NationNumericCode, VehicleRegistrationNumber},
+    tacho::{NationNumeric, VehicleRegistrationNumber},
 };
 
 #[derive(Debug)]
 pub struct VehicleRegistrationIdentification {
-    pub nation_numeric: NationNumericCode,
+    pub nation_numeric: NationNumeric,
     pub vehicle_registration_number: VehicleRegistrationNumber,
 }
 

@@ -2,13 +2,13 @@ use binary_data::{BinSeek, ReadBytes};
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    tacho::{CardNumber, Name, NationNumericCode, TimeReal},
+    tacho::{CardNumber, Name, NationNumeric, TimeReal},
     tachograph::card_number::CardNumberParams,
 };
 
 #[derive(Debug)]
 pub struct CardIdentification {
-    pub card_issuing_member_state: NationNumericCode,
+    pub card_issuing_member_state: NationNumeric,
     pub card_number: CardNumber,
     pub card_issuing_authority_name: Name,
     pub card_issue_date: TimeReal,
@@ -20,7 +20,7 @@ impl ReadableWithParams<CardIdentification> for CardIdentification {
     type P = CardNumberParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardIdentification> {
-        let card_issuing_member_state: NationNumericCode = reader.read_u8()?.into();
+        let card_issuing_member_state: NationNumeric = reader.read_u8()?.into();
         let card_number = CardNumber::read(reader, &params)?;
         let card_issuing_authority_name = Name::read(reader)?;
         let card_issue_date = TimeReal::read(reader)?;
