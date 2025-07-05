@@ -59,7 +59,7 @@ pub use calibration_purpose::CalibrationPurpose;
 pub use card::*;
 pub use card_chip_identification::CardChipIdentification;
 pub use card_control_activity_data::CardControlActivityData;
-pub use card_driver_activity::{CardDriverActivity, CardDriverActivityInfo, CardDriverActivityParams, CardDriverActivityRecord};
+pub use card_driver_activity::{CardActivityDailyRecord, CardDriverActivity, CardDriverActivityInfo, CardDriverActivityParams};
 pub use card_driving_licence_information::CardDrivingLicenceInformation;
 pub use card_event_data::{CardEventData, CardEventDataParams, CardEventRecord};
 pub use card_fault_data::{CardFaultData, CardFaultDataParams, CardFaultRecord};

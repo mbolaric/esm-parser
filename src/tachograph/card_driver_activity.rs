@@ -103,21 +103,21 @@ impl Readable<CardDriverActivityInfo> for CardDriverActivityInfo {
 }
 
 #[derive(Debug)]
-pub struct CardDriverActivityRecord {
+pub struct CardActivityDailyRecord {
     pub record_date: TimeReal,
     pub daily_presence_counter: String,
     pub day_distance: u16,
     pub activity_infos: Vec<CardDriverActivityInfo>,
 }
 
-impl Readable<CardDriverActivityRecord> for CardDriverActivityRecord {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardDriverActivityRecord> {
+impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardActivityDailyRecord> {
         let position = reader.pos()?;
         let reader_length = reader.len()?;
         let _activity_previous_record_length = reader.read_u16::<BigEndian>()?;
         let activity_record_length = reader.read_u16::<BigEndian>()?;
         if activity_record_length % 2 != 0 {
-            return Err(Error::CardActivityRecord("Card Activity Record Length is not even".to_owned()));
+            return Err(Error::CardActivityDailyRecord("Card Activity Record Length is not even".to_owned()));
         }
         let record_date = TimeReal::read(reader)?;
         let daily_presence_counter = BCDString::decode(&reader.read_into_vec(2)?);
@@ -138,7 +138,7 @@ impl Readable<CardDriverActivityRecord> for CardDriverActivityRecord {
             activity_infos.push(activity_info);
             activity_counter += 1;
             if activity_counter > 1440 {
-                return Err(Error::CardActivityRecord(
+                return Err(Error::CardActivityDailyRecord(
                     "Card with ActivityDailyRecord has more than 1440 activities in day".to_owned(),
                 ));
             }
@@ -150,7 +150,7 @@ impl Readable<CardDriverActivityRecord> for CardDriverActivityRecord {
 
 #[derive(Debug)]
 pub struct CardDriverActivity {
-    pub daily_records: Vec<CardDriverActivityRecord>,
+    pub activity_daily_records: Vec<CardActivityDailyRecord>,
 }
 
 impl ReadableWithParams<CardDriverActivity> for CardDriverActivity {
@@ -169,13 +169,13 @@ impl ReadableWithParams<CardDriverActivity> for CardDriverActivity {
             return Err(Error::RecordOutOfRange("Newest Day Record".to_owned()));
         }
 
-        let mut daily_records: Vec<CardDriverActivityRecord> = Vec::new();
+        let mut daily_records: Vec<CardActivityDailyRecord> = Vec::new();
         let mut activity_reader =
             BinRingMemoryBuffer::new_with_offset(activity_daily_records_raw, activity_pointer_oldest_day_record as usize);
 
         loop {
             let position = activity_reader.pos()?;
-            let record = CardDriverActivityRecord::read(&mut activity_reader)?;
+            let record = CardActivityDailyRecord::read(&mut activity_reader)?;
             daily_records.push(record);
 
             if position == activity_pointer_newest_record as usize {
@@ -183,6 +183,6 @@ impl ReadableWithParams<CardDriverActivity> for CardDriverActivity {
             }
         }
 
-        Ok(Self { daily_records })
+        Ok(Self { activity_daily_records: daily_records })
     }
 }

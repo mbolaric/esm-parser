@@ -19,7 +19,7 @@ pub enum Error {
     CorruptedDrivingLicenceNumber,
     UnknownCardTypeDecoding,
     RecordOutOfRange(String),
-    CardActivityRecord(String),
+    CardActivityDailyRecord(String),
 }
 
 impl fmt::Display for Error {
