@@ -21,7 +21,7 @@ impl VUControl {
         let vu_certificate = DataInfo::read(reader, trep_id.clone())?;
         let vehicle_identification_number = DataInfo::read(reader, trep_id.clone())?;
 
-        let vehicle_registration_identification = if trep_id == VUTransferResponseParameterID::Gen2v2Control {
+        let vehicle_registration_identification = if trep_id == VUTransferResponseParameterID::Gen2v2Overview {
             // FIXME:
             DataInfo::read(reader, trep_id.clone())?
         } else {

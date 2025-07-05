@@ -2,8 +2,8 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::{
-    Result,
-    gen1::{VUActivity, VUCalibration, VUControl, VUTransferResponseParameterData, VuEvents},
+    Readable, Result,
+    gen1::{VUActivity, VUCalibration, VUControl, VUTransferResponseParameterData, VuDetailedSpeed, VuEvents},
     tacho::{
         self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
     },
@@ -32,20 +32,23 @@ impl VUData {
     ) -> Result<VUTransferResponseParameterData> {
         debug!("VUData::parse_trep - Trep ID: {:?}", trep_id);
         match trep_id {
-            VUTransferResponseParameterID::Control => {
+            VUTransferResponseParameterID::Overview => {
                 let vu_control = VUControl::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Control(vu_control))
             }
-            VUTransferResponseParameterID::Activity => {
+            VUTransferResponseParameterID::Activities => {
                 let vu_activities = VUActivity::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Activity(vu_activities))
             }
-            VUTransferResponseParameterID::Events => {
+            VUTransferResponseParameterID::EventsAndFaults => {
                 let vu_events = VuEvents::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Events(vu_events))
             }
-            VUTransferResponseParameterID::Speed => Ok(VUTransferResponseParameterData::Speed),
-            VUTransferResponseParameterID::Calibration => {
+            VUTransferResponseParameterID::Speed => {
+                let vu_speed = VuDetailedSpeed::read(reader)?;
+                Ok(VUTransferResponseParameterData::Speed(vu_speed))
+            }
+            VUTransferResponseParameterID::TechnicalData => {
                 let vu_calibration = VUCalibration::from_data(trep_id, reader)?;
                 Ok(VUTransferResponseParameterData::Calibration(vu_calibration))
             }

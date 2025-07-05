@@ -19,7 +19,7 @@ impl VUActivity {
         let gns_sad = DataInfo::read(reader, trep_id.clone())?;
         let specific_condition = DataInfo::read(reader, trep_id.clone())?;
 
-        if trep_id == VUTransferResponseParameterID::Gen2v2Activity {
+        if trep_id == VUTransferResponseParameterID::Gen2v2Activities {
             // Two record are not in use
             DataInfo::read(reader, trep_id.clone())?;
             DataInfo::read(reader, trep_id.clone())?;

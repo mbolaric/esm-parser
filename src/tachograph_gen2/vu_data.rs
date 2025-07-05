@@ -85,18 +85,18 @@ impl VUData {
     ) -> Result<VUTransferResponseParameterData> {
         debug!("VUData::parse_trep - Trep ID: {:?}", trep_id);
         match trep_id {
-            VUTransferResponseParameterID::Control
-            | VUTransferResponseParameterID::Gen2Control
-            | VUTransferResponseParameterID::Gen2v2Control => VUData::parse_control(trep_id, reader),
-            VUTransferResponseParameterID::Activity
-            | VUTransferResponseParameterID::Gen2Activity
-            | VUTransferResponseParameterID::Gen2v2Activity => VUData::parse_activity(trep_id, reader),
-            VUTransferResponseParameterID::Events
-            | VUTransferResponseParameterID::Gen2Events
-            | VUTransferResponseParameterID::Gen2v2Events => VUData::parse_events(trep_id, reader),
-            VUTransferResponseParameterID::Calibration
-            | VUTransferResponseParameterID::Gen2Calibration
-            | VUTransferResponseParameterID::Gen2v2Calibration => VUData::parse_calibration(trep_id, reader),
+            VUTransferResponseParameterID::Overview
+            | VUTransferResponseParameterID::Gen2Overview
+            | VUTransferResponseParameterID::Gen2v2Overview => VUData::parse_control(trep_id, reader),
+            VUTransferResponseParameterID::Activities
+            | VUTransferResponseParameterID::Gen2Activities
+            | VUTransferResponseParameterID::Gen2v2Activities => VUData::parse_activity(trep_id, reader),
+            VUTransferResponseParameterID::EventsAndFaults
+            | VUTransferResponseParameterID::Gen2EventsAndFaults
+            | VUTransferResponseParameterID::Gen2v2EventsAndFaults => VUData::parse_events(trep_id, reader),
+            VUTransferResponseParameterID::TechnicalData
+            | VUTransferResponseParameterID::Gen2TechnicalData
+            | VUTransferResponseParameterID::Gen2v2TechnicalData => VUData::parse_calibration(trep_id, reader),
             VUTransferResponseParameterID::Speed
             | VUTransferResponseParameterID::Gen2Speed
             | VUTransferResponseParameterID::Gen2v2Speed => VUData::parse_speed(trep_id, reader),
