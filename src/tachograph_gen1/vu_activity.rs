@@ -8,6 +8,7 @@ pub struct VUActivity {}
 
 impl VUTransferResponseParameterReader<VUActivity> for VUActivity {
     fn from_data<R: ReadBytes + BinSeek>(_trep_id: VUTransferResponseParameterID, _reader: &mut R) -> Result<VUActivity> {
+        // FIXME:
         Ok(Self {})
     }
 }

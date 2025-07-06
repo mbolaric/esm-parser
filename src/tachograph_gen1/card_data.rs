@@ -29,14 +29,14 @@ impl CardData {
         Ok(card_icc_identification)
     }
 
-    pub fn parse_card_application_identification(
+    pub fn parse_card_application_identification<T: Readable<T>>(
         card_data_files: &HashMap<CardFileID, CardDataFile>,
-    ) -> Result<CardApplicationIdentification> {
+    ) -> Result<T> {
         let mut reader = <dyn tacho::Card<CardResponseParameterData>>::get_mem_reader(
             &CardFileID::ApplicationIdentification,
             card_data_files,
         )?;
-        let application_identification = CardApplicationIdentification::read(&mut reader)?;
+        let application_identification = T::read(&mut reader)?;
         Ok(application_identification)
     }
 

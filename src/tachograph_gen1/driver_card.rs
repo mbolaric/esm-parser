@@ -64,7 +64,8 @@ impl DriverCard {
     pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String) -> Result<Box<DriverCard>> {
         let card_chip_identification = CardData::parse_ic(card_data_files)?;
         let card_icc_identification = CardData::parse_icc(card_data_files)?;
-        let application_identification = CardData::parse_card_application_identification(card_data_files)?;
+        let application_identification =
+            CardData::parse_card_application_identification::<CardApplicationIdentification>(card_data_files)?;
         debug!("DriverCard::parse - Application Identification: {:?}", application_identification);
 
         let mut driver_card = DriverCard::new(
@@ -126,9 +127,9 @@ impl DriverCard {
                     driver_card.ca_certificate = Some(Certificate::read(&mut reader)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
-                    trace!("Already parsed: {:?}", card_item.0)
+                    trace!("DriverCard::parse - Already parsed: {:?}", card_item.0)
                 }
-                _ => trace!("Not Parsed: {:?}", card_item.0),
+                _ => trace!("DriverCard::parse - Not Parsed: {:?}", card_item.0),
             }
         }
 

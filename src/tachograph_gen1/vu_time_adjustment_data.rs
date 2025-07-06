@@ -5,25 +5,40 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct VuTimeAdjustmentRecord {}
+pub struct VuTimeAdjustmentRecord {
+    pub old_time_value: TimeReal,
+    pub mew_time_value: TimeReal,
+    pub workshop_name: Name,
+    pub workshop_address: Address,
+    pub workshop_card_number: FullCardNumber,
+}
 
 impl Readable<VuTimeAdjustmentRecord> for VuTimeAdjustmentRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuTimeAdjustmentRecord> {
-        let OldTimeValue = TimeReal::read(reader)?;
-        let NewTimeValue = TimeReal::read(reader)?;
-        let WorkshopName = Name::read(reader)?;
-        let WorkshopAddress = Address::read(reader)?;
-        let WorkshopCardNumber = FullCardNumber::read(reader)?;
+        let old_time_value = TimeReal::read(reader)?;
+        let mew_time_value = TimeReal::read(reader)?;
+        let workshop_name = Name::read(reader)?;
+        let workshop_address = Address::read(reader)?;
+        let workshop_card_number = FullCardNumber::read(reader)?;
 
-        Ok(Self {})
+        Ok(Self { old_time_value, mew_time_value, workshop_name, workshop_address, workshop_card_number })
     }
 }
 
 #[derive(Debug)]
-pub struct VuTimeAdjustmentData {}
+pub struct VuTimeAdjustmentData {
+    pub no_of_vu_time_adj_records: u8,
+    pub vu_time_adjustment_records: Vec<VuTimeAdjustmentRecord>,
+}
 
 impl Readable<VuTimeAdjustmentData> for VuTimeAdjustmentData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuTimeAdjustmentData> {
-        Ok(Self {})
+        let no_of_vu_time_adj_records = reader.read_u8()?;
+        let mut vu_time_adjustment_records: Vec<VuTimeAdjustmentRecord> = Vec::new();
+        for _ in 0..no_of_vu_time_adj_records {
+            let record = VuTimeAdjustmentRecord::read(reader)?;
+            vu_time_adjustment_records.push(record);
+        }
+        Ok(Self { no_of_vu_time_adj_records, vu_time_adjustment_records })
     }
 }

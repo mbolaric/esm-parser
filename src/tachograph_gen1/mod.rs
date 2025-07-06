@@ -31,6 +31,8 @@ mod vu_technical_data;
 mod vu_time_adjustment_data;
 mod vu_transfer_response_parameter_data;
 mod workshop_card;
+mod workshop_card_application_identification;
+mod workshop_card_calibration_data;
 
 pub use address::Address;
 pub use card_application_identification::CardApplicationIdentification;
@@ -65,3 +67,7 @@ pub use vu_technical_data::VuTechnicalData;
 pub use vu_time_adjustment_data::{VuTimeAdjustmentData, VuTimeAdjustmentRecord};
 pub use vu_transfer_response_parameter_data::VUTransferResponseParameterData;
 pub use workshop_card::WorkshopCard;
+pub use workshop_card_application_identification::WorkshopCardApplicationIdentification;
+pub use workshop_card_calibration_data::{
+    WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, WorkshopCardCalibrationRecord,
+};
