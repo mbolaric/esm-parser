@@ -1,0 +1,31 @@
+name: Cleanup old workflow runs
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs weekly
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old workflow runs
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const maxRunsToKeep = 15; // Set the number of runs to keep
+            const { data: workflowRuns } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+
+            const runsToDelete = workflowRuns.workflow_runs.slice(maxRunsToKeep);
+            for (const run of runsToDelete) {
+              await github.rest.actions.deleteWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+              });
+              console.log(`Deleted workflow run: ${run.id}`);
+            }
