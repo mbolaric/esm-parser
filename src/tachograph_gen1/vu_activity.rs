@@ -1,14 +1,38 @@
 use binary_data::{BinSeek, ReadBytes};
 
-use crate::Result;
-use crate::tacho::{VUTransferResponseParameterID, VUTransferResponseParameterReader};
+use crate::gen1::{VuActivityDailyData, VuCardIWData, VuPlaceDailyWorkPeriodData, VuSpecificConditionData};
+use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader};
+use crate::{Readable, Result};
 
 #[derive(Debug)]
-pub struct VUActivity {}
+pub struct VUActivity {
+    pub date_of_day_downloaded: TimeReal,
+    pub odometer_value_midnight: OdometerShort,
+    pub vu_card_iw_data: VuCardIWData,
+    pub vu_activity_daily_data: VuActivityDailyData,
+    pub vu_place_daily_work_period_data: VuPlaceDailyWorkPeriodData,
+    pub vu_specific_condition_data: VuSpecificConditionData,
+    pub signature: Option<Vec<u8>>,
+}
 
 impl VUTransferResponseParameterReader<VUActivity> for VUActivity {
-    fn from_data<R: ReadBytes + BinSeek>(_trep_id: VUTransferResponseParameterID, _reader: &mut R) -> Result<VUActivity> {
-        // FIXME:
-        Ok(Self {})
+    fn from_data<R: ReadBytes + BinSeek>(_trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUActivity> {
+        let date_of_day_downloaded = TimeReal::read(reader)?;
+        let odometer_value_midnight = OdometerShort::read(reader)?;
+        let vu_card_iw_data = VuCardIWData::read(reader)?;
+        let vu_activity_daily_data = VuActivityDailyData::read(reader)?;
+        let vu_place_daily_work_period_data = VuPlaceDailyWorkPeriodData::read(reader)?;
+        let vu_specific_condition_data = VuSpecificConditionData::read(reader)?;
+        let signature: Option<Vec<u8>> = Some(reader.read_into_vec(128)?);
+
+        Ok(Self {
+            date_of_day_downloaded,
+            odometer_value_midnight,
+            vu_card_iw_data,
+            vu_activity_daily_data,
+            vu_place_daily_work_period_data,
+            vu_specific_condition_data,
+            signature,
+        })
     }
 }

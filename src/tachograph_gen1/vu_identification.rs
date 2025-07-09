@@ -1,8 +1,8 @@
 use crate::{
     Readable,
-    gen1::{Address, SoftwareIdentification},
+    gen1::SoftwareIdentification,
     helpers::vec_u8_to_string,
-    tacho::{ExtendedSerialNumber, Name, TimeReal},
+    tacho::{Address, ExtendedSerialNumber, Name, TimeReal},
 };
 
 #[derive(Debug)]

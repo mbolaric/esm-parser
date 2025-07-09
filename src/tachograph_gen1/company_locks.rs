@@ -1,7 +1,6 @@
 use crate::{
     Readable,
-    gen1::Address,
-    tacho::{FullCardNumber, Name, TimeReal},
+    tacho::{Address, FullCardNumber, Name, TimeReal},
 };
 
 #[derive(Debug)]

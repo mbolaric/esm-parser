@@ -1,7 +1,6 @@
 use crate::{
     BCDString, Readable,
-    gen1::VehicleRegistrationIdentification,
-    tacho::{OdometerShort, TimeReal, VehicleUse},
+    tacho::{OdometerShort, TimeReal, VehicleRegistrationIdentification, VehicleUse},
 };
 
 #[derive(Debug)]

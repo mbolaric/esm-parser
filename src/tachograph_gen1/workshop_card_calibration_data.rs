@@ -2,9 +2,8 @@ use binary_data::{BigEndian, BinSeek, ReadBytes};
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::VehicleRegistrationIdentification,
     helpers::vec_u8_to_string,
-    tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal},
+    tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
 #[derive(Debug)]

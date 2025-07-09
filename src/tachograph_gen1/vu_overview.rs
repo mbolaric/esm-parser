@@ -1,11 +1,11 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
-use crate::gen1::{
-    CardSlotStatus, CompanyLocks, ControlActivity, DownloadActivity, DownloadablePeriod, VehicleRegistrationIdentification,
-};
+use crate::gen1::{CardSlotStatus, CompanyLocks, ControlActivity, DownloadActivity, DownloadablePeriod};
 use crate::helpers::vec_u8_to_string;
-use crate::tacho::{TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader};
+use crate::tacho::{
+    TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader, VehicleRegistrationIdentification,
+};
 use crate::{Readable, Result};
 
 #[derive(Debug)]

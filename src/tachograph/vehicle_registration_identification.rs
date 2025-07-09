@@ -13,7 +13,7 @@ impl Readable<VehicleRegistrationIdentification> for VehicleRegistrationIdentifi
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<VehicleRegistrationIdentification> {
-        let nation_numeric = reader.read_u8()?.into();
+        let nation_numeric: NationNumeric = reader.read_u8()?.into();
         let vehicle_registration_number = VehicleRegistrationNumber::read(reader)?;
 
         Ok(Self { nation_numeric, vehicle_registration_number })

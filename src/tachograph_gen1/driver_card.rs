@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardApplicationIdentification, CardData, CardResponseParameterData, Certificate, PlaceRecord, VehiclesUsedRecord},
+    gen1::{CardApplicationIdentification, CardData, Certificate, PlaceRecord, VehiclesUsedRecord},
     tacho::{
         CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,

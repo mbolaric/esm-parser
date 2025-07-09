@@ -2,9 +2,8 @@ use binary_data::BigEndian;
 
 use crate::{
     Readable,
-    gen1::{Address, VehicleRegistrationIdentification},
     helpers::vec_u8_to_string,
-    tacho::{CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal},
+    tacho::{Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
 #[derive(Debug)]
