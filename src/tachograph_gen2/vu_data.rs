@@ -39,7 +39,6 @@ impl VUData {
     ) -> Result<VUTransferResponseParameterData> {
         debug!("VUData::parse_control - Trep ID: {:?}", trep_id);
         let vu_control = VUControl::from_data(trep_id, reader)?;
-
         Ok(VUTransferResponseParameterData::Control(vu_control))
     }
 
