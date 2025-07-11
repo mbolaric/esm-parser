@@ -1,0 +1,22 @@
+use binary_data::{BinSeek, ReadBytes};
+
+use crate::{
+    Readable, Result,
+    tacho::{CertificateContentType, CertificationAuthorityKid},
+};
+
+#[derive(Debug)]
+pub struct CertificateAuthorityReference {
+    pub record_type: CertificateContentType,
+    pub record_size: u16,
+    pub certification_authority_kid: CertificationAuthorityKid,
+}
+
+impl Readable<CertificateAuthorityReference> for CertificateAuthorityReference {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CertificateAuthorityReference> {
+        let record_type: CertificateContentType = (reader.read_u8()? as u16).into();
+        let record_size = reader.read_u8()? as u16;
+        let certification_authority_kid = CertificationAuthorityKid::read(reader)?;
+        Ok(Self { record_type, record_size, certification_authority_kid })
+    }
+}

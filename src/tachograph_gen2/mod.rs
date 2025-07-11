@@ -1,6 +1,12 @@
 mod card_response_parameter_data;
 mod certificate;
+mod certificate_authority_reference;
+mod certificate_date;
+mod certificate_holder_reference;
+mod certificate_profile;
+mod certificate_profile_identifier;
 mod data_info;
+mod ecc_certificate;
 mod member_state_certificate_records;
 mod vu_activity;
 mod vu_calibration;
@@ -14,7 +20,13 @@ mod vu_transfer_response_parameter_data;
 
 pub use card_response_parameter_data::CardResponseParameterData;
 pub use certificate::{Certificate, CertificateParams};
+pub use certificate_authority_reference::CertificateAuthorityReference;
+pub use certificate_date::CertificateDate;
+pub use certificate_holder_reference::CertificateHolderReference;
+pub use certificate_profile::{CertificateProfile, CertificateProfileParams};
+pub use certificate_profile_identifier::CertificateProfileIdentifier;
 pub use data_info::{DataInfo, DataInfoReadable};
+pub use ecc_certificate::EccCertificate;
 pub use member_state_certificate_records::MemberStateCertificateRecords;
 pub use vu_activity::VUActivity;
 pub use vu_calibration::VUCalibration;
