@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
-use crate::gen1::{CardApplicationIdentification, CardResponseParameterData, CompanyCard, ControlCard, DriverCard, WorkshopCard};
+use crate::gen1::{CardResponseParameterData, CompanyCard, ControlCard, DriverCard, WorkshopCard};
 use crate::tacho::{
     self, ApplicationIdentification, CardChipIdentification, CardDataFile, CardFileID, CardIccIdentification, EquipmentType,
     TachographHeader,

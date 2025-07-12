@@ -3,7 +3,7 @@ use log::debug;
 
 use crate::{
     Result,
-    gen2::{DataInfo, VUActivity, VUCalibration, VUCardDownload, VUControl, VUEvents, VUSpeed, VUTransferResponseParameterData},
+    gen2::{DataInfo, VUActivity, VUCalibration, VUCardDownload, VUEvents, VUOverview, VUSpeed, VUTransferResponseParameterData},
     tacho::{self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem},
     tachograph,
 };
@@ -33,12 +33,12 @@ impl VUData {
         Ok(VUTransferResponseParameterData::Speed(vu_speed))
     }
 
-    fn parse_control<R: ReadBytes + BinSeek>(
+    fn parse_overview<R: ReadBytes + BinSeek>(
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
         debug!("VUData::parse_control - Trep ID: {:?}", trep_id);
-        let vu_control = VUControl::from_data(trep_id, reader)?;
+        let vu_control = VUOverview::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Control(vu_control))
     }
 
@@ -86,7 +86,7 @@ impl VUData {
         match trep_id {
             VUTransferResponseParameterID::Overview
             | VUTransferResponseParameterID::Gen2Overview
-            | VUTransferResponseParameterID::Gen2v2Overview => VUData::parse_control(trep_id, reader),
+            | VUTransferResponseParameterID::Gen2v2Overview => VUData::parse_overview(trep_id, reader),
             VUTransferResponseParameterID::Activities
             | VUTransferResponseParameterID::Gen2Activities
             | VUTransferResponseParameterID::Gen2v2Activities => VUData::parse_activity(trep_id, reader),

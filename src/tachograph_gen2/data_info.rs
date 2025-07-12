@@ -1,7 +1,7 @@
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 
 use crate::{
-    Error,
+    Error, Readable,
     error::Result,
     tacho::{DataTypeID, VUTransferResponseParameterID},
 };
@@ -47,5 +47,28 @@ impl DataInfo {
 pub trait DataInfoReadable<T> {
     fn read<R: ReadBytes + BinSeek>(_reader: &mut R, _config: &DataConfig) -> Result<T> {
         Err(Error::NotImplemented)
+    }
+}
+
+#[derive(Debug)]
+pub struct DataInfoGenericRecords<T> {
+    pub no_of_records: u16,
+    pub record_size: u16,
+    pub data_type_id: DataTypeID,
+    pub records: Vec<T>,
+}
+
+impl<T: Readable<T>> DataInfoReadable<DataInfoGenericRecords<T>> for DataInfoGenericRecords<T> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecords<T>> {
+        let no_of_records = config.no_of_records;
+        let record_size = config.record_size;
+        let data_type_id = config.data_type_id.clone();
+
+        let mut records: Vec<T> = Vec::with_capacity(no_of_records as usize);
+        for _ in 0..no_of_records {
+            let record = T::read(reader)?;
+            records.push(record);
+        }
+        Ok(Self { no_of_records, record_size, data_type_id, records })
     }
 }

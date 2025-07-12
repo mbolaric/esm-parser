@@ -1,7 +1,6 @@
 mod card_application_identification;
 mod card_data;
 mod card_response_data_parameter;
-mod card_slot_status;
 mod certificate;
 mod company_card;
 mod company_locks;
@@ -40,7 +39,6 @@ mod workshop_card_calibration_data;
 pub use card_application_identification::CardApplicationIdentification;
 pub use card_data::CardData;
 pub use card_response_data_parameter::CardResponseParameterData;
-pub use card_slot_status::CardSlotStatus;
 pub use certificate::Certificate;
 pub use company_card::CompanyCard;
 pub use company_locks::{CompanyLocks, CompanyLocksRecord};

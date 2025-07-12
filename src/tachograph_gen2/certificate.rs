@@ -1,4 +1,4 @@
-use binary_data::{BinMemoryBuffer, BinSeek, ReadBytes};
+use binary_data::{BinSeek, ReadBytes};
 
 use crate::{
     ReadableWithParams, Result,

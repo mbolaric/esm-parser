@@ -1,21 +1,17 @@
-use crate::impl_enum_from_u8;
+use crate::{Readable, tacho::CardSlotStatusType};
 
 #[derive(Debug)]
-#[repr(u8)]
-pub enum CardSlotStatusCode {
-    Unknown = 0,
-    DriverCard = 1,
-    WorkshopCard = 2,
-    ControlCard = 3,
-    CompanyCard = 4,
+pub struct CardSlotStatus {
+    pub data: u8,
+    pub driver_slot: CardSlotStatusType,
+    pub co_driver_slot: CardSlotStatusType,
 }
 
-impl_enum_from_u8!(
-    CardSlotStatusCode {
-        Unknown = 0,
-        DriverCard = 1,
-        WorkshopCard = 2,
-        ControlCard = 3,
-        CompanyCard = 4,
+impl Readable<CardSlotStatus> for CardSlotStatus {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardSlotStatus> {
+        let data = reader.read_u8()?;
+        let co_driver_slot: CardSlotStatusType = ((data >> 4) & 0xF).into();
+        let driver_slot: CardSlotStatusType = (data & 0xF).into();
+        Ok(Self { data, driver_slot, co_driver_slot })
     }
-);
+}

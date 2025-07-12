@@ -4,8 +4,7 @@ use binary_data::{BigEndian, ReadBytes};
 use log::{debug, trace};
 
 use crate::gen1::{
-    CardApplicationIdentification, CardData, Certificate, WorkshopCardApplicationIdentification, WorkshopCardCalibrationData,
-    WorkshopCardCalibrationDataParams,
+    CardData, Certificate, WorkshopCardApplicationIdentification, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
 };
 use crate::tacho::{
     CardChipIdentification, CardDataFile, CardFileID, CardIccIdentification, Identification, IdentificationParams,

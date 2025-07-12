@@ -1,7 +1,7 @@
 use binary_data::{BinSeek, ReadBytes};
 
 use crate::{
-    Readable, ReadableWithParams, Result,
+    ReadableWithParams, Result,
     gen2::{Certificate, CertificateParams, DataInfoReadable},
     tacho::DataTypeID,
     tachograph_gen2::data_info::DataConfig,
