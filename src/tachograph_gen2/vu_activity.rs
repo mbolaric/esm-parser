@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::Result;
-use crate::gen2::{DataInfo, DataInfoGenericRecords, VuCardIWRecord};
+use crate::gen2::{DataInfo, DataInfoGenericRecords, VuActivityDailyRecords, VuCardIWRecord, VuPlaceDailyWorkPeriodRecords};
 use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID};
 
 #[derive(Debug)]
@@ -10,6 +10,8 @@ pub struct VUActivity {
     pub date_of_day_downloaded_records: DataInfoGenericRecords<TimeReal>,
     pub odometer_value_midnight_records: DataInfoGenericRecords<OdometerShort>,
     pub vu_card_iw_records: DataInfoGenericRecords<VuCardIWRecord>,
+    pub vu_activity_daily_records: VuActivityDailyRecords,
+    pub place_daily_work_period_records: VuPlaceDailyWorkPeriodRecords,
 }
 
 impl VUActivity {
@@ -20,8 +22,8 @@ impl VUActivity {
         let odometer_value_midnight_records: DataInfoGenericRecords<OdometerShort> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
         let vu_card_iw_records: DataInfoGenericRecords<VuCardIWRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let activity_change_info = DataInfo::read(reader, trep_id.clone())?;
-        let place_daily_work_period = DataInfo::read(reader, trep_id.clone())?;
+        let vu_activity_daily_records: VuActivityDailyRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let place_daily_work_period_records: VuPlaceDailyWorkPeriodRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let gns_sad = DataInfo::read(reader, trep_id.clone())?;
         let specific_condition = DataInfo::read(reader, trep_id.clone())?;
 
@@ -32,6 +34,12 @@ impl VUActivity {
         }
         let signature = Some(DataInfo::read(reader, trep_id.clone())?);
 
-        Ok(Self { date_of_day_downloaded_records, odometer_value_midnight_records, vu_card_iw_records })
+        Ok(Self {
+            date_of_day_downloaded_records,
+            odometer_value_midnight_records,
+            vu_card_iw_records,
+            vu_activity_daily_records,
+            place_daily_work_period_records,
+        })
     }
 }

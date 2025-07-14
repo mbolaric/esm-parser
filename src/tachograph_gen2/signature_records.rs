@@ -1,8 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 
-use crate::{
-    Result, gen2::DataInfoReadable, helpers::vec_u8_to_string, tacho::DataTypeID, tachograph_gen2::data_info::DataConfig,
-};
+use crate::{Result, gen2::DataInfoReadable, tacho::DataTypeID, tachograph_gen2::data_info::DataConfig};
 
 #[derive(Debug)]
 pub struct SignatureRecords {

@@ -8,6 +8,7 @@ use crate::{
 
 #[derive(Debug)]
 pub struct DataConfig {
+    pub trep_id: VUTransferResponseParameterID,
     pub data_type_id: DataTypeID,
     pub record_size: u16,
     pub no_of_records: u16,
@@ -27,7 +28,7 @@ impl DataInfo {
         let data_type_id = DataTypeID::from(reader.read_u8()?);
         let data_size = reader.read_u16::<BigEndian>()?;
         let no_of_records = reader.read_u16::<BigEndian>()?;
-        let full_data_size = data_size * no_of_records;
+        let full_data_size: u32 = data_size as u32 * no_of_records as u32;
         let data = reader.read_into_vec(full_data_size as u32)?;
 
         Ok(DataInfo { trep_id, data_type_id, record_size: data_size, no_of_records, data })
@@ -35,6 +36,7 @@ impl DataInfo {
 
     pub fn parse<T: DataInfoReadable<T>>(&self) -> Result<T> {
         let config = DataConfig {
+            trep_id: self.trep_id.clone(),
             data_type_id: self.data_type_id.clone(),
             record_size: self.record_size,
             no_of_records: self.no_of_records,
