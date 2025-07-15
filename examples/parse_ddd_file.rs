@@ -7,7 +7,7 @@ use log::debug;
 fn main() {
     init_logging();
 
-    match EsmParser::parse("./examples/data/M0004.DDD") {
+    match EsmParser::parse("./examples/data/TestTachoDataGen2001.DDD") {
         Ok(parser) => {
             if let Some(data) = parser.get_data() {
                 match data {
