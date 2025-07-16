@@ -3,7 +3,9 @@ use log::debug;
 
 use crate::{
     Result,
-    gen2::{DataInfo, VUActivity, VUCalibration, VUCardDownload, VUEvents, VUOverview, VUSpeed, VUTransferResponseParameterData},
+    gen2::{
+        DataInfo, VUActivity, VUCardDownload, VUEvents, VUOverview, VUSpeed, VUTechnicalData, VUTransferResponseParameterData,
+    },
     tacho::{self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem},
     tachograph,
 };
@@ -37,7 +39,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_control - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_overview - Trep ID: {:?}", trep_id);
         let vu_control = VUOverview::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Control(vu_control))
     }
@@ -60,12 +62,12 @@ impl VUData {
         Ok(VUTransferResponseParameterData::Events(vu_events))
     }
 
-    fn parse_calibration<R: ReadBytes + BinSeek>(
+    fn parse_technical_data<R: ReadBytes + BinSeek>(
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_calibration - Trep ID: {:?}", trep_id);
-        let vu_calibration = VUCalibration::from_data(trep_id, reader)?;
+        debug!("VUData::parse_technical_data - Trep ID: {:?}", trep_id);
+        let vu_calibration = VUTechnicalData::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Calibration(vu_calibration))
     }
 
@@ -95,7 +97,7 @@ impl VUData {
             | VUTransferResponseParameterID::Gen2v2EventsAndFaults => VUData::parse_events(trep_id, reader),
             VUTransferResponseParameterID::TechnicalData
             | VUTransferResponseParameterID::Gen2TechnicalData
-            | VUTransferResponseParameterID::Gen2v2TechnicalData => VUData::parse_calibration(trep_id, reader),
+            | VUTransferResponseParameterID::Gen2v2TechnicalData => VUData::parse_technical_data(trep_id, reader),
             VUTransferResponseParameterID::Speed
             | VUTransferResponseParameterID::Gen2Speed
             | VUTransferResponseParameterID::Gen2v2Speed => VUData::parse_speed(trep_id, reader),
