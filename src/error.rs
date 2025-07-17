@@ -1,5 +1,7 @@
 use core::fmt;
 
+use crate::common;
+
 #[derive(Debug)]
 pub enum Error {
     File(std::io::Error),
@@ -42,6 +44,12 @@ impl From<binary_data::Error> for Error {
 
 impl From<std::string::FromUtf8Error> for Error {
     fn from(value: std::string::FromUtf8Error) -> Self {
+        Error::InvalidDataParse(value.to_string())
+    }
+}
+
+impl From<common::string_decode::Error> for Error {
+    fn from(value: common::string_decode::Error) -> Self {
         Error::InvalidDataParse(value.to_string())
     }
 }

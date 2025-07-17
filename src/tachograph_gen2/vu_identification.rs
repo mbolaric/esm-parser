@@ -1,9 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 
 use crate::{
-    Readable, Result,
+    CodePage, Readable, Result, bytes_to_string,
     gen2::VuSoftwareIdentification,
-    helpers::vec_u8_to_string,
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal},
 };
 
@@ -24,11 +23,11 @@ impl Readable<VuIdentification> for VuIdentification {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuIdentification> {
         let vu_manufacturer_name = Name::read(reader)?;
         let vu_manufacturer_address = Address::read(reader)?;
-        let vu_part_number = vec_u8_to_string(reader.read_into_vec(16)?)?; // Code Page 1
+        let vu_part_number = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1); // Code Page 1
         let vu_serial_number = ExtendedSerialNumber::read(reader)?;
         let vu_software_identification = VuSoftwareIdentification::read(reader)?;
         let vu_manufacturing_date = TimeReal::read(reader)?;
-        let vu_approval_number = vec_u8_to_string(reader.read_into_vec(16)?)?; // Code Page 1
+        let vu_approval_number = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1); // Code Page 1
         let vu_generation = reader.read_u8()?;
         let vu_ability = reader.read_u8()?;
 

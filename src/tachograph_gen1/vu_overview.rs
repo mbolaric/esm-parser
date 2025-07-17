@@ -2,11 +2,10 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::gen1::{CompanyLocks, ControlActivity, DownloadActivity, DownloadablePeriod};
-use crate::helpers::vec_u8_to_string;
 use crate::tacho::{
     CardSlotStatus, TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader, VehicleRegistrationIdentification,
 };
-use crate::{Readable, Result};
+use crate::{Readable, Result, bytes_to_ia5_fix_string};
 
 #[derive(Debug)]
 pub struct VuOverview {
@@ -28,7 +27,7 @@ impl VUTransferResponseParameterReader<VuOverview> for VuOverview {
         debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
         let member_state_certificate = reader.read_into_vec(194)?;
         let vu_certificate = reader.read_into_vec(194)?;
-        let vehicle_identification_number = vec_u8_to_string(reader.read_into_vec(17)?)?;
+        let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
         let vehicle_registration_identification: VehicleRegistrationIdentification =
             VehicleRegistrationIdentification::read(reader)?;
         let current_date_time = TimeReal::read(reader)?;

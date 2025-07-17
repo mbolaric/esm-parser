@@ -1,6 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 
-use crate::{ReadableWithParams, Result, helpers::vec_u8_to_string, tacho::EquipmentType};
+use crate::{ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::EquipmentType};
 
 #[derive(Debug)]
 pub struct CardNumberParams {
@@ -53,7 +53,7 @@ impl ReadableWithParams<CardNumber> for CardNumber {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardNumber> {
         let equipment_type = params.equipment_type.clone();
-        let number = vec_u8_to_string(reader.read_into_vec(16)?)?;
+        let number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?;
         Ok(Self { number, equipment_type })
     }
 }

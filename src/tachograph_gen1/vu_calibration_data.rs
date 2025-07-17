@@ -1,8 +1,7 @@
 use binary_data::BigEndian;
 
 use crate::{
-    Readable,
-    helpers::vec_u8_to_string,
+    Readable, bytes_to_ia5_fix_string,
     tacho::{Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
@@ -34,12 +33,12 @@ impl Readable<VuCalibrationRecord> for VuCalibrationRecord {
         let workshop_address = Address::read(reader)?;
         let workshop_card_number = FullCardNumber::read(reader)?;
         let workshop_card_expiry_date = TimeReal::read(reader)?;
-        let vehicle_identification_number = vec_u8_to_string(reader.read_into_vec(17)?)?;
+        let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
         let vehicle_registration_identification = VehicleRegistrationIdentification::read(reader)?;
         let w_vehicle_characteristic_constant: u16 = reader.read_u16::<BigEndian>()?;
         let k_constant_of_recording_equipment: u16 = reader.read_u16::<BigEndian>()?;
         let l_tyre_circumference: u16 = reader.read_u16::<BigEndian>()?;
-        let tyre_size = vec_u8_to_string(reader.read_into_vec(15)?)?;
+        let tyre_size = bytes_to_ia5_fix_string(&reader.read_into_vec(15)?)?;
         let authorised_speed = reader.read_u8()?;
         let old_odometer_value = OdometerShort::read(reader)?;
         let new_odometer_value = OdometerShort::read(reader)?;

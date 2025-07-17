@@ -1,6 +1,5 @@
 use crate::{
-    Readable,
-    helpers::vec_u8_to_string,
+    CodePage, Readable, bytes_to_string,
     tacho::{EquipmentType, NationNumeric},
 };
 
@@ -15,7 +14,7 @@ impl Readable<FullCardNumber> for FullCardNumber {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<FullCardNumber> {
         let card_type: EquipmentType = reader.read_u8()?.into();
         let mut card_issuing_member_state: NationNumeric = reader.read_u8()?.into();
-        let mut card_number: String = vec_u8_to_string(reader.read_into_vec(16)?)?;
+        let mut card_number: String = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1);
         if card_type == EquipmentType::NullCard {
             card_issuing_member_state = NationNumeric::Unknown;
             card_number = "".to_owned();

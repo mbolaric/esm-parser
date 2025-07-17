@@ -1,6 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 
-use crate::{Readable, Result, helpers::vec_u8_to_string, tacho::TimeReal};
+use crate::{CodePage, Readable, Result, bytes_to_string, tacho::TimeReal};
 
 #[derive(Debug)]
 pub struct VuSoftwareIdentification {
@@ -10,7 +10,7 @@ pub struct VuSoftwareIdentification {
 
 impl Readable<VuSoftwareIdentification> for VuSoftwareIdentification {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuSoftwareIdentification> {
-        let vu_software_version = vec_u8_to_string(reader.read_into_vec(4)?)?;
+        let vu_software_version = bytes_to_string(&reader.read_into_vec(4)?, &CodePage::IsoIec8859_1);
         let vu_soft_installation_date = TimeReal::read(reader)?;
 
         Ok(Self { vu_software_version, vu_soft_installation_date })

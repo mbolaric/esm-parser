@@ -1,8 +1,7 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 
 use crate::{
-    Readable, ReadableWithParams, Result,
-    helpers::vec_u8_to_string,
+    Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string,
     tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
@@ -40,19 +39,19 @@ pub struct WorkshopCardCalibrationRecord {
 impl Readable<WorkshopCardCalibrationRecord> for WorkshopCardCalibrationRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<WorkshopCardCalibrationRecord> {
         let calibration_purpose: CalibrationPurpose = reader.read_u8()?.into();
-        let vehicle_identification_number = vec_u8_to_string(reader.read_into_vec(17)?)?;
+        let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
         let vehicle_registration = VehicleRegistrationIdentification::read(reader)?;
         let w_vehicle_characteristic_constant = reader.read_u16::<BigEndian>()?;
         let k_constant_of_recording_equipment = reader.read_u16::<BigEndian>()?;
         let l_tyre_circumference = reader.read_u16::<BigEndian>()?;
-        let tyre_size = vec_u8_to_string(reader.read_into_vec(15)?)?;
+        let tyre_size = bytes_to_ia5_fix_string(&reader.read_into_vec(15)?)?;
         let authorised_speed = reader.read_u8()?;
         let old_odometer_value = OdometerShort::read(reader)?;
         let new_odometer_value = OdometerShort::read(reader)?;
         let old_time_value = TimeReal::read(reader)?;
         let new_time_value = TimeReal::read(reader)?;
         let next_calibration_date = TimeReal::read(reader)?;
-        let vu_part_number = vec_u8_to_string(reader.read_into_vec(16)?)?;
+        let vu_part_number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?;
         let vu_serial_number = ExtendedSerialNumber::read(reader)?;
         let sensor_serial_number = ExtendedSerialNumber::read(reader)?;
 

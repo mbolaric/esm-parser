@@ -1,7 +1,7 @@
 use binary_data::{BinSeek, ReadBytes};
 
 use crate::{
-    Result, gen2::DataInfoReadable, helpers::vec_u8_to_string, tacho::DataTypeID, tachograph_gen2::data_info::DataConfig,
+    CodePage, Result, bytes_to_string, gen2::DataInfoReadable, tacho::DataTypeID, tachograph_gen2::data_info::DataConfig,
 };
 
 #[derive(Debug)]
@@ -20,7 +20,7 @@ impl DataInfoReadable<VehicleIdentificationNumberRecords> for VehicleIdentificat
 
         let mut records: Vec<String> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {
-            let record = vec_u8_to_string(reader.read_into_vec(record_size as u32)?)?;
+            let record = bytes_to_string(&reader.read_into_vec(record_size as u32)?, &CodePage::IsoIec8859_1);
             records.push(record);
         }
         Ok(Self { no_of_records, record_size, data_type_id, records })

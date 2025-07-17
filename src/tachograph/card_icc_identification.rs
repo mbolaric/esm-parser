@@ -1,6 +1,5 @@
 use crate::{
-    Readable,
-    helpers::vec_u8_to_string,
+    CodePage, Readable, bytes_to_string,
     tacho::{EmbedderIcAssemblerId, ExtendedSerialNumber},
 };
 
@@ -18,7 +17,7 @@ impl Readable<CardIccIdentification> for CardIccIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardIccIdentification> {
         let clock_stop = reader.read_u8()?;
         let card_serial_number = ExtendedSerialNumber::read(reader)?;
-        let card_approval_number = vec_u8_to_string(reader.read_into_vec(8)?)?;
+        let card_approval_number = bytes_to_string(&reader.read_into_vec(8)?, &CodePage::IsoIec8859_1);
         let card_personaliser_id = reader.read_u8()?;
         let embedder_ic_assembler_id = EmbedderIcAssemblerId::read(reader)?;
         let ic_identifier = reader.read_into_vec(2)?;

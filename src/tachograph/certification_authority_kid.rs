@@ -1,6 +1,6 @@
 use binary_data::BigEndian;
 
-use crate::{Readable, helpers::vec_u8_to_string, tacho::NationNumeric};
+use crate::{Readable, bytes_to_ia5_fix_string, tacho::NationNumeric};
 
 #[derive(Debug)]
 pub struct CertificationAuthorityKid {
@@ -14,7 +14,7 @@ pub struct CertificationAuthorityKid {
 impl Readable<CertificationAuthorityKid> for CertificationAuthorityKid {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CertificationAuthorityKid> {
         let nation_numeric: NationNumeric = reader.read_u8()?.into();
-        let nation_alpha = vec_u8_to_string(reader.read_into_vec(3)?)?;
+        let nation_alpha = bytes_to_ia5_fix_string(&reader.read_into_vec(3)?)?;
         let key_serial_number = reader.read_u8()?;
         let additional_info = reader.read_u16::<BigEndian>()?;
         let ca_identifier = reader.read_u8()?;
