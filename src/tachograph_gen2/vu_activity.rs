@@ -3,7 +3,7 @@ use log::debug;
 
 use crate::Result;
 use crate::gen2::{
-    DataInfo, DataInfoGenericRecords, SignatureRecords, VuActivityDailyRecords, VuCardIWRecord, VuGnssadRecords,
+    DataInfo, DataInfoGenericRecords, SignatureRecords, VuActivityDailyRecords, VuCardIWRecord, VuGnssadRecord,
     VuPlaceDailyWorkPeriodRecords,
 };
 use crate::tacho::{OdometerShort, SpecificConditionRecord, TimeReal, VUTransferResponseParameterID};
@@ -15,7 +15,7 @@ pub struct VUActivity {
     pub vu_card_iw_records: DataInfoGenericRecords<VuCardIWRecord>,
     pub vu_activity_daily_records: VuActivityDailyRecords,
     pub place_daily_work_period_records: VuPlaceDailyWorkPeriodRecords,
-    pub gnssad_records: VuGnssadRecords,
+    pub gnssad_records: DataInfoGenericRecords<VuGnssadRecord>,
     pub specific_condition_records: DataInfoGenericRecords<SpecificConditionRecord>,
     pub signature_records: Option<SignatureRecords>,
 }
@@ -30,7 +30,8 @@ impl VUActivity {
         let vu_card_iw_records: DataInfoGenericRecords<VuCardIWRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let vu_activity_daily_records: VuActivityDailyRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let place_daily_work_period_records: VuPlaceDailyWorkPeriodRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let gnssad_records: VuGnssadRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let gnssad_records: DataInfoGenericRecords<VuGnssadRecord> =
+            DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
         let specific_condition_records: DataInfoGenericRecords<SpecificConditionRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
 

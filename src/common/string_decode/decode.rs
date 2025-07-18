@@ -25,7 +25,7 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     let ret_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
-    ret_str.trim_end_matches('\0').to_owned()
+    ret_str.trim_end_matches('\0').trim().to_owned()
 }
 
 pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
@@ -39,7 +39,7 @@ pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
     }
 
     match String::from_utf8(input.to_vec()) {
-        Ok(s) => Ok(s.trim_end_matches('\0').to_string()),
+        Ok(s) => Ok(s.trim_end_matches('\0').trim().to_string()),
         Err(_) => Err(Error::InvalidIA5CharacterNotASCII),
     }
 }
