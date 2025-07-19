@@ -7,6 +7,7 @@ pub enum TachographData {
     VUGen1(gen1::VUData),
     VUGen2(gen2::VUData),
     CardGen1(gen1::CardData),
+    CardGen2(gen2::CardData),
 }
 
 impl fmt::Display for TachographData {

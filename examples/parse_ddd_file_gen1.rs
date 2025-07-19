@@ -15,6 +15,10 @@ fn main() {
                         println!("CardGen1:");
                         println!("{:#?}", inner);
                     }
+                    TachographData::CardGen2(inner) => {
+                        println!("CardGen2:");
+                        println!("{:#?}", inner);
+                    }
                     TachographData::VUGen1(inner) => {
                         println!("VUGen1:");
                         println!("{:#?}", inner);

@@ -4,9 +4,9 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::{
-    Error, Readable, Result,
-    gen2::CardResponseParameterData,
-    tacho::{self, ApplicationIdentification, CardDataFile, CardFileID, EquipmentType, TachographHeader},
+    Error, Result,
+    gen2::{CardResponseParameterData, DriverCard},
+    tacho::{self, CardDataFile, CardFileID, EquipmentType, TachographHeader},
 };
 
 #[derive(Debug)]
@@ -16,17 +16,6 @@ pub struct CardData {
 }
 
 impl CardData {
-    fn parse_application_identification(
-        card_data_files: &HashMap<CardFileID, CardDataFile>,
-    ) -> Result<ApplicationIdentification> {
-        let mut reader = <dyn tacho::Card<CardResponseParameterData>>::get_mem_reader(
-            &CardFileID::ApplicationIdentification,
-            card_data_files,
-        )?;
-        let application_identification = ApplicationIdentification::read(&mut reader)?;
-        Ok(application_identification)
-    }
-
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<CardData> {
         let card_data_responses = <dyn tacho::Card<CardResponseParameterData>>::from_data(
             reader,
@@ -42,13 +31,13 @@ impl CardData {
 
     fn parse_card(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String) -> Result<CardResponseParameterData> {
         debug!("CardData::parse_card - Data Files Count: {:?}, Note: {:?}", card_data_files.len(), card_notes);
-        let application_identification = CardData::parse_application_identification(card_data_files)?;
+        let application_identification =
+            <dyn tacho::Card<CardResponseParameterData>>::parse_application_identification(card_data_files)?;
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
         // FIXME: Replace Card with concrete card type
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
-                Err(Error::NotImplemented)
-                // Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, card_notes)?))
+                Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::CompanyCard => {
                 Err(Error::NotImplemented)

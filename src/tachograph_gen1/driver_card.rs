@@ -3,9 +3,9 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardApplicationIdentification, CardData, Certificate, PlaceRecord, VehiclesUsedRecord},
+    gen1::{CardApplicationIdentification, CardResponseParameterData, Certificate, PlaceRecord, VehiclesUsedRecord},
     tacho::{
-        CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
+        Card, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
         CardIccIdentification, CardPlaces, CardPlacesParams, CurrentUsage, Identification, IdentificationParams,
         SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsed, VehiclesUsedParams,
@@ -62,10 +62,11 @@ impl DriverCard {
     }
 
     pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &str) -> Result<Box<DriverCard>> {
-        let card_chip_identification = CardData::parse_ic(card_data_files)?;
-        let card_icc_identification = CardData::parse_icc(card_data_files)?;
-        let application_identification =
-            CardData::parse_card_application_identification::<CardApplicationIdentification>(card_data_files)?;
+        let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
+        let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
+        let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
+            CardApplicationIdentification,
+        >(card_data_files)?;
         debug!("DriverCard::parse - Application Identification: {:?}", application_identification);
 
         let mut driver_card = DriverCard::new(

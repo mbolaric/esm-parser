@@ -33,7 +33,9 @@ impl<'a> EsmParser<'a> {
                     TachographDataGeneration::FirstGeneration => {
                         Ok(TachographData::CardGen1(gen1::CardData::from_data(header, data)?))
                     }
-                    TachographDataGeneration::SecondGeneration => Err(Error::NotImplemented),
+                    TachographDataGeneration::SecondGeneration => {
+                        Ok(TachographData::CardGen2(gen2::CardData::from_data(header, data)?))
+                    }
                     _ => Err(Error::InvalidDataGeneration),
                 }
             }

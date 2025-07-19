@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
 
-use crate::tacho::{CardFileID, TachographHeader};
+use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
 
 pub type CardParseFunc<D> = (dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>);
@@ -76,6 +76,34 @@ impl<D> dyn Card<D> {
         Err(Error::MissingCardFile(card_file_id.to_string()))
     }
 
+    pub fn parse_ic(card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<CardChipIdentification> {
+        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::IC, card_data_files)?;
+        let card_chip_identification = CardChipIdentification::read(&mut reader)?;
+        Ok(card_chip_identification)
+    }
+
+    pub fn parse_icc(card_data_files: &HashMap<CardFileID, CardDataFile>) -> Result<CardIccIdentification> {
+        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ICC, card_data_files)?;
+        let card_icc_identification = CardIccIdentification::read(&mut reader)?;
+        Ok(card_icc_identification)
+    }
+
+    pub fn parse_card_application_identification<T: Readable<T>>(
+        card_data_files: &HashMap<CardFileID, CardDataFile>,
+    ) -> Result<T> {
+        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
+        let application_identification = T::read(&mut reader)?;
+        Ok(application_identification)
+    }
+
+    pub fn parse_application_identification(
+        card_data_files: &HashMap<CardFileID, CardDataFile>,
+    ) -> Result<ApplicationIdentification> {
+        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
+        let application_identification = ApplicationIdentification::read(&mut reader)?;
+        Ok(application_identification)
+    }
+
     fn procces_card_data_file(data_file: CardDataFile, card_items: &mut HashMap<CardFileID, CardDataFile>) -> Result<String> {
         let mut card_file_notes = "".to_owned();
         match data_file.card_file_id {
@@ -100,6 +128,10 @@ impl<D> dyn Card<D> {
             | CardFileID::MF
             | CardFileID::CardCertificate
             | CardFileID::CACertificate => {
+                debug!(
+                    "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?}",
+                    data_file.card_file_id, data_file.appendix
+                );
                 let card_file_temp = card_items.get_mut(&data_file.card_file_id);
                 if data_file.appendix == 0 {
                     if card_file_temp.is_some() {
@@ -120,7 +152,19 @@ impl<D> dyn Card<D> {
                     card_file_temp.unwrap().signature = data_file.data.clone()
                 }
             }
-            _ => return Err(Error::UnknownCardType),
+            CardFileID::VehicleUnitsUsed
+            | CardFileID::GnssPlaces
+            | CardFileID::CardSignCertificate
+            | CardFileID::LinkCertificate => {
+                debug!(
+                    "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?} is ignored for now.",
+                    data_file.card_file_id, data_file.appendix
+                );
+            }
+            _ => {
+                debug!("Card::procces_card_data_file - CardFileID: {:?}", data_file.card_file_id);
+                return Err(Error::UnknownCardType);
+            }
         }
 
         Ok(card_file_notes)

@@ -7,12 +7,16 @@ use log::debug;
 fn main() {
     init_logging();
 
-    match EsmParser::parse("./examples/data/TestTachoDataGen2001.DDD") {
+    match EsmParser::parse("./examples/data/Card0003.DDD") {
         Ok(parser) => {
             if let Some(data) = parser.get_data() {
                 match data {
                     TachographData::CardGen1(inner) => {
                         println!("CardGen1:");
+                        println!("{:#?}", inner);
+                    }
+                    TachographData::CardGen2(inner) => {
+                        println!("CardGen2:");
                         println!("{:#?}", inner);
                     }
                     TachographData::VUGen1(inner) => {
