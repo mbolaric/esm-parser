@@ -20,7 +20,7 @@ impl VUData {
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<VUData> {
         let transfer_res_params = <dyn tacho::VUData<VUTransferResponseParameterData>>::from_data(
             reader,
-            &|trep_id: VUTransferResponseParameterID, reader: &mut R| VUData::parse_trep(trep_id, reader),
+            &|trep_id: VUTransferResponseParameterID, reader: &mut R| VUData::parse_trep(header.clone(), trep_id, reader),
         )?;
 
         Ok(VUData { header, transfer_res_params })
@@ -72,15 +72,17 @@ impl VUData {
     }
 
     fn parse_card_download<R: ReadBytes + BinSeek>(
+        header: TachographHeader,
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
         debug!("VUData::parse_card_download - Trep ID: {:?}", trep_id);
-        let vu_card_download = VUCardDownload::from_data(trep_id, reader)?;
+        let vu_card_download = VUCardDownload::from_data(header, trep_id, reader)?;
         Ok(VUTransferResponseParameterData::CardDownload(vu_card_download))
     }
 
     fn parse_trep<R: ReadBytes + BinSeek>(
+        header: TachographHeader,
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
@@ -101,7 +103,7 @@ impl VUData {
             VUTransferResponseParameterID::Speed
             | VUTransferResponseParameterID::Gen2Speed
             | VUTransferResponseParameterID::Gen2v2Speed => VUData::parse_speed(trep_id, reader),
-            VUTransferResponseParameterID::CardDownload => VUData::parse_card_download(trep_id, reader),
+            VUTransferResponseParameterID::CardDownload => VUData::parse_card_download(header, trep_id, reader),
             VUTransferResponseParameterID::OddballCrashDump => Ok(VUTransferResponseParameterData::OddballCrashDump),
             _ => {
                 let data_info = DataInfo::read(reader, trep_id)?;

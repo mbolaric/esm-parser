@@ -1,10 +1,14 @@
-use crate::{error::{Error, Result}, tacho::{TachographDataGeneration, TachographDataType}, CARD_HEADER, CARD_HEADER_VU_DATA, MINIMUM_G2_CARD_DATA_LENGTH, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2};
+use crate::{
+    CARD_HEADER, CARD_HEADER_VU_DATA, MINIMUM_G2_CARD_DATA_LENGTH, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2,
+    error::{Error, Result},
+    tacho::{TachographDataGeneration, TachographDataType},
+};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TachographHeader {
     pub generation: TachographDataGeneration,
     pub data_type: TachographDataType,
-    pub card_in_vu_data: bool
+    pub card_in_vu_data: bool,
 }
 
 impl TachographHeader {
@@ -21,7 +25,7 @@ impl TachographHeader {
             return Ok(TachographHeader {
                 generation: TachographDataGeneration::FirstGeneration,
                 data_type: TachographDataType::VU,
-                card_in_vu_data: false
+                card_in_vu_data: false,
             });
         }
 
@@ -29,28 +33,28 @@ impl TachographHeader {
             return Ok(TachographHeader {
                 generation: TachographDataGeneration::SecondGeneration,
                 data_type: TachographDataType::VU,
-                card_in_vu_data: false
+                card_in_vu_data: false,
             });
         }
 
         if header.eq(&CARD_HEADER) {
-            let generation: TachographDataGeneration = if data_length >= MINIMUM_G2_CARD_DATA_LENGTH { TachographDataGeneration::SecondGeneration } else { TachographDataGeneration::FirstGeneration };
-            return Ok(TachographHeader {
-                generation,
-                data_type: TachographDataType::Card,
-                card_in_vu_data: false
-            });            
+            let generation: TachographDataGeneration = if data_length >= MINIMUM_G2_CARD_DATA_LENGTH {
+                TachographDataGeneration::SecondGeneration
+            } else {
+                TachographDataGeneration::FirstGeneration
+            };
+            return Ok(TachographHeader { generation, data_type: TachographDataType::Card, card_in_vu_data: false });
         }
 
         if header.eq(&CARD_HEADER_VU_DATA) {
-            let generation: TachographDataGeneration = if data_length >= MINIMUM_G2_CARD_DATA_LENGTH { TachographDataGeneration::SecondGeneration } else { TachographDataGeneration::FirstGeneration };
-            return Ok(TachographHeader {
-                generation,
-                data_type: TachographDataType::Card,
-                card_in_vu_data: true
-            });            
+            let generation: TachographDataGeneration = if data_length >= MINIMUM_G2_CARD_DATA_LENGTH {
+                TachographDataGeneration::SecondGeneration
+            } else {
+                TachographDataGeneration::FirstGeneration
+            };
+            return Ok(TachographHeader { generation, data_type: TachographDataType::Card, card_in_vu_data: true });
         }
-        
+
         Err(Error::InvalidHeaderData)
     }
 }

@@ -33,6 +33,10 @@ impl DataInfo {
         }
     }
 
+    pub fn data_into_mem_reader(&self) -> Result<BinMemoryBuffer> {
+        Ok(BinMemoryBuffer::from(self.data.clone()))
+    }
+
     pub fn read<R: ReadBytes + BinSeek>(reader: &mut R, trep_id: VUTransferResponseParameterID) -> Result<DataInfo> {
         let data_type_id = DataTypeID::from(reader.read_u8()?);
         let data_size = reader.read_u16::<BigEndian>()?;

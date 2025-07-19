@@ -1,3 +1,4 @@
+mod card_data;
 mod card_response_parameter_data;
 mod certificate;
 mod certificate_authority_reference;
@@ -50,6 +51,7 @@ mod vu_time_adjustment_record;
 mod vu_transfer_response_parameter_data;
 mod vu_vehicle_registration_number_records;
 
+pub use card_data::CardData;
 pub use card_response_parameter_data::CardResponseParameterData;
 pub use certificate::{Certificate, CertificateParams};
 pub use certificate_authority_reference::CertificateAuthorityReference;
