@@ -3,8 +3,8 @@ use log::debug;
 
 use crate::Result;
 use crate::gen2::{
-    DataInfo, DataInfoGenericRecords, SensorExternalGNSSCoupledRecord, SensorPairedRecord, VuCalibrationRecord, VuCardRecord,
-    VuIdentification,
+    DataInfo, DataInfoGenericRecords, SensorExternalGNSSCoupledRecord, SensorPairedRecord, SignatureRecords, VuCalibrationRecord,
+    VuCardRecord, VuIdentification, VuItsConsentRecord, VuPowerSupplyInterruptionRecord,
 };
 use crate::tacho::VUTransferResponseParameterID;
 
@@ -15,6 +15,9 @@ pub struct VUTechnicalData {
     pub vu_sensor_external_gnss_coupled_records: DataInfoGenericRecords<SensorExternalGNSSCoupledRecord>,
     pub vu_calibration_records: DataInfoGenericRecords<VuCalibrationRecord>,
     pub vu_card_records: DataInfoGenericRecords<VuCardRecord>,
+    pub vu_its_consent_records: DataInfoGenericRecords<VuItsConsentRecord>,
+    pub vu_power_supply_interruption_records: DataInfoGenericRecords<VuPowerSupplyInterruptionRecord>,
+    pub signature_records: Option<SignatureRecords>,
 }
 
 impl VUTechnicalData {
@@ -29,11 +32,12 @@ impl VUTechnicalData {
         let vu_calibration_records: DataInfoGenericRecords<VuCalibrationRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
         let vu_card_records: DataInfoGenericRecords<VuCardRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let vu_its_consent_records: DataInfoGenericRecords<VuItsConsentRecord> =
+            DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let vu_power_supply_interruption_records: DataInfoGenericRecords<VuPowerSupplyInterruptionRecord> =
+            DataInfo::read(reader, trep_id.clone())?.parse()?;
 
-        // FIXME:
-        let its_consent = DataInfo::read(reader, trep_id.clone())?;
-        let power_supply_interruption = DataInfo::read(reader, trep_id.clone())?;
-        let signature = Some(DataInfo::read(reader, trep_id.clone())?);
+        let signature_records: Option<SignatureRecords> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
 
         Ok(Self {
             vu_identification_records,
@@ -41,6 +45,9 @@ impl VUTechnicalData {
             vu_sensor_external_gnss_coupled_records,
             vu_calibration_records,
             vu_card_records,
+            vu_its_consent_records,
+            vu_power_supply_interruption_records,
+            signature_records,
         })
     }
 }

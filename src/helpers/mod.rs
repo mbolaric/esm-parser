@@ -1,4 +1,4 @@
+mod convert;
 mod enum_macros;
-mod strings;
 
-pub(crate) use strings::*;
+pub(crate) use convert::*;
