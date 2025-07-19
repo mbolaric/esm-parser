@@ -27,7 +27,6 @@ impl ReadableWithParams<Certificate> for Certificate {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<Certificate> {
         if let Some(size) = params.size {
-            // FIXME: need to be parsed
             let certificate_profile = CertificateProfile::read(reader, &CertificateProfileParams::new(size))?;
             let data = if !reader.is_eof() {
                 let mut buff: Vec<u8> = Vec::new();
@@ -36,10 +35,10 @@ impl ReadableWithParams<Certificate> for Certificate {
             } else {
                 Vec::new()
             };
-            return Ok(Self { certificate_profile: Some(certificate_profile), data });
+            Ok(Self { certificate_profile: Some(certificate_profile), data })
         } else {
             let data = reader.read_into_vec(reader.len()? as u32)?;
-            return Ok(Self { certificate_profile: None, data });
+            Ok(Self { certificate_profile: None, data })
         }
     }
 }

@@ -62,7 +62,7 @@ impl ReadableWithParams<CardEventData> for CardEventData {
                     records.push(record);
                 }
             }
-            if records.len() > 0 {
+            if !records.is_empty() {
                 event_records.push(records);
             }
         }

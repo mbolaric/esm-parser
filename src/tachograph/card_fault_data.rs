@@ -59,7 +59,7 @@ impl ReadableWithParams<CardFaultData> for CardFaultData {
                     records.push(record);
                 }
             }
-            if records.len() > 0 {
+            if !records.is_empty() {
                 fault_records.push(records);
             }
         }

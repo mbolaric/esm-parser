@@ -61,7 +61,7 @@ impl WorkshopCard {
         }
     }
 
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String) -> Result<Box<WorkshopCard>> {
+    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &str) -> Result<Box<WorkshopCard>> {
         let card_chip_identification = CardData::parse_ic(card_data_files)?;
         let card_icc_identification = CardData::parse_icc(card_data_files)?;
         let application_identification =
@@ -72,7 +72,7 @@ impl WorkshopCard {
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
-            card_notes.clone(),
+            card_notes.to_owned(),
         );
 
         for card_item in card_data_files.iter() {

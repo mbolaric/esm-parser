@@ -1,5 +1,3 @@
-use log::trace;
-
 use crate::{CodePage, Readable, bytes_to_string};
 
 #[derive(Debug)]

@@ -19,7 +19,7 @@ impl IdentificationParams {
 #[derive(Debug)]
 pub enum Identification {
     CompanyCard,
-    DriverCard(DriverCardIdentification),
+    DriverCard(Box<DriverCardIdentification>),
     ControlCard,
     WorkshopCard,
 }
@@ -30,7 +30,7 @@ impl ReadableWithParams<Identification> for Identification {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<Identification> {
         match params.equipment_type {
             EquipmentType::CompanyCard => Err(Error::NotImplemented),
-            EquipmentType::DriverCard => Ok(Identification::DriverCard(DriverCardIdentification::read(reader)?)),
+            EquipmentType::DriverCard => Ok(Identification::DriverCard(Box::new(DriverCardIdentification::read(reader)?))),
             EquipmentType::ControlCard => Err(Error::NotImplemented),
             EquipmentType::WorkshopCard => Err(Error::NotImplemented),
             _ => Err(Error::UnknownCardTypeDecoding),

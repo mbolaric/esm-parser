@@ -15,7 +15,7 @@ impl Readable<CardDrivingLicenceInformation> for CardDrivingLicenceInformation {
         let driving_licence_issuing_authority = Name::read(reader)?;
         let driving_licence_issuing_nation: NationNumeric = reader.read_u8()?.into();
         let driving_licence_number = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1);
-        if driving_licence_issuing_authority.name.len() != 0 && driving_licence_number.is_empty() {
+        if !driving_licence_issuing_authority.name.is_empty() && driving_licence_number.is_empty() {
             return Err(Error::CorruptedDrivingLicenceNumber);
         }
 

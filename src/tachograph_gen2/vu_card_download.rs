@@ -7,6 +7,7 @@ use crate::tacho::{TachographHeader, VUTransferResponseParameterID};
 
 #[derive(Debug)]
 pub struct VUCardDownload {
+    pub card: CardData,
     pub signature_records: Option<SignatureRecords>,
 }
 
@@ -21,6 +22,6 @@ impl VUCardDownload {
         let card: CardData = CardData::from_data(header, &mut data_info.data_into_mem_reader()?)?;
         let signature_records: Option<SignatureRecords> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
 
-        Ok(Self { signature_records })
+        Ok(Self { card, signature_records })
     }
 }

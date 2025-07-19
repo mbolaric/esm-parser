@@ -21,7 +21,7 @@ impl ReadableWithParams<CardIdentification> for CardIdentification {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardIdentification> {
         let card_issuing_member_state: NationNumeric = reader.read_u8()?.into();
-        let card_number = CardNumber::read(reader, &params)?;
+        let card_number = CardNumber::read(reader, params)?;
         let card_issuing_authority_name = Name::read(reader)?;
         let card_issue_date = TimeReal::read(reader)?;
         let card_validity_begin = TimeReal::read(reader)?;

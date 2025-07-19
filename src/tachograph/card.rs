@@ -6,6 +6,8 @@ use log::debug;
 use crate::tacho::{CardFileID, TachographHeader};
 use crate::{Error, Readable, Result};
 
+pub type CardParseFunc<D> = (dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>);
+
 pub enum CardGeneration {
     Gen1,
     Gen2,
@@ -124,10 +126,7 @@ impl<D> dyn Card<D> {
         Ok(card_file_notes)
     }
 
-    pub fn from_data<R: ReadBytes + BinSeek>(
-        reader: &mut R,
-        parse_card: &(dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>),
-    ) -> Result<D> {
+    pub fn from_data<R: ReadBytes + BinSeek>(reader: &mut R, parse_card: &CardParseFunc<D>) -> Result<D> {
         let mut card_data_files: HashMap<CardFileID, CardDataFile> = HashMap::new();
         let mut card_notes: String = "".to_owned();
 
