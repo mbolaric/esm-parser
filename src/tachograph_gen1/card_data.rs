@@ -38,16 +38,16 @@ impl CardData {
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
-                Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, &card_notes)?))
+                Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::CompanyCard => {
-                Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, &card_notes)?))
+                Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::ControlCard => {
-                Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, &card_notes)?))
+                Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::WorkshopCard => {
-                Ok(CardResponseParameterData::WorkshopCard(WorkshopCard::parse(card_data_files, &card_notes)?))
+                Ok(CardResponseParameterData::WorkshopCard(WorkshopCard::parse(card_data_files, card_notes)?))
             }
             _ => Ok(CardResponseParameterData::Unsupported),
         }

@@ -82,6 +82,12 @@ impl CardDataFilesByCardGenerationItem {
     }
 }
 
+impl Default for CardDataFilesByCardGenerationItem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct CardDataFilesByCardGeneration {
     pub card_data_files_gen1: CardDataFilesByCardGenerationItem,
@@ -91,8 +97,8 @@ pub struct CardDataFilesByCardGeneration {
 impl CardDataFilesByCardGeneration {
     pub fn new() -> Self {
         Self {
-            card_data_files_gen1: CardDataFilesByCardGenerationItem::new(),
-            card_data_files_gen2: CardDataFilesByCardGenerationItem::new(),
+            card_data_files_gen1: CardDataFilesByCardGenerationItem::default(),
+            card_data_files_gen2: CardDataFilesByCardGenerationItem::default(),
         }
     }
 
@@ -104,6 +110,12 @@ impl CardDataFilesByCardGeneration {
             return CardGeneration::Gen1;
         }
         CardGeneration::Gen2
+    }
+}
+
+impl Default for CardDataFilesByCardGeneration {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
