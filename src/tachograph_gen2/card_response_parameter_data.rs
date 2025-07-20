@@ -1,9 +1,9 @@
-use crate::gen2::DriverCard;
+use crate::{gen1, gen2};
 
 #[derive(Debug)]
 pub enum CardResponseParameterData {
     Unsupported,
-    DriverCard(Box<DriverCard>),
+    DriverCard(Option<Box<gen1::DriverCard>>, Option<Box<gen2::DriverCard>>),
     CompanyCard,
     WorkshopCard,
     ControlCard,

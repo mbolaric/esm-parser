@@ -1,4 +1,3 @@
-mod card_application_identification;
 mod card_data;
 mod card_response_data_parameter;
 mod certificate;
@@ -9,6 +8,7 @@ mod control_card;
 mod download_activity;
 mod downloadable_period;
 mod driver_card;
+mod driver_card_application_identification;
 mod place_record;
 mod previous_vehicle_info;
 mod sensor_paired;
@@ -36,7 +36,6 @@ mod workshop_card;
 mod workshop_card_application_identification;
 mod workshop_card_calibration_data;
 
-pub use card_application_identification::CardApplicationIdentification;
 pub use card_data::CardData;
 pub use card_response_data_parameter::CardResponseParameterData;
 pub use certificate::Certificate;
@@ -47,6 +46,7 @@ pub use control_card::ControlCard;
 pub use download_activity::DownloadActivity;
 pub use downloadable_period::DownloadablePeriod;
 pub use driver_card::DriverCard;
+pub use driver_card_application_identification::DriverCardApplicationIdentification;
 pub use place_record::PlaceRecord;
 pub use previous_vehicle_info::PreviousVehicleInfo;
 pub use sensor_paired::SensorPaired;

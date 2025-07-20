@@ -3,18 +3,22 @@ use std::collections::HashMap;
 use log::{debug, trace};
 
 use crate::{
-    Readable, Result,
-    gen1::CardApplicationIdentification,
-    gen2::CardResponseParameterData,
-    tacho::{Card, CardChipIdentification, CardDataFile, CardFileID, CardIccIdentification, TimeReal},
+    Readable, ReadableWithParams, Result,
+    gen2::{CardResponseParameterData, Certificate, CertificateParams, DriverCardApplicationIdentification},
+    tacho::{Card, CardChipIdentification, CardDataFile, CardFileID, CardGeneration, CardIccIdentification, TimeReal},
 };
 
 #[derive(Debug)]
 pub struct DriverCard {
+    pub card_generation: CardGeneration,
     pub card_chip_identification: CardChipIdentification,
     pub card_icc_identification: CardIccIdentification,
-    pub application_identification: CardApplicationIdentification,
+    pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub card_certificate: Option<Certificate>,
+    pub ca_certificate: Option<Certificate>,
+    pub card_sign_certificate: Option<Certificate>,
+    pub link_certificate: Option<Certificate>,
     pub card_notes: String,
 }
 
@@ -22,17 +26,28 @@ impl DriverCard {
     fn new(
         card_chip_identification: CardChipIdentification,
         card_icc_identification: CardIccIdentification,
-        application_identification: CardApplicationIdentification,
+        application_identification: DriverCardApplicationIdentification,
         card_notes: String,
     ) -> Self {
-        Self { card_chip_identification, card_icc_identification, application_identification, card_download: None, card_notes }
+        Self {
+            card_generation: CardGeneration::Gen2,
+            card_chip_identification,
+            card_icc_identification,
+            application_identification,
+            card_download: None,
+            card_certificate: None,
+            ca_certificate: None,
+            card_sign_certificate: None,
+            link_certificate: None,
+            card_notes,
+        }
     }
 
     pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &str) -> Result<Box<DriverCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
-            CardApplicationIdentification,
+            DriverCardApplicationIdentification,
         >(card_data_files)?;
         debug!("DriverCard::parse - Application Identification: {:?}", application_identification);
 
@@ -48,6 +63,22 @@ impl DriverCard {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }
                 // FIXME: we need to parse all cases
+                CardFileID::CardCertificate => {
+                    let params = CertificateParams::new(None);
+                    driver_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
+                }
+                CardFileID::CACertificate => {
+                    let params = CertificateParams::new(None);
+                    driver_card.ca_certificate = Some(Certificate::read(&mut reader, &params)?);
+                }
+                CardFileID::CardSignCertificate => {
+                    let params = CertificateParams::new(None);
+                    driver_card.card_sign_certificate = Some(Certificate::read(&mut reader, &params)?);
+                }
+                CardFileID::LinkCertificate => {
+                    let params = CertificateParams::new(None);
+                    driver_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
+                }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
                     trace!("DriverCard::parse - Already parsed: {:?}", card_item.0)
                 }

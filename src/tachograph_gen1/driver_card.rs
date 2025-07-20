@@ -3,20 +3,21 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardApplicationIdentification, CardResponseParameterData, Certificate, PlaceRecord, VehiclesUsedRecord},
+    gen1::{CardResponseParameterData, Certificate, DriverCardApplicationIdentification, PlaceRecord, VehiclesUsedRecord},
     tacho::{
         Card, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
-        CardIccIdentification, CardPlaces, CardPlacesParams, CurrentUsage, Identification, IdentificationParams,
+        CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CurrentUsage, Identification, IdentificationParams,
         SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsed, VehiclesUsedParams,
     },
 };
 
 #[derive(Debug)]
 pub struct DriverCard {
+    pub card_generation: CardGeneration,
     pub card_chip_identification: CardChipIdentification,
     pub card_icc_identification: CardIccIdentification,
-    pub application_identification: CardApplicationIdentification,
+    pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
     pub card_event_data: Option<CardEventData>,
     pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
@@ -37,10 +38,11 @@ impl DriverCard {
     fn new(
         card_chip_identification: CardChipIdentification,
         card_icc_identification: CardIccIdentification,
-        application_identification: CardApplicationIdentification,
+        application_identification: DriverCardApplicationIdentification,
         card_notes: String,
     ) -> Self {
         Self {
+            card_generation: CardGeneration::Gen1,
             card_chip_identification,
             card_icc_identification,
             application_identification,
@@ -65,7 +67,7 @@ impl DriverCard {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
-            CardApplicationIdentification,
+            DriverCardApplicationIdentification,
         >(card_data_files)?;
         debug!("DriverCard::parse - Application Identification: {:?}", application_identification);
 

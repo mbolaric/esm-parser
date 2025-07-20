@@ -1,11 +1,9 @@
-use std::collections::HashMap;
-
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use crate::Result;
 use crate::gen1::{CardResponseParameterData, CompanyCard, ControlCard, DriverCard, WorkshopCard};
-use crate::tacho::{self, CardDataFile, CardFileID, EquipmentType, TachographHeader};
+use crate::tacho::{self, CardDataFilesByCardGeneration, CardGeneration, EquipmentType, TachographHeader};
 
 #[derive(Debug)]
 pub struct CardData {
@@ -17,9 +15,7 @@ impl CardData {
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<CardData> {
         let card_data_responses = <dyn tacho::Card<CardResponseParameterData>>::from_data(
             reader,
-            &|card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String| {
-                CardData::parse_card(card_data_files, card_notes)
-            },
+            &|card_data_files: &CardDataFilesByCardGeneration| CardData::parse_card(card_data_files),
         )?;
 
         debug!("CardData::from_data - Header: {:?}, Note: {:?}", header, card_data_responses);
@@ -27,23 +23,31 @@ impl CardData {
         Ok(Self { header, card_data_responses })
     }
 
-    fn parse_card(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &String) -> Result<CardResponseParameterData> {
+    fn parse_card(card_data_files_by_gen: &CardDataFilesByCardGeneration) -> Result<CardResponseParameterData> {
+        let generation = card_data_files_by_gen.get_card_generation();
+        if generation != CardGeneration::Gen1 && generation != CardGeneration::Combined {
+            // FIXME: Return error ...
+        }
+
+        let card_data_files = &card_data_files_by_gen.card_data_files_gen1.card_data_files;
+        let card_notes = &card_data_files_by_gen.card_data_files_gen1.card_notes;
+
         debug!("CardData::parse_card - Data Files Count: {:?}, Note: {:?}", card_data_files.len(), card_notes);
         let application_identification =
             <dyn tacho::Card<CardResponseParameterData>>::parse_application_identification(card_data_files)?;
         debug!("CardData::parse_card - Application identification: {:?}", application_identification);
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
-                Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, card_notes)?))
+                Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, &card_notes)?))
             }
             EquipmentType::CompanyCard => {
-                Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, card_notes)?))
+                Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, &card_notes)?))
             }
             EquipmentType::ControlCard => {
-                Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, card_notes)?))
+                Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, &card_notes)?))
             }
             EquipmentType::WorkshopCard => {
-                Ok(CardResponseParameterData::WorkshopCard(WorkshopCard::parse(card_data_files, card_notes)?))
+                Ok(CardResponseParameterData::WorkshopCard(WorkshopCard::parse(card_data_files, &card_notes)?))
             }
             _ => Ok(CardResponseParameterData::Unsupported),
         }

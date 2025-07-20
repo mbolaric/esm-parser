@@ -6,8 +6,10 @@ use log::debug;
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
 
-pub type CardParseFunc<D> = (dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>);
+// pub type CardParseFunc<D> = (dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>);
+pub type CardParseFunc<D> = (dyn Fn(&CardDataFilesByCardGeneration) -> Result<D>);
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum CardGeneration {
     Gen1,
     Gen2,
@@ -40,6 +42,10 @@ impl CardDataFile {
     pub fn signature_into_reader(&self) -> Result<BinMemoryBuffer> {
         self.vector_into_reader(&self.signature)
     }
+
+    pub fn data_len(&self) -> usize {
+        if let Some(data) = &self.data { data.len() } else { 0 }
+    }
 }
 
 impl Readable<CardDataFile> for CardDataFile {
@@ -57,6 +63,47 @@ impl Readable<CardDataFile> for CardDataFile {
         };
 
         Ok(Self { card_file_id, appendix, card_file_notes, size, signature: None, data })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CardDataFilesByCardGenerationItem {
+    pub card_data_files: HashMap<CardFileID, CardDataFile>,
+    pub card_notes: String,
+}
+
+impl CardDataFilesByCardGenerationItem {
+    pub fn new() -> Self {
+        Self { card_data_files: HashMap::new(), card_notes: "".to_owned() }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.card_data_files.is_empty()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CardDataFilesByCardGeneration {
+    pub card_data_files_gen1: CardDataFilesByCardGenerationItem,
+    pub card_data_files_gen2: CardDataFilesByCardGenerationItem,
+}
+
+impl CardDataFilesByCardGeneration {
+    pub fn new() -> Self {
+        Self {
+            card_data_files_gen1: CardDataFilesByCardGenerationItem::new(),
+            card_data_files_gen2: CardDataFilesByCardGenerationItem::new(),
+        }
+    }
+
+    pub fn get_card_generation(&self) -> CardGeneration {
+        if !self.card_data_files_gen1.is_empty() && !self.card_data_files_gen2.is_empty() {
+            return CardGeneration::Combined;
+        }
+        if !self.card_data_files_gen1.is_empty() {
+            return CardGeneration::Gen1;
+        }
+        CardGeneration::Gen2
     }
 }
 
@@ -104,8 +151,7 @@ impl<D> dyn Card<D> {
         Ok(application_identification)
     }
 
-    fn procces_card_data_file(data_file: CardDataFile, card_items: &mut HashMap<CardFileID, CardDataFile>) -> Result<String> {
-        let mut card_file_notes = "".to_owned();
+    fn procces_card_data_file(data_file: CardDataFile, card_items: &mut CardDataFilesByCardGeneration) -> Result<()> {
         match data_file.card_file_id {
             CardFileID::ICC
             | CardFileID::IC
@@ -132,22 +178,39 @@ impl<D> dyn Card<D> {
                     "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?}",
                     data_file.card_file_id, data_file.appendix
                 );
-                let card_file_temp = card_items.get_mut(&data_file.card_file_id);
-                if data_file.appendix == 0 {
+
+                let (card_file_temp, card_file_notes) = if data_file.appendix == 0 || data_file.appendix == 1 {
+                    (
+                        card_items.card_data_files_gen1.card_data_files.get_mut(&data_file.card_file_id),
+                        &mut card_items.card_data_files_gen1.card_notes,
+                    )
+                } else {
+                    (
+                        card_items.card_data_files_gen2.card_data_files.get_mut(&data_file.card_file_id),
+                        &mut card_items.card_data_files_gen2.card_notes,
+                    )
+                };
+
+                if data_file.appendix == 0 || data_file.appendix == 2 {
                     if card_file_temp.is_some() {
                         return Err(Error::DuplicateCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes = format!("[{}] {}", &data_file.card_file_id, &data_file.card_file_notes);
+                        card_file_notes.push_str(&format!("[{}] {}", &data_file.card_file_id, &data_file.card_file_notes));
                     }
-                    card_items.insert(data_file.card_file_id.clone(), data_file);
+                    if data_file.appendix == 0 {
+                        card_items.card_data_files_gen1.card_data_files.insert(data_file.card_file_id.clone(), data_file);
+                    } else {
+                        card_items.card_data_files_gen2.card_data_files.insert(data_file.card_file_id.clone(), data_file);
+                    }
                 } else {
                     // Signature
                     if card_file_temp.is_none() {
                         return Err(Error::SignatureBeforeCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes = format!("[{} (signature)] {}", &data_file.card_file_id, &data_file.card_file_notes);
+                        card_file_notes
+                            .push_str(&format!("[{} (signature)] {}", &data_file.card_file_id, &data_file.card_file_notes));
                     }
                     card_file_temp.unwrap().signature = data_file.data.clone()
                 }
@@ -167,23 +230,24 @@ impl<D> dyn Card<D> {
             }
         }
 
-        Ok(card_file_notes)
+        Ok(())
     }
 
     pub fn from_data<R: ReadBytes + BinSeek>(reader: &mut R, parse_card: &CardParseFunc<D>) -> Result<D> {
-        let mut card_data_files: HashMap<CardFileID, CardDataFile> = HashMap::new();
-        let mut card_notes: String = "".to_owned();
+        let mut card_data_files = CardDataFilesByCardGeneration::new();
+        //let mut card_data_files: HashMap<CardFileID, CardDataFile> = HashMap::new();
+        // let mut card_notes: String = "".to_owned();
 
         while reader.pos()? < reader.len()? {
             let current_data_file = CardDataFile::read(reader)?;
-            debug!("Card::from_data - {:?}", current_data_file.card_file_id.clone());
+            debug!("Card::from_data - {:?}, Length : {:?}", current_data_file.card_file_id.clone(), current_data_file.data_len());
 
-            let mut temp_notes = <dyn Card<D>>::procces_card_data_file(current_data_file, &mut card_data_files)?;
-            if !temp_notes.is_empty() {
-                temp_notes = format!("{}\r\n", temp_notes);
-            }
+            <dyn Card<D>>::procces_card_data_file(current_data_file, &mut card_data_files)?;
+            // if !temp_notes.is_empty() {
+            //     temp_notes = format!("{}\r\n", temp_notes);
+            // }
 
-            card_notes.push_str(temp_notes.as_str());
+            // card_notes.push_str(temp_notes.as_str());
         }
 
         // Card Data is Partial
@@ -191,7 +255,7 @@ impl<D> dyn Card<D> {
             return Err(Error::PartialCardFile);
         }
 
-        let data = parse_card(&card_data_files, &card_notes)?;
+        let data = parse_card(&card_data_files)?;
         Ok(data)
     }
 }
