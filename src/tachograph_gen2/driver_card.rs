@@ -63,6 +63,20 @@ impl DriverCard {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }
                 // FIXME: we need to parse all cases
+                CardFileID::EventsData
+                | CardFileID::FaultsData
+                | CardFileID::DriverActivityData
+                | CardFileID::VehiclesUsed
+                | CardFileID::Places
+                | CardFileID::CurrentUsage
+                | CardFileID::ControlActivityData
+                | CardFileID::Identification
+                | CardFileID::DrivingLicenseInfo
+                | CardFileID::SpecificConditions
+                | CardFileID::VehicleUnitsUsed
+                | CardFileID::GnssPlaces => {
+                    trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                }
                 CardFileID::CardCertificate => {
                     let params = CertificateParams::new(None);
                     driver_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
