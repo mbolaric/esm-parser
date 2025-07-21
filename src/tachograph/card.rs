@@ -6,7 +6,6 @@ use log::debug;
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
 
-// pub type CardParseFunc<D> = (dyn Fn(&HashMap<CardFileID, CardDataFile>, &String) -> Result<D>);
 pub type CardParseFunc<D> = (dyn Fn(&CardDataFilesByCardGeneration) -> Result<D>);
 
 #[derive(Debug, Clone, PartialEq)]
@@ -247,19 +246,11 @@ impl<D> dyn Card<D> {
 
     pub fn from_data<R: ReadBytes + BinSeek>(reader: &mut R, parse_card: &CardParseFunc<D>) -> Result<D> {
         let mut card_data_files = CardDataFilesByCardGeneration::new();
-        //let mut card_data_files: HashMap<CardFileID, CardDataFile> = HashMap::new();
-        // let mut card_notes: String = "".to_owned();
 
         while reader.pos()? < reader.len()? {
             let current_data_file = CardDataFile::read(reader)?;
             debug!("Card::from_data - {:?}, Length : {:?}", current_data_file.card_file_id.clone(), current_data_file.data_len());
-
             <dyn Card<D>>::procces_card_data_file(current_data_file, &mut card_data_files)?;
-            // if !temp_notes.is_empty() {
-            //     temp_notes = format!("{}\r\n", temp_notes);
-            // }
-
-            // card_notes.push_str(temp_notes.as_str());
         }
 
         // Card Data is Partial

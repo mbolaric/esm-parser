@@ -1,5 +1,7 @@
 use core::fmt;
 
+use log::trace;
+
 use crate::common::string_decode::{
     code_page::CodePage, iso_8859_1::decode_iso_8859_1, iso_8859_2::decode_iso_8859_2, iso_8859_3::decode_iso_8859_3,
     iso_8859_5::decode_iso_8859_5, iso_8859_7::decode_iso_8859_7, iso_8859_9::decode_iso_8859_9, iso_8859_13::decode_iso_8859_13,
@@ -24,8 +26,10 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 }
 
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
-    let ret_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
-    ret_str.trim_end_matches('\0').trim().to_owned()
+    let dec_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
+    let ret_str = dec_str.trim_end_matches('\0').trim().to_owned();
+    trace!("Bytes: {:?}, Decoded: {:?}, Final: {:?}", bytes, dec_str, ret_str);
+    ret_str
 }
 
 pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {

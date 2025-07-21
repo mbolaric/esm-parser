@@ -27,12 +27,12 @@ impl CardData {
 
     fn parse_card(card_data_files_by_gen: &CardDataFilesByCardGeneration) -> Result<CardResponseParameterData> {
         let generation = card_data_files_by_gen.get_card_generation();
-        if generation != CardGeneration::Gen2 && generation != CardGeneration::Combined {
-            // FIXME: Return error ...
+        if generation == CardGeneration::Gen1 {
+            return Err(Error::InvalidDataGeneration);
         }
 
-        let card_data_files_gen1 = &card_data_files_by_gen.card_data_files_gen2.card_data_files;
-        let card_notes_gen1 = &card_data_files_by_gen.card_data_files_gen2.card_notes;
+        let card_data_files_gen1 = &card_data_files_by_gen.card_data_files_gen1.card_data_files;
+        let card_notes_gen1 = &card_data_files_by_gen.card_data_files_gen1.card_notes;
         let card_data_files_gen2 = &card_data_files_by_gen.card_data_files_gen2.card_data_files;
         let card_notes_gen2 = &card_data_files_by_gen.card_data_files_gen2.card_notes;
 

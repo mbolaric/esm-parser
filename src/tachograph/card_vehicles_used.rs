@@ -19,15 +19,15 @@ impl VehiclesUsedParams {
 }
 
 #[derive(Debug)]
-pub struct VehiclesUsed<T> {
+pub struct CardVehiclesUsed<T> {
     pub vehicle_pointer_newest_record: u16,
     pub vehicle_records: Vec<T>,
 }
 
-impl<T: Readable<T> + VehicleUse> ReadableWithParams<VehiclesUsed<T>> for VehiclesUsed<T> {
+impl<T: Readable<T> + VehicleUse> ReadableWithParams<CardVehiclesUsed<T>> for CardVehiclesUsed<T> {
     type P = VehiclesUsedParams;
 
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VehiclesUsed<T>> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardVehiclesUsed<T>> {
         let vehicle_pointer_newest_record = reader.read_u16::<BigEndian>()?;
         let mut vehicle_records: Vec<T> = Vec::new();
         for _ in 0..params.no_of_card_vehicle_records {

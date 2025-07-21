@@ -1,3 +1,4 @@
+use binary_data::BinSeek;
 use log::{debug, trace};
 use std::collections::HashMap;
 
@@ -7,8 +8,8 @@ use crate::{
     tacho::{
         Card, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
-        CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CurrentUsage, Identification, IdentificationParams,
-        SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsed, VehiclesUsedParams,
+        CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CardVehiclesUsed, CurrentUsage, Identification,
+        IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
     },
 };
 
@@ -27,7 +28,7 @@ pub struct DriverCard {
     pub specific_conditions: Option<SpecificConditions>,
     pub control_activity_data: Option<CardControlActivityData>,
     pub current_usage: Option<CurrentUsage>,
-    pub vehicles_used: Option<VehiclesUsed<VehiclesUsedRecord>>,
+    pub vehicles_used: Option<CardVehiclesUsed<VehiclesUsedRecord>>,
     pub card_places: Option<CardPlaces<PlaceRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
@@ -79,30 +80,51 @@ impl DriverCard {
         );
 
         for card_item in card_data_files.iter() {
-            debug!("DriverCard::parse - ID: {:?}", card_item.0,);
+            debug!("DriverCard::parse - ID: {:?}", card_item.0);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
+            debug!("DriverCard::parse - ID: {:?}, Data Length: {:?}", card_item.0, reader.len()?);
             match card_item.0 {
                 CardFileID::CardDownload => {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }
                 CardFileID::EventsData => {
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.no_events_per_type,
+                    );
                     let params = CardEventDataParams::new(6, application_identification.no_events_per_type);
                     driver_card.card_event_data = Some(CardEventData::read(&mut reader, &params)?);
                 }
                 CardFileID::FaultsData => {
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.no_faults_per_type,
+                    );
                     let params = CardFaultDataParams::new(application_identification.no_faults_per_type);
                     driver_card.card_fault_data = Some(CardFaultData::read(&mut reader, &params)?);
                 }
                 CardFileID::DriverActivityData => {
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.card_activity_length_range,
+                    );
                     let params = CardDriverActivityParams::new(application_identification.card_activity_length_range);
                     driver_card.card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
                 CardFileID::VehiclesUsed => {
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.no_of_card_vehicle_records,
+                    );
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
-                    driver_card.vehicles_used = Some(VehiclesUsed::<VehiclesUsedRecord>::read(&mut reader, &params)?);
+                    driver_card.vehicles_used = Some(CardVehiclesUsed::<VehiclesUsedRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::Places => {
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.no_of_place_records,
+                    );
                     let params = CardPlacesParams::new(application_identification.no_of_place_records, 1);
                     driver_card.card_places = Some(CardPlaces::<PlaceRecord>::read(&mut reader, &params)?);
                 }

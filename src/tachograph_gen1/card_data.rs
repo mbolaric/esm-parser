@@ -1,9 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
-use crate::Result;
 use crate::gen1::{CardResponseParameterData, CompanyCard, ControlCard, DriverCard, WorkshopCard};
 use crate::tacho::{self, CardDataFilesByCardGeneration, CardGeneration, EquipmentType, TachographHeader};
+use crate::{Error, Result};
 
 #[derive(Debug)]
 pub struct CardData {
@@ -25,8 +25,8 @@ impl CardData {
 
     fn parse_card(card_data_files_by_gen: &CardDataFilesByCardGeneration) -> Result<CardResponseParameterData> {
         let generation = card_data_files_by_gen.get_card_generation();
-        if generation != CardGeneration::Gen1 && generation != CardGeneration::Combined {
-            // FIXME: Return error ...
+        if generation == CardGeneration::Gen2 {
+            return Err(Error::InvalidDataGeneration);
         }
 
         let card_data_files = &card_data_files_by_gen.card_data_files_gen1.card_data_files;
