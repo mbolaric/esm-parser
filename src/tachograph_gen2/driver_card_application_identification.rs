@@ -5,7 +5,7 @@ use crate::{
     tacho::{CardStructureVersion, EquipmentType},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DriverCardApplicationIdentification {
     pub type_of_tachograph_card_id: EquipmentType,
     pub card_structure_version: CardStructureVersion,

@@ -184,7 +184,11 @@ impl<D> dyn Card<D> {
             | CardFileID::SpecificConditions
             | CardFileID::MF
             | CardFileID::CardCertificate
-            | CardFileID::CACertificate => {
+            | CardFileID::CACertificate
+            | CardFileID::VehicleUnitsUsed
+            | CardFileID::GnssPlaces
+            | CardFileID::CardSignCertificate
+            | CardFileID::LinkCertificate => {
                 debug!(
                     "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?}",
                     data_file.card_file_id, data_file.appendix
@@ -202,6 +206,7 @@ impl<D> dyn Card<D> {
                     )
                 };
 
+                // 0, 1 - Gen1 - 2, 3 - Gen2
                 if data_file.appendix == 0 || data_file.appendix == 2 {
                     if card_file_temp.is_some() {
                         return Err(Error::DuplicateCardFile);
@@ -225,15 +230,6 @@ impl<D> dyn Card<D> {
                     }
                     card_file_temp.unwrap().signature = data_file.data.clone()
                 }
-            }
-            CardFileID::VehicleUnitsUsed
-            | CardFileID::GnssPlaces
-            | CardFileID::CardSignCertificate
-            | CardFileID::LinkCertificate => {
-                debug!(
-                    "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?} is ignored for now.",
-                    data_file.card_file_id, data_file.appendix
-                );
             }
             _ => {
                 debug!("Card::procces_card_data_file - CardFileID: {:?}", data_file.card_file_id);
