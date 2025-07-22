@@ -9,8 +9,8 @@ use crate::{
         DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
     },
     tacho::{
-        Card, CardChipIdentification, CardDataFile, CardFileID, CardGeneration, CardIccIdentification, SpecificConditions,
-        SpecificConditionsParams, TimeReal,
+        Card, CardChipIdentification, CardDataFile, CardDrivingLicenceInformation, CardFileID, CardGeneration,
+        CardIccIdentification, SpecificConditions, SpecificConditionsParams, TimeReal,
     },
 };
 
@@ -21,6 +21,7 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
     pub specific_conditions: Option<SpecificConditions>,
     pub card_vehicle_units_used: Option<CardVehicleUnitsUsed>,
     pub gnss_places: Option<GnssAccumulatedDriving>,
@@ -44,6 +45,7 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
+            card_driving_license_info: None,
             specific_conditions: None,
             card_vehicle_units_used: None,
             card_certificate: None,
@@ -86,9 +88,11 @@ impl DriverCard {
                 | CardFileID::Places
                 | CardFileID::CurrentUsage
                 | CardFileID::ControlActivityData
-                | CardFileID::Identification
-                | CardFileID::DrivingLicenseInfo => {
+                | CardFileID::Identification => {
                     trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                }
+                CardFileID::DrivingLicenseInfo => {
+                    driver_card.card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
                 }
                 CardFileID::SpecificConditions => {
                     let params = SpecificConditionsParams::new(56);
