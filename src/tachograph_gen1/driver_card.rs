@@ -6,10 +6,10 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, Certificate, DriverCardApplicationIdentification, PlaceRecord, VehiclesUsedRecord},
     tacho::{
-        Card, CardChipIdentification, CardControlActivityData, CardDataFile, CardDriverActivity, CardDriverActivityParams,
-        CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileID,
-        CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CardVehiclesUsed, CurrentUsage, Identification,
-        IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
+        Card, CardChipIdentification, CardControlActivityData, CardDriverActivity, CardDriverActivityParams,
+        CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
+        CardFileID, CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CardVehiclesUsed, CurrentUsage,
+        Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
     },
 };
 
@@ -64,7 +64,7 @@ impl DriverCard {
         }
     }
 
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &str) -> Result<Box<DriverCard>> {
+    pub fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<DriverCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<

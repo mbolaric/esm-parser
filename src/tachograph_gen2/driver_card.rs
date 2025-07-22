@@ -9,7 +9,7 @@ use crate::{
         DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
     },
     tacho::{
-        Card, CardChipIdentification, CardDataFile, CardDrivingLicenceInformation, CardFileID, CardGeneration,
+        Card, CardChipIdentification, CardDrivingLicenceInformation, CardFileData, CardFileID, CardGeneration,
         CardIccIdentification, SpecificConditions, SpecificConditionsParams, TimeReal,
     },
 };
@@ -57,7 +57,7 @@ impl DriverCard {
         }
     }
 
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &str) -> Result<Box<DriverCard>> {
+    pub fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<DriverCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<

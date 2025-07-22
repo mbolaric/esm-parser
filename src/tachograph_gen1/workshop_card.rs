@@ -8,7 +8,7 @@ use crate::gen1::{
     WorkshopCardCalibrationDataParams,
 };
 use crate::tacho::{
-    Card, CardChipIdentification, CardDataFile, CardFileID, CardIccIdentification, Identification, IdentificationParams,
+    Card, CardChipIdentification, CardFileData, CardFileID, CardIccIdentification, Identification, IdentificationParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -62,7 +62,7 @@ impl WorkshopCard {
         }
     }
 
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardDataFile>, card_notes: &str) -> Result<Box<WorkshopCard>> {
+    pub fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<WorkshopCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
