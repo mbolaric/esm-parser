@@ -5,10 +5,13 @@ use log::{debug, trace};
 use crate::{
     Readable, ReadableWithParams, Result,
     gen2::{
-        CardResponseParameterData, Certificate, CertificateParams, DriverCardApplicationIdentification, GnssAccumulatedDriving,
-        GnssAccumulatedDrivingParams,
+        CardResponseParameterData, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate, CertificateParams,
+        DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
     },
-    tacho::{Card, CardChipIdentification, CardDataFile, CardFileID, CardGeneration, CardIccIdentification, TimeReal},
+    tacho::{
+        Card, CardChipIdentification, CardDataFile, CardFileID, CardGeneration, CardIccIdentification, SpecificConditions,
+        SpecificConditionsParams, TimeReal,
+    },
 };
 
 #[derive(Debug)]
@@ -18,6 +21,8 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub specific_conditions: Option<SpecificConditions>,
+    pub card_vehicle_units_used: Option<CardVehicleUnitsUsed>,
     pub gnss_places: Option<GnssAccumulatedDriving>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
@@ -39,6 +44,8 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
+            specific_conditions: None,
+            card_vehicle_units_used: None,
             card_certificate: None,
             gnss_places: None,
             ca_certificate: None,
@@ -80,10 +87,16 @@ impl DriverCard {
                 | CardFileID::CurrentUsage
                 | CardFileID::ControlActivityData
                 | CardFileID::Identification
-                | CardFileID::DrivingLicenseInfo
-                | CardFileID::SpecificConditions
-                | CardFileID::VehicleUnitsUsed => {
+                | CardFileID::DrivingLicenseInfo => {
                     trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                }
+                CardFileID::SpecificConditions => {
+                    let params = SpecificConditionsParams::new(56);
+                    driver_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
+                }
+                CardFileID::VehicleUnitsUsed => {
+                    let params = CardVehicleUnitsUsedParams::new(application_identification.no_card_vehicle_units_records);
+                    driver_card.card_vehicle_units_used = Some(CardVehicleUnitsUsed::read(&mut reader, &params)?);
                 }
                 CardFileID::GnssPlaces => {
                     let params = GnssAccumulatedDrivingParams::new(application_identification.no_gnssad_records);

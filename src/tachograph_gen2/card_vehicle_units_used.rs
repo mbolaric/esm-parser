@@ -1,0 +1,55 @@
+use binary_data::{BigEndian, BinSeek, ReadBytes};
+
+use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::TimeReal};
+
+#[derive(Debug)]
+pub struct CardVehicleUnitRecord {
+    pub time_stamp: TimeReal,
+    pub manufacturer_code: u8,
+    pub device_id: u8,
+    pub vu_software_version: String,
+}
+
+impl Readable<CardVehicleUnitRecord> for CardVehicleUnitRecord {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CardVehicleUnitRecord> {
+        let time_stamp = TimeReal::read(reader)?;
+        let manufacturer_code = reader.read_u8()?;
+        let device_id = reader.read_u8()?;
+        let vu_software_version = bytes_to_ia5_fix_string(&reader.read_into_vec(4)?)?;
+        Ok(Self { time_stamp, manufacturer_code, device_id, vu_software_version })
+    }
+}
+
+#[derive(Debug)]
+pub struct CardVehicleUnitsUsedParams {
+    pub no_of_card_vehicle_unit_records: u32,
+}
+
+impl CardVehicleUnitsUsedParams {
+    pub fn new(no_of_card_vehicle_unit_records: u32) -> Self {
+        Self { no_of_card_vehicle_unit_records }
+    }
+}
+
+#[derive(Debug)]
+pub struct CardVehicleUnitsUsed {
+    pub vehicle_unit_pointer_newest_record: u16,
+    pub card_vehicle_unit_records: Vec<CardVehicleUnitRecord>,
+}
+
+impl ReadableWithParams<CardVehicleUnitsUsed> for CardVehicleUnitsUsed {
+    type P = CardVehicleUnitsUsedParams;
+
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardVehicleUnitsUsed> {
+        let vehicle_unit_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        let mut records: Vec<CardVehicleUnitRecord> = Vec::new();
+        for _ in 0..params.no_of_card_vehicle_unit_records {
+            let record = CardVehicleUnitRecord::read(reader)?;
+            if record.time_stamp.has_data() {
+                records.push(record);
+            }
+        }
+
+        Ok(Self { vehicle_unit_pointer_newest_record, card_vehicle_unit_records: records })
+    }
+}

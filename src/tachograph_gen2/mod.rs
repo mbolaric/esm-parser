@@ -1,5 +1,6 @@
 mod card_data;
 mod card_response_parameter_data;
+mod card_vehicle_units_used;
 mod certificate;
 mod certificate_authority_reference;
 mod certificate_date;
@@ -56,6 +57,7 @@ mod vu_vehicle_registration_number_records;
 
 pub use card_data::CardData;
 pub use card_response_parameter_data::CardResponseParameterData;
+pub use card_vehicle_units_used::{CardVehicleUnitRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams};
 pub use certificate::{Certificate, CertificateParams};
 pub use certificate_authority_reference::CertificateAuthorityReference;
 pub use certificate_date::CertificateDate;
