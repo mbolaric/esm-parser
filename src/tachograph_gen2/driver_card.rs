@@ -10,7 +10,7 @@ use crate::{
     },
     tacho::{
         Card, CardChipIdentification, CardDrivingLicenceInformation, CardFileData, CardFileID, CardGeneration,
-        CardIccIdentification, SpecificConditions, SpecificConditionsParams, TimeReal,
+        CardIccIdentification, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal,
     },
 };
 
@@ -21,6 +21,7 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub identification: Option<Identification>,
     pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
     pub specific_conditions: Option<SpecificConditions>,
     pub card_vehicle_units_used: Option<CardVehicleUnitsUsed>,
@@ -45,6 +46,7 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
+            identification: None,
             card_driving_license_info: None,
             specific_conditions: None,
             card_vehicle_units_used: None,
@@ -87,9 +89,12 @@ impl DriverCard {
                 | CardFileID::VehiclesUsed
                 | CardFileID::Places
                 | CardFileID::CurrentUsage
-                | CardFileID::ControlActivityData
-                | CardFileID::Identification => {
+                | CardFileID::ControlActivityData => {
                     trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                }
+                CardFileID::Identification => {
+                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
+                    driver_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::DrivingLicenseInfo => {
                     driver_card.card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
