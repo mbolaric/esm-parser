@@ -6,7 +6,7 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, Certificate, DriverCardApplicationIdentification, PlaceRecord, VehiclesUsedRecord},
     tacho::{
-        Card, CardChipIdentification, CardControlActivityData, CardDriverActivity, CardDriverActivityParams,
+        Card, CardChipIdentification, CardControlActivityDataRecord, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
         CardFileID, CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CardVehiclesUsed, CurrentUsage,
         Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
@@ -26,7 +26,7 @@ pub struct DriverCard {
     pub identification: Option<Identification>,
     pub card_driver_activity: Option<CardDriverActivity>,
     pub specific_conditions: Option<SpecificConditions>,
-    pub control_activity_data: Option<CardControlActivityData>,
+    pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub current_usage: Option<CurrentUsage>,
     pub vehicles_used: Option<CardVehiclesUsed<VehiclesUsedRecord>>,
     pub card_places: Option<CardPlaces<PlaceRecord>>,
@@ -132,7 +132,7 @@ impl DriverCard {
                     driver_card.current_usage = Some(CurrentUsage::read(&mut reader)?);
                 }
                 CardFileID::ControlActivityData => {
-                    driver_card.control_activity_data = Some(CardControlActivityData::read(&mut reader)?);
+                    driver_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);
                 }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());

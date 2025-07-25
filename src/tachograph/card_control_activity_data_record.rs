@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct CardControlActivityData {
+pub struct CardControlActivityDataRecord {
     pub control_type: ControlType,
     pub control_time: TimeReal,
     pub control_card_number: FullCardNumber,
@@ -13,8 +13,8 @@ pub struct CardControlActivityData {
     pub control_download_period_end: TimeReal,
 }
 
-impl Readable<CardControlActivityData> for CardControlActivityData {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardControlActivityData> {
+impl Readable<CardControlActivityDataRecord> for CardControlActivityDataRecord {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardControlActivityDataRecord> {
         let control_type: ControlType = reader.read_u8()?.into();
         let control_time = TimeReal::read(reader)?;
         let control_card_number = FullCardNumber::read(reader)?;

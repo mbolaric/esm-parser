@@ -9,8 +9,9 @@ use crate::{
         DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
     },
     tacho::{
-        Card, CardChipIdentification, CardDrivingLicenceInformation, CardFileData, CardFileID, CardGeneration,
-        CardIccIdentification, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal,
+        Card, CardChipIdentification, CardControlActivityDataRecord, CardDrivingLicenceInformation, CardFileData, CardFileID,
+        CardGeneration, CardIccIdentification, Identification, IdentificationParams, SpecificConditions,
+        SpecificConditionsParams, TimeReal,
     },
 };
 
@@ -21,6 +22,7 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub identification: Option<Identification>,
     pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
     pub specific_conditions: Option<SpecificConditions>,
@@ -46,6 +48,7 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
+            control_activity_data: None,
             identification: None,
             card_driving_license_info: None,
             specific_conditions: None,
@@ -88,9 +91,11 @@ impl DriverCard {
                 | CardFileID::DriverActivityData
                 | CardFileID::VehiclesUsed
                 | CardFileID::Places
-                | CardFileID::CurrentUsage
-                | CardFileID::ControlActivityData => {
+                | CardFileID::CurrentUsage => {
                     trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                }
+                CardFileID::ControlActivityData => {
+                    driver_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);
                 }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
