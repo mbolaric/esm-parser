@@ -20,6 +20,11 @@ impl Readable<CardIccIdentification> for CardIccIdentification {
         let card_approval_number = bytes_to_string(&reader.read_into_vec(8)?, &CodePage::IsoIec8859_1);
         let card_personaliser_id = reader.read_u8()?;
         let embedder_ic_assembler_id = EmbedderIcAssemblerId::read(reader)?;
+        // OCTET STRING(SIZE(l))
+        // You should interpret it as two raw bytes that represent a Identifier of the IC on the card (not a printable character). So:
+        //  - Do not decode it as ASCII or UTF-8
+        //  - Instead, treat it like a numeric or binary ID
+        //  - usually interpreted as a hex code
         let ic_identifier = reader.read_into_vec(2)?;
 
         Ok(Self {
