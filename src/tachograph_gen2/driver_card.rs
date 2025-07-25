@@ -11,9 +11,10 @@ use crate::{
     },
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardDriverActivity, CardDriverActivityParams,
-        CardDrivingLicenceInformation, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardGeneration,
-        CardIccIdentification, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, CurrentUsage,
-        Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
+        CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
+        CardFileID, CardGeneration, CardIccIdentification, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
+        CardVehiclesUsed, CurrentUsage, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams,
+        TimeReal, VehiclesUsedParams,
     },
 };
 
@@ -24,6 +25,7 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub card_event_data: Option<CardEventData>,
     pub card_fault_data: Option<CardFaultData>,
     pub card_driver_activity: Option<CardDriverActivity>,
     pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
@@ -55,6 +57,7 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
+            card_event_data: None,
             card_fault_data: None,
             card_driver_activity: None,
             card_vehicles_used: None,
@@ -97,9 +100,13 @@ impl DriverCard {
                 CardFileID::CardDownload => {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }
-                // FIXME: we need to parse all cases
                 CardFileID::EventsData => {
-                    trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.no_events_per_type,
+                    );
+                    let params = CardEventDataParams::new(11, application_identification.no_events_per_type);
+                    driver_card.card_event_data = Some(CardEventData::read(&mut reader, &params)?);
                 }
                 CardFileID::FaultsData => {
                     debug!(
