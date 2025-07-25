@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardResponseParameterData, Certificate, DriverCardApplicationIdentification, PlaceRecord, VehiclesUsedRecord},
+    gen1::{CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord},
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
@@ -29,7 +29,7 @@ pub struct DriverCard {
     pub specific_conditions: Option<SpecificConditions>,
     pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub current_usage: Option<CurrentUsage>,
-    pub vehicles_used: Option<CardVehiclesUsed<VehiclesUsedRecord>>,
+    pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
     pub card_places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
@@ -57,7 +57,7 @@ impl DriverCard {
             specific_conditions: None,
             control_activity_data: None,
             current_usage: None,
-            vehicles_used: None,
+            card_vehicles_used: None,
             card_places: None,
             card_certificate: None,
             ca_certificate: None,
@@ -119,7 +119,7 @@ impl DriverCard {
                         card_item.0, application_identification.no_of_card_vehicle_records,
                     );
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
-                    driver_card.vehicles_used = Some(CardVehiclesUsed::<VehiclesUsedRecord>::read(&mut reader, &params)?);
+                    driver_card.card_vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::Places => {
                     debug!(

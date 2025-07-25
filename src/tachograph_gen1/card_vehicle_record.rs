@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct VehiclesUsedRecord {
+pub struct CardVehicleRecord {
     pub vehicle_odometer_begin: OdometerShort,
     pub vehicle_odometer_end: OdometerShort,
     pub vehicle_first_use: TimeReal,
@@ -13,8 +13,8 @@ pub struct VehiclesUsedRecord {
     pub vu_data_block_counter: String,
 }
 
-impl Readable<VehiclesUsedRecord> for VehiclesUsedRecord {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VehiclesUsedRecord> {
+impl Readable<CardVehicleRecord> for CardVehicleRecord {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardVehicleRecord> {
         let vehicle_odometer_begin = OdometerShort::read(reader)?;
         let vehicle_odometer_end = OdometerShort::read(reader)?;
         let vehicle_first_use = TimeReal::read(reader)?;
@@ -33,7 +33,7 @@ impl Readable<VehiclesUsedRecord> for VehiclesUsedRecord {
     }
 }
 
-impl VehicleUse for VehiclesUsedRecord {
+impl VehicleUse for CardVehicleRecord {
     fn get_vehicle_first_use(&self) -> &TimeReal {
         &self.vehicle_first_use
     }
