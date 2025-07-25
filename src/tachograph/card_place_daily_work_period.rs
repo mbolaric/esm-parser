@@ -7,27 +7,27 @@ pub trait CardPlace {
 }
 
 #[derive(Debug)]
-pub struct CardPlacesParams {
-    pub no_of_records: u8,
+pub struct CardPlaceDailyWorkPeriodParams {
+    pub no_of_records: u32,
     pub size_of_newest_place_record: u8,
 }
 
-impl CardPlacesParams {
-    pub fn new(no_of_records: u8, size_of_newest_place_record: u8) -> Self {
+impl CardPlaceDailyWorkPeriodParams {
+    pub fn new(no_of_records: u32, size_of_newest_place_record: u8) -> Self {
         Self { no_of_records, size_of_newest_place_record }
     }
 }
 
 #[derive(Debug)]
-pub struct CardPlaces<T> {
+pub struct CardPlaceDailyWorkPeriod<T> {
     pub place_pointer_newest_record: i32,
     pub place_records: Vec<T>,
 }
 
-impl<T: Readable<T> + CardPlace> ReadableWithParams<CardPlaces<T>> for CardPlaces<T> {
-    type P = CardPlacesParams;
+impl<T: Readable<T> + CardPlace> ReadableWithParams<CardPlaceDailyWorkPeriod<T>> for CardPlaceDailyWorkPeriod<T> {
+    type P = CardPlaceDailyWorkPeriodParams;
 
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardPlaces<T>> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardPlaceDailyWorkPeriod<T>> {
         let place_pointer_newest_record = if params.size_of_newest_place_record == 1 {
             reader.read_u8()? as i32
         } else {

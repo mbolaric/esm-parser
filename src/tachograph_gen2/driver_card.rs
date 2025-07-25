@@ -6,12 +6,12 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen2::{
         CardResponseParameterData, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate, CertificateParams,
-        DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
+        DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, PlaceRecord,
     },
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardDrivingLicenceInformation, CardFileData, CardFileID,
-        CardGeneration, CardIccIdentification, Identification, IdentificationParams, SpecificConditions,
-        SpecificConditionsParams, TimeReal,
+        CardGeneration, CardIccIdentification, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CurrentUsage,
+        Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal,
     },
 };
 
@@ -22,6 +22,8 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: DriverCardApplicationIdentification,
     pub card_download: Option<TimeReal>,
+    pub card_place_daily_work_period: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    pub current_usage: Option<CurrentUsage>,
     pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub identification: Option<Identification>,
     pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
@@ -48,6 +50,8 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
+            card_place_daily_work_period: None,
+            current_usage: None,
             control_activity_data: None,
             identification: None,
             card_driving_license_info: None,
@@ -86,13 +90,20 @@ impl DriverCard {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }
                 // FIXME: we need to parse all cases
-                CardFileID::EventsData
-                | CardFileID::FaultsData
-                | CardFileID::DriverActivityData
-                | CardFileID::VehiclesUsed
-                | CardFileID::Places
-                | CardFileID::CurrentUsage => {
+                CardFileID::EventsData | CardFileID::FaultsData | CardFileID::DriverActivityData | CardFileID::VehiclesUsed => {
                     trace!("DriverCard::parse - Not Implemented: {:?}", card_item.0)
+                }
+                CardFileID::Places => {
+                    debug!(
+                        "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
+                        card_item.0, application_identification.no_of_card_place_records,
+                    );
+                    let params = CardPlaceDailyWorkPeriodParams::new(application_identification.no_of_card_place_records, 2);
+                    driver_card.card_place_daily_work_period =
+                        Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
+                }
+                CardFileID::CurrentUsage => {
+                    driver_card.current_usage = Some(CurrentUsage::read(&mut reader)?);
                 }
                 CardFileID::ControlActivityData => {
                     driver_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);

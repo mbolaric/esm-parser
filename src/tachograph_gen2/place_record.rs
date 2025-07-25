@@ -3,7 +3,7 @@ use binary_data::{BinSeek, ReadBytes};
 use crate::{
     Readable, Result,
     gen2::GnssPlaceRecord,
-    tacho::{EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal},
+    tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal},
 };
 
 #[derive(Debug)]
@@ -33,5 +33,11 @@ impl Readable<PlaceRecord> for PlaceRecord {
             vehicle_odometer_value,
             gnns_place_record,
         })
+    }
+}
+
+impl CardPlace for PlaceRecord {
+    fn get_entry_time(&self) -> &TimeReal {
+        &self.entry_time
     }
 }

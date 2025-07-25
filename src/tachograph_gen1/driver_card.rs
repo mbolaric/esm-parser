@@ -8,8 +8,9 @@ use crate::{
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardDriverActivity, CardDriverActivityParams,
         CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
-        CardFileID, CardGeneration, CardIccIdentification, CardPlaces, CardPlacesParams, CardVehiclesUsed, CurrentUsage,
-        Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
+        CardFileID, CardGeneration, CardIccIdentification, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
+        CardVehiclesUsed, CurrentUsage, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams,
+        TimeReal, VehiclesUsedParams,
     },
 };
 
@@ -29,7 +30,7 @@ pub struct DriverCard {
     pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub current_usage: Option<CurrentUsage>,
     pub vehicles_used: Option<CardVehiclesUsed<VehiclesUsedRecord>>,
-    pub card_places: Option<CardPlaces<PlaceRecord>>,
+    pub card_places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
     pub card_notes: String,
@@ -123,10 +124,10 @@ impl DriverCard {
                 CardFileID::Places => {
                     debug!(
                         "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
-                        card_item.0, application_identification.no_of_place_records,
+                        card_item.0, application_identification.no_of_card_place_records,
                     );
-                    let params = CardPlacesParams::new(application_identification.no_of_place_records, 1);
-                    driver_card.card_places = Some(CardPlaces::<PlaceRecord>::read(&mut reader, &params)?);
+                    let params = CardPlaceDailyWorkPeriodParams::new(application_identification.no_of_card_place_records, 1);
+                    driver_card.card_places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::CurrentUsage => {
                     driver_card.current_usage = Some(CurrentUsage::read(&mut reader)?);
