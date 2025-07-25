@@ -5,6 +5,6 @@ pub enum CardResponseParameterData {
     Unsupported,
     DriverCard(Option<Box<gen1::DriverCard>>, Option<Box<gen2::DriverCard>>),
     CompanyCard,
-    WorkshopCard,
+    WorkshopCard(Option<Box<gen1::WorkshopCard>>, Option<Box<gen2::WorkshopCard>>),
     ControlCard,
 }

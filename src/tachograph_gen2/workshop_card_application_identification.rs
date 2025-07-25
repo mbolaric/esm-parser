@@ -15,6 +15,9 @@ pub struct WorkshopCardApplicationIdentification {
     pub no_of_card_vehicle_records: u32,
     pub no_of_card_place_records: u32,
     pub no_off_calibration_records: u8,
+    pub no_of_gnssad_records: u32,
+    pub no_of_specific_condition_records: u32,
+    pub no_of_card_vehicle_unit_records: u32,
 }
 
 impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplicationIdentification {
@@ -30,6 +33,10 @@ impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplication
         let no_of_card_place_records = reader.read_u8()? as u32;
         let no_off_calibration_records = reader.read_u8()?;
 
+        let no_of_gnssad_records = reader.read_u16::<BigEndian>()? as u32;
+        let no_of_specific_condition_records = reader.read_u16::<BigEndian>()? as u32;
+        let no_of_card_vehicle_unit_records = reader.read_u16::<BigEndian>()? as u32;
+
         Ok(Self {
             type_of_tachograph_card_id,
             card_structure_version,
@@ -39,6 +46,9 @@ impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplication
             no_of_card_vehicle_records,
             no_of_card_place_records,
             no_off_calibration_records,
+            no_of_gnssad_records,
+            no_of_specific_condition_records,
+            no_of_card_vehicle_unit_records,
         })
     }
 }

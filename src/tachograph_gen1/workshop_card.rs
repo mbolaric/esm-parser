@@ -10,7 +10,7 @@ use crate::gen1::{
 use crate::tacho::{
     Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification,
-    CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
+    CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
     SpecificConditions, SpecificConditionsParams, VehiclesUsedParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
@@ -64,8 +64,10 @@ impl WorkshopCard {
             card_notes,
         }
     }
+}
 
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<WorkshopCard>> {
+impl CardParser<WorkshopCard> for WorkshopCard {
+    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<WorkshopCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<

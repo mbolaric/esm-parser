@@ -55,6 +55,8 @@ mod vu_technical_data;
 mod vu_time_adjustment_record;
 mod vu_transfer_response_parameter_data;
 mod vu_vehicle_registration_number_records;
+mod workshop_card;
+mod workshop_card_application_identification;
 
 pub use card_data::CardData;
 pub use card_response_parameter_data::CardResponseParameterData;
@@ -113,3 +115,5 @@ pub use vu_technical_data::VUTechnicalData;
 pub use vu_time_adjustment_record::VuTimeAdjustmentRecord;
 pub use vu_transfer_response_parameter_data::*;
 pub use vu_vehicle_registration_number_records::VuVehicleRegistrationNumberRecords;
+pub use workshop_card::WorkshopCard;
+pub use workshop_card_application_identification::WorkshopCardApplicationIdentification;

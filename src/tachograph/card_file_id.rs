@@ -10,6 +10,7 @@ pub enum CardFileID {
     IC = 5,
     Tachograph = 0x500,
     ApplicationIdentification = 0x501,
+    ApplicationIdentificationV2 = 0x525,
     EventsData = 0x502,
     FaultsData = 0x503,
     DriverActivityData = 0x504,

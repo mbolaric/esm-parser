@@ -7,6 +7,7 @@ use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID
 use crate::{Error, Readable, Result};
 
 pub type CardParseFunc<D> = (dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>);
+pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CardGeneration {
@@ -67,7 +68,7 @@ impl Readable<CardFileData> for CardFileData {
 
 #[derive(Debug, Clone)]
 pub struct CardFilesDataByCardGenerationItem {
-    pub card_files_data: HashMap<CardFileID, CardFileData>,
+    pub card_files_data: CardFilesMap,
     pub card_notes: String,
 }
 
@@ -124,7 +125,7 @@ pub trait Card<D> {
 }
 
 impl<D> dyn Card<D> {
-    pub fn get_mem_reader(card_file_id: &CardFileID, data: &HashMap<CardFileID, CardFileData>) -> Result<BinMemoryBuffer> {
+    pub fn get_mem_reader(card_file_id: &CardFileID, data: &CardFilesMap) -> Result<BinMemoryBuffer> {
         let reader: Option<BinMemoryBuffer> = data
             .get(card_file_id)
             .and_then(|card_item: &CardFileData| card_item.data.as_ref().map(|bin_data| BinMemoryBuffer::from(bin_data.clone())));
@@ -134,29 +135,25 @@ impl<D> dyn Card<D> {
         Err(Error::MissingCardFile(card_file_id.to_string()))
     }
 
-    pub fn parse_ic(card_data_files: &HashMap<CardFileID, CardFileData>) -> Result<CardChipIdentification> {
+    pub fn parse_ic(card_data_files: &CardFilesMap) -> Result<CardChipIdentification> {
         let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::IC, card_data_files)?;
         let card_chip_identification = CardChipIdentification::read(&mut reader)?;
         Ok(card_chip_identification)
     }
 
-    pub fn parse_icc(card_data_files: &HashMap<CardFileID, CardFileData>) -> Result<CardIccIdentification> {
+    pub fn parse_icc(card_data_files: &CardFilesMap) -> Result<CardIccIdentification> {
         let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ICC, card_data_files)?;
         let card_icc_identification = CardIccIdentification::read(&mut reader)?;
         Ok(card_icc_identification)
     }
 
-    pub fn parse_card_application_identification<T: Readable<T>>(
-        card_data_files: &HashMap<CardFileID, CardFileData>,
-    ) -> Result<T> {
+    pub fn parse_card_application_identification<T: Readable<T>>(card_data_files: &CardFilesMap) -> Result<T> {
         let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
         let application_identification = T::read(&mut reader)?;
         Ok(application_identification)
     }
 
-    pub fn parse_application_identification(
-        card_data_files: &HashMap<CardFileID, CardFileData>,
-    ) -> Result<ApplicationIdentification> {
+    pub fn parse_application_identification(card_data_files: &CardFilesMap) -> Result<ApplicationIdentification> {
         let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
         let application_identification = ApplicationIdentification::read(&mut reader)?;
         Ok(application_identification)
@@ -167,6 +164,9 @@ impl<D> dyn Card<D> {
             CardFileID::Unknown => {
                 debug!("Card::procces_card_data_file - CardDataFile: {:?}", data_file);
                 return Err(Error::UnknownCardType);
+            }
+            CardFileID::ApplicationIdentificationV2 => {
+                debug!("Card::procces_card_data_file - CardDataFile: {:?} is not processed", data_file);
             }
             _ => {
                 debug!(
@@ -234,4 +234,8 @@ impl<D> dyn Card<D> {
         let data = parse_card(&card_data_files)?;
         Ok(data)
     }
+}
+
+pub trait CardParser<T> {
+    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<T>>;
 }

@@ -4,8 +4,10 @@ use log::debug;
 use crate::{
     Error, Result, gen1,
     gen2::{self, CardResponseParameterData},
-    tacho::{self, CardFilesDataByCardGeneration, CardGeneration, EquipmentType, TachographHeader},
+    tacho::{self, CardFilesDataByCardGeneration, CardFilesMap, CardGeneration, CardParser, EquipmentType, TachographHeader},
 };
+
+type CardByEquipmentTypeResult<TGen1, TGen2> = (Option<Box<TGen1>>, Option<Box<TGen2>>);
 
 #[derive(Debug)]
 pub struct CardData {
@@ -23,6 +25,25 @@ impl CardData {
         debug!("CardData::from_data - Header: {:?}, Note: {:?}", header, card_data_responses);
 
         Ok(Self { header, card_data_responses })
+    }
+
+    fn get_card_by_equipment_type<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>>(
+        generation: CardGeneration,
+        card_files_data_gen1: &CardFilesMap,
+        card_notes_gen1: &str,
+        card_files_data_gen2: &CardFilesMap,
+        card_notes_gen2: &str,
+    ) -> Result<CardByEquipmentTypeResult<TGen1, TGen2>> {
+        if generation == CardGeneration::Combined {
+            return Ok((
+                Some(TGen1::parse(card_files_data_gen1, card_notes_gen1)?),
+                Some(TGen2::parse(card_files_data_gen2, card_notes_gen2)?),
+            ));
+        }
+        if generation == CardGeneration::Gen1 {
+            return Ok((Some(TGen1::parse(card_files_data_gen1, card_notes_gen1)?), None));
+        }
+        Ok((None, Some(TGen2::parse(card_files_data_gen2, card_notes_gen2)?)))
     }
 
     fn parse_card(card_data_files_by_gen: &CardFilesDataByCardGeneration) -> Result<CardResponseParameterData> {
@@ -44,22 +65,14 @@ impl CardData {
         // FIXME: Replace Card with concrete card type
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
-                if generation == CardGeneration::Combined {
-                    return Ok(CardResponseParameterData::DriverCard(
-                        Some(gen1::DriverCard::parse(card_files_data_gen1, card_notes_gen1)?),
-                        Some(gen2::DriverCard::parse(card_files_data_gen2, card_notes_gen2)?),
-                    ));
-                }
-                if generation == CardGeneration::Gen1 {
-                    return Ok(CardResponseParameterData::DriverCard(
-                        Some(gen1::DriverCard::parse(card_files_data_gen1, card_notes_gen1)?),
-                        None,
-                    ));
-                }
-                Ok(CardResponseParameterData::DriverCard(
-                    None,
-                    Some(gen2::DriverCard::parse(card_files_data_gen2, card_notes_gen2)?),
-                ))
+                let cards = CardData::get_card_by_equipment_type::<gen1::DriverCard, gen2::DriverCard>(
+                    generation,
+                    card_files_data_gen1,
+                    card_notes_gen1,
+                    card_files_data_gen2,
+                    card_notes_gen2,
+                )?;
+                Ok(CardResponseParameterData::DriverCard(cards.0, cards.1))
             }
             EquipmentType::CompanyCard => {
                 Err(Error::NotImplemented)
@@ -70,8 +83,14 @@ impl CardData {
                 // Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::WorkshopCard => {
-                Err(Error::NotImplemented)
-                // Ok(CardResponseParameterData::WorkshopCard(WorkshopCard::parse(card_data_files, card_notes)?))
+                let cards = CardData::get_card_by_equipment_type::<gen1::WorkshopCard, gen2::WorkshopCard>(
+                    generation,
+                    card_files_data_gen1,
+                    card_notes_gen1,
+                    card_files_data_gen2,
+                    card_notes_gen2,
+                )?;
+                Ok(CardResponseParameterData::WorkshopCard(cards.0, cards.1))
             }
             _ => Ok(CardResponseParameterData::Unsupported),
         }
