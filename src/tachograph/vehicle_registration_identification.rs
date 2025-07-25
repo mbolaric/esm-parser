@@ -5,7 +5,7 @@ use crate::{
 
 #[derive(Debug)]
 pub struct VehicleRegistrationIdentification {
-    pub nation_numeric: NationNumeric,
+    pub vehicle_registration_nation: NationNumeric,
     pub vehicle_registration_number: VehicleRegistrationNumber,
 }
 
@@ -16,6 +16,6 @@ impl Readable<VehicleRegistrationIdentification> for VehicleRegistrationIdentifi
         let nation_numeric: NationNumeric = reader.read_u8()?.into();
         let vehicle_registration_number = VehicleRegistrationNumber::read(reader)?;
 
-        Ok(Self { nation_numeric, vehicle_registration_number })
+        Ok(Self { vehicle_registration_nation: nation_numeric, vehicle_registration_number })
     }
 }

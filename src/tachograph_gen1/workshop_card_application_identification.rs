@@ -13,7 +13,7 @@ pub struct WorkshopCardApplicationIdentification {
     pub no_faults_per_type: u8,
     pub card_activity_length_range: u32,
     pub no_of_card_vehicle_records: u32,
-    pub no_of_place_records: u8,
+    pub no_of_card_place_records: u32,
     pub no_off_calibration_records: u8,
 }
 
@@ -27,7 +27,7 @@ impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplication
         let no_faults_per_type = reader.read_u8()?;
         let card_activity_length_range = reader.read_u16::<BigEndian>()? as u32;
         let no_of_card_vehicle_records = reader.read_u16::<BigEndian>()? as u32;
-        let no_of_place_records = reader.read_u8()?;
+        let no_of_place_records = reader.read_u8()? as u32;
         let no_off_calibration_records = reader.read_u8()?;
 
         Ok(Self {
@@ -37,7 +37,7 @@ impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplication
             no_faults_per_type,
             card_activity_length_range,
             no_of_card_vehicle_records,
-            no_of_place_records,
+            no_of_card_place_records: no_of_place_records,
             no_off_calibration_records,
         })
     }

@@ -4,13 +4,14 @@ use binary_data::{BigEndian, ReadBytes};
 use log::{debug, trace};
 
 use crate::gen1::{
-    CardResponseParameterData, CardVehicleRecord, Certificate, WorkshopCardApplicationIdentification,
+    CardResponseParameterData, CardVehicleRecord, Certificate, PlaceRecord, WorkshopCardApplicationIdentification,
     WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
 };
 use crate::tacho::{
-    Card, CardChipIdentification, CardDriverActivity, CardDriverActivityParams, CardEventData, CardEventDataParams,
-    CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification, CardVehiclesUsed, Identification,
-    IdentificationParams, VehiclesUsedParams,
+    Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
+    CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification,
+    CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
+    SpecificConditions, SpecificConditionsParams, VehiclesUsedParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -26,11 +27,11 @@ pub struct WorkshopCard {
     pub card_fault_data: Option<CardFaultData>,
     pub identification: Option<Identification>,
     pub card_driver_activity: Option<CardDriverActivity>,
-    // pub specific_conditions: Option<SpecificConditions>,
-    // pub control_activity_data: Option<CardControlActivityData>,
-    // pub current_usage: Option<CurrentUsage>,
+    pub specific_conditions: Option<SpecificConditions>,
+    pub control_activity_data: Option<CardControlActivityDataRecord>,
+    pub current_usage: Option<CardCurrentUse>,
     pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
-    // pub card_places: Option<CardPlaces<PlaceRecord>>,
+    pub card_places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
     pub card_notes: String,
@@ -53,11 +54,11 @@ impl WorkshopCard {
             card_fault_data: None,
             identification: None,
             card_driver_activity: None,
-            // specific_conditions: None,
-            // control_activity_data: None,
-            // current_usage: None,
+            specific_conditions: None,
+            control_activity_data: None,
+            current_usage: None,
             card_vehicles_used: None,
-            // card_places: None,
+            card_places: None,
             card_certificate: None,
             ca_certificate: None,
             card_notes,
@@ -107,10 +108,20 @@ impl WorkshopCard {
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
                     workshop_card.card_vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
                 }
-                CardFileID::Places => {}
-                CardFileID::CurrentUsage => {}
-                CardFileID::ControlActivityData => {}
-                CardFileID::SpecificConditions => {}
+                CardFileID::Places => {
+                    let params = CardPlaceDailyWorkPeriodParams::new(application_identification.no_of_card_place_records, 1);
+                    workshop_card.card_places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
+                }
+                CardFileID::CurrentUsage => {
+                    workshop_card.current_usage = Some(CardCurrentUse::read(&mut reader)?);
+                }
+                CardFileID::ControlActivityData => {
+                    workshop_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);
+                }
+                CardFileID::SpecificConditions => {
+                    let params = SpecificConditionsParams::new(56);
+                    workshop_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
+                }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
                     workshop_card.identification = Some(Identification::read(&mut reader, &params)?);

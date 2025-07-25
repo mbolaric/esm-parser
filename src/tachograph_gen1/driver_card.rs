@@ -6,11 +6,11 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen1::{CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord},
     tacho::{
-        Card, CardChipIdentification, CardControlActivityDataRecord, CardDriverActivity, CardDriverActivityParams,
-        CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
-        CardFileID, CardGeneration, CardIccIdentification, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
-        CardVehiclesUsed, CurrentUsage, Identification, IdentificationParams, SpecificConditions, SpecificConditionsParams,
-        TimeReal, VehiclesUsedParams,
+        Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
+        CardDriverActivityParams, CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData,
+        CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardPlaceDailyWorkPeriod,
+        CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams, SpecificConditions,
+        SpecificConditionsParams, TimeReal, VehiclesUsedParams,
     },
 };
 
@@ -28,7 +28,7 @@ pub struct DriverCard {
     pub card_driver_activity: Option<CardDriverActivity>,
     pub specific_conditions: Option<SpecificConditions>,
     pub control_activity_data: Option<CardControlActivityDataRecord>,
-    pub current_usage: Option<CurrentUsage>,
+    pub current_usage: Option<CardCurrentUse>,
     pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
     pub card_places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
     pub card_certificate: Option<Certificate>,
@@ -130,7 +130,7 @@ impl DriverCard {
                     driver_card.card_places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::CurrentUsage => {
-                    driver_card.current_usage = Some(CurrentUsage::read(&mut reader)?);
+                    driver_card.current_usage = Some(CardCurrentUse::read(&mut reader)?);
                 }
                 CardFileID::ControlActivityData => {
                     driver_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);
