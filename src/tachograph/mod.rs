@@ -63,6 +63,7 @@ mod vu_transfer_response_parameter;
 mod vu_transfer_response_parameter_id;
 mod vu_transfer_response_parameter_item;
 mod vu_transfer_response_parameter_reader;
+mod workshop_card_calibration_data;
 mod workshop_card_holder_identification;
 mod workshop_card_identification;
 
@@ -131,5 +132,6 @@ pub use vu_transfer_response_parameter::VUTransferResponseParameter;
 pub use vu_transfer_response_parameter_id::VUTransferResponseParameterID;
 pub use vu_transfer_response_parameter_item::VUTransferResponseParameterItem;
 pub use vu_transfer_response_parameter_reader::VUTransferResponseParameterReader;
+pub use workshop_card_calibration_data::{WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams};
 pub use workshop_card_holder_identification::WorkshopCardHolderIdentification;
 pub use workshop_card_identification::WorkshopCardIdentification;

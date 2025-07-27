@@ -111,7 +111,7 @@ impl CardCertificate {
             nation_alpha,
             self.ca_reference.key_serial_number,
             self.ca_reference.additional_info,
-            if self.ca_reference.authority_id.len() > 0 {
+            if !self.ca_reference.authority_id.is_empty() {
                 self.ca_reference.authority_id[self.ca_reference.authority_id.len() - 1]
             } else {
                 0

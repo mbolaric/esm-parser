@@ -5,13 +5,14 @@ use log::{debug, trace};
 
 use crate::gen1::{
     CardResponseParameterData, CardVehicleRecord, Certificate, PlaceRecord, WorkshopCardApplicationIdentification,
-    WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
+    WorkshopCardCalibrationRecord,
 };
 use crate::tacho::{
     Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification,
     CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
-    SpecificConditions, SpecificConditionsParams, VehiclesUsedParams,
+    SpecificConditions, SpecificConditionsParams, VehiclesUsedParams, WorkshopCardCalibrationData,
+    WorkshopCardCalibrationDataParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -22,7 +23,7 @@ pub struct WorkshopCard {
     pub application_identification: WorkshopCardApplicationIdentification,
 
     pub no_of_calibrations_since_download: u16,
-    pub card_calibration_data: Option<WorkshopCardCalibrationData>,
+    pub card_calibration_data: Option<WorkshopCardCalibrationData<WorkshopCardCalibrationRecord>>,
     pub card_event_data: Option<CardEventData>,
     pub card_fault_data: Option<CardFaultData>,
     pub identification: Option<Identification>,
@@ -92,7 +93,8 @@ impl CardParser<WorkshopCard> for WorkshopCard {
                 }
                 CardFileID::Calibration => {
                     let params = WorkshopCardCalibrationDataParams::new(application_identification.no_off_calibration_records);
-                    workshop_card.card_calibration_data = Some(WorkshopCardCalibrationData::read(&mut reader, &params)?);
+                    workshop_card.card_calibration_data =
+                        Some(WorkshopCardCalibrationData::<WorkshopCardCalibrationRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::EventsData => {
                     let params = CardEventDataParams::new(6, application_identification.no_events_per_type);
