@@ -22,7 +22,7 @@ impl CardData {
             &|card_data_files: &CardFilesDataByCardGeneration| CardData::parse_card(card_data_files),
         )?;
 
-        debug!("CardData::from_data - Header: {:?}, Note: {:?}", header, card_data_responses);
+        debug!("CardData::from_data - Header: {header:?}, Note: {card_data_responses:?}");
 
         Ok(Self { header, card_data_responses })
     }
@@ -61,7 +61,7 @@ impl CardData {
         debug!("CardData::parse_card - Gen2 - Data Files Count: {:?}, Note: {:?}", card_files_data_gen2.len(), card_notes_gen2);
         let application_identification =
             <dyn tacho::Card<CardResponseParameterData>>::parse_application_identification(card_files_data_gen1)?;
-        debug!("CardData::parse_card - Application identification: {:?}", application_identification);
+        debug!("CardData::parse_card - Application identification: {application_identification:?}");
         // FIXME: Replace Card with concrete card type
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {

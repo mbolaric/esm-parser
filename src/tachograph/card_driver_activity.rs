@@ -23,7 +23,7 @@ impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
             return Err(Error::CardActivityDailyRecord("Card Activity Record Length is not even".to_owned()));
         }
         let record_date = TimeReal::read(reader)?;
-        let daily_presence_counter = BCDString::decode(&reader.read_into_vec(2)?);
+        let daily_presence_counter = BCDString::decode(&reader.read_into_vec(2)?)?;
         let day_distance = reader.read_u16::<BigEndian>()?;
 
         if activity_record_length == 0 {

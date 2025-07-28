@@ -162,11 +162,11 @@ impl<D> dyn Card<D> {
     fn procces_card_data_file(data_file: CardFileData, card_items: &mut CardFilesDataByCardGeneration) -> Result<()> {
         match data_file.card_file_id {
             CardFileID::Unknown => {
-                debug!("Card::procces_card_data_file - CardDataFile: {:?}", data_file);
+                debug!("Card::procces_card_data_file - CardDataFile: {data_file:?}");
                 return Err(Error::UnknownCardType);
             }
             CardFileID::ApplicationIdentificationV2 => {
-                debug!("Card::procces_card_data_file - CardDataFile: {:?} is not processed", data_file);
+                debug!("Card::procces_card_data_file - CardDataFile: {data_file:?} is not processed");
             }
             _ => {
                 debug!(

@@ -30,7 +30,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_trep - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_trep - Trep ID: {trep_id:?}");
         match trep_id {
             VUTransferResponseParameterID::Overview => {
                 let vu_overview = VuOverview::from_data(trep_id, reader)?;

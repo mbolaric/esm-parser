@@ -24,7 +24,7 @@ pub struct VuOverview {
 
 impl VUTransferResponseParameterReader<VuOverview> for VuOverview {
     fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuOverview> {
-        debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
+        debug!("VuOverview::from_data - Trep ID: {trep_id:?}");
         let member_state_certificate = reader.read_into_vec(194)?;
         let vu_certificate = reader.read_into_vec(194)?;
         let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;

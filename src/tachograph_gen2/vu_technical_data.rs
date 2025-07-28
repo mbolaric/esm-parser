@@ -22,7 +22,7 @@ pub struct VUTechnicalData {
 
 impl VUTechnicalData {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUTechnicalData> {
-        debug!("VUTechnicalData::from_data - Trep ID: {:?}", trep_id);
+        debug!("VUTechnicalData::from_data - Trep ID: {trep_id:?}");
         let vu_identification_records: DataInfoGenericRecords<VuIdentification> =
             DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
         let vu_sensor_paired_records: DataInfoGenericRecords<SensorPairedRecord> =

@@ -20,7 +20,7 @@ impl Readable<CardVehicleRecord> for CardVehicleRecord {
         let vehicle_first_use = TimeReal::read(reader)?;
         let vehicle_last_use = TimeReal::read(reader)?;
         let vehicle_registration = VehicleRegistrationIdentification::read(reader)?;
-        let vu_data_block_counter = BCDString::decode(&reader.read_into_vec(2)?);
+        let vu_data_block_counter = BCDString::decode(&reader.read_into_vec(2)?)?;
 
         Ok(Self {
             vehicle_odometer_begin,

@@ -30,7 +30,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_speed - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_speed - Trep ID: {trep_id:?}");
         let vu_speed = VUSpeed::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Speed(vu_speed))
     }
@@ -39,7 +39,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_overview - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_overview - Trep ID: {trep_id:?}");
         let vu_control = VUOverview::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Control(vu_control))
     }
@@ -48,7 +48,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_activity - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_activity - Trep ID: {trep_id:?}");
         let vu_control_activity = VUActivity::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Activity(vu_control_activity))
     }
@@ -57,7 +57,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_events - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_events - Trep ID: {trep_id:?}");
         let vu_events = VUEvents::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Events(vu_events))
     }
@@ -66,7 +66,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_technical_data - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_technical_data - Trep ID: {trep_id:?}");
         let vu_calibration = VUTechnicalData::from_data(trep_id, reader)?;
         Ok(VUTransferResponseParameterData::Calibration(vu_calibration))
     }
@@ -76,7 +76,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_card_download - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_card_download - Trep ID: {trep_id:?}");
         let vu_card_download = VUCardDownload::from_data(header, trep_id, reader)?;
         Ok(VUTransferResponseParameterData::CardDownload(vu_card_download))
     }
@@ -86,7 +86,7 @@ impl VUData {
         trep_id: VUTransferResponseParameterID,
         reader: &mut R,
     ) -> Result<VUTransferResponseParameterData> {
-        debug!("VUData::parse_trep - Trep ID: {:?}", trep_id);
+        debug!("VUData::parse_trep - Trep ID: {trep_id:?}");
         match trep_id {
             VUTransferResponseParameterID::Overview
             | VUTransferResponseParameterID::Gen2Overview
@@ -107,7 +107,7 @@ impl VUData {
             VUTransferResponseParameterID::OddballCrashDump => Ok(VUTransferResponseParameterData::OddballCrashDump),
             _ => {
                 let data_info = DataInfo::read(reader, trep_id)?;
-                debug!("VUData::parse_trep - Not Imeplemented {:?}", data_info);
+                debug!("VUData::parse_trep - Not Imeplemented {data_info:?}");
                 Ok(VUTransferResponseParameterData::Unknown(data_info))
             }
         }

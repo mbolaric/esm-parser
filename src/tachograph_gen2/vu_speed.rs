@@ -13,7 +13,7 @@ pub struct VUSpeed {
 
 impl VUSpeed {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUSpeed> {
-        debug!("VUSpeed::from_data - Trep ID: {:?}", trep_id);
+        debug!("VUSpeed::from_data - Trep ID: {trep_id:?}");
         let vu_detailed_speed_block_records: DataInfoGenericRecords<VuDetailedSpeedBlock> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
         let signature_records: Option<SignatureRecords> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);

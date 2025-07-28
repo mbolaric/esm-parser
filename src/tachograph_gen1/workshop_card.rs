@@ -74,7 +74,7 @@ impl CardParser<WorkshopCard> for WorkshopCard {
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
             WorkshopCardApplicationIdentification,
         >(card_data_files)?;
-        debug!("WorkshopCard::parse - Application Identification: {:?}", application_identification);
+        debug!("WorkshopCard::parse - Application Identification: {application_identification:?}");
 
         let mut workshop_card = WorkshopCard::new(
             card_chip_identification,

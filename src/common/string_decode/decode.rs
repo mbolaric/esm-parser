@@ -28,7 +28,7 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     let dec_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
     let ret_str = dec_str.trim_end_matches('\0').trim().to_owned();
-    trace!("Bytes: {:?}, Decoded: {:?}, Final: {:?}", bytes, dec_str, ret_str);
+    trace!("Bytes: {bytes:?}, Decoded: {dec_str:?}, Final: {ret_str:?}");
     ret_str
 }
 

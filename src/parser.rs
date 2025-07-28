@@ -44,7 +44,7 @@ impl<'a> EsmParser<'a> {
 
     fn parse_inner(&mut self) -> Result<()> {
         let mut file = BinReader::open(self.esm_file_path)?;
-        debug!("EsmParser::parse_inner - File: {:?}", file);
+        debug!("EsmParser::parse_inner - File: {file:?}");
 
         let header = TachographHeader::from_data(&file.read_n_bytes::<2>()?, file.metadata().len())?;
         file.seek(0)?;

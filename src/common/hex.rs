@@ -11,18 +11,18 @@ impl<'a> HexHelper<'a> {
     }
 
     pub fn to_lower_hex_string(&self) -> String {
-        self.0.iter().map(|c| format!("{:02x}", c)).collect()
+        self.0.iter().map(|c| format!("{c:02x}")).collect()
     }
 
     pub fn to_upper_hex_string(&self) -> String {
-        self.0.iter().map(|c| format!("{:02X}", c)).collect()
+        self.0.iter().map(|c| format!("{c:02X}")).collect()
     }
 }
 
 impl fmt::Display for HexHelper<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in self.0 {
-            write!(f, "{:2X} ", byte)?;
+            write!(f, "{byte:2X} ")?;
         }
         Ok(())
     }

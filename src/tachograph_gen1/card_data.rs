@@ -18,7 +18,7 @@ impl CardData {
             &|card_data_files: &CardFilesDataByCardGeneration| CardData::parse_card(card_data_files),
         )?;
 
-        debug!("CardData::from_data - Header: {:?}, Note: {:?}", header, card_data_responses);
+        debug!("CardData::from_data - Header: {header:?}, Note: {card_data_responses:?}");
 
         Ok(Self { header, card_data_responses })
     }
@@ -35,7 +35,7 @@ impl CardData {
         debug!("CardData::parse_card - Data Files Count: {:?}, Note: {:?}", card_data_files.len(), card_notes);
         let application_identification =
             <dyn tacho::Card<CardResponseParameterData>>::parse_application_identification(card_data_files)?;
-        debug!("CardData::parse_card - Application identification: {:?}", application_identification);
+        debug!("CardData::parse_card - Application identification: {application_identification:?}");
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
                 Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_data_files, card_notes)?))

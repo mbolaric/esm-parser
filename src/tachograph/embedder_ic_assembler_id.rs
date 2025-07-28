@@ -10,7 +10,7 @@ pub struct EmbedderIcAssemblerId {
 impl Readable<EmbedderIcAssemblerId> for EmbedderIcAssemblerId {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<EmbedderIcAssemblerId> {
         let country_code = bytes_to_ia5_fix_string(&reader.read_into_vec(2)?)?;
-        let module_embedder = BCDString::decode(&reader.read_bytes::<1>()?);
+        let module_embedder = BCDString::decode(&reader.read_bytes::<1>()?)?;
         // OCTET STRING(SIZE(l))
         // You should interpret it as two raw bytes that represent a manufacturer code (not a printable character). So:
         //  - Do not decode it as ASCII or UTF-8

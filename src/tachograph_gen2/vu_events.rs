@@ -20,7 +20,7 @@ pub struct VUEvents {
 
 impl VUEvents {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUEvents> {
-        debug!("VUEvents::from_data - Trep ID: {:?}", trep_id);
+        debug!("VUEvents::from_data - Trep ID: {trep_id:?}");
         let vu_fault_records: DataInfoGenericRecords<VuFaultRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let vu_event_records: DataInfoGenericRecords<VuEventRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let vu_over_speeding_control_data_records: DataInfoGenericRecords<VuOverSpeedingControlData> =

@@ -85,7 +85,7 @@ impl CardParser<DriverCard> for DriverCard {
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
             DriverCardApplicationIdentification,
         >(card_data_files)?;
-        debug!("DriverCard::parse - Application Identification: {:?}", application_identification);
+        debug!("DriverCard::parse - Application Identification: {application_identification:?}");
 
         let mut driver_card = DriverCard::new(
             card_chip_identification,

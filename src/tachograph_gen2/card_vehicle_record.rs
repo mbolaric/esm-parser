@@ -21,7 +21,7 @@ impl Readable<CardVehicleRecord> for CardVehicleRecord {
         let vehicle_first_use = TimeReal::read(reader)?;
         let vehicle_last_use = TimeReal::read(reader)?;
         let vehicle_registration = VehicleRegistrationIdentification::read(reader)?;
-        let vu_data_block_counter = BCDString::decode(&reader.read_into_vec(2)?);
+        let vu_data_block_counter = BCDString::decode(&reader.read_into_vec(2)?)?;
         let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
 
         Ok(Self {

@@ -17,7 +17,7 @@ pub struct VuEvents {
 
 impl VUTransferResponseParameterReader<VuEvents> for VuEvents {
     fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuEvents> {
-        debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
+        debug!("VuEvents::from_data - Trep ID: {trep_id:?}");
         let vu_fault_data = VuFaultData::read(reader)?;
         let vu_event_data = VuEventData::read(reader)?;
         let vu_over_speeding_control_data = VuOverSpeedingControlData::read(reader)?;

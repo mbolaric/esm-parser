@@ -22,7 +22,7 @@ pub struct VUActivity {
 
 impl VUActivity {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUActivity> {
-        debug!("VUControlActivity::from_data - Trep ID: {:?}", trep_id);
+        debug!("VUControlActivity::from_data - Trep ID: {trep_id:?}");
         let date_of_day_downloaded_records: DataInfoGenericRecords<TimeReal> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
         let odometer_value_midnight_records: DataInfoGenericRecords<OdometerShort> =

@@ -30,7 +30,7 @@ pub struct VUOverview {
 
 impl VUOverview {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUOverview> {
-        debug!("VUControl::from_data - Trep ID: {:?}", trep_id);
+        debug!("VUControl::from_data - Trep ID: {trep_id:?}");
         let member_state_certificate_records: MemberStateCertificateRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let vu_certificate_records: VuCertificateRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
         let vehicle_identification_number_records: VehicleIdentificationNumberRecords =
