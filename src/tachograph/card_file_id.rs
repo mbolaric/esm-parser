@@ -46,10 +46,11 @@ impl Display for CardFileID {
 impl_enum_from_u16!(
     CardFileID {
         Unknown = 0,
-        IC = 5,
         ICC = 2,
+        IC = 5,
         Tachograph = 0x500,
         ApplicationIdentification = 0x501,
+        ApplicationIdentificationV2 = 0x525,
         EventsData = 0x502,
         FaultsData = 0x503,
         DriverActivityData = 0x504,
@@ -66,6 +67,9 @@ impl_enum_from_u16!(
         SpecificConditions = 0x522,
         VehicleUnitsUsed = 0x523,
         GnssPlaces = 0x524,
+        BorderCrossings = 0x528,
+        CalibrationAddData = 0x531,
+        VUConfiguration = 0x540,
         CardCertificate = 0xC100,
         CardSignCertificate = 0xC101,
         CACertificate = 0xC108,
