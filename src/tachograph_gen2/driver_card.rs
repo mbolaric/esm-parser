@@ -157,7 +157,7 @@ impl CardParser<DriverCard> for DriverCard {
                     driver_card.card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
                 }
                 CardFileID::SpecificConditions => {
-                    let params = SpecificConditionsParams::new(56);
+                    let params = SpecificConditionsParams::new(application_identification.no_of_specific_condition_records as u8);
                     driver_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
                 }
                 CardFileID::VehicleUnitsUsed => {
