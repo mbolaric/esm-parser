@@ -161,7 +161,6 @@ impl CardParser<WorkshopCard> for WorkshopCard {
                 _ => trace!("WorkshopCard::parse - Not Parsed: {:?}", card_item.0),
             }
         }
-        // FIXME:
         Ok(Box::new(workshop_card))
     }
 }
