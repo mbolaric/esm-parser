@@ -2,11 +2,12 @@ use std::collections::HashMap;
 
 use log::{debug, trace};
 
-use crate::gen1::{CardResponseParameterData, Certificate, ControlCardApplicationIdentification};
+use crate::gen1::{CardResponseParameterData, Certificate, ControlCardActivityRecord, ControlCardApplicationIdentification};
 use crate::tacho::{
-    Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, Identification,
+    Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification,
+    ControlCardControlActivityData, ControlCardControlActivityDataParams, Identification, IdentificationParams,
 };
-use crate::{Readable, Result};
+use crate::{Readable, ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct ControlCard {
@@ -15,6 +16,7 @@ pub struct ControlCard {
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: ControlCardApplicationIdentification,
     pub identification: Option<Identification>,
+    pub controller_activity_data: Option<ControlCardControlActivityData<ControlCardActivityRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
     pub card_notes: String,
@@ -33,6 +35,7 @@ impl ControlCard {
             card_icc_identification,
             application_identification,
             identification: None,
+            controller_activity_data: None,
             card_certificate: None,
             ca_certificate: None,
             card_notes,
@@ -59,10 +62,13 @@ impl ControlCard {
             let mut reader = card_file.data_into_reader()?;
             match card_item.0 {
                 CardFileID::Identification => {
-                    // FIXME:
+                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
+                    control_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::ControllerActivityData => {
-                    // FIXME:
+                    let params =
+                        ControlCardControlActivityDataParams::new(application_identification.no_of_control_activity_records);
+                    control_card.controller_activity_data = Some(ControlCardControlActivityData::read(&mut reader, &params)?);
                 }
                 CardFileID::CardCertificate => {
                     control_card.card_certificate = Some(Certificate::read(&mut reader)?);

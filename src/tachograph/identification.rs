@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 
 use crate::{
     Error, Readable, ReadableWithParams, Result,
-    tacho::{DriverCardIdentification, EquipmentType, WorkshopCardIdentification},
+    tacho::{ControlCardIdentification, DriverCardIdentification, EquipmentType, WorkshopCardIdentification},
 };
 
 #[derive(Debug)]
@@ -20,7 +20,7 @@ impl IdentificationParams {
 pub enum Identification {
     CompanyCard,
     DriverCard(Box<DriverCardIdentification>),
-    ControlCard,
+    ControlCard(Box<ControlCardIdentification>),
     WorkshopCard(Box<WorkshopCardIdentification>),
 }
 
@@ -31,7 +31,7 @@ impl ReadableWithParams<Identification> for Identification {
         match params.equipment_type {
             EquipmentType::CompanyCard => Err(Error::NotImplemented),
             EquipmentType::DriverCard => Ok(Identification::DriverCard(Box::new(DriverCardIdentification::read(reader)?))),
-            EquipmentType::ControlCard => Err(Error::NotImplemented),
+            EquipmentType::ControlCard => Ok(Identification::ControlCard(Box::new(ControlCardIdentification::read(reader)?))),
             EquipmentType::WorkshopCard => Ok(Identification::WorkshopCard(Box::new(WorkshopCardIdentification::read(reader)?))),
             _ => Err(Error::UnknownCardTypeDecoding),
         }
