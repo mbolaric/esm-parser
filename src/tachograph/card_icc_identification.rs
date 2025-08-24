@@ -17,6 +17,7 @@ impl Readable<CardIccIdentification> for CardIccIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardIccIdentification> {
         let clock_stop = reader.read_u8()?;
         let card_serial_number = ExtendedSerialNumber::read(reader)?;
+        // It's a string encoded using IA5, which corresponds to ASCII characters.
         let card_approval_number = bytes_to_string(&reader.read_into_vec(8)?, &CodePage::IsoIec8859_1);
         let card_personaliser_id = reader.read_u8()?;
         let embedder_ic_assembler_id = EmbedderIcAssemblerId::read(reader)?;
