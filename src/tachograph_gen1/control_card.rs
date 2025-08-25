@@ -30,7 +30,7 @@ impl ControlCard {
         card_notes: String,
     ) -> Self {
         Self {
-            card_generation: CardGeneration::Gen2,
+            card_generation: CardGeneration::Gen1,
             card_chip_identification,
             card_icc_identification,
             application_identification,
