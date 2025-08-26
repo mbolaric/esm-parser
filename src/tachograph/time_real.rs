@@ -1,7 +1,7 @@
-use binary_data::BigEndian;
+use binary_data::{BigEndian, BinSeek, WriteBytes};
 use chrono::Utc;
 
-use crate::Readable;
+use crate::{Readable, Writable};
 
 #[derive(Debug)]
 pub struct TimeReal {
@@ -36,5 +36,13 @@ impl Readable<TimeReal> for TimeReal {
         let data = reader.read_u32::<BigEndian>()?;
         let date_time = chrono::DateTime::from_timestamp(data as i64, 0);
         Ok(Self { data, date_time })
+    }
+}
+
+impl Writable for TimeReal {
+    fn write<W: WriteBytes + BinSeek>(&self, _writer: &mut W) -> crate::Result<()> {
+        // FIXME: when writer is ready ...
+        //writer.write_u32::<BigEndian>(self.data)?;
+        Ok(())
     }
 }
