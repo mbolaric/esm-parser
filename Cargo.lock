@@ -88,7 +88,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 [[package]]
 name = "binary-data"
 version = "0.1.0"
-source = "git+https://github.com/mbolaric/binary-data.git#c95befcb5b7fbd82da280fa7b2e259a493f0389c"
+source = "git+https://github.com/mbolaric/binary-data.git#be2020aef9dd7603b438245082ce9157063e42c8"
 dependencies = [
  "log",
 ]
