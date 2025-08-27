@@ -1,9 +1,26 @@
+use std::sync::OnceLock;
+
 use esm_parser::{EsmParser, TachographData, gen1, tacho::EquipmentType};
+
+#[derive(Debug)]
+struct TestConfig {
+    input_ddd_file_path: String,
+}
+
+static CONFIG: OnceLock<TestConfig> = OnceLock::new();
+
+fn setup() -> &'static TestConfig {
+    CONFIG.get_or_init(|| {
+        let path = std::env::var("DDD_FILE_PATH").unwrap_or_else(|_| "examples/data/Card0001.DDD".to_string());
+        TestConfig { input_ddd_file_path: path }
+    })
+}
 
 #[test]
 fn test_parse_gen1_card_file_successfully() {
     // --- Arrange ---
-    let file_path = "examples/data/Card0001.DDD";
+    let config = setup();
+    let file_path = &config.input_ddd_file_path;
 
     // --- Act ---
     let result = EsmParser::parse(file_path);
