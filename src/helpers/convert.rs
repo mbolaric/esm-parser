@@ -27,3 +27,39 @@ impl fmt::Display for Error {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_time_u16_to_string() {
+        assert_eq!(time_u16_to_string(0), " 0: 0");
+        assert_eq!(time_u16_to_string(59), " 0:59");
+        assert_eq!(time_u16_to_string(60), " 1: 0");
+        assert_eq!(time_u16_to_string(61), " 1: 1");
+        assert_eq!(time_u16_to_string(1439), "23:59"); // 23 * 60 + 59
+        assert_eq!(time_u16_to_string(1440), "24: 0");
+    }
+
+    #[test]
+    fn test_u8_to_bool_valid() {
+        assert!(!u8_to_bool(0).unwrap());
+        assert!(u8_to_bool(1).unwrap());
+    }
+
+    #[test]
+    fn test_u8_to_bool_invalid() {
+        let result = u8_to_bool(2);
+        assert!(result.is_err());
+        match result.err().unwrap() {
+            Error::InvalidInputByteValue(val) => assert_eq!(val, 2),
+        }
+
+        let result = u8_to_bool(255);
+        assert!(result.is_err());
+        match result.err().unwrap() {
+            Error::InvalidInputByteValue(val) => assert_eq!(val, 255),
+        }
+    }
+}

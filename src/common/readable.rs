@@ -1,12 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 
-use crate::{Error, Result};
+use crate::Result;
 
 /// A trait for types that can read from a binary stream.
 pub trait Readable<T> {
-    fn read<R: ReadBytes + BinSeek>(_reader: &mut R) -> Result<T> {
-        Err(Error::NotImplemented)
-    }
+    fn read<R: ReadBytes + BinSeek>(_reader: &mut R) -> Result<T>;
 }
 
 /// A trait for types that can read from a binary stream and provide parameters.
