@@ -10,6 +10,7 @@ pub enum Error {
     InvalidHeaderData,
     InvalidDataGeneration,
     InvalidDataParse(String),
+    InvalidDataEncode(String),
     DuplicateCardFile,
     SignatureBeforeCardFile,
     PartialCardFile,
