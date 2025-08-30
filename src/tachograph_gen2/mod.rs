@@ -62,7 +62,7 @@ mod workshop_card_application_identification;
 mod workshop_card_calibration_record;
 
 pub use card_data::CardData;
-pub use card_response_parameter_data::CardResponseParameterData;
+pub use card_response_parameter_data::{CardResponseParameterData, ParsedCard};
 pub use card_vehicle_record::CardVehicleRecord;
 pub use card_vehicle_units_used::{CardVehicleUnitRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams};
 pub use certificate::{Certificate, CertificateParams};
