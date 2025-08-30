@@ -20,5 +20,5 @@ pub mod gen1 {
 pub mod gen2 {
     pub use super::tachograph_gen2::*;
 }
-pub use parser::EsmParser;
+pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::TachographData;

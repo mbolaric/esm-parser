@@ -1,4 +1,10 @@
-use binary_data::{BinFile, BinReader, BinSeek};
+//! The main parser module for reading tachograph data from DDD files.
+//!
+//! This module provides the entry point for parsing DDD files. It automatically
+//! detects the generation of the tachograph data (Gen1 or Gen2) and the type of
+//! data (Vehicle Unit or Driver Card) and parses it accordingly.
+
+use binary_data::{BinMemoryBuffer, BinReader, BinSeek, ReadBytes};
 use log::debug;
 
 use crate::{
@@ -6,61 +12,88 @@ use crate::{
     tacho::{TachographDataGeneration, TachographDataType, TachographHeader},
 };
 
-#[derive(Debug)]
-pub struct EsmParser<'a> {
-    esm_file_path: &'a str,
-    data: Option<TachographData>,
-}
-
-impl<'a> EsmParser<'a> {
-    fn new(esm_file_path: &'a str) -> Self {
-        EsmParser { esm_file_path, data: None }
-    }
-
-    fn read_by_data_type(&mut self, header: TachographHeader, data: &mut BinFile) -> Result<TachographData> {
-        debug!("EsmParser::read_by_data_type - Type: {:?}, Generation: {:?}", header.data_type, header.generation);
-        match header.data_type {
-            TachographDataType::VU => match header.generation {
-                TachographDataGeneration::FirstGeneration => Ok(TachographData::VUGen1(gen1::VUData::from_data(header, data)?)),
-                TachographDataGeneration::SecondGeneration => Ok(TachographData::VUGen2(gen2::VUData::from_data(header, data)?)),
+/// Reads the tachograph data based on the data type and generation specified in the header.
+///
+/// # Arguments
+///
+/// * `header` - The `TachographHeader` containing metadata about the data.
+/// * `reader` - A mutable reference to the reader to read the data from.
+///
+/// # Returns
+///
+/// A `Result` containing the parsed `TachographData` or an `Error` if parsing fails.
+fn read_by_data_type<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<TachographData> {
+    debug!("EsmParser::read_by_data_type - Type: {:?}, Generation: {:?}", header.data_type, header.generation);
+    match header.data_type {
+        TachographDataType::VU => match header.generation {
+            TachographDataGeneration::FirstGeneration => Ok(TachographData::VUGen1(gen1::VUData::from_data(header, reader)?)),
+            TachographDataGeneration::SecondGeneration => Ok(TachographData::VUGen2(gen2::VUData::from_data(header, reader)?)),
+            _ => Err(Error::InvalidDataGeneration),
+        },
+        TachographDataType::Card => {
+            if header.card_in_vu_data {
+                // We skip 2 bytes
+                let _ = reader.read_bytes::<2>();
+            }
+            match header.generation {
+                TachographDataGeneration::FirstGeneration => {
+                    Ok(TachographData::CardGen1(gen1::CardData::from_data(header, reader)?))
+                }
+                TachographDataGeneration::SecondGeneration => {
+                    Ok(TachographData::CardGen2(gen2::CardData::from_data(header, reader)?))
+                }
                 _ => Err(Error::InvalidDataGeneration),
-            },
-            TachographDataType::Card => {
-                if header.card_in_vu_data {
-                    data.skip_n_bytes::<2>()?
-                }
-                match header.generation {
-                    TachographDataGeneration::FirstGeneration => {
-                        Ok(TachographData::CardGen1(gen1::CardData::from_data(header, data)?))
-                    }
-                    TachographDataGeneration::SecondGeneration => {
-                        Ok(TachographData::CardGen2(gen2::CardData::from_data(header, data)?))
-                    }
-                    _ => Err(Error::InvalidDataGeneration),
-                }
             }
         }
     }
+}
 
-    fn parse_inner(&mut self) -> Result<()> {
-        let mut file = BinReader::open(self.esm_file_path)?;
-        debug!("EsmParser::parse_inner - File: {file:?}");
+/// Parses the tachograph data from a reader after reading the header.
+///
+/// # Arguments
+///
+/// * `header_data` - A byte slice containing the first 2 bytes of the file, used to determine the data type and generation.
+/// * `data_len` - The total length of the data.
+/// * `reader` - A mutable reference to the reader to read the data from.
+///
+/// # Returns
+///
+/// A `Result` containing the parsed `TachographData` or an `Error` if parsing fails.
+fn parse_inner<R: ReadBytes + BinSeek>(header_data: &[u8; 2], data_len: u64, reader: &mut R) -> Result<TachographData> {
+    let header = TachographHeader::from_data(header_data, data_len)?;
+    reader.seek(0)?;
 
-        let header = TachographHeader::from_data(&file.read_n_bytes::<2>()?, file.metadata().len())?;
-        file.seek(0)?;
+    read_by_data_type(header, reader)
+}
 
-        let vu_data = self.read_by_data_type(header, &mut file)?;
-        self.data = Some(vu_data);
-        Ok(())
-    }
+/// The public entry point for parsing a DDD file.
+///
+/// # Arguments
+///
+/// * `esm_file_path` - The path to the DDD file.
+///
+/// # Returns
+///
+/// A `Result` containing the parsed `TachographData` or an `Error` if parsing fails.
+pub fn parse_from_file(esm_file_path: &str) -> Result<TachographData> {
+    let mut file = BinReader::open(esm_file_path)?;
+    debug!("EsmParser::parse_inner - File: {file:?}");
 
-    pub fn parse(esm_file_path: &'a str) -> Result<EsmParser<'a>> {
-        let mut parser = EsmParser::new(esm_file_path);
-        parser.parse_inner()?;
-        Ok(parser)
-    }
+    parse_inner(&file.read_n_bytes::<2>()?, file.metadata().len(), &mut file)
+}
 
-    pub fn get_data(&self) -> Option<&TachographData> {
-        self.data.as_ref()
-    }
+/// The public entry point for parsing a DDD data.
+///
+/// # Arguments
+///
+/// * `esm_data` - The data from DDD file.
+///
+/// # Returns
+///
+/// A `Result` containing the parsed `TachographData` or an `Error` if parsing fails.
+pub fn parse_from_memory(esm_data: &[u8]) -> Result<TachographData> {
+    let mut reader = BinMemoryBuffer::from(esm_data);
+    debug!("EsmParser::parse_inner - File: {reader:?}");
+
+    parse_inner(&reader.read_bytes::<2>()?, reader.len()? as u64, &mut reader)
 }

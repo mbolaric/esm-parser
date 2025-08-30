@@ -68,7 +68,6 @@ impl CardData {
             &card_files_data_gen1.card_files_data,
         )?;
         debug!("CardData::parse_card - Application identification: {application_identification:?}");
-        // FIXME: Replace Card with concrete card type
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
                 let cards = CardData::get_card_by_equipment_type::<gen1::DriverCard, gen2::DriverCard>(
@@ -79,10 +78,12 @@ impl CardData {
                 Ok(CardResponseParameterData::DriverCard(cards))
             }
             EquipmentType::CompanyCard => {
+                // FIXME: Replace Card with concrete card type
                 Err(Error::NotImplemented)
                 // Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::ControlCard => {
+                // FIXME: Replace Card with concrete card type
                 Err(Error::NotImplemented)
                 // Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, card_notes)?))
             }
