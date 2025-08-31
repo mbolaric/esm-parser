@@ -1,6 +1,6 @@
 use std::sync::OnceLock;
 
-use esm_parser::{EsmParser, TachographData, gen1, tacho::EquipmentType};
+use esm_parser::{TachographData, gen1, parse_from_file, tacho::EquipmentType};
 
 #[derive(Debug)]
 struct TestConfig {
@@ -23,13 +23,12 @@ fn test_parse_gen1_card_file_successfully() {
     let file_path = &config.input_ddd_file_path;
 
     // --- Act ---
-    let result = EsmParser::parse(file_path);
+    let result = parse_from_file(file_path);
 
     // --- Assert ---
     assert!(result.is_ok(), "Parsing failed with error: {:?}", result.err());
 
-    let parser = result.unwrap();
-    let data = parser.get_data().expect("Parser should have data after successful parse");
+    let data = result.unwrap();
 
     // Check that the correct enum variant was parsed
     match data {
@@ -52,7 +51,7 @@ fn test_parse_non_existent_file() {
     let file_path = "path/to/non_existent_file.ddd";
 
     // --- Act ---
-    let result = EsmParser::parse(file_path);
+    let result = parse_from_file(file_path);
 
     // --- Assert ---
     assert!(result.is_err(), "Parsing should fail for a non-existent file.");
