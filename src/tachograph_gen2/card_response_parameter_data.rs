@@ -14,5 +14,5 @@ pub enum CardResponseParameterData {
     DriverCard(ParsedCard<gen1::DriverCard, gen2::DriverCard>),
     CompanyCard,
     WorkshopCard(ParsedCard<gen1::WorkshopCard, gen2::WorkshopCard>),
-    ControlCard,
+    ControlCard(ParsedCard<gen1::ControlCard, gen2::ControlCard>),
 }

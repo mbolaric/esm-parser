@@ -83,9 +83,12 @@ impl CardData {
                 // Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, card_notes)?))
             }
             EquipmentType::ControlCard => {
-                // FIXME: Replace Card with concrete card type
-                Err(Error::NotImplemented)
-                // Ok(CardResponseParameterData::ControlCard(ControlCard::parse(card_data_files, card_notes)?))
+                let cards = CardData::get_card_by_equipment_type::<gen1::ControlCard, gen2::ControlCard>(
+                    generation,
+                    card_files_data_gen1,
+                    card_files_data_gen2,
+                )?;
+                Ok(CardResponseParameterData::ControlCard(cards))
             }
             EquipmentType::WorkshopCard => {
                 let cards = CardData::get_card_by_equipment_type::<gen1::WorkshopCard, gen2::WorkshopCard>(

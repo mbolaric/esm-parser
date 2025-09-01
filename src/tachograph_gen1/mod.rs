@@ -12,8 +12,6 @@ mod company_card_application_identification;
 mod company_locks;
 mod control_activity;
 mod control_card;
-mod control_card_activity_record;
-mod control_card_application_identification;
 mod download_activity;
 mod downloadable_period;
 mod driver_card;
@@ -53,8 +51,6 @@ pub use company_card_application_identification::CompanyCardApplicationIdentific
 pub use company_locks::{CompanyLocks, CompanyLocksRecord};
 pub use control_activity::ControlActivity;
 pub use control_card::ControlCard;
-pub use control_card_activity_record::ControlCardActivityRecord;
-pub use control_card_application_identification::ControlCardApplicationIdentification;
 pub use download_activity::DownloadActivity;
 pub use downloadable_period::DownloadablePeriod;
 pub use driver_card::DriverCard;

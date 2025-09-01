@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use log::{debug, trace};
 
-use crate::gen1::{CardResponseParameterData, Certificate};
+use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, ControlCardApplicationIdentificationV2};
 use crate::tacho::{
     Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
     ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
@@ -16,10 +16,12 @@ pub struct ControlCard {
     pub card_chip_identification: CardChipIdentification,
     pub card_icc_identification: CardIccIdentification,
     pub application_identification: ControlCardApplicationIdentification,
+    pub application_identification_v2: Option<ControlCardApplicationIdentificationV2>,
     pub identification: Option<Identification>,
     pub controller_activity_data: Option<ControlCardControlActivityData<ControlCardActivityRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
+    pub link_certificate: Option<Certificate>,
     pub card_notes: String,
 }
 
@@ -35,10 +37,12 @@ impl ControlCard {
             card_chip_identification,
             card_icc_identification,
             application_identification,
+            application_identification_v2: None,
             identification: None,
             controller_activity_data: None,
             card_certificate: None,
             ca_certificate: None,
+            link_certificate: None,
             card_notes,
         }
     }
@@ -64,6 +68,9 @@ impl CardParser<ControlCard> for ControlCard {
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
             match card_item.0 {
+                CardFileID::ApplicationIdentificationV2 => {
+                    control_card.application_identification_v2 = Some(ControlCardApplicationIdentificationV2::read(&mut reader)?);
+                }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
                     control_card.identification = Some(Identification::read(&mut reader, &params)?);
@@ -74,10 +81,16 @@ impl CardParser<ControlCard> for ControlCard {
                     control_card.controller_activity_data = Some(ControlCardControlActivityData::read(&mut reader, &params)?);
                 }
                 CardFileID::CardCertificate => {
-                    control_card.card_certificate = Some(Certificate::read(&mut reader)?);
+                    let params = CertificateParams::new(None);
+                    control_card.ca_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::CACertificate => {
-                    control_card.ca_certificate = Some(Certificate::read(&mut reader)?);
+                    let params = CertificateParams::new(None);
+                    control_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
+                }
+                CardFileID::LinkCertificate => {
+                    let params = CertificateParams::new(None);
+                    control_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
                     trace!("ControlCard::parse - Already parsed: {:?}", card_item.0)
