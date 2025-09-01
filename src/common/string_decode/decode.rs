@@ -1,3 +1,30 @@
+//!
+//! This module provides functions for decoding byte slices into strings using various character encodings.
+//!
+//! It supports multiple code pages, including ISO/IEC 8859 series and KOI8, and provides
+//! a flexible mechanism for converting raw bytes into UTF-8 strings. The module also includes
+//! specific handling for IA5 (ASCII) strings, with validation to ensure compliance.
+//!
+//! The core functionality revolves around the `bytes_to_string` function, which takes a byte slice
+//! and a `CodePage` enum to perform the decoding. It also offers `bytes_to_ia5_fix_string` for
+//! strict ASCII decoding.
+//!
+//! # Examples
+//!
+//! ```
+//! use esm_parser::{bytes_to_string, CodePage};
+//!
+//! // Example of decoding a byte slice using ISO-8859-1
+//! let bytes: &[u8] = &[0x48, 0x65, 0x6C, 0x6C, 0x6F]; // "Hello"
+//! let decoded_string = bytes_to_string(bytes, &CodePage::IsoIec8859_1);
+//! assert_eq!(decoded_string, "Hello");
+//!
+//! // Example with a non-ASCII character in ISO-8859-15 (Euro sign)
+//! let bytes_with_euro: &[u8] = &[0xA4];
+//! let decoded_euro = bytes_to_string(bytes_with_euro, &CodePage::IsoIec8859_15);
+//! assert_eq!(decoded_euro, "€");
+//! ```
+
 use core::fmt;
 
 use log::trace;
@@ -8,6 +35,20 @@ use crate::common::string_decode::{
     iso_8859_15::decode_iso_8859_15, iso_8859_16::decode_iso_8859_16, koi8_r::decode_koi8_r, koi8_u::decode_koi8_u,
 };
 
+/// Decodes a single byte into a character based on the specified code page.
+///
+/// This function acts as a dispatcher, calling the appropriate decoding function
+/// for the given `CodePage`. If the code page is invalid, it returns the Unicode
+/// replacement character (`\u{FFFD}`).
+///
+/// # Arguments
+///
+/// * `byte` - The byte to decode.
+/// * `enc` - The `CodePage` to use for decoding.
+///
+/// # Returns
+///
+/// The decoded `char`.
 fn decode_byte(byte: u8, enc: &CodePage) -> char {
     match enc {
         CodePage::IsoIec8859_1 => decode_iso_8859_1(byte),
@@ -21,10 +62,24 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
         CodePage::IsoIec8859_16 => decode_iso_8859_16(byte),
         CodePage::Koi8R => decode_koi8_r(byte),
         CodePage::Koi8U => decode_koi8_u(byte),
-        CodePage::Invalid => '\u{FFFD}',
+        CodePage::Invalid => '\u{FFFD}', // Unicode replacement character for invalid encodings
     }
 }
 
+/// Converts a byte slice to a `String` using the specified code page.
+///
+/// This function iterates over the byte slice, decodes each byte into a character,
+/// and collects them into a `String`. It then trims any trailing null characters
+/// and whitespace from the resulting string.
+///
+/// # Arguments
+///
+/// * `bytes` - The byte slice to decode.
+/// * `enc` - The `CodePage` to use for decoding.
+///
+/// # Returns
+///
+/// The decoded and trimmed `String`.
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     let dec_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
     let ret_str = dec_str.trim_end_matches('\0').trim().to_owned();
@@ -32,6 +87,19 @@ pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     ret_str
 }
 
+/// Converts a byte slice to a `String`, assuming it is an IA5 (ASCII) fixed-length string.
+///
+/// This function validates that all bytes in the input slice are valid ASCII characters.
+/// If the validation passes, it converts the byte slice to a `String` and trims trailing
+/// null characters and whitespace.
+///
+/// # Arguments
+///
+/// * `input` - The byte slice to decode.
+///
+/// # Returns
+///
+/// A `Result` containing the decoded `String` or an `Error` if the input is not valid IA5.
 pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
     if input.is_empty() {
         return Ok(String::new());
@@ -48,12 +116,16 @@ pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
     }
 }
 
+/// Defines the possible errors that can occur during string decoding.
 #[derive(Debug)]
 pub enum Error {
+    /// Error indicating that a character is not a valid IA5 (ASCII) character.
     InvalidIA5CharacterNotASCII,
+    /// Error indicating that the input is too short for a fixed-length IA5 string.
     InputTooShortForIA5String,
 }
 
+/// Implements the `Display` trait for the `Error` enum to provide a user-friendly error message.
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")

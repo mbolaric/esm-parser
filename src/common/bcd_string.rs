@@ -1,11 +1,54 @@
+//!
+//! Provides utilities for encoding and decoding Binary-Coded Decimal (BCD) strings.
+//!
+//! BCD is a format where each decimal digit is encoded by a 4-bit nibble. This module
+//! offers functions to convert between byte slices representing BCD and standard Rust strings.
+//!
+//! It includes both flexible and strict versions of the encoding and decoding functions:
+//! - `decode` and `encode`: Handle variable-length inputs.
+//! - `decode_strict` and `encode_strict`: Work with fixed-size arrays for performance and predictability.
+//!
+//! # Examples
+//!
+//! ```
+//! use esm_parser::BCDString;
+//! use esm_parser::Result;
+//!
+//! fn main() -> Result<()> {
+//!     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
+//!     let string_data = "123456";
+//!
+//!     // Decoding BCD into a string
+//!     let decoded_string = BCDString::decode(bcd_data)?;
+//!     assert_eq!(decoded_string, string_data);
+//!
+//!     // Encoding a string into BCD
+//!     let encoded_bcd = BCDString::encode(string_data)?;
+//!     assert_eq!(encoded_bcd, bcd_data);
+//!
+//!     Ok(())
+//! }
+//! ```
+
 use crate::{Error, Result};
 
+/// A utility struct for handling BCD (Binary-Coded Decimal) string conversions.
 #[derive(Debug)]
 pub struct BCDString {}
 
 impl BCDString {
-    /// Decodes a BCD byte slice into a String.
-    /// This version is flexible and handles any input length.
+    /// Decodes a byte slice in BCD format into a `String`.
+    ///
+    /// Each byte in the input slice is treated as two 4-bit nibbles, with each nibble
+    /// representing a decimal digit. This function is flexible and handles byte slices of any length.
+    ///
+    /// # Arguments
+    ///
+    /// * `bcd` - A byte slice representing the BCD data.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the decoded `String` or an `Error` if the input contains invalid BCD data.
     pub fn decode(bcd: &[u8]) -> Result<String> {
         // Optimization: Pre-allocate the string to the final size.
         let mut result = String::with_capacity(bcd.len() * 2);
@@ -25,8 +68,19 @@ impl BCDString {
         Ok(result)
     }
 
-    /// Decodes a BCD byte slice of a known length into a String.
-    /// This strict version ensures the output string will have exactly `OUT_LEN` characters.
+    /// Decodes a BCD byte slice of a known length into a `String`.
+    ///
+    /// This strict version ensures that the output string will have a specific length, which is determined
+    /// at compile time by the `OUT_LEN` const generic parameter. It returns an error if the input slice
+    /// does not correspond to the expected output length.
+    ///
+    /// # Arguments
+    ///
+    /// * `bcd` - A byte slice representing the BCD data.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the decoded `String` or an `Error` if the input length is incorrect or the data is invalid.
     pub fn decode_strict<const OUT_LEN: usize>(bcd: &[u8]) -> Result<String> {
         if bcd.len() * 2 != OUT_LEN {
             return Err(Error::InvalidDataParse(format!(
@@ -39,8 +93,18 @@ impl BCDString {
         Self::decode(bcd)
     }
 
-    /// Encodes a string of ASCII digits into a BCD byte vector.
-    /// Pads with a leading '0' if the input string has an odd number of digits.
+    /// Encodes a string of ASCII digits into a BCD-formatted `Vec<u8>`.
+    ///
+    /// If the input string has an odd number of digits, it is padded with a leading '0'
+    /// to ensure that the resulting byte vector is complete.
+    ///
+    /// # Arguments
+    ///
+    /// * `val` - A string slice containing only ASCII digits.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the BCD-encoded `Vec<u8>` or an `Error` if the input string contains non-digit characters.
     pub fn encode(val: &str) -> Result<Vec<u8>> {
         if !val.chars().all(|c| c.is_ascii_digit()) {
             return Err(Error::InvalidDataParse("Non-digit in BCD string.".to_owned()));
@@ -65,8 +129,18 @@ impl BCDString {
         Ok(bytes)
     }
 
-    /// Encodes a string of ASCII digits into a BCD array of a fixed size.
-    /// The input string must contain exactly `OUT_LEN * 2` digits.
+    /// Encodes a string of ASCII digits into a BCD-formatted array of a fixed size.
+    ///
+    /// This strict version requires that the input string's length is exactly twice the size of the output array.
+    /// It returns an error if the input string length does not match or if it contains non-digit characters.
+    ///
+    /// # Arguments
+    ///
+    /// * `val` - A string slice containing a specific number of ASCII digits.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the BCD-encoded array or an `Error` if the input is invalid.
     pub fn encode_strict<const OUT_LEN: usize>(val: &str) -> Result<[u8; OUT_LEN]> {
         if val.len() != OUT_LEN * 2 {
             return Err(Error::InvalidDataParse(format!(
