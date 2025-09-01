@@ -1,3 +1,9 @@
+//! # Tachograph Gen2 Data Structures
+//!
+//! This module contains the specific data structures and parsing logic
+//! for the second generation (Gen2) of digital tachograph data. It includes
+//! support for new features like GNSS data and updated record formats.
+
 mod card_data;
 mod card_response_parameter_data;
 mod card_vehicle_record;

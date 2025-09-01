@@ -66,25 +66,7 @@ impl BCDString {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the decoded `String` or an `Error` if the input length is incorrect or the data is invalid.\
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use esm_parser::BCDString;
-    /// use esm_parser::Result;
-    ///
-    /// fn main() -> Result<()> {
-    ///     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
-    ///     let string_data = "123456";
-    ///
-    ///     // Encoding a string into BCD
-    ///     let encoded_bcd = BCDString::encode(string_data)?;
-    ///     assert_eq!(encoded_bcd, bcd_data);
-    ///
-    ///     Ok(())
-    /// }
-    /// ```
+    /// A `Result` containing the decoded `String` or an `Error` if the input length is incorrect or the data is invalid.
     pub fn decode_strict<const OUT_LEN: usize>(bcd: &[u8]) -> Result<String> {
         if bcd.len() * 2 != OUT_LEN {
             return Err(Error::InvalidDataParse(format!(
@@ -109,6 +91,24 @@ impl BCDString {
     /// # Returns
     ///
     /// A `Result` containing the BCD-encoded `Vec<u8>` or an `Error` if the input string contains non-digit characters.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use esm_parser::BCDString;
+    /// use esm_parser::Result;
+    ///
+    /// fn main() -> Result<()> {
+    ///     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
+    ///     let string_data = "123456";
+    ///
+    ///     // Encoding a string into BCD
+    ///     let encoded_bcd = BCDString::encode(string_data)?;
+    ///     assert_eq!(encoded_bcd, bcd_data);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn encode(val: &str) -> Result<Vec<u8>> {
         if !val.chars().all(|c| c.is_ascii_digit()) {
             return Err(Error::InvalidDataParse("Non-digit in BCD string.".to_owned()));

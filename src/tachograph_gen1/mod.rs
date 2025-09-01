@@ -1,3 +1,8 @@
+//! # Tachograph Gen1 Data Structures
+//!
+//! This module contains the specific data structures and parsing logic
+//! for the first generation (Gen1) of digital tachograph data.
+
 mod card_data;
 mod card_response_data_parameter;
 mod card_vehicle_record;

@@ -1,3 +1,10 @@
+//! # Common Tachograph Data Structures
+//!
+//! This module defines and re-exports data structures and enums that are common
+//! across both Gen1 and Gen2 versions of digital tachograph data. These types
+//! represent fundamental data points that have a consistent format regardless
+//! of the specific tachograph generation.
+
 mod activity_change_info;
 mod activity_source;
 mod activity_type;

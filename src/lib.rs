@@ -74,13 +74,30 @@ mod tachograph_gen2;
 pub use common::*;
 pub use consts::*;
 pub use error::{Error, Result};
+
 pub mod tacho {
+    //! # Common Tachograph Data Structures
+    //!
+    //! This module defines and re-exports data structures and enums that are common
+    //! across both Gen1 and Gen2 versions of digital tachograph data. These types
+    //! represent fundamental data points that have a consistent format regardless
+    //! of the specific tachograph generation.
     pub use super::tachograph::*;
 }
+
 pub mod gen1 {
+    //! # Tachograph Gen1 Data Structures
+    //!
+    //! This module contains the specific data structures and parsing logic
+    //! for the first generation (Gen1) of digital tachograph data.
     pub use super::tachograph_gen1::*;
 }
 pub mod gen2 {
+    //! # Tachograph Gen2 Data Structures
+    //!
+    //! This module contains the specific data structures and parsing logic
+    //! for the second generation (Gen2) of digital tachograph data. It includes
+    //! support for new features like GNSS data and updated record formats.
     pub use super::tachograph_gen2::*;
 }
 pub use parser::{parse_from_file, parse_from_memory};
