@@ -1,6 +1,5 @@
 use crate::impl_enum_from_u8;
 
-// FIXME: Check if thet are all posibilities
 #[derive(Debug, PartialEq)]
 #[repr(u8)]
 pub enum ControlType {
