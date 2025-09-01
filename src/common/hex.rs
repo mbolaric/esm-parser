@@ -1,29 +1,3 @@
-//! This module provides helper utilities for converting byte slices into hexadecimal string representations.
-//!
-//! It introduces the `HexDisplay` trait, which extends types that can be referenced as byte slices (`AsRef<[u8]>`),
-//! allowing them to be easily converted into hexadecimal strings. The module also provides a `HexHelper` struct
-//! that wraps byte slices to facilitate the hexadecimal conversion.
-//!
-//! # Examples
-//!
-//! ```
-//! use esm_parser::HexDisplay;
-//!
-//! let data: &[u8] = &[0xDE, 0xAD, 0xBE, 0xEF];
-//!
-//! // Convert to a lowercase hexadecimal string
-//! let lower_hex = data.to_hex().to_lower_hex_string();
-//! assert_eq!(lower_hex, "deadbeef");
-//!
-//! // Convert to an uppercase hexadecimal string
-//! let upper_hex = data.to_hex().to_upper_hex_string();
-//! assert_eq!(upper_hex, "DEADBEEF");
-//!
-//! // The `to_hex_string` trait method provides a direct way to get an uppercase hex string
-//! let upper_hex_direct = data.to_hex_string();
-//! assert_eq!(upper_hex_direct, "DEADBEEF");
-//! ```
-
 use std::fmt;
 
 /// A helper struct that wraps a byte slice to provide hexadecimal string conversion.
@@ -65,6 +39,29 @@ impl fmt::Display for HexHelper<'_> {
     }
 }
 
+/// It introduces the `HexDisplay` trait, which extends types that can be referenced as byte slices (`AsRef<[u8]>`),
+/// allowing them to be easily converted into hexadecimal strings.
+///
+/// # Examples
+///
+/// ```
+/// use esm_parser::HexDisplay;
+///
+/// let data: &[u8] = &[0xDE, 0xAD, 0xBE, 0xEF];
+///
+/// // Convert to a lowercase hexadecimal string
+/// let lower_hex = data.to_hex().to_lower_hex_string();
+/// assert_eq!(lower_hex, "deadbeef");
+///
+/// // Convert to an uppercase hexadecimal string
+/// let upper_hex = data.to_hex().to_upper_hex_string();
+/// assert_eq!(upper_hex, "DEADBEEF");
+///
+/// // The `to_hex_string` trait method provides a direct way to get an uppercase hex string
+/// let upper_hex_direct = data.to_hex_string();
+/// assert_eq!(upper_hex_direct, "DEADBEEF");
+/// ```
+///
 /// A trait that provides methods for converting a type to a hexadecimal string representation.
 pub trait HexDisplay {
     /// Wraps the type in a `HexHelper` to allow for hexadecimal string conversion.

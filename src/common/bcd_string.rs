@@ -1,35 +1,3 @@
-//!
-//! Provides utilities for encoding and decoding Binary-Coded Decimal (BCD) strings.
-//!
-//! BCD is a format where each decimal digit is encoded by a 4-bit nibble. This module
-//! offers functions to convert between byte slices representing BCD and standard Rust strings.
-//!
-//! It includes both flexible and strict versions of the encoding and decoding functions:
-//! - `decode` and `encode`: Handle variable-length inputs.
-//! - `decode_strict` and `encode_strict`: Work with fixed-size arrays for performance and predictability.
-//!
-//! # Examples
-//!
-//! ```
-//! use esm_parser::BCDString;
-//! use esm_parser::Result;
-//!
-//! fn main() -> Result<()> {
-//!     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
-//!     let string_data = "123456";
-//!
-//!     // Decoding BCD into a string
-//!     let decoded_string = BCDString::decode(bcd_data)?;
-//!     assert_eq!(decoded_string, string_data);
-//!
-//!     // Encoding a string into BCD
-//!     let encoded_bcd = BCDString::encode(string_data)?;
-//!     assert_eq!(encoded_bcd, bcd_data);
-//!
-//!     Ok(())
-//! }
-//! ```
-
 use crate::{Error, Result};
 
 /// A utility struct for handling BCD (Binary-Coded Decimal) string conversions.
@@ -49,6 +17,24 @@ impl BCDString {
     /// # Returns
     ///
     /// A `Result` containing the decoded `String` or an `Error` if the input contains invalid BCD data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use esm_parser::BCDString;
+    /// use esm_parser::Result;
+    ///
+    /// fn main() -> Result<()> {
+    ///     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
+    ///     let string_data = "123456";
+    ///
+    ///     // Decoding BCD into a string
+    ///     let decoded_string = BCDString::decode(bcd_data)?;
+    ///     assert_eq!(decoded_string, string_data);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn decode(bcd: &[u8]) -> Result<String> {
         // Optimization: Pre-allocate the string to the final size.
         let mut result = String::with_capacity(bcd.len() * 2);
@@ -80,7 +66,25 @@ impl BCDString {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the decoded `String` or an `Error` if the input length is incorrect or the data is invalid.
+    /// A `Result` containing the decoded `String` or an `Error` if the input length is incorrect or the data is invalid.\
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use esm_parser::BCDString;
+    /// use esm_parser::Result;
+    ///
+    /// fn main() -> Result<()> {
+    ///     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
+    ///     let string_data = "123456";
+    ///
+    ///     // Encoding a string into BCD
+    ///     let encoded_bcd = BCDString::encode(string_data)?;
+    ///     assert_eq!(encoded_bcd, bcd_data);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn decode_strict<const OUT_LEN: usize>(bcd: &[u8]) -> Result<String> {
         if bcd.len() * 2 != OUT_LEN {
             return Err(Error::InvalidDataParse(format!(

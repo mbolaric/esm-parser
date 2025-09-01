@@ -1,30 +1,3 @@
-//!
-//! This module provides functions for decoding byte slices into strings using various character encodings.
-//!
-//! It supports multiple code pages, including ISO/IEC 8859 series and KOI8, and provides
-//! a flexible mechanism for converting raw bytes into UTF-8 strings. The module also includes
-//! specific handling for IA5 (ASCII) strings, with validation to ensure compliance.
-//!
-//! The core functionality revolves around the `bytes_to_string` function, which takes a byte slice
-//! and a `CodePage` enum to perform the decoding. It also offers `bytes_to_ia5_fix_string` for
-//! strict ASCII decoding.
-//!
-//! # Examples
-//!
-//! ```
-//! use esm_parser::{bytes_to_string, CodePage};
-//!
-//! // Example of decoding a byte slice using ISO-8859-1
-//! let bytes: &[u8] = &[0x48, 0x65, 0x6C, 0x6C, 0x6F]; // "Hello"
-//! let decoded_string = bytes_to_string(bytes, &CodePage::IsoIec8859_1);
-//! assert_eq!(decoded_string, "Hello");
-//!
-//! // Example with a non-ASCII character in ISO-8859-15 (Euro sign)
-//! let bytes_with_euro: &[u8] = &[0xA4];
-//! let decoded_euro = bytes_to_string(bytes_with_euro, &CodePage::IsoIec8859_15);
-//! assert_eq!(decoded_euro, "€");
-//! ```
-
 use core::fmt;
 
 use log::trace;
@@ -80,6 +53,22 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 /// # Returns
 ///
 /// The decoded and trimmed `String`.
+///
+/// # Examples
+///
+/// ```
+/// use esm_parser::{bytes_to_string, CodePage};
+///
+/// // Example of decoding a byte slice using ISO-8859-1
+/// let bytes: &[u8] = &[0x48, 0x65, 0x6C, 0x6C, 0x6F]; // "Hello"
+/// let decoded_string = bytes_to_string(bytes, &CodePage::IsoIec8859_1);
+/// assert_eq!(decoded_string, "Hello");
+///
+/// // Example with a non-ASCII character in ISO-8859-15 (Euro sign)
+/// let bytes_with_euro: &[u8] = &[0xA4];
+/// let decoded_euro = bytes_to_string(bytes_with_euro, &CodePage::IsoIec8859_15);
+/// assert_eq!(decoded_euro, "€");
+/// ```
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     let dec_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
     let ret_str = dec_str.trim_end_matches('\0').trim().to_owned();

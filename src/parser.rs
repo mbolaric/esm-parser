@@ -1,9 +1,3 @@
-//! The main parser module for reading tachograph data from DDD files.
-//!
-//! This module provides the entry point for parsing DDD files. It automatically
-//! detects the generation of the tachograph data (Gen1 or Gen2) and the type of
-//! data (Vehicle Unit or Driver Card) and parses it accordingly.
-
 use binary_data::{BinMemoryBuffer, BinReader, BinSeek, ReadBytes};
 use log::debug;
 
@@ -66,7 +60,9 @@ fn parse_inner<R: ReadBytes + BinSeek>(header_data: &[u8; 2], data_len: u64, rea
     read_by_data_type(header, reader)
 }
 
-/// The public entry point for parsing a DDD file.
+/// This methods provides the entry point for parsing DDD files. It automatically
+/// detects the generation of the tachograph data (Gen1 or Gen2) and the type of
+/// data (Vehicle Unit or Driver Card) and parses it accordingly.
 ///
 /// # Arguments
 ///
@@ -82,11 +78,13 @@ pub fn parse_from_file(esm_file_path: &str) -> Result<TachographData> {
     parse_inner(&file.read_n_bytes::<2>()?, file.metadata().len(), &mut file)
 }
 
-/// The public entry point for parsing a DDD data.
+/// This methods provides the entry point for parsing DDD files. It automatically
+/// detects the generation of the tachograph data (Gen1 or Gen2) and the type of
+/// data (Vehicle Unit or Driver Card) and parses it accordingly.
 ///
 /// # Arguments
 ///
-/// * `esm_data` - The data from DDD file.
+/// * `esm_data` - The binary data from DDD file.
 ///
 /// # Returns
 ///
