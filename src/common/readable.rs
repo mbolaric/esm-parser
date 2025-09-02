@@ -13,7 +13,7 @@ use crate::Result;
 /// # Examples
 ///
 /// ```
-/// use binary_data::{BinMemoryBuffer, ReadBytes, BinSeek};
+/// use binary_data::{BinMemoryBuffer, BigEndian, ReadBytes, BinSeek};
 /// use esm_parser::Readable;
 /// use esm_parser::Result;
 ///
@@ -26,13 +26,14 @@ use crate::Result;
 /// impl Readable<Self> for MyData {
 ///     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<Self> {
 ///         let field1 = reader.read_u8()?;
-///         let field2 = reader.read_u16_be()?;
+///         let field2 = reader.read_u16::<BigEndian>()?;
 ///         Ok(Self { field1, field2 })
 ///     }
 /// }
 ///
 /// // Example of reading the struct from a byte slice
-/// let mut reader = BinMemoryBuffer::from(&[0x01, 0x02, 0x03]);
+/// let buffer: &[u8] = &[0x01, 0x02, 0x03];
+/// let mut reader = BinMemoryBuffer::from(buffer);
 /// let my_data = MyData::read(&mut reader).unwrap();
 /// assert_eq!(my_data.field1, 0x01);
 /// assert_eq!(my_data.field2, 0x0203);

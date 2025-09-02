@@ -13,7 +13,7 @@ use binary_data::{BinSeek, WriteBytes};
 /// # Examples
 ///
 /// ```
-/// use binary_data::{BinMemoryBuffer, WriteBytes, BinSeek};
+/// use binary_data::{BinMemoryBuffer, BigEndian, WriteBytes, BinSeek};
 /// use esm_parser::Writable;
 /// use esm_parser::Result;
 ///
@@ -26,7 +26,7 @@ use binary_data::{BinSeek, WriteBytes};
 /// impl Writable for MyData {
 ///     fn write<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> Result<()> {
 ///         writer.write_u8(self.field1)?;
-///         writer.write_u16_be(self.field2)?;
+///         writer.write_u16::<BigEndian>(self.field2)?;
 ///         Ok(())
 ///     }
 /// }

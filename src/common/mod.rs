@@ -7,5 +7,5 @@ mod writable;
 pub use bcd_string::BCDString;
 pub use hex::{HexDisplay, HexHelper};
 pub use readable::{Readable, ReadableWithParams};
-pub(crate) use string_decode::*;
+pub use string_decode::*;
 pub use writable::Writable;
