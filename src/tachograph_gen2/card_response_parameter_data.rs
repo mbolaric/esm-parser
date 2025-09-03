@@ -12,7 +12,7 @@ pub enum ParsedCard<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>> {
 pub enum CardResponseParameterData {
     Unsupported,
     DriverCard(ParsedCard<gen1::DriverCard, gen2::DriverCard>),
-    CompanyCard,
+    CompanyCard(ParsedCard<gen1::CompanyCard, gen2::CompanyCard>),
     WorkshopCard(ParsedCard<gen1::WorkshopCard, gen2::WorkshopCard>),
     ControlCard(ParsedCard<gen1::ControlCard, gen2::ControlCard>),
 }

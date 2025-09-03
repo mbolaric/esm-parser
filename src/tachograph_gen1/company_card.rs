@@ -2,10 +2,11 @@ use std::collections::HashMap;
 
 use log::{debug, trace};
 
-use crate::gen1::{CardResponseParameterData, Certificate, CompanyCardApplicationIdentification};
+use crate::gen1::{CardResponseParameterData, Certificate};
 use crate::tacho::{
-    Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CompanyActivityData,
-    CompanyActivityDataParams, CompanyActivityRecord, Identification, IdentificationParams,
+    Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
+    CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, Identification,
+    IdentificationParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -41,8 +42,10 @@ impl CompanyCard {
             card_notes,
         }
     }
+}
 
-    pub fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<CompanyCard>> {
+impl CardParser<CompanyCard> for CompanyCard {
+    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<CompanyCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<

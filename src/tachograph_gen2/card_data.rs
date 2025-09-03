@@ -78,9 +78,12 @@ impl CardData {
                 Ok(CardResponseParameterData::DriverCard(cards))
             }
             EquipmentType::CompanyCard => {
-                // FIXME: Replace Card with concrete card type
-                Err(Error::NotImplemented)
-                // Ok(CardResponseParameterData::CompanyCard(CompanyCard::parse(card_data_files, card_notes)?))
+                let cards = CardData::get_card_by_equipment_type::<gen1::CompanyCard, gen2::CompanyCard>(
+                    generation,
+                    card_files_data_gen1,
+                    card_files_data_gen2,
+                )?;
+                Ok(CardResponseParameterData::CompanyCard(cards))
             }
             EquipmentType::ControlCard => {
                 let cards = CardData::get_card_by_equipment_type::<gen1::ControlCard, gen2::ControlCard>(

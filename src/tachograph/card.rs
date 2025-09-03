@@ -159,6 +159,12 @@ impl<D> dyn Card<D> {
         Ok(application_identification)
     }
 
+    pub fn parse_by_card_file_id<T: Readable<T>>(card_file_id: &CardFileID, card_data_files: &CardFilesMap) -> Result<T> {
+        let mut reader = <dyn Card<D>>::get_mem_reader(card_file_id, card_data_files)?;
+        let result = T::read(&mut reader)?;
+        Ok(result)
+    }
+
     fn procces_card_data_file(data_file: CardFileData, card_items: &mut CardFilesDataByCardGeneration) -> Result<()> {
         match data_file.card_file_id {
             CardFileID::Unknown => {

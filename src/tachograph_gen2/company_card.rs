@@ -2,35 +2,35 @@ use std::collections::HashMap;
 
 use log::{debug, trace};
 
-use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, ControlCardApplicationIdentificationV2};
+use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, CompanyCardApplicationIdentificationV2};
 use crate::tacho::{
     Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
-    ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
-    ControlCardControlActivityDataParams, Identification, IdentificationParams,
+    CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, Identification,
+    IdentificationParams,
 };
 use crate::{ReadableWithParams, Result};
 
 #[derive(Debug)]
-pub struct ControlCard {
+pub struct CompanyCard {
     pub card_generation: CardGeneration,
     pub card_chip_identification: CardChipIdentification,
     pub card_icc_identification: CardIccIdentification,
-    pub application_identification: ControlCardApplicationIdentification,
-    pub application_identification_v2: ControlCardApplicationIdentificationV2,
+    pub application_identification: CompanyCardApplicationIdentification,
+    pub application_identification_v2: CompanyCardApplicationIdentificationV2,
     pub identification: Option<Identification>,
-    pub controller_activity_data: Option<ControlCardControlActivityData<ControlCardActivityRecord>>,
+    pub company_activity_data: Option<CompanyActivityData<CompanyActivityRecord>>,
     pub card_certificate: Option<Certificate>,
     pub ca_certificate: Option<Certificate>,
     pub link_certificate: Option<Certificate>,
     pub card_notes: String,
 }
 
-impl ControlCard {
+impl CompanyCard {
     fn new(
         card_chip_identification: CardChipIdentification,
         card_icc_identification: CardIccIdentification,
-        application_identification: ControlCardApplicationIdentification,
-        application_identification_v2: ControlCardApplicationIdentificationV2,
+        application_identification: CompanyCardApplicationIdentification,
+        application_identification_v2: CompanyCardApplicationIdentificationV2,
         card_notes: String,
     ) -> Self {
         Self {
@@ -40,7 +40,7 @@ impl ControlCard {
             application_identification,
             application_identification_v2,
             identification: None,
-            controller_activity_data: None,
+            company_activity_data: None,
             card_certificate: None,
             ca_certificate: None,
             link_certificate: None,
@@ -49,18 +49,18 @@ impl ControlCard {
     }
 }
 
-impl CardParser<ControlCard> for ControlCard {
-    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<ControlCard>> {
+impl CardParser<CompanyCard> for CompanyCard {
+    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<CompanyCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
-            ControlCardApplicationIdentification,
+            CompanyCardApplicationIdentification,
         >(card_data_files)?;
         let application_identification_v2 = <dyn Card<CardResponseParameterData>>::parse_by_card_file_id::<
-            ControlCardApplicationIdentificationV2,
+            CompanyCardApplicationIdentificationV2,
         >(&CardFileID::ApplicationIdentificationV2, card_data_files)?;
 
-        let mut control_card = ControlCard::new(
+        let mut company_card = CompanyCard::new(
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
@@ -69,41 +69,40 @@ impl CardParser<ControlCard> for ControlCard {
         );
 
         for card_item in card_data_files.iter() {
-            debug!("ControlCard::parse - ID: {:?}", card_item.0,);
+            debug!("CompanyCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
             match card_item.0 {
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
-                    control_card.identification = Some(Identification::read(&mut reader, &params)?);
+                    company_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
-                CardFileID::ControllerActivityData => {
-                    let params =
-                        ControlCardControlActivityDataParams::new(application_identification.no_of_control_activity_records);
-                    control_card.controller_activity_data = Some(ControlCardControlActivityData::read(&mut reader, &params)?);
+                CardFileID::CompanyActivityData => {
+                    let params = CompanyActivityDataParams::new(application_identification.no_of_company_activity_records);
+                    company_card.company_activity_data = Some(CompanyActivityData::read(&mut reader, &params)?);
                 }
                 CardFileID::CardCertificate => {
                     let params = CertificateParams::new(None);
-                    control_card.ca_certificate = Some(Certificate::read(&mut reader, &params)?);
+                    company_card.ca_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::CACertificate => {
                     let params = CertificateParams::new(None);
-                    control_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
+                    company_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::LinkCertificate => {
                     let params = CertificateParams::new(None);
-                    control_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
+                    company_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::IC
                 | CardFileID::ICC
                 | CardFileID::ApplicationIdentification
                 | CardFileID::ApplicationIdentificationV2 => {
-                    trace!("ControlCard::parse - Already parsed: {:?}", card_item.0)
+                    trace!("CompanyCard::parse - Already parsed: {:?}", card_item.0)
                 }
-                _ => trace!("ControlCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => trace!("CompanyCard::parse - Not Parsed: {:?}", card_item.0),
             }
         }
 
-        Ok(Box::new(control_card))
+        Ok(Box::new(company_card))
     }
 }
