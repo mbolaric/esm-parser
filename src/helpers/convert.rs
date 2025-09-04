@@ -1,5 +1,14 @@
 use core::fmt;
 
+/// Converts a u16 value representing minutes into a string formatted as "HH:MM".
+///
+/// # Arguments
+///
+/// * `time_min` - A u16 value representing the total number of minutes.
+///
+/// # Returns
+///
+/// A string representation of the time in "HH:MM" format.
 #[allow(dead_code)]
 pub fn time_u16_to_string(time_min: u16) -> String {
     let hours: u16 = time_min / 60;
@@ -7,6 +16,16 @@ pub fn time_u16_to_string(time_min: u16) -> String {
     format!("{hours:2}:{mins:2}")
 }
 
+/// Converts a u8 value to a boolean.
+///
+/// # Arguments
+///
+/// * `value` - The u8 value to convert. 0 is treated as false, 1 as true.
+///
+/// # Returns
+///
+/// A `Result` which is `Ok(bool)` on success, or an `Err(Error)` if the input
+/// is not 0 or 1.
 pub fn u8_to_bool(value: u8) -> Result<bool, Error> {
     match value {
         0 => Ok(false),
@@ -15,8 +34,10 @@ pub fn u8_to_bool(value: u8) -> Result<bool, Error> {
     }
 }
 
+/// Error type for conversion functions.
 #[derive(Debug)]
 pub enum Error {
+    /// Represents an invalid byte value that cannot be converted.
     InvalidInputByteValue(u8),
 }
 
