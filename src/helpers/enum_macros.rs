@@ -8,6 +8,8 @@
 /// # Usage
 ///
 /// ```rust
+/// use esm_parser::impl_enum_from_u8;
+///
 /// #[derive(Debug, PartialEq)]
 /// #[repr(u8)]
 /// enum MyEnum {
@@ -49,6 +51,8 @@ macro_rules! impl_enum_from_u8 {
 /// # Usage
 ///
 /// ```rust
+/// use esm_parser::impl_enum_from_u16;
+///
 /// #[derive(Debug, PartialEq)]
 /// #[repr(u16)]
 /// enum MyEnum {

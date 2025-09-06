@@ -1,7 +1,9 @@
 use crate::{CodePage, Readable, bytes_to_string};
+use serde::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Address {
+    #[serde(rename = "codePage")]
     pub code_page: CodePage,
     pub name: String,
 }

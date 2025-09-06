@@ -1,14 +1,17 @@
 use binary_data::{BigEndian, BinSeek, WriteBytes};
 use chrono::Utc;
+use serde::Serialize;
 
+use crate::helpers::serialize_option_utc_date_time;
 use crate::{Readable, Writable};
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct TimeReal {
     /// The raw Unix timestamp value from the DDD file.
     pub data: u32,
     /// The `chrono::DateTime<Utc>` representation of the timestamp.
+    #[serde(serialize_with = "serialize_option_utc_date_time", rename = "dateTime")]
     date_time: Option<chrono::DateTime<Utc>>,
 }
 
@@ -62,6 +65,8 @@ impl Writable for TimeReal {
 
 #[cfg(test)]
 mod tests {
+    use crate::helpers::from_obj_to_string;
+
     use super::*;
     use binary_data::BinMemoryBuffer;
 
@@ -120,5 +125,13 @@ mod tests {
         assert_eq!(time_real.get_time_str(), "00:00:00");
         assert_eq!(time_real.get_data(), 0);
         assert!(!time_real.has_data());
+    }
+
+    #[test]
+    fn test_serialize_time_real() {
+        let timestamp: u32 = 1672531199; // 2022-12-31 23:59:59
+        let mut reader = BinMemoryBuffer::from(timestamp.to_be_bytes().to_vec());
+        let time_real = TimeReal::read(&mut reader).unwrap();
+        assert_eq!(from_obj_to_string(&time_real), "{\"data\":1672531199,\"dateTime\":\"2022-12-31 23:59:59 UTC\"}");
     }
 }

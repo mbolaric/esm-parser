@@ -265,12 +265,10 @@ impl fmt::Display for CardCertificate {
         writeln!(f, "Status: {}", if self.is_valid() { "Valid" } else { "Invalid/Expired" })?;
 
         let days_left = self.days_until_expiry();
-        if days_left > 0 {
-            writeln!(f, "Days until expiry: {}", days_left)?;
-        } else if days_left == 0 {
-            writeln!(f, "Expires today")?;
-        } else {
-            writeln!(f, "Expired {} days ago", -days_left)?;
+        match days_left {
+            d if d > 0 => writeln!(f, "Days until expiry: {}", d)?,
+            0 => writeln!(f, "Expires today")?,
+            d => writeln!(f, "Expired {} days ago", -d)?,
         }
 
         let holder_info = self.get_holder_info();
