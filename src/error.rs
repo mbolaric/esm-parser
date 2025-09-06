@@ -49,8 +49,8 @@ impl From<std::string::FromUtf8Error> for Error {
     }
 }
 
-impl From<common::string_decode::Error> for Error {
-    fn from(value: common::string_decode::Error) -> Self {
+impl From<common::string_encoding::Error> for Error {
+    fn from(value: common::string_encoding::Error) -> Self {
         Error::InvalidDataParse(value.to_string())
     }
 }

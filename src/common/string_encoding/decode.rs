@@ -1,11 +1,13 @@
-use core::fmt;
-
 use log::trace;
 
-use crate::common::string_decode::{
-    code_page::CodePage, iso_8859_1::decode_iso_8859_1, iso_8859_2::decode_iso_8859_2, iso_8859_3::decode_iso_8859_3,
-    iso_8859_5::decode_iso_8859_5, iso_8859_7::decode_iso_8859_7, iso_8859_9::decode_iso_8859_9, iso_8859_13::decode_iso_8859_13,
-    iso_8859_15::decode_iso_8859_15, iso_8859_16::decode_iso_8859_16, koi8_r::decode_koi8_r, koi8_u::decode_koi8_u,
+use crate::common::{
+    Error,
+    string_encoding::{
+        code_page::CodePage, iso_8859_1::decode_iso_8859_1, iso_8859_2::decode_iso_8859_2, iso_8859_3::decode_iso_8859_3,
+        iso_8859_5::decode_iso_8859_5, iso_8859_7::decode_iso_8859_7, iso_8859_9::decode_iso_8859_9,
+        iso_8859_13::decode_iso_8859_13, iso_8859_15::decode_iso_8859_15, iso_8859_16::decode_iso_8859_16, koi8_r::decode_koi8_r,
+        koi8_u::decode_koi8_u,
+    },
 };
 
 /// Decodes a single byte into a character based on the specified code page.
@@ -102,22 +104,6 @@ pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
     match String::from_utf8(input.to_vec()) {
         Ok(s) => Ok(s.trim_end_matches('\0').trim().to_string()),
         Err(_) => Err(Error::InvalidIA5CharacterNotASCII),
-    }
-}
-
-/// Defines the possible errors that can occur during string decoding.
-#[derive(Debug)]
-pub enum Error {
-    /// Error indicating that a character is not a valid IA5 (ASCII) character.
-    InvalidIA5CharacterNotASCII,
-    /// Error indicating that the input is too short for a fixed-length IA5 string.
-    InputTooShortForIA5String,
-}
-
-/// Implements the `Display` trait for the `Error` enum to provide a user-friendly error message.
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{self:?}")
     }
 }
 

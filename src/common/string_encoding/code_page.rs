@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum CodePage {
     IsoIec8859_1 = 1,
     IsoIec8859_2 = 2,
