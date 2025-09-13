@@ -1,27 +1,46 @@
+use crate::common;
 use core::fmt;
 
-use crate::common;
-
+/// Represents an error that can occur during parsing.
 #[derive(Debug)]
 pub enum Error {
+    /// An I/O error occurred.
     File(std::io::Error),
+    /// A binary data error occurred.
     Binary(binary_data::Error),
+    /// The header length is invalid.
     InvalidHeaderLength,
+    /// The header data is invalid.
     InvalidHeaderData,
+    /// An error occurred during data generation.
     InvalidDataGeneration,
+    /// An error occurred during data parsing.
     InvalidDataParse(String),
+    /// An error occurred during data encoding.
     InvalidDataEncode(String),
+    /// A duplicate card file was detected.
     DuplicateCardFile,
+    /// A signature was found before a card file.
     SignatureBeforeCardFile,
+    /// A partial card file was detected.
     PartialCardFile,
+    /// The card type is not supported.
     UnsupportedCardType,
+    /// The card type is unknown.
     UnknownCardType,
+    /// The feature is not yet implemented.
     NotImplemented,
+    /// A required card file is missing.
     MissingCardFile(String),
+    /// The card type is not supported.
     NotSupportedCardType(String),
+    /// The driving licence number is corrupted.
     CorruptedDrivingLicenceNumber,
+    /// An error occurred when decoding an unknown card type.
     UnknownCardTypeDecoding,
+    /// A record is out of range.
     RecordOutOfRange(String),
+    /// An error occurred with a card activity daily record.
     CardActivityDailyRecord(String),
 }
 

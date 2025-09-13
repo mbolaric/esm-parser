@@ -1,45 +1,84 @@
+/// Represents the identifier of a data type.
 #[derive(Debug, Clone)]
 pub enum DataTypeID {
+    /// Unknown data type.
     Unknown = 0,
+    /// Information about activity changes.
     ActivityChangeInfo = 1,
+    /// Status of the card slots.
     CardSlotStatus = 2,
+    /// Current date and time.
     CurrentDateTime,
+    /// Member state certificate.
     MemberStateCertificate,
+    /// Odometer value at midnight.
     OdometerValueMidnight,
+    /// Date of the day the data was downloaded.
     DateOfDayDownloaded,
+    /// Information about a paired sensor.
     SensorPaired,
+    /// Signature of the data.
     Signature,
+    /// Record of specific conditions.
     SpecificConditionRecord,
+    /// Vehicle Identification Number (VIN).
     VehicleIdentificationNumber,
+    /// Vehicle Registration Number (VRN).
     VehicleRegistrationNumber,
+    /// Record of VU calibrations.
     VuCalibrationRecord,
+    /// Record of VU card insertion and withdrawal.
     VuCardIWRecord,
+    /// Record of VU card data.
     VuCardRecord,
+    /// VU certificate.
     VuCertificate,
+    /// Record of VU company locks.
     VuCompanyLocksRecord,
+    /// Record of VU control activities.
     VuControlActivityRecord,
+    /// Block of detailed speed data from the VU.
     VuDetailedSpeedBlock,
+    /// Period of downloadable data from the VU.
     VuDownloadablePeriod,
+    /// Data about download activities from the VU.
     VuDownloadActivityData,
+    /// Record of events from the VU.
     VuEventRecord,
+    /// Record of GNSS accumulated driving from the VU.
     VuGNSSADRecord,
+    /// Record of ITS consent from the VU.
     VuITSConsentRecord,
+    /// Record of faults from the VU.
     VuFaultRecord,
+    /// Identification of the VU.
     VuIdentification,
+    /// Data about overspeeding control from the VU.
     VuOverSpeedingControlData,
+    /// Record of overspeeding events from the VU.
     VuOverSpeedingEventRecord,
+    /// Record of daily work periods from the VU.
     VuPlaceDailyWorkPeriodRecord,
+    /// Record of time adjustments from GNSS from the VU.
     VuTimeAdjustmentGNSSRecord,
+    /// Record of time adjustments from the VU.
     VuTimeAdjustmentRecord,
+    /// Record of power supply interruptions from the VU.
     VuPowerSupplyInterruptionRecord,
+    /// Record of paired sensors.
     SensorPairedRecord,
+    /// Record of external GNSS coupled sensors.
     SensorExternalGNSSCoupledRecord,
+    /// Record of border crossings from the VU.
     VuBorderCrossingRecord,
+    /// Record of load/unload operations from the VU.
     VuLoadUnloadRecord,
+    /// Vehicle Registration Identification.
     VehicleRegistrationIdentification,
 }
 
 impl DataTypeID {
+    /// Returns `true` if the data type is unknown.
     pub fn is_unknown(&self) -> bool {
         matches!(*self, DataTypeID::Unknown)
     }

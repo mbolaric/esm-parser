@@ -1,8 +1,11 @@
 use crate::{CodePage, Readable, bytes_to_string};
 
+/// A Name.
 #[derive(Debug)]
 pub struct Name {
+    /// Specifies a character set.
     pub code_page: CodePage,
+    /// This is a name encoded using the specified character set.
     pub name: String,
 }
 

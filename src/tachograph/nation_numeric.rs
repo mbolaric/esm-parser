@@ -1,5 +1,6 @@
 use crate::impl_enum_from_u8;
 
+/// Numerical reference to a country.
 #[derive(Debug)]
 #[repr(u8)]
 pub enum NationNumeric {
@@ -317,6 +318,7 @@ impl From<&NationNumeric> for u8 {
 }
 
 impl NationNumeric {
+    /// Convert nation numeric to nation alpha
     pub fn get_nation_alpha(&self) -> &'static str {
         let code: u8 = self.into();
         match code {

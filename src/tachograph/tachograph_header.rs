@@ -4,14 +4,28 @@ use crate::{
     tacho::{TachographDataGeneration, TachographDataType},
 };
 
+/// Represents the header of a tachograph file.
 #[derive(Debug, Clone)]
 pub struct TachographHeader {
+    /// The generation of the tachograph data.
     pub generation: TachographDataGeneration,
+    /// The type of the tachograph data.
     pub data_type: TachographDataType,
+    /// Whether the card data is from a VU file.
     pub card_in_vu_data: bool,
 }
 
 impl TachographHeader {
+    /// Creates a new `TachographHeader` from the given data.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The header data.
+    /// * `data_length` - The length of the data.
+    ///
+    /// # Returns
+    ///
+    /// A new `TachographHeader` instance.
     pub fn from_data(data: &[u8], data_length: u64) -> Result<TachographHeader> {
         if data.len() != 2 {
             return Err(Error::InvalidHeaderLength);
@@ -20,6 +34,16 @@ impl TachographHeader {
         TachographHeader::parse_header(data, data_length)
     }
 
+    /// Parses the header data and returns a new `TachographHeader`.
+    ///
+    /// # Arguments
+    ///
+    /// * `header` - The header data.
+    /// * `data_length` - The length of the data.
+    ///
+    /// # Returns
+    ///
+    /// A new `TachographHeader` instance.
     fn parse_header(header: &[u8], data_length: u64) -> Result<TachographHeader> {
         if header.eq(&VU_HEADER_G1) {
             return Ok(TachographHeader {

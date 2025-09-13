@@ -2,6 +2,8 @@ use core::fmt;
 
 use crate::impl_enum_from_u8;
 
+// Code to distinguish different types of equipment for the tachograph
+// application.
 #[derive(Debug, PartialEq, Clone)]
 #[repr(u8)]
 pub enum EquipmentType {
