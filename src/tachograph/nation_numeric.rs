@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
 /// Numerical reference to a country.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 #[repr(u8)]
 pub enum NationNumeric {
     Unknown = 0,

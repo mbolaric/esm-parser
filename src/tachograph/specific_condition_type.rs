@@ -1,8 +1,10 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
 /// Code identifying a specific condition (Annex 1B requirements 050b,
 /// 105a, 212a and 230a and Annex 1C requirements 62).
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 #[repr(u8)]
 pub enum SpecificConditionType {
     OutOfScopeBegin = 1,

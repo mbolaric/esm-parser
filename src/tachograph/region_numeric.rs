@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
 /// Numerical reference to a region within a specified country.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 #[repr(u8)]
 pub enum RegionNumeric {
     Unknown = 0,

@@ -1,10 +1,12 @@
 use core::fmt;
 
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
 // Code to distinguish different types of equipment for the tachograph
 // application.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize)]
 #[repr(u8)]
 pub enum EquipmentType {
     Reserved = 0,

@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     ReadableWithParams, Result,
@@ -16,7 +17,7 @@ impl ActivityChangeInfoParams {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum ActivityCard {
     Vu,
     Card,

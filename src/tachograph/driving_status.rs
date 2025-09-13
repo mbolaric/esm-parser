@@ -1,5 +1,7 @@
+use serde::Serialize;
+
 ///Whenever the driver has has changed of driving status
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 #[repr(u8)]
 pub enum DrivingStatus {
     Unknown = 255,

@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 #[repr(u8)]
 pub enum CardSlotNumber {
     Driver = 0,

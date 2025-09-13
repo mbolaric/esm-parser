@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
 ///Whenever the driver has inserted or withdrawn his card.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 #[repr(u8)]
 pub enum CardStatus {
     Inserted = 0,
