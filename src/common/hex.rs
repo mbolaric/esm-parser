@@ -27,6 +27,18 @@ impl<'a> HexHelper<'a> {
     pub fn to_upper_hex_string(&self) -> String {
         self.0.iter().map(|c| format!("{c:02X}")).collect()
     }
+
+    /// Converts the value into a lowercase hexadecimal string representation,
+    /// inserting the given `separator` between each byte.
+    pub fn to_lower_hex_string_with_sep(&self, separator: &str) -> String {
+        self.0.iter().map(|c| format!("{c:02x}")).collect::<Vec<_>>().join(separator)
+    }
+
+    /// Converts the value into a uppercase hexadecimal string representation,
+    /// inserting the given `separator` between each byte.
+    pub fn to_upper_hex_string_with_sep(&self, separator: &str) -> String {
+        self.0.iter().map(|c| format!("{c:02X}")).collect::<Vec<_>>().join(separator)
+    }
 }
 
 /// Implements the `Display` trait for `HexHelper` to format the byte slice as an uppercase hexadecimal string.
@@ -57,6 +69,10 @@ impl fmt::Display for HexHelper<'_> {
 /// let upper_hex = data.to_hex().to_upper_hex_string();
 /// assert_eq!(upper_hex, "DEADBEEF");
 ///
+/// // Convert to an uppercase hexadecimal string with separator
+/// let upper_hex = data.to_hex().to_upper_hex_string_with_sep(":");
+/// assert_eq!(upper_hex, "DE:AD:BE:EF");
+///
 /// // The `to_hex_string` trait method provides a direct way to get an uppercase hex string
 /// let upper_hex_direct = data.to_hex_string();
 /// assert_eq!(upper_hex_direct, "DEADBEEF");
@@ -69,6 +85,27 @@ pub trait HexDisplay {
 
     /// Converts the type to an uppercase hexadecimal string.
     fn to_hex_string(&self) -> String;
+
+    /// Converts the value into a hexadecimal string representation,
+    /// inserting the given `separator` between each byte.
+    ///
+    /// # Arguments
+    ///
+    /// * `separator` - A string slice to insert between each hexadecimal byte.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the hexadecimal representation of the value,
+    /// with the specified separator between bytes.
+    ///
+    /// # Example
+    /// ```
+    /// use esm_parser::HexDisplay;
+    ///
+    /// let bytes = [0xAB, 0xCD, 0xEF];
+    /// assert_eq!(bytes.to_hex_string_with_sep("-"), "AB-CD-EF");
+    /// ```
+    fn to_hex_string_with_sep(&self, separator: &str) -> String;
 }
 
 /// Implements the `HexDisplay` trait for any type that can be referenced as a byte slice.
@@ -84,6 +121,29 @@ where
     /// Converts the type to an uppercase hexadecimal string by default.
     fn to_hex_string(&self) -> String {
         HexHelper::new(self).to_upper_hex_string()
+    }
+
+    /// Converts the value into a uppercase hexadecimal string representation,
+    /// inserting the given `separator` between each byte.
+    ///
+    /// # Arguments
+    ///
+    /// * `separator` - A string slice to insert between each hexadecimal byte.
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the hexadecimal representation of the value,
+    /// with the specified separator between bytes.
+    ///
+    /// # Example
+    /// ```
+    /// use esm_parser::HexDisplay;
+    ///
+    /// let bytes: &[u8] = &[0xAB, 0xCD, 0xEF];
+    /// assert_eq!(bytes.to_hex_string_with_sep("-"), "AB-CD-EF");
+    /// ```
+    fn to_hex_string_with_sep(&self, separator: &str) -> String {
+        HexHelper::new(self).to_upper_hex_string_with_sep(separator)
     }
 }
 
