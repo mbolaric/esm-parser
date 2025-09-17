@@ -1,6 +1,8 @@
 use crate::{gen1, gen2};
 use std::fmt;
 
+use serde::Serialize;
+
 /// # Top-Level Tachograph Data Container
 /// Represents the parsed data from a tachograph file.
 ///
@@ -9,7 +11,7 @@ use std::fmt;
 /// (Gen1 or Gen2), holding the corresponding detailed data structure.
 /// It abstracts away the generation and data type (Vehicle Unit or Card),
 /// allowing for unified handling of the parsed result.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum TachographData {
     /// Vehicle Unit data from a Gen1 tachograph.
     VUGen1(gen1::VUData),
