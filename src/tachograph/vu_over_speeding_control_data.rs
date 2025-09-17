@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{Readable, tacho::TimeReal};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuOverSpeedingControlData {
     pub last_overspeed_control_time: TimeReal,
     pub first_overspeed_since: TimeReal,

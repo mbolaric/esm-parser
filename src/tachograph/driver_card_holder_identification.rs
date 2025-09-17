@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable, bytes_to_ia5_fix_string,
     tacho::{Datef, HolderName},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DriverCardHolderIdentification {
     pub card_holder_name: HolderName,
     pub card_holder_birth_date: Datef,

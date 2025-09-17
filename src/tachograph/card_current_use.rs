@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{TimeReal, VehicleRegistrationIdentification},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardCurrentUse {
     pub session_open_time: TimeReal,
     pub session_open_vehicle: VehicleRegistrationIdentification,

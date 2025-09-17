@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable, bytes_to_ia5_fix_string,
     tacho::{Address, Name},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyCardHolderIdentification {
     pub company_name: Name,
     pub company_address: Address,

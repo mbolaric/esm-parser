@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{Readable, tacho::TimeReal};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuDetailedSpeedBlock {
     pub speed_block_begin_date: TimeReal,
     pub speeds_per_second: Vec<u8>,

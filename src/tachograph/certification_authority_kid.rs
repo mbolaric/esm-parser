@@ -1,8 +1,9 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{Readable, bytes_to_ia5_fix_string, tacho::NationNumeric};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CertificationAuthorityKid {
     pub nation_numeric: NationNumeric,
     pub nation_alpha: String,

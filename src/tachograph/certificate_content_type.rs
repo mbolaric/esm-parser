@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u16;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 #[repr(u16)]
 pub enum CertificateContentType {
     Unknown = 0x0,

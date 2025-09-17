@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable, bytes_to_ia5_fix_string,
     tacho::{Address, HolderName, Name},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ControlCardHolderIdentification {
     pub control_body_name: Name,
     pub control_body_address: Address,

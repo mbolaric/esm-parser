@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{NationNumeric, VehicleRegistrationNumber},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VehicleRegistrationIdentification {
     pub vehicle_registration_nation: NationNumeric,
     pub vehicle_registration_number: VehicleRegistrationNumber,

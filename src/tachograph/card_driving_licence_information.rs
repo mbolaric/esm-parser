@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     CodePage, Error, Readable, bytes_to_string,
     tacho::{Name, NationNumeric},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardDrivingLicenceInformation {
     pub driving_licence_issuing_authority: Name,
     pub driving_licence_issuing_nation: NationNumeric,

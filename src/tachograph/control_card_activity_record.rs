@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ControlCardActivityRecord {
     pub control_type: ControlType,
     pub control_time: TimeReal,

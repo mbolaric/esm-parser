@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::impl_enum_from_u8;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum CalibrationPurpose {
     Reserved = 0,
     Activation = 1,

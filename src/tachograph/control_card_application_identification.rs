@@ -1,11 +1,12 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{
     Readable,
     tacho::{CardStructureVersion, EquipmentType},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ControlCardApplicationIdentification {
     pub type_of_tachograph_card_id: EquipmentType,
     pub card_structure_version: CardStructureVersion,

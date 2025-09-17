@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{CodePage, Readable, bytes_to_string};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VehicleRegistrationNumber {
     pub code_page: CodePage,
     pub registration_number: String,

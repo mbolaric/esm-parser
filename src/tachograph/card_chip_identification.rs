@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{HexDisplay, Readable};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardChipIdentification {
     pub ic_serial_number: Vec<u8>,
     pub ic_manufacturing_references: Vec<u8>,

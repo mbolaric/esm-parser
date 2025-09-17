@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::Readable;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CardStructureVersion {
     pub structure_version: u8,
     pub data_element_use_version: u8,

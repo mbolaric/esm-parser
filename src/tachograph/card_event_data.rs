@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -17,7 +18,7 @@ impl CardEventDataParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardEventRecord {
     pub event_fault_type: EventFaultType,
     pub begin_time: TimeReal,

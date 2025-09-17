@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -6,7 +7,7 @@ use crate::{
     tachograph::card_number::CardNumberParams,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardIdentification {
     pub card_issuing_member_state: NationNumeric,
     pub card_number: CardNumber,

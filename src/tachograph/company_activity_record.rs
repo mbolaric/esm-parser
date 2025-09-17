@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{CompanyActivityType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyActivityRecord {
     pub company_activity_type: CompanyActivityType,
     pub company_activity_time: TimeReal,

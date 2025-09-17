@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Error, Readable, ReadableWithParams, Result,
@@ -18,7 +19,7 @@ impl IdentificationParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum Identification {
     CompanyCard(Box<CompanyCardIdentification>),
     DriverCard(Box<DriverCardIdentification>),

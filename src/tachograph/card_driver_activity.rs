@@ -1,11 +1,12 @@
 use binary_data::{BigEndian, BinRingMemoryBuffer, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     BCDString, Error, Readable, ReadableWithParams, Result,
     tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardActivityDailyRecord {
     pub record_date: TimeReal,
     pub daily_presence_counter: String,

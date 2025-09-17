@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 use crate::{Readable, tacho::Name};
 
 /// This is the name and first name(s) of the holder of the Card.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct HolderName {
     pub surname: Name,
     pub first_name: Name,

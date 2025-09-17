@@ -23,7 +23,7 @@ pub enum ActivityCard {
     Card,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ActivityChangeInfo {
     pub activity_card: ActivityCard,
     pub activity_info: u16,

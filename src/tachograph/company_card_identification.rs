@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable, ReadableWithParams,
     tacho::{CardIdentification, CardNumberParams, CompanyCardHolderIdentification, EquipmentType},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyCardIdentification {
     pub card_identification: CardIdentification,
     pub company_card_holder_identification: CompanyCardHolderIdentification,

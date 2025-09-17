@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{Readable, tacho::CardSlotStatusType};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardSlotStatus {
     pub data: u8,
     pub driver_slot: CardSlotStatusType,

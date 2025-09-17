@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result, tacho::SpecificConditionRecord};
 
@@ -13,7 +14,7 @@ impl SpecificConditionsParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SpecificConditions {
     pub specific_conditions: Vec<SpecificConditionRecord>,
 }

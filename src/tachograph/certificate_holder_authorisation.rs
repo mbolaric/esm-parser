@@ -1,11 +1,12 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
     tacho::{CertificateContentType, EquipmentType},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CertificateHolderAuthorisation {
     pub record_type: CertificateContentType,
     pub record_size: u16,

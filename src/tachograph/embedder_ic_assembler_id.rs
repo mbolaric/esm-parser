@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{BCDString, Readable, bytes_to_ia5_fix_string};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct EmbedderIcAssemblerId {
     pub country_code: String,
     pub module_embedder: String,

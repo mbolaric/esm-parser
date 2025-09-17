@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     CodePage, Readable, bytes_to_string,
     tacho::{EquipmentType, NationNumeric},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct FullCardNumber {
     pub card_type: EquipmentType,
     pub card_issuing_member_state: NationNumeric,

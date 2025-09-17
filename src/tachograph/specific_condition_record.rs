@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{SpecificConditionType, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SpecificConditionRecord {
     pub entry_time: TimeReal,
     pub specific_condition_type: SpecificConditionType,

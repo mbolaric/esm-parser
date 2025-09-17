@@ -1,8 +1,9 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{BCDString, Readable};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 
 pub struct ExtendedSerialNumber {
     pub serial_number: u32,

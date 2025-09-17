@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     CodePage, Readable, bytes_to_string,
     tacho::{EmbedderIcAssemblerId, ExtendedSerialNumber},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardIccIdentification {
     pub clock_stop: u8,
     pub card_serial_number: ExtendedSerialNumber,

@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 use crate::{CodePage, Readable, bytes_to_string};
 
 /// A Name.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Name {
     /// Specifies a character set.
     pub code_page: CodePage,

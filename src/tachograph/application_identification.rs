@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{CardStructureVersion, EquipmentType},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ApplicationIdentification {
     pub type_of_tachograph_card_id: EquipmentType,
     pub card_structure_version: CardStructureVersion,

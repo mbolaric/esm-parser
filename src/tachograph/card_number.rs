@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::EquipmentType};
 
@@ -13,7 +14,7 @@ impl CardNumberParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardNumber {
     pub equipment_type: EquipmentType,
     pub number: String,
