@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ManufacturerSpecificEventFaultData {
     pub manufacturer_code: u8,
     pub manufacturer_specific_error_code: Vec<u8>,

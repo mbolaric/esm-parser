@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{TimeReal, VehicleRegistrationIdentification},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct PreviousVehicleInfo {
     pub vehicle_registration_identification: VehicleRegistrationIdentification,
     pub card_withdrawal_time: TimeReal,

@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result, gen2::GeoCoordinate, tacho::TimeReal};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct GnssPlaceRecord {
     pub time_stamp: TimeReal,
     pub gnss_accuracy: u8,

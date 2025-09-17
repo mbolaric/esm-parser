@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{OdometerShort, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct GnssAccumulatedDrivingRecord {
     pub time_stamp: TimeReal,
     pub gnss_place_record: GnssPlaceRecord,
@@ -33,7 +34,7 @@ impl GnssAccumulatedDrivingParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct GnssAccumulatedDriving {
     pub gnss_ad_pointer_newest_record: u16,
     pub gnss_accumulated_driving_records: Vec<GnssAccumulatedDrivingRecord>,

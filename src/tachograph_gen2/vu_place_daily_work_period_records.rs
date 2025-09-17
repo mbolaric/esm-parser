@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -7,7 +8,7 @@ use crate::{
     tachograph_gen2::data_info::DataConfig,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuPlaceDailyWorkPeriodRecord {
     pub full_card_number: FullCardNumberAndGeneration,
     pub place_record: PlaceRecord,
@@ -21,7 +22,7 @@ impl Readable<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriodRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuPlaceDailyWorkPeriodRecords {
     pub is_gen2_v2: bool,
     pub no_of_records: u16,

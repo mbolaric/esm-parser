@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuEventRecord {
     pub event_type: EventFaultType,
     pub event_record_purpose: EventFaultRecordPurpose,
@@ -42,7 +44,7 @@ impl Readable<VuEventRecord> for VuEventRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuEventData {
     pub no_of_vu_events: u8,
     pub vu_event_records: Vec<VuEventRecord>,

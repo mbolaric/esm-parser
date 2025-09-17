@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     gen2::{DataInfo, VUActivity, VUCardDownload, VUEvents, VUOverview, VUSpeed, VUTechnicalData},
     tacho::VUTransferResponseParameter,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum VUTransferResponseParameterData {
     Unknown(DataInfo),
     Control(VUOverview),

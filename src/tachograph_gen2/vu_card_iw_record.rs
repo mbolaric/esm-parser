@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{CardSlotNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCardIWRecord {
     pub card_holder_name: HolderName,
     pub full_card_number_and_generation: FullCardNumberAndGeneration,

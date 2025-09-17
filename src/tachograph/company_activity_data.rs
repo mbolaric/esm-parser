@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -13,7 +14,7 @@ impl CompanyActivityDataParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyActivityData<T> {
     pub company_pointer_newest_record: u16,
     pub company_activity_records: Vec<T>,

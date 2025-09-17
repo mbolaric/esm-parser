@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{CodePage, Readable, Result, bytes_to_string, tacho::TimeReal};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuSoftwareIdentification {
     pub vu_software_version: String,
     pub vu_soft_installation_date: TimeReal,

@@ -1,5 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::Result;
 use crate::gen2::{
@@ -8,7 +9,7 @@ use crate::gen2::{
 };
 use crate::tacho::VUTransferResponseParameterID;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUTechnicalData {
     pub vu_identification_records: DataInfoGenericRecords<VuIdentification>,
     pub vu_sensor_paired_records: DataInfoGenericRecords<SensorPairedRecord>,

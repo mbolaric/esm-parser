@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{Address, Name, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuTimeAdjustmentRecord {
     pub old_time_value: TimeReal,
     pub new_time_value: TimeReal,

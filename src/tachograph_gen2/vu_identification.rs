@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     CodePage, Readable, ReadableWithParams, Result, bytes_to_string,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuIdentification {
     pub is_gen2_v2: bool,
     pub vu_manufacturer_name: Name,

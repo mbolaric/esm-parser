@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Error, Readable, ReadableWithParams,
@@ -14,7 +15,7 @@ pub struct DataConfig {
     pub no_of_records: u16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DataInfo {
     pub trep_id: VUTransferResponseParameterID,
     pub data_type_id: DataTypeID,
@@ -72,7 +73,7 @@ pub trait DataInfoReadableWithParams<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DataInfoGenericRecords<T> {
     pub no_of_records: u16,
     pub record_size: u16,

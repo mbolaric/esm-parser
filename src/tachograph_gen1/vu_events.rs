@@ -1,11 +1,12 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::gen1::{VuEventData, VuFaultData, VuOverSpeedingEventData, VuTimeAdjustmentData};
 use crate::tacho::{VUTransferResponseParameterID, VUTransferResponseParameterReader, VuOverSpeedingControlData};
 use crate::{Readable, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuEvents {
     pub vu_fault_data: VuFaultData,
     pub vu_event_data: VuEventData,

@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{CardNumber, CardNumberParams, CardStructureVersion, EquipmentType, ExtendedSerialNumber},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCardRecord {
     pub full_card_number_and_generation: FullCardNumberAndGeneration,
     pub card_extended_serial_number: ExtendedSerialNumber,

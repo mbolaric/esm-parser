@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{Address, FullCardNumber, Name, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyLocksRecord {
     pub lock_in_time: TimeReal,
     pub lock_out_time: TimeReal,
@@ -24,7 +26,7 @@ impl Readable<CompanyLocksRecord> for CompanyLocksRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyLocks {
     pub no_of_locks: u8,
     pub company_locks: Vec<CompanyLocksRecord>,

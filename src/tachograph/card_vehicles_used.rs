@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result, tacho::TimeReal};
 
@@ -18,7 +19,7 @@ impl VehiclesUsedParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardVehiclesUsed<T> {
     pub vehicle_pointer_newest_record: u16,
     pub vehicle_records: Vec<T>,

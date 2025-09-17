@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -20,7 +21,7 @@ impl CertificateProfileParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CertificateProfile {
     pub ecc_certificate: EccCertificate,
     pub ecc_certificate_body: EccCertificate,

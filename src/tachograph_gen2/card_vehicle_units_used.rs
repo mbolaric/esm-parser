@@ -1,8 +1,9 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::TimeReal};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardVehicleUnitRecord {
     pub time_stamp: TimeReal,
     pub manufacturer_code: u8,
@@ -31,7 +32,7 @@ impl CardVehicleUnitsUsedParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardVehicleUnitsUsed {
     pub vehicle_unit_pointer_newest_record: u16,
     pub card_vehicle_unit_records: Vec<CardVehicleUnitRecord>,

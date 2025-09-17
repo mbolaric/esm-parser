@@ -1,12 +1,16 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams,
     tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams},
 };
 
-#[derive(Debug)]
-pub struct VuActivityDailyData {}
+#[derive(Debug, Serialize)]
+pub struct VuActivityDailyData {
+    pub no_of_activity_changes: u16,
+    pub activity_change_infos: Vec<ActivityChangeInfo>,
+}
 
 impl Readable<VuActivityDailyData> for VuActivityDailyData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuActivityDailyData> {
@@ -17,6 +21,6 @@ impl Readable<VuActivityDailyData> for VuActivityDailyData {
             let item = ActivityChangeInfo::read(reader, &params)?;
             activity_change_infos.push(item);
         }
-        Ok(Self {})
+        Ok(Self { no_of_activity_changes, activity_change_infos })
     }
 }

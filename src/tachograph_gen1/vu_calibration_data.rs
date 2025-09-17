@@ -1,11 +1,12 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{
     Readable, bytes_to_ia5_fix_string,
     tacho::{Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCalibrationRecord {
     pub calibration_purpose: CalibrationPurpose,
     pub workshop_name: Name,
@@ -68,7 +69,7 @@ impl Readable<VuCalibrationRecord> for VuCalibrationRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUCalibrationData {
     pub no_of_vu_calibrations: u8,
     pub calibrations: Vec<VuCalibrationRecord>,

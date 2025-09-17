@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -13,7 +14,7 @@ impl WorkshopCardCalibrationDataParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct WorkshopCardCalibrationData<T> {
     pub calibration_total_number: u16,
     pub calibration_pointer_newest_record: u8,

@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ExtendedSealIdentifier {
     pub manufacturer_code: Vec<u8>,
     pub seal_identifier: Vec<u8>,

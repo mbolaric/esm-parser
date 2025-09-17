@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     ReadableWithParams, Result,
@@ -7,7 +8,7 @@ use crate::{
     tachograph_gen2::data_info::DataConfig,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuActivityDailyRecords {
     pub no_of_records: u16,
     pub record_size: u16,

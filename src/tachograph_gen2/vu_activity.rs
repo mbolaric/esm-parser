@@ -1,5 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::Result;
 use crate::gen2::{
@@ -8,7 +9,7 @@ use crate::gen2::{
 };
 use crate::tacho::{OdometerShort, SpecificConditionRecord, TimeReal, VUTransferResponseParameterID};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUActivity {
     pub date_of_day_downloaded_records: DataInfoGenericRecords<TimeReal>,
     pub odometer_value_midnight_records: DataInfoGenericRecords<OdometerShort>,

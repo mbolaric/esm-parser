@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{Address, Name, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCompanyLocksRecord {
     pub lock_in_time: TimeReal,
     pub lock_out_time: TimeReal,

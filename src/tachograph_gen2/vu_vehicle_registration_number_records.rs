@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -9,7 +10,7 @@ use crate::{
     },
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuVehicleRegistrationNumberRecords {
     pub no_of_records: u16,
     pub record_size: u16,

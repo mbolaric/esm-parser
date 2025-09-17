@@ -1,11 +1,12 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::Result;
 use crate::gen2::{CardData, DataInfo, SignatureRecords};
 use crate::tacho::{TachographHeader, VUTransferResponseParameterID};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUCardDownload {
     pub card: CardData,
     pub signature_records: Option<SignatureRecords>,

@@ -1,11 +1,12 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{
     Readable, bytes_to_ia5_fix_string,
     tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct WorkshopCardCalibrationRecord {
     pub calibration_purpose: CalibrationPurpose,
     pub vehicle_identification_number: String,

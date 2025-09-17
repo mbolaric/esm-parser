@@ -37,7 +37,7 @@ impl Readable<CardEventRecord> for CardEventRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardEventData {
     pub no_of_records: u8,
     pub event_records: Vec<Vec<CardEventRecord>>,

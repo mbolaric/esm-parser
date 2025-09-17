@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{Readable, tacho::FullCardNumber};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct FullCardNumberAndGeneration {
     pub full_card_number: FullCardNumber,
     pub generation: u8,

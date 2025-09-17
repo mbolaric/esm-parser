@@ -1,10 +1,11 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::gen1::{VuActivityDailyData, VuCardIWData, VuPlaceDailyWorkPeriodData, VuSpecificConditionData};
 use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader};
 use crate::{Readable, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUActivity {
     pub date_of_day_downloaded: TimeReal,
     pub odometer_value_midnight: OdometerShort,

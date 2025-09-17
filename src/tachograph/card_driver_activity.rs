@@ -64,7 +64,7 @@ impl CardDriverActivityParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardDriverActivity {
     pub activity_daily_records: Vec<CardActivityDailyRecord>,
 }

@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{gen1, gen2, tacho::CardParser};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum ParsedCard<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>> {
     Gen1(Box<TGen1>),
     Gen2(Box<TGen2>),
@@ -8,7 +10,7 @@ pub enum ParsedCard<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>> {
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum CardResponseParameterData {
     Unsupported,
     DriverCard(ParsedCard<gen1::DriverCard, gen2::DriverCard>),

@@ -1,11 +1,12 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::Result;
 use crate::gen2::{DataInfo, DataInfoGenericRecords, SignatureRecords};
 use crate::tacho::{VUTransferResponseParameterID, VuDetailedSpeedBlock};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUSpeed {
     pub vu_detailed_speed_block_records: DataInfoGenericRecords<VuDetailedSpeedBlock>,
     pub signature_records: Option<SignatureRecords>,

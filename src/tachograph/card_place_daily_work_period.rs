@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result, tacho::TimeReal};
 
@@ -18,7 +19,7 @@ impl CardPlaceDailyWorkPeriodParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardPlaceDailyWorkPeriod<T> {
     pub place_pointer_newest_record: i32,
     pub place_records: Vec<T>,

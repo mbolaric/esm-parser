@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::{
-    Error, Result, gen1,
+    Error, Export, Result, gen1,
     gen2::{self, CardResponseParameterData, ParsedCard},
     tacho::{
         self, CardFilesDataByCardGeneration, CardFilesDataByCardGenerationItem, CardGeneration, CardParser, EquipmentType,
@@ -10,7 +11,7 @@ use crate::{
     },
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardData {
     pub header: TachographHeader,
     pub card_data_responses: CardResponseParameterData,
@@ -105,3 +106,5 @@ impl CardData {
         }
     }
 }
+
+impl Export for CardData {}

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use log::{debug, trace};
+use serde::Serialize;
 
 use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, ControlCardApplicationIdentificationV2};
 use crate::tacho::{
@@ -10,7 +11,7 @@ use crate::tacho::{
 };
 use crate::{ReadableWithParams, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ControlCard {
     pub card_generation: CardGeneration,
     pub card_chip_identification: CardChipIdentification,

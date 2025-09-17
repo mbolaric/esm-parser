@@ -1,8 +1,9 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::Readable;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CompanyCardApplicationIdentificationV2 {
     pub length_of_following_data: u16,
     pub vu_configuration_length_range: u16,

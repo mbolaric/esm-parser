@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{Readable, gen1::VuDetailedSpeedData};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuDetailedSpeed {
     pub vu_detailed_speed_data: VuDetailedSpeedData,
     pub signature: Option<Vec<u8>>,

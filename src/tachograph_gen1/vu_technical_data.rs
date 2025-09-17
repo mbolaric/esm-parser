@@ -1,10 +1,11 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::gen1::{SensorPaired, VUCalibrationData, VUIdentification};
 use crate::tacho::{VUTransferResponseParameterID, VUTransferResponseParameterReader};
 use crate::{Readable, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuTechnicalData {
     pub trep_id: VUTransferResponseParameterID,
     pub identification: VUIdentification,

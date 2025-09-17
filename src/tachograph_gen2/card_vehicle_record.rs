@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     BCDString, Readable, bytes_to_ia5_fix_string,
     tacho::{OdometerShort, TimeReal, VehicleRegistrationIdentification, VehicleUse},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardVehicleRecord {
     pub vehicle_odometer_begin: OdometerShort,
     pub vehicle_odometer_end: OdometerShort,

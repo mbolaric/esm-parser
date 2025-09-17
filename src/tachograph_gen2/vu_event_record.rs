@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuEventRecord {
     pub event_type: EventFaultType,
     pub event_record_purpose: EventFaultRecordPurpose,

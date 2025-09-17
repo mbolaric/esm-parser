@@ -1,10 +1,12 @@
+use serde::Serialize;
+
 use crate::{
     Readable, bytes_to_ia5_fix_string,
     gen1::SoftwareIdentification,
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUIdentification {
     pub manufacturer_name: Name,
     pub manufacturer_address: Address,

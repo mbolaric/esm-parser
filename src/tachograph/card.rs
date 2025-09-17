@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
@@ -9,7 +10,7 @@ use crate::{Error, Readable, Result};
 pub type CardParseFunc<D> = (dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>);
 pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum CardGeneration {
     Gen1,
     Gen2,

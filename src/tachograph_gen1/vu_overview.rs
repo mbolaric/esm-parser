@@ -1,5 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::gen1::{CompanyLocks, ControlActivity, DownloadActivity, DownloadablePeriod};
 use crate::tacho::{
@@ -7,7 +8,7 @@ use crate::tacho::{
 };
 use crate::{Readable, Result, bytes_to_ia5_fix_string};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuOverview {
     pub member_state_certificate: Vec<u8>,
     pub vu_certificate: Vec<u8>,

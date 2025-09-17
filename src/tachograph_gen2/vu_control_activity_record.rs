@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{ControlType, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuControlActivityRecord {
     pub control_type: ControlType,
     pub control_time: TimeReal,

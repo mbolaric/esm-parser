@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -13,7 +14,7 @@ impl ControlCardControlActivityDataParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ControlCardControlActivityData<T> {
     pub control_card_pointer_newest_record: u16,
     pub control_card_activity_records: Vec<T>,

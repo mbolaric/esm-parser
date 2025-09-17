@@ -1,11 +1,12 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::gen1::{CardResponseParameterData, CompanyCard, ControlCard, DriverCard, WorkshopCard};
 use crate::tacho::{self, CardFilesDataByCardGeneration, CardGeneration, CardParser, EquipmentType, TachographHeader};
-use crate::{Error, Result};
+use crate::{Error, Export, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardData {
     pub header: TachographHeader,
     pub card_data_responses: CardResponseParameterData,
@@ -53,3 +54,5 @@ impl CardData {
         }
     }
 }
+
+impl Export for CardData {}

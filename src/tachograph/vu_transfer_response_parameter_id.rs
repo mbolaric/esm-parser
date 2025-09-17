@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, PartialEq)]
+use serde::Serialize;
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum VUTransferResponseParameterID {
     Unknown = 0x00,
     Overview = 0x01,

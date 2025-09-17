@@ -1,11 +1,12 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result,
     tacho::{CertificateContentType, CertificationAuthorityKid},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CertificateAuthorityReference {
     pub record_type: CertificateContentType,
     pub record_size: u16,

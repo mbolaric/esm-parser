@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result, gen2::ExtendedSealIdentifier, tacho::EquipmentType};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SealRecord {
     pub equipment_type: EquipmentType,
     pub extended_seal_identitfier: ExtendedSealIdentifier,

@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{Address, FullCardNumber, Name, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuTimeAdjustmentRecord {
     pub old_time_value: TimeReal,
     pub mew_time_value: TimeReal,
@@ -24,7 +26,7 @@ impl Readable<VuTimeAdjustmentRecord> for VuTimeAdjustmentRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuTimeAdjustmentData {
     pub no_of_vu_time_adj_records: u8,
     pub vu_time_adjustment_records: Vec<VuTimeAdjustmentRecord>,

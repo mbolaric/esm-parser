@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use log::{debug, trace};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -18,7 +19,7 @@ use crate::{
     },
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DriverCard {
     pub card_generation: CardGeneration,
     pub card_chip_identification: CardChipIdentification,

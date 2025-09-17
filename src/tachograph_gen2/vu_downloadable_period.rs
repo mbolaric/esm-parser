@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result, tacho::TimeReal};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuDownloadablePeriod {
     pub min_downloadable_time: TimeReal,
     pub max_downloadable_time: TimeReal,

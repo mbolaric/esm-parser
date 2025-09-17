@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct PlaceRecord {
     pub entry_time: TimeReal,
     pub entry_type_daily_work_period: EntryTypeDailyWorkPeriod,

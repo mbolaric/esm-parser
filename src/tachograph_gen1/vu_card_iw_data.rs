@@ -1,4 +1,5 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{
     Readable,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{CardSlotNumber, FullCardNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCardIWRecord {
     pub card_holder_name: HolderName,
     pub full_card_number: FullCardNumber,
@@ -47,7 +48,7 @@ impl Readable<VuCardIWRecord> for VuCardIWRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCardIWData {
     pub no_of_iw_records: u16,
     pub vu_card_iw_records: Vec<VuCardIWRecord>,

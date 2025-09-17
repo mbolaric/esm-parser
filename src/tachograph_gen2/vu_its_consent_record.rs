@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result, gen2::FullCardNumberAndGeneration, helpers::u8_to_bool};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuItsConsentRecord {
     pub card_number_and_generation: FullCardNumberAndGeneration,
     pub consent: bool,

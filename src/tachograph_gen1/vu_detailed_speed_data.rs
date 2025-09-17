@@ -1,8 +1,9 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{Readable, tacho::VuDetailedSpeedBlock};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuDetailedSpeedData {
     pub no_of_speed_blocks: u16,
     pub vu_detailed_speed_blocks: Vec<VuDetailedSpeedBlock>,

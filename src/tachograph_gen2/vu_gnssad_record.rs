@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result,
@@ -6,7 +7,7 @@ use crate::{
     tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuGnssadRecord {
     pub is_gen2_v2: bool,
     pub time_stamp: TimeReal,

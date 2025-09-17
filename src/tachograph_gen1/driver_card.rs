@@ -1,5 +1,6 @@
 use binary_data::BinSeek;
 use log::{debug, trace};
+use serde::Serialize;
 use std::collections::HashMap;
 
 use crate::{
@@ -14,7 +15,7 @@ use crate::{
     },
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DriverCard {
     pub card_generation: CardGeneration,
     pub card_chip_identification: CardChipIdentification,

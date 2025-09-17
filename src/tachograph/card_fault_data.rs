@@ -36,7 +36,7 @@ impl CardFaultDataParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CardFaultData {
     pub no_faults_per_type: u8,
     pub fault_records: Vec<Vec<CardFaultRecord>>,

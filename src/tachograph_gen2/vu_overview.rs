@@ -1,5 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::{
     Result,
@@ -12,7 +13,7 @@ use crate::{
     tachograph_gen2::vehicle_registration_identification_records::VehicleRegistrationIdentificationRecords,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUOverview {
     pub trep_id: VUTransferResponseParameterID,
     pub member_state_certificate_records: MemberStateCertificateRecords,

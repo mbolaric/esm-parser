@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::{Readable, gen1::PlaceRecord, tacho::FullCardNumber};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuPlaceDailyWorkPeriodRecord {
     pub full_card_number: FullCardNumber,
     pub place_record: PlaceRecord,
@@ -14,7 +16,7 @@ impl Readable<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriodRecord {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuPlaceDailyWorkPeriodData {
     pub no_of_place_records: u8,
     pub vu_place_daily_work_period_records: Vec<VuPlaceDailyWorkPeriodRecord>,

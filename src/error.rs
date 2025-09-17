@@ -42,6 +42,8 @@ pub enum Error {
     RecordOutOfRange(String),
     /// An error occurred with a card activity daily record.
     CardActivityDailyRecord(String),
+    /// An error occurred when we try to export data with serde.
+    Export(String),
 }
 
 impl fmt::Display for Error {
@@ -71,6 +73,12 @@ impl From<std::string::FromUtf8Error> for Error {
 impl From<common::string_encoding::Error> for Error {
     fn from(value: common::string_encoding::Error) -> Self {
         Error::InvalidDataParse(value.to_string())
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        Error::Export(value.to_string())
     }
 }
 

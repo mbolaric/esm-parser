@@ -1,11 +1,12 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, Result, bytes_to_ia5_fix_string,
     tacho::{ExtendedSerialNumber, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SensorPairedRecord {
     pub sensor_serial_number: ExtendedSerialNumber,
     pub sensor_approval_number: String,

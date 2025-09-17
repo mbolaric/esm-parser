@@ -1,8 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{Readable, Result, gen2::SealRecord};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SealDataVu {
     pub seal_records: Vec<SealRecord>,
 }

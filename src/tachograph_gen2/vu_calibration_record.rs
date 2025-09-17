@@ -1,4 +1,5 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
+use serde::Serialize;
 
 use crate::{
     Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string,
@@ -9,7 +10,7 @@ use crate::{
     },
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuCalibrationRecord {
     pub is_gen2_v2: bool,
     pub calibration_purpose: CalibrationPurpose,

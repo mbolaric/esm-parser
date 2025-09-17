@@ -1,9 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     Readable,
     tacho::{FullCardNumber, Name, TimeReal},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DownloadActivity {
     pub downloading_time: TimeReal,
     pub full_card_number: FullCardNumber,

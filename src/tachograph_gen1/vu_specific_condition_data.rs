@@ -1,8 +1,9 @@
 use binary_data::BigEndian;
+use serde::Serialize;
 
 use crate::{Readable, tacho::SpecificConditionRecord};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VuSpecificConditionData {
     pub no_of_specific_condition_records: u16,
     pub specific_condition_records: Vec<SpecificConditionRecord>,

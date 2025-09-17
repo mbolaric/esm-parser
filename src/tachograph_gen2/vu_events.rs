@@ -1,5 +1,6 @@
 use binary_data::{BinSeek, ReadBytes};
 use log::debug;
+use serde::Serialize;
 
 use crate::Result;
 use crate::gen2::{
@@ -8,7 +9,7 @@ use crate::gen2::{
 };
 use crate::tacho::{VUTransferResponseParameterID, VuOverSpeedingControlData};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct VUEvents {
     pub vu_fault_records: DataInfoGenericRecords<VuFaultRecord>,
     pub vu_event_records: DataInfoGenericRecords<VuEventRecord>,
