@@ -4,19 +4,19 @@ use crate::{CodePage, HexDisplay, Readable, bytes_to_string, tacho::NationNumeri
 
 #[derive(Debug, Serialize)]
 pub struct ParsedCertificationAuthorityReference {
+    #[serde(rename = "nationNumericCode")]
     pub nation_numeric_code: u8,
+    #[serde(rename = "nationNumeric")]
     pub nation_numeric: NationNumeric,
+    #[serde(rename = "nationAlpha")]
     pub nation_alpha: String,
+    #[serde(rename = "keySerialNumber")]
     pub key_serial_number: u8,
+    #[serde(rename = "additionalInfo")]
     pub additional_info: String,
+    #[serde(rename = "caIdentifier")]
     pub ca_identifier: u8,
 }
-
-// println!("nationNumeric: {}", nation_numeric);
-// println!("nationAlpha: {}", nation_alpha);
-// println!("keySerialNumber: {}", key_serial);
-// println!("additionalInfo: {}", encode_upper(additional_info));
-// println!("caIdentifier: {}", ca_id);
 
 #[derive(Debug, Serialize)]
 pub struct Certificate {
