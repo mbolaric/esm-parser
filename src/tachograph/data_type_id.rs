@@ -1,5 +1,7 @@
+use serde::Serialize;
+
 /// Represents the identifier of a data type.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum DataTypeID {
     /// Unknown data type.
     Unknown = 0,
@@ -125,5 +127,25 @@ impl From<u8> for DataTypeID {
             36 => DataTypeID::VehicleRegistrationIdentification,
             _ => DataTypeID::Unknown,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_serialize_data_type_id() {
+        let data_type_id = DataTypeID::ActivityChangeInfo;
+        let serialized = serde_json::to_string(&data_type_id).unwrap();
+        assert_eq!(serialized, r#""ActivityChangeInfo""#);
+
+        let data_type_id = DataTypeID::VuCalibrationRecord;
+        let serialized = serde_json::to_string(&data_type_id).unwrap();
+        assert_eq!(serialized, r#""VuCalibrationRecord""#);
+
+        let data_type_id = DataTypeID::Unknown;
+        let serialized = serde_json::to_string(&data_type_id).unwrap();
+        assert_eq!(serialized, r#""Unknown""#);
     }
 }

@@ -3,11 +3,13 @@
 
 use std::fmt::Display;
 
+use serde::Serialize;
+
 use crate::{BCDString, Readable};
 
 /// A date structure containing year, month, and day.
 /// The values are stored as strings, as they are decoded from BCD format.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Datef {
     pub year: String,
     pub month: String,
@@ -58,5 +60,12 @@ mod tests {
         let datef = Datef { year: "2023".to_string(), month: "09".to_string(), day: "11".to_string() };
 
         assert_eq!(datef.to_string(), "2023-09-11");
+    }
+
+    #[test]
+    fn test_datef_serialize() {
+        let datef = Datef { year: "2023".to_string(), month: "09".to_string(), day: "11".to_string() };
+        let serialized = serde_json::to_string(&datef).unwrap();
+        assert_eq!(serialized, r#"{"year":"2023","month":"09","day":"11"}"#);
     }
 }
