@@ -3,12 +3,19 @@ use serde::Serialize;
 
 use crate::{Readable, bytes_to_ia5_fix_string, tacho::NationNumeric};
 
+/// Identifier of the Public Key of a Certification Authority (a Member State
+/// or the European Certification Authority).
 #[derive(Debug, Serialize)]
 pub struct CertificationAuthorityKid {
+    #[serde(rename = "nationNumeric")]
     pub nation_numeric: NationNumeric,
+    #[serde(rename = "nationAlpha")]
     pub nation_alpha: String,
+    #[serde(rename = "keySerialNumber")]
     pub key_serial_number: u8,
+    #[serde(rename = "additionalInfo")]
     pub additional_info: u16,
+    #[serde(rename = "caIdentifier")]
     pub ca_identifier: u8,
 }
 

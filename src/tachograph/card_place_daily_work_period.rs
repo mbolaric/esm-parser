@@ -19,9 +19,14 @@ impl CardPlaceDailyWorkPeriodParams {
     }
 }
 
+/// Information, stored in a driver or a workshop card, related to the places
+/// where daily work periods begin and/or end (Annex 1C requirements 272,
+/// 297, 325, and 348).
 #[derive(Debug, Serialize)]
 pub struct CardPlaceDailyWorkPeriod<T> {
+    #[serde(rename = "placePointerNewestRecord")]
     pub place_pointer_newest_record: i32,
+    #[serde(rename = "placeRecords")]
     pub place_records: Vec<T>,
 }
 

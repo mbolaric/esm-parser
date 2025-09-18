@@ -2,9 +2,12 @@ use serde::Serialize;
 
 use crate::Readable;
 
+/// Code indicating the version of the implemented structure in a tachograph card.
 #[derive(Debug, Clone, Serialize)]
 pub struct CardStructureVersion {
+    #[serde(rename = "structureVersion")]
     pub structure_version: u8,
+    #[serde(rename = "dataElementUseVersion")]
     pub data_element_use_version: u8,
 }
 

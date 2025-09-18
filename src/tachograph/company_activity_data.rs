@@ -14,9 +14,13 @@ impl CompanyActivityDataParams {
     }
 }
 
+/// Information, stored in a company card, related to activities performed
+/// with the card (Annex 1C requirement 373 and 379).
 #[derive(Debug, Serialize)]
 pub struct CompanyActivityData<T> {
+    #[serde(rename = "companyPointerNewestRecord")]
     pub company_pointer_newest_record: u16,
+    #[serde(rename = "companyActivityRecords")]
     pub company_activity_records: Vec<T>,
 }
 

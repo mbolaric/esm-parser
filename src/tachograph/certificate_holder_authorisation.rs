@@ -6,11 +6,16 @@ use crate::{
     tacho::{CertificateContentType, EquipmentType},
 };
 
+/// Identification of the rights of a certificate holder.
 #[derive(Debug, Serialize)]
 pub struct CertificateHolderAuthorisation {
+    #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
+    #[serde(rename = "tachographApplicationID")]
     pub tachograph_application_id: Vec<u8>,
+    #[serde(rename = "equipmentType")]
     pub equipment_type: EquipmentType,
 }
 

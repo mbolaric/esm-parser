@@ -5,7 +5,9 @@ use crate::{Readable, tacho::CardSlotStatusType};
 #[derive(Debug, Serialize)]
 pub struct CardSlotStatus {
     pub data: u8,
+    #[serde(rename = "driverSlot")]
     pub driver_slot: CardSlotStatusType,
+    #[serde(rename = "coDriverSlot")]
     pub co_driver_slot: CardSlotStatusType,
 }
 
