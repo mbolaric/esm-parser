@@ -7,13 +7,21 @@ use crate::{
     tachograph::card_number::CardNumberParams,
 };
 
+/// Information, stored in a card, related to the identification of the card
+/// (Annex 1C requirements 255, 280, 310, 333, 359, 365, 371, and 377).
 #[derive(Debug, Serialize)]
 pub struct CardIdentification {
+    #[serde(rename = "cardIssuingMemberState")]
     pub card_issuing_member_state: NationNumeric,
+    #[serde(rename = "cardNumber")]
     pub card_number: CardNumber,
+    #[serde(rename = "cardIssuingAuthorityName")]
     pub card_issuing_authority_name: Name,
+    #[serde(rename = "cardIssueDate")]
     pub card_issue_date: TimeReal,
+    #[serde(rename = "cardValidityBegin")]
     pub card_validity_begin: TimeReal,
+    #[serde(rename = "cardExpiryDate")]
     pub card_expiry_date: TimeReal,
 }
 

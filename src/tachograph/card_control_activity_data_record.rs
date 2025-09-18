@@ -5,13 +5,24 @@ use crate::{
     tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
 };
 
+/// Information, stored in a driver or workshop card, related to the last
+/// control the driver has been subject to (Annex 1C requirements 274,
+/// 299, 327, and 350).
 #[derive(Debug, Serialize)]
 pub struct CardControlActivityDataRecord {
+    #[serde(rename = "controlType")]
     pub control_type: ControlType,
+    #[serde(rename = "controlTime")]
     pub control_time: TimeReal,
+    /// The FullCardNumber of the control officer having performed the control.
+    #[serde(rename = "controlCardNumber")]
     pub control_card_number: FullCardNumber,
+    /// The VRN and registering Member State of the vehicle in which the control happened.
+    #[serde(rename = "controlVehicleRegistration")]
     pub control_vehicle_registration: VehicleRegistrationIdentification,
+    #[serde(rename = "controlDownloadPeriodBegin")]
     pub control_download_period_begin: TimeReal,
+    #[serde(rename = "controlDownloadPeriodEnd")]
     pub control_download_period_end: TimeReal,
 }
 

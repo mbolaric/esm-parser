@@ -6,19 +6,30 @@ use crate::{
     tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, TimeReal},
 };
 
+/// Information, stored in a card, related to the driver activities for a
+/// particular calendar day. This data type is related to Annex 1C
+/// requirements 266, 291, 320 and 343.
 #[derive(Debug, Serialize)]
 pub struct CardActivityDailyRecord {
-    pub record_date: TimeReal,
-    pub daily_presence_counter: String,
-    pub day_distance: u16,
-    pub activity_infos: Vec<ActivityChangeInfo>,
+    #[serde(rename = "activityPreviousRecordLength")]
+    pub activity_previous_record_length: u16,
+    #[serde(rename = "activityRecordLength")]
+    pub activity_record_length: u16,
+    #[serde(rename = "activityRecordDate")]
+    pub activity_record_date: TimeReal,
+    #[serde(rename = "activityDailyPresenceCounter")]
+    pub activity_daily_presence_counter: String,
+    #[serde(rename = "activityDayDistance")]
+    pub activity_day_distance: u16,
+    #[serde(rename = "activityChangeInfo")]
+    pub activity_change_info: Vec<ActivityChangeInfo>,
 }
 
 impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardActivityDailyRecord> {
         let position = reader.pos()?;
         let reader_length = reader.len()?;
-        let _activity_previous_record_length = reader.read_u16::<BigEndian>()?;
+        let activity_previous_record_length = reader.read_u16::<BigEndian>()?;
         let activity_record_length = reader.read_u16::<BigEndian>()?;
         if activity_record_length % 2 != 0 {
             return Err(Error::CardActivityDailyRecord("Card Activity Record Length is not even".to_owned()));
@@ -28,7 +39,14 @@ impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
         let day_distance = reader.read_u16::<BigEndian>()?;
 
         if activity_record_length == 0 {
-            return Ok(Self { record_date, daily_presence_counter, day_distance, activity_infos: Vec::new() });
+            return Ok(Self {
+                activity_previous_record_length,
+                activity_record_length,
+                activity_record_date: record_date,
+                activity_daily_presence_counter: daily_presence_counter,
+                activity_day_distance: day_distance,
+                activity_change_info: Vec::new(),
+            });
         }
 
         let mut end_pos = position + activity_record_length as usize;
@@ -49,7 +67,14 @@ impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
             }
         }
 
-        Ok(Self { record_date, daily_presence_counter, day_distance, activity_infos })
+        Ok(Self {
+            activity_previous_record_length,
+            activity_record_length,
+            activity_record_date: record_date,
+            activity_daily_presence_counter: daily_presence_counter,
+            activity_day_distance: day_distance,
+            activity_change_info: activity_infos,
+        })
     }
 }
 
@@ -64,8 +89,15 @@ impl CardDriverActivityParams {
     }
 }
 
+/// Information, stored in a driver or a workshop card, related to the
+/// activities of the driver
 #[derive(Debug, Serialize)]
 pub struct CardDriverActivity {
+    #[serde(rename = "activityPointerOldestDayRecord")]
+    pub activity_pointer_oldest_day_record: u32,
+    #[serde(rename = "activityPointerNewestRecord")]
+    pub activity_pointer_newest_record: u32,
+    #[serde(rename = "activityDailyRecords")]
     pub activity_daily_records: Vec<CardActivityDailyRecord>,
 }
 
@@ -99,6 +131,6 @@ impl ReadableWithParams<CardDriverActivity> for CardDriverActivity {
             }
         }
 
-        Ok(Self { activity_daily_records: daily_records })
+        Ok(Self { activity_pointer_oldest_day_record, activity_pointer_newest_record, activity_daily_records: daily_records })
     }
 }

@@ -23,15 +23,26 @@ pub enum ActivityCard {
     Card,
 }
 
+/// This data type enables to code, within a two bytes word, a slot status at
+/// 00:00 and/or a driver status at 00:00 and/or changes of activity and/or
+/// changes of driving status and/or changes of card status for a driver or a co-driver.
 #[derive(Debug, Serialize)]
 pub struct ActivityChangeInfo {
+    #[serde(rename = "activityCard")]
     pub activity_card: ActivityCard,
+    #[serde(rename = "activityInfo")]
     pub activity_info: u16,
+    #[serde(rename = "cardStatus")]
     pub card_status: CardStatus,
+    #[serde(rename = "drivingStatus")]
     pub driving_status: DrivingStatus,
+    #[serde(rename = "cardSlot")]
     pub card_slot: CardSlotNumber,
+    #[serde(rename = "activitySource")]
     pub activity_source: ActivitySource,
+    #[serde(rename = "activityType")]
     pub activity_type: ActivityType,
+    #[serde(rename = "timeInMin")]
     pub time_in_min: u16,
 }
 

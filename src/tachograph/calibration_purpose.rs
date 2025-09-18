@@ -2,6 +2,9 @@ use serde::Serialize;
 
 use crate::impl_enum_from_u8;
 
+/// Code explaining why a set of calibration parameters was recorded. This
+// data type is related to Annex 1B requirements 097 and 098 and
+// Annex 1C requirements 119.
 #[derive(Debug, Serialize)]
 pub enum CalibrationPurpose {
     Reserved = 0,

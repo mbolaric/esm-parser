@@ -5,9 +5,12 @@ use crate::{
     tacho::{CardStructureVersion, EquipmentType},
 };
 
+/// Base Information, stored in a card related to the identification of the application of the card.
 #[derive(Debug, Serialize)]
 pub struct ApplicationIdentification {
+    #[serde(rename = "typeOfTachographCardId")]
     pub type_of_tachograph_card_id: EquipmentType,
+    #[serde(rename = "cardStructureVersion")]
     pub card_structure_version: CardStructureVersion,
 }
 

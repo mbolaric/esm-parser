@@ -5,10 +5,15 @@ use crate::{
     tacho::{Name, NationNumeric},
 };
 
+/// Information, stored in a driver card, related to the card holder driver
+/// licence data (Annex 1C requirement 259 and 284).
 #[derive(Debug, Serialize)]
 pub struct CardDrivingLicenceInformation {
+    #[serde(rename = "drivingLicenceIssuingAuthority")]
     pub driving_licence_issuing_authority: Name,
+    #[serde(rename = "drivingLicenceIssuingNation")]
     pub driving_licence_issuing_nation: NationNumeric,
+    #[serde(rename = "drivingLicenceNumber")]
     pub driving_licence_number: String,
 }
 

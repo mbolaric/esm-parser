@@ -2,11 +2,19 @@ use serde::Serialize;
 
 use crate::{HexDisplay, Readable};
 
+/// Information, stored in a card, related to the identification of the card's
+/// Integrated Circuit (IC) (Annex 1C requirement 249). The icSerialNumber
+/// together with the icManufacturingReferences identifies the card chip
+/// uniquely. The icSerialNumber alone does not uniquely identify the card chip.
 #[derive(Debug, Serialize)]
 pub struct CardChipIdentification {
+    #[serde(rename = "icSerialNumber")]
     pub ic_serial_number: Vec<u8>,
+    #[serde(rename = "icManufacturingReferences")]
     pub ic_manufacturing_references: Vec<u8>,
+    #[serde(rename = "icSerialNumberHex")]
     pub ic_serial_number_hex: String,
+    #[serde(rename = "icManufacturingReferencesHex")]
     pub ic_manufacturing_references_hex: String,
 }
 
