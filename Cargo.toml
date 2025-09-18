@@ -5,12 +5,29 @@ authors = ["Milan Bolaric"]
 edition = "2024"
 readme = "README.md"
 license-file = "LICENSE"
+repository = "https://github.com/mbolaric/esm-parser"
+description = "Library for parsing ESM files (.DDD). *.DDD files are digital exports of tachograph data and contain all mandatory information required by EU regulations."
+keywords = ["tachograph", "tacho", "DDD", "parsing"]
+include = [
+    "src/**/*",
+    "examples/**/*",
+    "tests/**",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+]
+
+categories = ["parser-implementations"]
 
 [profile.release]
 strip = true
 lto = true
 codegen-units = 1
 panic = 'abort'
+opt-level = 's'
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -33,7 +50,3 @@ serde-wasm-bindgen = "0.6"
 [dev-dependencies]
 log4rs = "1.3.0"
 clap = { version = "4.2.1", features = ["derive"] }
-der = { version = "0.6", features = ["derive", "alloc", "oid"] }
-
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = false

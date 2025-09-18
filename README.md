@@ -20,6 +20,10 @@ Library for parsing ESM files (.DDD)
 This library can be compiled to WebAssembly, allowing you to use the parser directly in a web browser.
 
 ```bash
+// Install wasm-pack
+cargo install wasm-pack
+
+// Compile ...
 wasm-pack build --target web
 ```
 
