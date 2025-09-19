@@ -18,6 +18,7 @@ pub struct ParsedCertificationAuthorityReference {
     pub ca_identifier: u8,
 }
 
+/// The certificate of a public key issued by a Certification Authority.
 #[derive(Debug, Serialize)]
 pub struct Certificate {
     pub signature: Vec<u8>,

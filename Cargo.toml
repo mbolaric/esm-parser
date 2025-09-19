@@ -20,11 +20,14 @@ include = [
 categories = ["parser-implementations"]
 
 [profile.release]
-strip = true
-lto = true
 codegen-units = 1
-panic = 'abort'
-opt-level = 's'
+debug = "full"
+lto = true
+opt-level = "s"
+panic = "abort"
+split-debuginfo = "packed"  # generates a separate *.dwp/*.dSYM
+strip = "symbols"
+incremental = true
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false

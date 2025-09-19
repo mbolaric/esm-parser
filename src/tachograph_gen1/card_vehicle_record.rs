@@ -5,13 +5,21 @@ use crate::{
     tacho::{OdometerShort, TimeReal, VehicleRegistrationIdentification, VehicleUse},
 };
 
+/// Information, stored in a driver or workshop card, related to a period of
+/// use of a vehicle during a calendar day (Annex 1C requirements 269, 294, 322, and 345).
 #[derive(Debug, Serialize)]
 pub struct CardVehicleRecord {
+    #[serde(rename = "vehicleOdometerBegin")]
     pub vehicle_odometer_begin: OdometerShort,
+    #[serde(rename = "vehicleOdometerEnd")]
     pub vehicle_odometer_end: OdometerShort,
+    #[serde(rename = "vehicleFirstUse")]
     pub vehicle_first_use: TimeReal,
+    #[serde(rename = "vehicleLastUse")]
     pub vehicle_last_use: TimeReal,
+    #[serde(rename = "vehicleRegistration")]
     pub vehicle_registration: VehicleRegistrationIdentification,
+    #[serde(rename = "vuDataBlockCounter")]
     pub vu_data_block_counter: String,
 }
 

@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     ReadableWithParams, Result,
     gen2::{Certificate, CertificateParams, DataInfoReadable},
-    tacho::DataTypeID,
+    tacho::RecordType,
     tachograph_gen2::data_info::DataConfig,
 };
 
@@ -12,7 +12,7 @@ use crate::{
 pub struct VuCertificateRecords {
     pub no_of_records: u16,
     pub record_size: u16,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub records: Vec<Certificate>,
 }
 

@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     Readable, Result,
     gen2::DataInfoReadable,
-    tacho::{DataTypeID, VehicleRegistrationIdentification},
+    tacho::{RecordType, VehicleRegistrationIdentification},
     tachograph_gen2::data_info::DataConfig,
 };
 
@@ -12,7 +12,7 @@ use crate::{
 pub struct VehicleRegistrationIdentificationRecords {
     pub no_of_records: u16,
     pub record_size: u16,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub records: Vec<VehicleRegistrationIdentification>,
 }
 

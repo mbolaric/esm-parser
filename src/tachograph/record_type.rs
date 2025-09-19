@@ -2,7 +2,7 @@ use serde::Serialize;
 
 /// Represents the identifier of a data type.
 #[derive(Debug, Clone, Serialize)]
-pub enum DataTypeID {
+pub enum RecordType {
     /// Unknown data type.
     Unknown = 0,
     /// Information about activity changes.
@@ -79,53 +79,53 @@ pub enum DataTypeID {
     VehicleRegistrationIdentification,
 }
 
-impl DataTypeID {
+impl RecordType {
     /// Returns `true` if the data type is unknown.
     pub fn is_unknown(&self) -> bool {
-        matches!(*self, DataTypeID::Unknown)
+        matches!(*self, RecordType::Unknown)
     }
 }
 
-impl From<u8> for DataTypeID {
+impl From<u8> for RecordType {
     fn from(value: u8) -> Self {
         match value {
-            1 => DataTypeID::ActivityChangeInfo,
-            2 => DataTypeID::CardSlotStatus,
-            3 => DataTypeID::CurrentDateTime,
-            4 => DataTypeID::MemberStateCertificate,
-            5 => DataTypeID::OdometerValueMidnight,
-            6 => DataTypeID::DateOfDayDownloaded,
-            7 => DataTypeID::SensorPaired,
-            8 => DataTypeID::Signature,
-            9 => DataTypeID::SpecificConditionRecord,
-            10 => DataTypeID::VehicleIdentificationNumber,
-            11 => DataTypeID::VehicleRegistrationNumber,
-            12 => DataTypeID::VuCalibrationRecord,
-            13 => DataTypeID::VuCardIWRecord,
-            14 => DataTypeID::VuCardRecord,
-            15 => DataTypeID::VuCertificate,
-            16 => DataTypeID::VuCompanyLocksRecord,
-            17 => DataTypeID::VuControlActivityRecord,
-            18 => DataTypeID::VuDetailedSpeedBlock,
-            19 => DataTypeID::VuDownloadablePeriod,
-            20 => DataTypeID::VuDownloadActivityData,
-            21 => DataTypeID::VuEventRecord,
-            22 => DataTypeID::VuGNSSADRecord,
-            23 => DataTypeID::VuITSConsentRecord,
-            24 => DataTypeID::VuFaultRecord,
-            25 => DataTypeID::VuIdentification,
-            26 => DataTypeID::VuOverSpeedingControlData,
-            27 => DataTypeID::VuOverSpeedingEventRecord,
-            28 => DataTypeID::VuPlaceDailyWorkPeriodRecord,
-            29 => DataTypeID::VuTimeAdjustmentGNSSRecord,
-            30 => DataTypeID::VuTimeAdjustmentRecord,
-            31 => DataTypeID::VuPowerSupplyInterruptionRecord,
-            32 => DataTypeID::SensorPairedRecord,
-            33 => DataTypeID::SensorExternalGNSSCoupledRecord,
-            34 => DataTypeID::VuBorderCrossingRecord,
-            35 => DataTypeID::VuLoadUnloadRecord,
-            36 => DataTypeID::VehicleRegistrationIdentification,
-            _ => DataTypeID::Unknown,
+            1 => RecordType::ActivityChangeInfo,
+            2 => RecordType::CardSlotStatus,
+            3 => RecordType::CurrentDateTime,
+            4 => RecordType::MemberStateCertificate,
+            5 => RecordType::OdometerValueMidnight,
+            6 => RecordType::DateOfDayDownloaded,
+            7 => RecordType::SensorPaired,
+            8 => RecordType::Signature,
+            9 => RecordType::SpecificConditionRecord,
+            10 => RecordType::VehicleIdentificationNumber,
+            11 => RecordType::VehicleRegistrationNumber,
+            12 => RecordType::VuCalibrationRecord,
+            13 => RecordType::VuCardIWRecord,
+            14 => RecordType::VuCardRecord,
+            15 => RecordType::VuCertificate,
+            16 => RecordType::VuCompanyLocksRecord,
+            17 => RecordType::VuControlActivityRecord,
+            18 => RecordType::VuDetailedSpeedBlock,
+            19 => RecordType::VuDownloadablePeriod,
+            20 => RecordType::VuDownloadActivityData,
+            21 => RecordType::VuEventRecord,
+            22 => RecordType::VuGNSSADRecord,
+            23 => RecordType::VuITSConsentRecord,
+            24 => RecordType::VuFaultRecord,
+            25 => RecordType::VuIdentification,
+            26 => RecordType::VuOverSpeedingControlData,
+            27 => RecordType::VuOverSpeedingEventRecord,
+            28 => RecordType::VuPlaceDailyWorkPeriodRecord,
+            29 => RecordType::VuTimeAdjustmentGNSSRecord,
+            30 => RecordType::VuTimeAdjustmentRecord,
+            31 => RecordType::VuPowerSupplyInterruptionRecord,
+            32 => RecordType::SensorPairedRecord,
+            33 => RecordType::SensorExternalGNSSCoupledRecord,
+            34 => RecordType::VuBorderCrossingRecord,
+            35 => RecordType::VuLoadUnloadRecord,
+            36 => RecordType::VehicleRegistrationIdentification,
+            _ => RecordType::Unknown,
         }
     }
 }
@@ -136,15 +136,15 @@ mod tests {
 
     #[test]
     fn test_serialize_data_type_id() {
-        let data_type_id = DataTypeID::ActivityChangeInfo;
+        let data_type_id = RecordType::ActivityChangeInfo;
         let serialized = serde_json::to_string(&data_type_id).unwrap();
         assert_eq!(serialized, r#""ActivityChangeInfo""#);
 
-        let data_type_id = DataTypeID::VuCalibrationRecord;
+        let data_type_id = RecordType::VuCalibrationRecord;
         let serialized = serde_json::to_string(&data_type_id).unwrap();
         assert_eq!(serialized, r#""VuCalibrationRecord""#);
 
-        let data_type_id = DataTypeID::Unknown;
+        let data_type_id = RecordType::Unknown;
         let serialized = serde_json::to_string(&data_type_id).unwrap();
         assert_eq!(serialized, r#""Unknown""#);
     }

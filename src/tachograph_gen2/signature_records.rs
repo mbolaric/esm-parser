@@ -1,13 +1,13 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Result, gen2::DataInfoReadable, tacho::DataTypeID, tachograph_gen2::data_info::DataConfig};
+use crate::{Result, gen2::DataInfoReadable, tacho::RecordType, tachograph_gen2::data_info::DataConfig};
 
 #[derive(Debug, Serialize)]
 pub struct SignatureRecords {
     pub no_of_records: u16,
     pub record_size: u16,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub records: Vec<Vec<u8>>,
 }
 

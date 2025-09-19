@@ -4,13 +4,13 @@ use serde::Serialize;
 use crate::{
     Error, Readable, ReadableWithParams,
     error::Result,
-    tacho::{DataTypeID, VUTransferResponseParameterID},
+    tacho::{RecordType, VUTransferResponseParameterID},
 };
 
 #[derive(Debug)]
 pub struct DataConfig {
     pub trep_id: VUTransferResponseParameterID,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub record_size: u16,
     pub no_of_records: u16,
 }
@@ -18,7 +18,7 @@ pub struct DataConfig {
 #[derive(Debug, Serialize)]
 pub struct DataInfo {
     pub trep_id: VUTransferResponseParameterID,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub record_size: u16,
     pub no_of_records: u16,
     pub data: Vec<u8>,
@@ -39,7 +39,7 @@ impl DataInfo {
     }
 
     pub fn read<R: ReadBytes + BinSeek>(reader: &mut R, trep_id: VUTransferResponseParameterID) -> Result<DataInfo> {
-        let data_type_id = DataTypeID::from(reader.read_u8()?);
+        let data_type_id = RecordType::from(reader.read_u8()?);
         let data_size = reader.read_u16::<BigEndian>()?;
         let no_of_records = reader.read_u16::<BigEndian>()?;
         let full_data_size: u32 = data_size as u32 * no_of_records as u32;
@@ -77,7 +77,7 @@ pub trait DataInfoReadableWithParams<T> {
 pub struct DataInfoGenericRecords<T> {
     pub no_of_records: u16,
     pub record_size: u16,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub records: Vec<T>,
 }
 

@@ -9,6 +9,7 @@ use crate::{Error, Export, Result};
 #[derive(Debug, Serialize)]
 pub struct CardData {
     pub header: TachographHeader,
+    #[serde(rename = "cardDataResponses")]
     pub card_data_responses: CardResponseParameterData,
 }
 

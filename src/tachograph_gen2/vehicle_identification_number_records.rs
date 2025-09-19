@@ -2,14 +2,14 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::{
-    CodePage, Result, bytes_to_string, gen2::DataInfoReadable, tacho::DataTypeID, tachograph_gen2::data_info::DataConfig,
+    CodePage, Result, bytes_to_string, gen2::DataInfoReadable, tacho::RecordType, tachograph_gen2::data_info::DataConfig,
 };
 
 #[derive(Debug, Serialize)]
 pub struct VehicleIdentificationNumberRecords {
     pub no_of_records: u16,
     pub record_size: u16,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub records: Vec<String>,
 }
 

@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     Readable, Result,
     gen2::{DataInfoReadable, FullCardNumberAndGeneration, PlaceRecord},
-    tacho::{DataTypeID, VUTransferResponseParameterID},
+    tacho::{RecordType, VUTransferResponseParameterID},
     tachograph_gen2::data_info::DataConfig,
 };
 
@@ -27,7 +27,7 @@ pub struct VuPlaceDailyWorkPeriodRecords {
     pub is_gen2_v2: bool,
     pub no_of_records: u16,
     pub record_size: u16,
-    pub data_type_id: DataTypeID,
+    pub data_type_id: RecordType,
     pub records: Vec<VuPlaceDailyWorkPeriodRecord>,
 }
 
