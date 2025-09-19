@@ -5,9 +5,13 @@ use crate::{
     tacho::{CardIdentification, CardNumberParams, ControlCardHolderIdentification, EquipmentType},
 };
 
+/// Information, stored in a card, related to the identification of the card
+/// (Annex 1C requirements 255, 280, 310, 333, 359, 365, 371, and 377).
 #[derive(Debug, Serialize)]
 pub struct ControlCardIdentification {
+    #[serde(rename = "cardIdentification")]
     pub card_identification: CardIdentification,
+    #[serde(rename = "companyCardHolderIdentification")]
     pub control_card_holder_identification: ControlCardHolderIdentification,
 }
 

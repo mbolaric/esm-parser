@@ -5,15 +5,14 @@ use log::{debug, trace};
 use serde::Serialize;
 
 use crate::gen1::{
-    CardResponseParameterData, CardVehicleRecord, Certificate, PlaceRecord, WorkshopCardApplicationIdentification,
-    WorkshopCardCalibrationRecord,
+    CardResponseParameterData, CardVehicleRecord, Certificate, PlaceRecord, SpecificConditions, SpecificConditionsParams,
+    WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
 };
 use crate::tacho::{
     Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification,
     CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
-    SpecificConditions, SpecificConditionsParams, VehiclesUsedParams, WorkshopCardCalibrationData,
-    WorkshopCardCalibrationDataParams,
+    VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 

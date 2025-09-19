@@ -14,9 +14,12 @@ impl SpecificConditionsParams {
     }
 }
 
+/// Information, stored in a driver card, a workshop card or a vehicle unit,
+/// related to a specific condition (Annex 1C requirement 131, 277, 302, 329, and 356).
 #[derive(Debug, Serialize)]
 pub struct SpecificConditions {
-    pub specific_conditions: Vec<SpecificConditionRecord>,
+    #[serde(rename = "specificConditionRecords")]
+    pub specific_condition_records: Vec<SpecificConditionRecord>,
 }
 
 impl ReadableWithParams<SpecificConditions> for SpecificConditions {
@@ -24,13 +27,13 @@ impl ReadableWithParams<SpecificConditions> for SpecificConditions {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<SpecificConditions> {
         let no_of_records = params.no_of_records;
-        let mut specific_conditions: Vec<SpecificConditionRecord> = Vec::new();
+        let mut specific_condition_records: Vec<SpecificConditionRecord> = Vec::new();
         for _ in 0..no_of_records {
             let specific_condition_record = SpecificConditionRecord::read(reader)?;
             if specific_condition_record.entry_time.has_data() {
-                specific_conditions.push(specific_condition_record);
+                specific_condition_records.push(specific_condition_record);
             }
         }
-        Ok(Self { specific_conditions })
+        Ok(Self { specific_condition_records })
     }
 }

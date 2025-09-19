@@ -18,10 +18,14 @@ impl PublicKeyParams {
     }
 }
 
+/// A public RSA key.
 #[derive(Debug, Serialize)]
 pub struct PublicKey {
+    #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
+    #[serde(rename = "rsaKeyModulus")]
     pub rsa_key_modulus: Vec<u8>,
 }
 

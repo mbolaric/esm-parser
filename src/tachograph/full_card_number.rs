@@ -5,10 +5,14 @@ use crate::{
     tacho::{EquipmentType, NationNumeric},
 };
 
+/// Code fully identifying a tachograph card.
 #[derive(Debug, Serialize)]
 pub struct FullCardNumber {
+    #[serde(rename = "cardType")]
     pub card_type: EquipmentType,
+    #[serde(rename = "cardIssuingMemberState")]
     pub card_issuing_member_state: NationNumeric,
+    #[serde(rename = "cardNumber")]
     pub card_number: String,
 }
 

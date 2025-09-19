@@ -5,13 +5,16 @@ use std::collections::HashMap;
 
 use crate::{
     Readable, ReadableWithParams, Result,
-    gen1::{CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord},
+    gen1::{
+        CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord,
+        SpecificConditions, SpecificConditionsParams,
+    },
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
         CardDriverActivityParams, CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData,
         CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
         CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
-        SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
+        TimeReal, VehiclesUsedParams,
     },
 };
 

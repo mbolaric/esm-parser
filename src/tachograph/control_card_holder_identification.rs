@@ -5,11 +5,17 @@ use crate::{
     tacho::{Address, HolderName, Name},
 };
 
+/// Information, stored in a control card, related to the identification of the
+/// cardholder (Annex 1C requirement 360 and 366).
 #[derive(Debug, Serialize)]
 pub struct ControlCardHolderIdentification {
+    #[serde(rename = "controlBodyName")]
     pub control_body_name: Name,
+    #[serde(rename = "controlBodyAddress")]
     pub control_body_address: Address,
+    #[serde(rename = "cardHolderName")]
     pub card_holder_name: HolderName,
+    #[serde(rename = "cardHolderPreferredLanguage")]
     pub card_holder_preferred_language: String,
 }
 

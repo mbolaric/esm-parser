@@ -6,10 +6,15 @@ use crate::{
     tacho::{CardStructureVersion, EquipmentType},
 };
 
+/// Information, stored in a control card related to the identification of the
+/// application of the card (Annex 1C requirement 357 and 363).
 #[derive(Debug, Clone, Serialize)]
 pub struct ControlCardApplicationIdentification {
+    #[serde(rename = "typeOfTachographCardId")]
     pub type_of_tachograph_card_id: EquipmentType,
+    #[serde(rename = "cardStructureVersion")]
     pub card_structure_version: CardStructureVersion,
+    #[serde(rename = "noOfControlActivityRecords")]
     pub no_of_control_activity_records: u32,
 }
 

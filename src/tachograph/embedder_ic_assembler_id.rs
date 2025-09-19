@@ -2,10 +2,14 @@ use serde::Serialize;
 
 use crate::{BCDString, Readable, bytes_to_ia5_fix_string};
 
+/// Provides information about the IC embedder.
 #[derive(Debug, Serialize)]
 pub struct EmbedderIcAssemblerId {
+    #[serde(rename = "countryCode")]
     pub country_code: String,
+    #[serde(rename = "moduleEmbedder")]
     pub module_embedder: String,
+    #[serde(rename = "manufacturerInformation")]
     pub manufacturer_information: Vec<u8>,
 }
 

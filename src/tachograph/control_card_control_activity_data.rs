@@ -14,22 +14,26 @@ impl ControlCardControlActivityDataParams {
     }
 }
 
+/// Information, stored in a control card, related to control activity
+/// performed with the card (Annex 1C requirement 361 and 367).
 #[derive(Debug, Serialize)]
 pub struct ControlCardControlActivityData<T> {
-    pub control_card_pointer_newest_record: u16,
-    pub control_card_activity_records: Vec<T>,
+    #[serde(rename = "controlPointerNewestRecord")]
+    pub control_pointer_newest_record: u16,
+    #[serde(rename = "controlActivityRecords")]
+    pub control_activity_records: Vec<T>,
 }
 
 impl<T: Readable<T>> ReadableWithParams<ControlCardControlActivityData<T>> for ControlCardControlActivityData<T> {
     type P = ControlCardControlActivityDataParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<ControlCardControlActivityData<T>> {
-        let control_card_pointer_newest_record = reader.read_u16::<BigEndian>()?;
-        let mut control_card_activity_records: Vec<T> = Vec::new();
+        let control_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        let mut control_activity_records: Vec<T> = Vec::new();
         for _ in 0..params.no_of_control_card_activity_records {
             let record = T::read(reader)?;
-            control_card_activity_records.push(record);
+            control_activity_records.push(record);
         }
-        Ok(Self { control_card_pointer_newest_record, control_card_activity_records })
+        Ok(Self { control_pointer_newest_record, control_activity_records })
     }
 }

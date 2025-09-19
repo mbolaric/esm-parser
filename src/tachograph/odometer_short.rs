@@ -3,6 +3,7 @@ use serde::Serialize;
 
 use crate::Readable;
 
+/// the odometer value.
 #[derive(Debug, Serialize)]
 pub struct OdometerShort {
     pub data: Option<u32>,

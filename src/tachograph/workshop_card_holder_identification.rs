@@ -5,11 +5,17 @@ use crate::{
     tacho::{Address, HolderName, Name},
 };
 
+/// Information, stored in a workshop card, related to the identification of
+/// the cardholder (Annex 1C requirement 311 and 334).
 #[derive(Debug, Serialize)]
 pub struct WorkshopCardHolderIdentification {
+    #[serde(rename = "workshopName")]
     pub workshop_name: Name,
+    #[serde(rename = "calibrationTotalNumber")]
     pub workshop_address: Address,
+    #[serde(rename = "cardHolderName")]
     pub card_holder_name: HolderName,
+    #[serde(rename = "cardHolderPreferredLanguage")]
     pub card_holder_preferred_language: String,
 }
 

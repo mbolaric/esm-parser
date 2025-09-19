@@ -8,7 +8,7 @@ use log::debug;
 fn main() {
     init_logging();
 
-    match parse_from_file("./examples/data/ddd_org/test/C_20170102_1936_R_Radovic_HR01000007633001.ddd") {
+    match parse_from_file("./examples/data/Card0001.DDD") {
         Ok(data) => match data {
             TachographData::CardGen1(inner) => {
                 println!("CardGen1:");

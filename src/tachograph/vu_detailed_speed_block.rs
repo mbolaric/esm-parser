@@ -2,9 +2,14 @@ use serde::Serialize;
 
 use crate::{Readable, tacho::TimeReal};
 
+/// Information, stored in a vehicle unit, related to the vehicle's detailed
+/// speed for a minute during which the vehicle has been moving
+/// (Annnex 1B requirement 093 and Annex 1C requirement 116).
 #[derive(Debug, Serialize)]
 pub struct VuDetailedSpeedBlock {
+    #[serde(rename = "speedBlockBeginDate")]
     pub speed_block_begin_date: TimeReal,
+    #[serde(rename = "speedsPerSecond")]
     pub speeds_per_second: Vec<u8>,
 }
 

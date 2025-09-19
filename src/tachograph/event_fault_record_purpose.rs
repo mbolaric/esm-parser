@@ -2,6 +2,7 @@ use serde::Serialize;
 
 use crate::impl_enum_from_u8;
 
+/// Code explaining why an event or a fault has been recorded.
 #[derive(Debug, PartialEq, Serialize)]
 #[repr(u8)]
 pub enum EventFaultRecordPurpose {

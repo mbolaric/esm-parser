@@ -8,14 +8,14 @@ use crate::{
     gen2::{
         CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
         CertificateParams, DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
-        PlaceRecord,
+        PlaceRecord, SpecificConditions, SpecificConditionsParams,
     },
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
         CardDriverActivityParams, CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData,
         CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
         CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
-        SpecificConditions, SpecificConditionsParams, TimeReal, VehiclesUsedParams,
+        TimeReal, VehiclesUsedParams,
     },
 };
 

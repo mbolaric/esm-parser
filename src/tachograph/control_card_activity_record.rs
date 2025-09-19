@@ -5,13 +5,21 @@ use crate::{
     tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
 };
 
+/// Information, stored in a control card, related to control activity
+/// performed with the card (Annex 1C requirement 361 and 367).
 #[derive(Debug, Serialize)]
 pub struct ControlCardActivityRecord {
+    #[serde(rename = "controlType")]
     pub control_type: ControlType,
+    #[serde(rename = "controlTime")]
     pub control_time: TimeReal,
+    #[serde(rename = "controlledCardNumber")]
     pub controlled_card_number: FullCardNumber,
+    #[serde(rename = "controlledVehicleRegistration")]
     pub controlled_vehicle_registration: VehicleRegistrationIdentification,
+    #[serde(rename = "controlDownloadPeriodBegin")]
     pub control_download_period_begin: TimeReal,
+    #[serde(rename = "controlDownloadPeriodEnd")]
     pub control_download_period_end: TimeReal,
 }
 

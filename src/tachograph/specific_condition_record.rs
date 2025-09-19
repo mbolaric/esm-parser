@@ -5,9 +5,13 @@ use crate::{
     tacho::{SpecificConditionType, TimeReal},
 };
 
+/// Information, stored in a driver card, a workshop card or a vehicle unit,
+/// related to a specific condition (requirements Annex 1C 130, 276, 301, 328, and 355).
 #[derive(Debug, Serialize)]
 pub struct SpecificConditionRecord {
+    #[serde(rename = "entryTime")]
     pub entry_time: TimeReal,
+    #[serde(rename = "specificConditionType")]
     pub specific_condition_type: SpecificConditionType,
 }
 

@@ -2,6 +2,7 @@ use serde::Serialize;
 
 use crate::impl_enum_from_u8;
 
+/// Code qualifying an event or a fault.
 #[derive(Debug, PartialEq, Serialize)]
 #[repr(u8)]
 pub enum EventFaultType {

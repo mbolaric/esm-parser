@@ -5,9 +5,12 @@ use crate::{
     tacho::{NationNumeric, VehicleRegistrationNumber},
 };
 
+/// Identification of a vehicle, unique for Europe (VRN and Member State).
 #[derive(Debug, Serialize)]
 pub struct VehicleRegistrationIdentification {
+    #[serde(rename = "vehicleRegistrationNation")]
     pub vehicle_registration_nation: NationNumeric,
+    #[serde(rename = "vehicleRegistrationNumber")]
     pub vehicle_registration_number: VehicleRegistrationNumber,
 }
 

@@ -7,15 +7,14 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen2::{
         CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
-        CertificateParams, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, PlaceRecord,
-        WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
+        CertificateParams, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions,
+        SpecificConditionsParams, WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
     },
     tacho::{
         Card, CardChipIdentification, CardCurrentUse, CardDriverActivity, CardDriverActivityParams, CardEventData,
         CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification,
         CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification,
-        IdentificationParams, SpecificConditions, SpecificConditionsParams, VehiclesUsedParams, WorkshopCardCalibrationData,
-        WorkshopCardCalibrationDataParams,
+        IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
     },
 };
 

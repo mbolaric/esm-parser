@@ -5,10 +5,15 @@ use crate::{
     tacho::{Datef, HolderName},
 };
 
+/// Information, stored in a driver card, related to the identification of the
+/// cardholder (Annex 1C requirement 256 and 281).
 #[derive(Debug, Serialize)]
 pub struct DriverCardHolderIdentification {
+    #[serde(rename = "cardHolderName")]
     pub card_holder_name: HolderName,
+    #[serde(rename = "cardHolderBirthDate")]
     pub card_holder_birth_date: Datef,
+    #[serde(rename = "cardHolderPreferredLanguage")]
     pub card_holder_preferred_language: String,
 }
 

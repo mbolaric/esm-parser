@@ -5,13 +5,21 @@ use crate::{
     tacho::{CompanyActivityType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
 };
 
+/// Information, stored in a company card, related to activities performed
+/// with the card (Annex 1C requirement 373 and 379).
 #[derive(Debug, Serialize)]
 pub struct CompanyActivityRecord {
+    #[serde(rename = "companyActivityType")]
     pub company_activity_type: CompanyActivityType,
+    #[serde(rename = "companyActivityTime")]
     pub company_activity_time: TimeReal,
+    #[serde(rename = "cardNumberInformation")]
     pub card_number_information: FullCardNumber,
+    #[serde(rename = "vehicleRegistrationInformation")]
     pub vehicle_registration_information: VehicleRegistrationIdentification,
+    #[serde(rename = "downloadPeriodBegin")]
     pub download_period_begin: TimeReal,
+    #[serde(rename = "downloadPeriodEnd")]
     pub download_period_end: TimeReal,
 }
 

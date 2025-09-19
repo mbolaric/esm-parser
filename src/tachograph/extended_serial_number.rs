@@ -3,12 +3,17 @@ use serde::Serialize;
 
 use crate::{BCDString, Readable};
 
+/// Unique identification of an equipment. It can also be used as an
+/// equipment Public Key Identifier.
 #[derive(Debug, Serialize)]
-
 pub struct ExtendedSerialNumber {
+    #[serde(rename = "serialNumber")]
     pub serial_number: u32,
+    #[serde(rename = "monthYear")]
     pub month_year: String,
+    #[serde(rename = "type")]
     pub serial_type: u8,
+    #[serde(rename = "manufacturerCode:")]
     pub manufacturer_code: u8,
 }
 

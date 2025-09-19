@@ -5,10 +5,15 @@ use crate::{
     tacho::{Address, Name},
 };
 
+/// Information, stored in a company card, related to the cardholder identification
+/// (Annex 1C requirement 372 and 378).
 #[derive(Debug, Serialize)]
 pub struct CompanyCardHolderIdentification {
+    #[serde(rename = "companyName")]
     pub company_name: Name,
+    #[serde(rename = "companyAddress")]
     pub company_address: Address,
+    #[serde(rename = "cardHolderPreferredLanguage")]
     pub card_holder_preferred_language: String,
 }
 
