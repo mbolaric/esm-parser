@@ -3,11 +3,17 @@ use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::TimeReal};
 
+/// Information, stored in a driver or workshop card, related to a vehicle
+/// unit that was used (Annex 1C requirement 303 and 351).
 #[derive(Debug, Serialize)]
 pub struct CardVehicleUnitRecord {
+    #[serde(rename = "timeStamp")]
     pub time_stamp: TimeReal,
+    #[serde(rename = "manufacturerCode")]
     pub manufacturer_code: u8,
+    #[serde(rename = "deviceID")]
     pub device_id: u8,
+    #[serde(rename = "vuSoftwareVersion")]
     pub vu_software_version: String,
 }
 
@@ -32,9 +38,13 @@ impl CardVehicleUnitsUsedParams {
     }
 }
 
+/// Information, stored in a driver or workshop card, related to the vehicle
+/// units used by the card holder (Annex IC requirements 304 and 352).
 #[derive(Debug, Serialize)]
 pub struct CardVehicleUnitsUsed {
+    #[serde(rename = "vehicleUnitPointerNewestRecord")]
     pub vehicle_unit_pointer_newest_record: u16,
+    #[serde(rename = "cardVehicleUnitRecords")]
     pub card_vehicle_unit_records: Vec<CardVehicleUnitRecord>,
 }
 

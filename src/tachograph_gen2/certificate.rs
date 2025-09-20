@@ -19,6 +19,7 @@ impl CertificateParams {
 
 #[derive(Debug, Serialize)]
 pub struct Certificate {
+    #[serde(rename = "certificateProfile")]
     pub certificate_profile: Option<CertificateProfile>,
     pub data: Vec<u8>,
 }
