@@ -5,7 +5,9 @@ use crate::{Readable, Result, tacho::CertificateContentType};
 
 #[derive(Debug, Serialize)]
 pub struct CertificateHolderReference {
+    #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
     pub data: Vec<u8>,
 }

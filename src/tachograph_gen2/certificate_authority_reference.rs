@@ -8,8 +8,11 @@ use crate::{
 
 #[derive(Debug, Serialize)]
 pub struct CertificateAuthorityReference {
+    #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
+    #[serde(rename = "certificationAuthorityKid")]
     pub certification_authority_kid: CertificationAuthorityKid,
 }
 

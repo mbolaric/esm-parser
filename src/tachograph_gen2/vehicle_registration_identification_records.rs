@@ -10,9 +10,12 @@ use crate::{
 
 #[derive(Debug, Serialize)]
 pub struct VehicleRegistrationIdentificationRecords {
+    #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
-    pub data_type_id: RecordType,
+    #[serde(rename = "recordType")]
+    pub record_type: RecordType,
     pub records: Vec<VehicleRegistrationIdentification>,
 }
 
@@ -20,13 +23,13 @@ impl DataInfoReadable<VehicleRegistrationIdentificationRecords> for VehicleRegis
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleRegistrationIdentificationRecords> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let data_type_id = config.data_type_id.clone();
+        let record_type = config.data_type_id.clone();
 
         let mut records: Vec<VehicleRegistrationIdentification> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {
             let record = VehicleRegistrationIdentification::read(reader)?;
             records.push(record);
         }
-        Ok(Self { no_of_records, record_size, data_type_id, records })
+        Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

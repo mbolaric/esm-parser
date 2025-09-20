@@ -8,7 +8,9 @@ use crate::{
 
 #[derive(Debug, Serialize)]
 pub struct CertificateDate {
+    #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,
+    #[serde(rename = "recordType")]
     pub record_size: u16,
     pub date: TimeReal,
 }

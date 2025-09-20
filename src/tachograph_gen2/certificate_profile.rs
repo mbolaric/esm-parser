@@ -23,14 +23,23 @@ impl CertificateProfileParams {
 
 #[derive(Debug, Serialize)]
 pub struct CertificateProfile {
+    #[serde(rename = "eccCertificate")]
     pub ecc_certificate: EccCertificate,
+    #[serde(rename = "eccCertificateBody")]
     pub ecc_certificate_body: EccCertificate,
+    #[serde(rename = "certificateProfileIdentifier")]
     pub certificate_profile_identifier: CertificateProfileIdentifier,
+    #[serde(rename = "certificateAuthorityReference")]
     pub certificate_authority_reference: CertificateAuthorityReference,
+    #[serde(rename = "certificateHolderAuthorisation")]
     pub certificate_holder_authorisation: CertificateHolderAuthorisation,
+    #[serde(rename = "publicKey")]
     pub public_key: Option<PublicKey>,
+    #[serde(rename = "certificateHolderReference")]
     pub certificate_holder_reference: CertificateHolderReference,
+    #[serde(rename = "certificateEffectiveDate")]
     pub certificate_effective_date: CertificateDate,
+    #[serde(rename = "certificateExpirationDate")]
     pub certificate_expiration_date: CertificateDate,
 }
 

@@ -3,7 +3,7 @@ import init, { parse_from_memory } from "../../pkg/esm_parser.js";
 async function run() {
   await init();
 
-  const filePath = "/examples/data/TestTachoData.DDD";
+  const filePath = "/examples/data/Card0004.DDD";
 
   try {
     console.log(`Fetching data from ${filePath}...`);
@@ -16,7 +16,9 @@ async function run() {
     const arrayBuffer = await response.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
 
-    console.log(`Successfully loaded ${data.byteLength} bytes. Calling parse_from_memory...`);
+    console.log(
+      `Successfully loaded ${data.byteLength} bytes. Calling parse_from_memory...`,
+    );
     const start = performance.now();
     const result = await parse_from_memory(data);
     const end = performance.now();

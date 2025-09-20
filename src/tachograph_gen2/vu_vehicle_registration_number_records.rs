@@ -36,7 +36,7 @@ impl DataInfoReadable<VuVehicleRegistrationNumberRecords> for VuVehicleRegistrat
 impl From<VehicleRegistrationIdentificationRecords> for VuVehicleRegistrationNumberRecords {
     fn from(value: VehicleRegistrationIdentificationRecords) -> Self {
         Self {
-            data_type_id: value.data_type_id,
+            data_type_id: value.record_type,
             no_of_records: value.no_of_records,
             record_size: value.record_size,
             records: value.records.into_iter().map(|item| item.vehicle_registration_number).collect(),

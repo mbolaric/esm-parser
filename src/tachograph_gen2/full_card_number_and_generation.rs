@@ -2,9 +2,12 @@ use serde::Serialize;
 
 use crate::{Readable, tacho::FullCardNumber};
 
+/// Code fully identifying a tachograph card and its generation.
 #[derive(Debug, Serialize)]
 pub struct FullCardNumberAndGeneration {
+    #[serde(rename = "fullcardNumber")]
     pub full_card_number: FullCardNumber,
+    /// Indicates the generation of tachograph used.
     pub generation: u8,
 }
 

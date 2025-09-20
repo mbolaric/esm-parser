@@ -7,10 +7,16 @@ use crate::{
     tacho::{OdometerShort, TimeReal},
 };
 
+/// Information, stored in a driver or workshop card, related to the GNSS
+/// position of the vehicle if the accumulated driving time reaches a multiple
+/// of three hours (Annex IC requirement 305 and 353)
 #[derive(Debug, Serialize)]
 pub struct GnssAccumulatedDrivingRecord {
+    #[serde(rename = "timeStamp")]
     pub time_stamp: TimeReal,
+    #[serde(rename = "gnssPlaceRecord")]
     pub gnss_place_record: GnssPlaceRecord,
+    #[serde(rename = "vehicleOdometerValue")]
     pub vehicle_odometer_value: OdometerShort,
 }
 
@@ -34,9 +40,14 @@ impl GnssAccumulatedDrivingParams {
     }
 }
 
+/// Information, stored in a driver or workshop card, related to the GNSS
+/// position of the vehicle if the accumulated driving time reaches a multiple
+/// of three hours (Annex IC requirement 306 and 354).
 #[derive(Debug, Serialize)]
 pub struct GnssAccumulatedDriving {
+    #[serde(rename = "gnssADPointerNewestRecord")]
     pub gnss_ad_pointer_newest_record: u16,
+    #[serde(rename = "gnssAccumulatedDrivingRecords")]
     pub gnss_accumulated_driving_records: Vec<GnssAccumulatedDrivingRecord>,
 }
 

@@ -3,8 +3,14 @@ use serde::Serialize;
 
 use crate::{Readable, Result, gen2::SealRecord};
 
+/// This data type stores information about the seals that are attached to the
+/// different components of a vehicle and is intended for storage on a card.
+/// This data type is related to Annex 1C requirement 337.
 #[derive(Debug, Serialize)]
 pub struct SealDataCard {
+    #[serde(rename = "noOfSealRecords")]
+    pub no_of_seal_records: u8,
+    #[serde(rename = "sealRecords")]
     pub seal_records: Vec<SealRecord>,
 }
 
@@ -16,6 +22,6 @@ impl Readable<SealDataCard> for SealDataCard {
             let record = SealRecord::read(reader)?;
             records.push(record);
         }
-        Ok(Self { seal_records: records })
+        Ok(Self { no_of_seal_records, seal_records: records })
     }
 }

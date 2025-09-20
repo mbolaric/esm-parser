@@ -3,9 +3,13 @@ use serde::Serialize;
 
 use crate::Readable;
 
+/// Information, stored in a control card related to the identification of the
+/// application of the card (Annex IC requirement 363a).
 #[derive(Debug, Serialize)]
 pub struct ControlCardApplicationIdentificationV2 {
+    #[serde(rename = "lengthOfFollowingData")]
     pub length_of_following_data: u16,
+    #[serde(rename = "vuConfigurationLengthRange")]
     pub vu_configuration_length_range: u16,
 }
 

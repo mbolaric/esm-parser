@@ -6,10 +6,15 @@ use crate::{
     tacho::{ExtendedSerialNumber, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to the identification of a
+/// motion sensor paired with the vehicle unit (Annex 1C requirement 97).
 #[derive(Debug, Serialize)]
 pub struct SensorPairedRecord {
+    #[serde(rename = "sensorSerialNumber")]
     pub sensor_serial_number: ExtendedSerialNumber,
+    #[serde(rename = "sensorApprovalNumber")]
     pub sensor_approval_number: String,
+    #[serde(rename = "sensorPairingDate")]
     pub sensor_pairing_date: TimeReal,
 }
 

@@ -3,6 +3,11 @@ use serde::Serialize;
 
 use crate::{Readable, Result};
 
+/// The geo-coordinates are encoded as integers. These integers are multiples
+/// of the ±DDMM.M encoding for the latitude and ±DDDMM.M for the
+/// longitude. Here ±DD respectively ±DDD denotes the degrees and
+/// MM.M the minutes. Longitude and latitude of an unknown position
+/// shall be represented as Hex ‘7FFFFF’ (Decimal 8388607).
 #[derive(Debug, Serialize)]
 pub struct GeoCoordinate {
     pub latitude: f64,

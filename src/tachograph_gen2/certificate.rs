@@ -17,6 +17,7 @@ impl CertificateParams {
     }
 }
 
+/// The certificate of a public key issued by a Certification Authority.
 #[derive(Debug, Serialize)]
 pub struct Certificate {
     #[serde(rename = "certificateProfile")]

@@ -3,8 +3,11 @@ use serde::Serialize;
 
 use crate::{Readable, Result, gen2::SealRecord};
 
+/// This data type stores information about the seals that are attached to the
+/// different components of a vehicle and is intended for storage in a Vehicle Unit.
 #[derive(Debug, Serialize)]
 pub struct SealDataVu {
+    #[serde(rename = "sealRecords")]
     pub seal_records: Vec<SealRecord>,
 }
 

@@ -19,29 +19,50 @@ use crate::{
     },
 };
 
+/// Driver card application generation 2
 #[derive(Debug, Serialize)]
 pub struct DriverCard {
+    #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,
+    #[serde(rename = "cardChipIdentification")]
     pub card_chip_identification: CardChipIdentification,
+    #[serde(rename = "cardIccIdentification")]
     pub card_icc_identification: CardIccIdentification,
+    #[serde(rename = "applicationIdentification")]
     pub application_identification: DriverCardApplicationIdentification,
+    #[serde(rename = "cardDownload")]
     pub card_download: Option<TimeReal>,
-    pub card_event_data: Option<CardEventData>,
-    pub card_fault_data: Option<CardFaultData>,
-    pub card_driver_activity: Option<CardDriverActivity>,
-    pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
-    pub card_place_daily_work_period: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    #[serde(rename = "eventsData")]
+    pub events_data: Option<CardEventData>,
+    #[serde(rename = "faultsData")]
+    pub faults_data: Option<CardFaultData>,
+    #[serde(rename = "driverActivityData")]
+    pub driver_activity_data: Option<CardDriverActivity>,
+    #[serde(rename = "vehiclesUsed")]
+    pub vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
+    pub places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    #[serde(rename = "currentUsage")]
     pub current_usage: Option<CardCurrentUse>,
+    #[serde(rename = "controlActivityData")]
     pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub identification: Option<Identification>,
-    pub card_driving_license_info: Option<CardDrivingLicenceInformation>,
+    #[serde(rename = "drivingLicenceInfo")]
+    pub driving_license_info: Option<CardDrivingLicenceInformation>,
+    #[serde(rename = "specificConditions")]
     pub specific_conditions: Option<SpecificConditions>,
-    pub card_vehicle_units_used: Option<CardVehicleUnitsUsed>,
+    #[serde(rename = "vehicleUnitsUsed")]
+    pub vehicle_units_used: Option<CardVehicleUnitsUsed>,
+    #[serde(rename = "gnssPlaces")]
     pub gnss_places: Option<GnssAccumulatedDriving>,
+    #[serde(rename = "cardCertificate")]
     pub card_certificate: Option<Certificate>,
+    #[serde(rename = "caCertificate")]
     pub ca_certificate: Option<Certificate>,
+    #[serde(rename = "cardSignCertificate")]
     pub card_sign_certificate: Option<Certificate>,
+    #[serde(rename = "linkCertificate")]
     pub link_certificate: Option<Certificate>,
+    #[serde(rename = "cardNotes")]
     pub card_notes: String,
 }
 
@@ -58,17 +79,17 @@ impl DriverCard {
             card_icc_identification,
             application_identification,
             card_download: None,
-            card_event_data: None,
-            card_fault_data: None,
-            card_driver_activity: None,
-            card_vehicles_used: None,
-            card_place_daily_work_period: None,
+            events_data: None,
+            faults_data: None,
+            driver_activity_data: None,
+            vehicles_used: None,
+            places: None,
             current_usage: None,
             control_activity_data: None,
             identification: None,
-            card_driving_license_info: None,
+            driving_license_info: None,
             specific_conditions: None,
-            card_vehicle_units_used: None,
+            vehicle_units_used: None,
             card_certificate: None,
             gnss_places: None,
             ca_certificate: None,
@@ -109,7 +130,7 @@ impl CardParser<DriverCard> for DriverCard {
                         card_item.0, application_identification.no_events_per_type,
                     );
                     let params = CardEventDataParams::new(11, application_identification.no_events_per_type);
-                    driver_card.card_event_data = Some(CardEventData::read(&mut reader, &params)?);
+                    driver_card.events_data = Some(CardEventData::read(&mut reader, &params)?);
                 }
                 CardFileID::FaultsData => {
                     debug!(
@@ -117,15 +138,15 @@ impl CardParser<DriverCard> for DriverCard {
                         card_item.0, application_identification.no_faults_per_type,
                     );
                     let params = CardFaultDataParams::new(application_identification.no_faults_per_type);
-                    driver_card.card_fault_data = Some(CardFaultData::read(&mut reader, &params)?);
+                    driver_card.faults_data = Some(CardFaultData::read(&mut reader, &params)?);
                 }
                 CardFileID::DriverActivityData => {
                     debug!(
                         "DriverCard::parse - ID: {:?}, Number Of Records: {:?}",
-                        card_item.0, application_identification.card_activity_length_range,
+                        card_item.0, application_identification.activity_structure_length,
                     );
-                    let params = CardDriverActivityParams::new(application_identification.card_activity_length_range);
-                    driver_card.card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
+                    let params = CardDriverActivityParams::new(application_identification.activity_structure_length);
+                    driver_card.driver_activity_data = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
                 CardFileID::VehiclesUsed => {
                     debug!(
@@ -133,7 +154,7 @@ impl CardParser<DriverCard> for DriverCard {
                         card_item.0, application_identification.no_of_card_vehicle_records,
                     );
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
-                    driver_card.card_vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
+                    driver_card.vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::Places => {
                     debug!(
@@ -141,8 +162,7 @@ impl CardParser<DriverCard> for DriverCard {
                         card_item.0, application_identification.no_of_card_place_records,
                     );
                     let params = CardPlaceDailyWorkPeriodParams::new(application_identification.no_of_card_place_records, 2);
-                    driver_card.card_place_daily_work_period =
-                        Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
+                    driver_card.places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::CurrentUsage => {
                     driver_card.current_usage = Some(CardCurrentUse::read(&mut reader)?);
@@ -155,7 +175,7 @@ impl CardParser<DriverCard> for DriverCard {
                     driver_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::DrivingLicenseInfo => {
-                    driver_card.card_driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
+                    driver_card.driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
                 }
                 CardFileID::SpecificConditions => {
                     let params = SpecificConditionsParams::new(application_identification.no_of_specific_condition_records as u8);
@@ -163,7 +183,7 @@ impl CardParser<DriverCard> for DriverCard {
                 }
                 CardFileID::VehicleUnitsUsed => {
                     let params = CardVehicleUnitsUsedParams::new(application_identification.no_card_vehicle_units_records);
-                    driver_card.card_vehicle_units_used = Some(CardVehicleUnitsUsed::read(&mut reader, &params)?);
+                    driver_card.vehicle_units_used = Some(CardVehicleUnitsUsed::read(&mut reader, &params)?);
                 }
                 CardFileID::GnssPlaces => {
                     let params = GnssAccumulatedDrivingParams::new(application_identification.no_gnssad_records);

@@ -11,18 +11,29 @@ use crate::tacho::{
 };
 use crate::{ReadableWithParams, Result};
 
+/// Company card application generation 2
 #[derive(Debug, Serialize)]
 pub struct CompanyCard {
+    #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,
+    #[serde(rename = "cardChipIdentification")]
     pub card_chip_identification: CardChipIdentification,
+    #[serde(rename = "cardIccIdentification")]
     pub card_icc_identification: CardIccIdentification,
+    #[serde(rename = "applicationIdentification")]
     pub application_identification: CompanyCardApplicationIdentification,
+    #[serde(rename = "applicationIdentificationV2")]
     pub application_identification_v2: CompanyCardApplicationIdentificationV2,
     pub identification: Option<Identification>,
+    #[serde(rename = "companyActivityData")]
     pub company_activity_data: Option<CompanyActivityData<CompanyActivityRecord>>,
+    #[serde(rename = "cardCertificate")]
     pub card_certificate: Option<Certificate>,
+    #[serde(rename = "caCertificate")]
     pub ca_certificate: Option<Certificate>,
+    #[serde(rename = "linkCertificate")]
     pub link_certificate: Option<Certificate>,
+    #[serde(rename = "cardNotes")]
     pub card_notes: String,
 }
 
