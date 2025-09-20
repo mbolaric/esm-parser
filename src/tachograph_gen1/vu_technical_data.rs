@@ -7,10 +7,13 @@ use crate::{Readable, Result};
 
 #[derive(Debug, Serialize)]
 pub struct VuTechnicalData {
+    #[serde(rename = "trepId")]
     pub trep_id: VUTransferResponseParameterID,
     pub identification: VUIdentification,
+    #[serde(rename = "sensorPaired")]
     pub sensor_paired: SensorPaired,
-    pub calibration_data: VUCalibrationData,
+    #[serde(rename = "vuCalibrationData")]
+    pub vu_calibration_data: VUCalibrationData,
     pub signature: Option<Vec<u8>>,
 }
 
@@ -22,6 +25,6 @@ impl VUTransferResponseParameterReader<VuTechnicalData> for VuTechnicalData {
 
         let signature = Some(reader.read_into_vec(128)?);
 
-        Ok(Self { trep_id, identification: vu_identification, sensor_paired, calibration_data: vu_calibration_data, signature })
+        Ok(Self { trep_id, identification: vu_identification, sensor_paired, vu_calibration_data, signature })
     }
 }

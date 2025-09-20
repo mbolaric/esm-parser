@@ -6,23 +6,41 @@ use crate::{
     tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
+/// Information, stored in a workshop card, related to a calibration
+/// performed with the card (Annex 1C requirement 314 and 337).
 #[derive(Debug, Serialize)]
 pub struct WorkshopCardCalibrationRecord {
+    #[serde(rename = "calibrationPurpose")]
     pub calibration_purpose: CalibrationPurpose,
+    #[serde(rename = "vehicleIdentificationNumber")]
     pub vehicle_identification_number: String,
+    #[serde(rename = "vehicleRegistration")]
     pub vehicle_registration: VehicleRegistrationIdentification,
+    #[serde(rename = "wVehicleCharacteristicConstant")]
     pub w_vehicle_characteristic_constant: u16,
+    #[serde(rename = "kConstantOfRecordingEquipment")]
     pub k_constant_of_recording_equipment: u16,
+    #[serde(rename = "lTyreCircumference")]
     pub l_tyre_circumference: u16,
+    #[serde(rename = "tyreSize")]
     pub tyre_size: String,
+    #[serde(rename = "authorisedSpeed")]
     pub authorised_speed: u8,
+    #[serde(rename = "oldOdometerValue")]
     pub old_odometer_value: OdometerShort,
+    #[serde(rename = "newOdometerValue")]
     pub new_odometer_value: OdometerShort,
+    #[serde(rename = "oldTimeValue")]
     pub old_time_value: TimeReal,
+    #[serde(rename = "newTimeValue")]
     pub new_time_value: TimeReal,
+    #[serde(rename = "nextCalibrationDate")]
     pub next_calibration_date: TimeReal,
+    #[serde(rename = "vuPartNumber")]
     pub vu_part_number: String,
+    #[serde(rename = "vuSerialNumber")]
     pub vu_serial_number: ExtendedSerialNumber,
+    #[serde(rename = "sensorSerialNumber")]
     pub sensor_serial_number: ExtendedSerialNumber,
 }
 

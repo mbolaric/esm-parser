@@ -3,9 +3,12 @@ use serde::Serialize;
 
 use crate::{Readable, tacho::SpecificConditionRecord};
 
+/// Information, stored in a vehicle unit, related to specific conditions.
 #[derive(Debug, Serialize)]
 pub struct VuSpecificConditionData {
+    #[serde(rename = "noOfSpecificConditionRecords")]
     pub no_of_specific_condition_records: u16,
+    #[serde(rename = "specificConditionRecords")]
     pub specific_condition_records: Vec<SpecificConditionRecord>,
 }
 

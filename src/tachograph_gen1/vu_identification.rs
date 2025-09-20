@@ -6,36 +6,45 @@ use crate::{
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to the identification of the
+/// vehicle unit (Annex 1B requirement 075 and Annex 1C requirement 93 and 121).
 #[derive(Debug, Serialize)]
 pub struct VUIdentification {
-    pub manufacturer_name: Name,
-    pub manufacturer_address: Address,
-    pub part_number: String,
-    pub serial_number: ExtendedSerialNumber,
-    pub software_identification: SoftwareIdentification,
-    pub manufacturing_date: TimeReal,
-    pub approval_number: String,
+    #[serde(rename = "vuManufacturerName")]
+    pub vu_manufacturer_name: Name,
+    #[serde(rename = "vuManufacturerAddress")]
+    pub vu_manufacturer_address: Address,
+    #[serde(rename = "vuPartNumber")]
+    pub vu_part_number: String,
+    #[serde(rename = "vuSerialNumber")]
+    pub vu_serial_number: ExtendedSerialNumber,
+    #[serde(rename = "vuSoftwareIdentification")]
+    pub vu_software_identification: SoftwareIdentification,
+    #[serde(rename = "vuManufacturingDate")]
+    pub vu_manufacturing_date: TimeReal,
+    #[serde(rename = "vuApprovalNumber")]
+    pub vu_approval_number: String,
 }
 
 impl Readable<VUIdentification> for VUIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VUIdentification> {
-        let manufacturer_name = Name::read(reader)?;
-        let manufacturer_address = Address::read(reader)?;
-        let part_number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?.trim().to_string();
-        let serial_number = ExtendedSerialNumber::read(reader)?;
-        let software_identification = SoftwareIdentification::read(reader)?;
+        let vu_manufacturer_name = Name::read(reader)?;
+        let vu_manufacturer_address = Address::read(reader)?;
+        let vu_part_number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?.trim().to_string();
+        let vu_serial_number = ExtendedSerialNumber::read(reader)?;
+        let vu_software_identification = SoftwareIdentification::read(reader)?;
 
-        let manufacturing_date = TimeReal::read(reader)?;
-        let approval_number = bytes_to_ia5_fix_string(&reader.read_into_vec(8)?)?.trim().to_string();
+        let vu_manufacturing_date = TimeReal::read(reader)?;
+        let vu_approval_number = bytes_to_ia5_fix_string(&reader.read_into_vec(8)?)?.trim().to_string();
 
         Ok(Self {
-            manufacturer_name,
-            manufacturer_address,
-            part_number,
-            serial_number,
-            software_identification,
-            manufacturing_date,
-            approval_number,
+            vu_manufacturer_name,
+            vu_manufacturer_address,
+            vu_part_number,
+            vu_serial_number,
+            vu_software_identification,
+            vu_manufacturing_date,
+            vu_approval_number,
         })
     }
 }

@@ -2,9 +2,14 @@ use serde::Serialize;
 
 use crate::{Readable, gen1::PlaceRecord, tacho::FullCardNumber};
 
+/// Information, stored in a vehicle unit, related to a place where a driver
+/// begins or ends a daily work period (Annex 1B requirement 087 and
+/// Annex 1C requirement 108 and 110).
 #[derive(Debug, Serialize)]
 pub struct VuPlaceDailyWorkPeriodRecord {
+    #[serde(rename = "fullCardNumber")]
     pub full_card_number: FullCardNumber,
+    #[serde(rename = "placeRecord")]
     pub place_record: PlaceRecord,
 }
 
@@ -16,9 +21,14 @@ impl Readable<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriodRecord {
     }
 }
 
+/// Information, stored in a vehicle unit, related to places where drivers
+/// begin or end a daily work period (Annex 1B requirement 087 and
+/// Annex 1C requirement 108 and 110).
 #[derive(Debug, Serialize)]
 pub struct VuPlaceDailyWorkPeriodData {
+    #[serde(rename = "noOfPlaceRecords")]
     pub no_of_place_records: u8,
+    #[serde(rename = "vuPlaceDailyWorkPeriodRecords")]
     pub vu_place_daily_work_period_records: Vec<VuPlaceDailyWorkPeriodRecord>,
 }
 

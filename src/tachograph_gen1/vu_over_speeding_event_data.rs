@@ -5,15 +5,25 @@ use crate::{
     tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to over speeding events
+/// (Annex 1B requirement 094 and Annex 1C requirement 117).
 #[derive(Debug, Serialize)]
 pub struct VuOverSpeedingEventRecord {
+    #[serde(rename = "eventType")]
     pub event_type: EventFaultType,
+    #[serde(rename = "eventRecordPurpose")]
     pub event_record_purpose: EventFaultRecordPurpose,
+    #[serde(rename = "eventBeginTime")]
     pub event_begin_time: TimeReal,
+    #[serde(rename = "eventEndTime")]
     pub event_end_time: TimeReal,
+    #[serde(rename = "maxSpeedValue")]
     pub max_speed_value: u8,
+    #[serde(rename = "averageSpeedValue")]
     pub average_speed_value: u8,
+    #[serde(rename = "cardNumberDriverSlotBegin")]
     pub card_number_driver_slot_begin: FullCardNumber,
+    #[serde(rename = "similarEventsNumber")]
     pub similar_events_number: u8,
 }
 
@@ -41,9 +51,13 @@ impl Readable<VuOverSpeedingEventRecord> for VuOverSpeedingEventRecord {
     }
 }
 
+/// Information, stored in a vehicle unit, related to over speeding events
+/// (Annex 1B requirement 094).
 #[derive(Debug, Serialize)]
 pub struct VuOverSpeedingEventData {
+    #[serde(rename = "noOfVuOverSpeedingEvents")]
     pub no_of_vu_over_speeding_events: u8,
+    #[serde(rename = "vuOverSpeedingEventRecords")]
     pub vu_over_speeding_event_records: Vec<VuOverSpeedingEventRecord>,
 }
 

@@ -5,15 +5,25 @@ use crate::{
     tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to a fault (Annex 1B
+/// requirement 096 and Annex 1C requirement 118).
 #[derive(Debug, Serialize)]
 pub struct VuFaultRecord {
+    #[serde(rename = "faultType")]
     pub fault_type: EventFaultType,
+    #[serde(rename = "faultRecordPurpose")]
     pub fault_record_purpose: EventFaultRecordPurpose,
+    #[serde(rename = "faultBeginTime")]
     pub fault_begin_time: TimeReal,
+    #[serde(rename = "faultEndTime")]
     pub fault_end_time: TimeReal,
+    #[serde(rename = "cardNumberDriverSlotBegin")]
     pub card_number_driver_slot_begin: FullCardNumber,
+    #[serde(rename = "cardNumberCodriverSlotBegin")]
     pub card_number_codriver_slot_begin: FullCardNumber,
+    #[serde(rename = "cardNumberDriverSlotEnd")]
     pub card_number_driver_slot_end: FullCardNumber,
+    #[serde(rename = "cardNumberCodriverSlotEnd")]
     pub card_number_codriver_slot_end: FullCardNumber,
 }
 
@@ -41,9 +51,12 @@ impl Readable<VuFaultRecord> for VuFaultRecord {
     }
 }
 
+/// Information, stored in a vehicle unit, related to faults (Annex 1B requirement 096).
 #[derive(Debug, Serialize)]
 pub struct VuFaultData {
+    #[serde(rename = "noOfVuFaults")]
     pub no_of_vu_faults: u8,
+    #[serde(rename = "vuFaultRecords")]
     pub vu_fault_records: Vec<VuFaultRecord>,
 }
 

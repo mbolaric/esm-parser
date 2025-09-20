@@ -5,16 +5,27 @@ use crate::{
     tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to an event (Annex 1B
+/// requirement 094 and Annex 1C requirement 117 except over speeding event).
 #[derive(Debug, Serialize)]
 pub struct VuEventRecord {
+    #[serde(rename = "eventType")]
     pub event_type: EventFaultType,
+    #[serde(rename = "eventRecordPurpose")]
     pub event_record_purpose: EventFaultRecordPurpose,
+    #[serde(rename = "eventBeginTime")]
     pub event_begin_time: TimeReal,
+    #[serde(rename = "eventEndTime")]
     pub event_end_time: TimeReal,
+    #[serde(rename = "cardNumberDriverSlotBegin")]
     pub card_number_driver_slot_begin: FullCardNumber,
+    #[serde(rename = "cardNumberCodriverSlotBegin")]
     pub card_number_codriver_slot_begin: FullCardNumber,
+    #[serde(rename = "cardNumberDriverSlotEnd")]
     pub card_number_driver_slot_end: FullCardNumber,
+    #[serde(rename = "cardNumberCodriverSlotEnd")]
     pub card_number_codriver_slot_end: FullCardNumber,
+    #[serde(rename = "similarEventsNumber")]
     pub similar_events_number: u8,
 }
 
@@ -44,9 +55,13 @@ impl Readable<VuEventRecord> for VuEventRecord {
     }
 }
 
+/// Information, stored in a vehicle unit, related to events (Annex 1B
+/// requirement 094 except over speeding event).
 #[derive(Debug, Serialize)]
 pub struct VuEventData {
+    #[serde(rename = "noOfVuEvents")]
     pub no_of_vu_events: u8,
+    #[serde(rename = "vuEventRecords")]
     pub vu_event_records: Vec<VuEventRecord>,
 }
 
