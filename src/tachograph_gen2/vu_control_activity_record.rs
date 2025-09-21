@@ -7,12 +7,19 @@ use crate::{
     tacho::{ControlType, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to a control performed using
+/// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).
 #[derive(Debug, Serialize)]
 pub struct VuControlActivityRecord {
+    #[serde(rename = "controlType")]
     pub control_type: ControlType,
+    #[serde(rename = "controlTime")]
     pub control_time: TimeReal,
+    #[serde(rename = "controlCardNumberAndGeneration")]
     pub control_card_number_and_generation: FullCardNumberAndGeneration,
+    #[serde(rename = "downloadPeriodBeginTime")]
     pub download_period_begin_time: TimeReal,
+    #[serde(rename = "downloadPeriodEndTime")]
     pub download_period_end_time: TimeReal,
 }
 

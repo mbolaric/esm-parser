@@ -7,7 +7,7 @@ use crate::{
 
 /// The Vehicle Idenification Number plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
-pub struct VehicleIdentificationNumberRecords {
+pub struct VehicleIdentificationNumberRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
     #[serde(rename = "recordSize")]
@@ -17,11 +17,11 @@ pub struct VehicleIdentificationNumberRecords {
     pub records: Vec<String>,
 }
 
-impl DataInfoReadable<VehicleIdentificationNumberRecords> for VehicleIdentificationNumberRecords {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleIdentificationNumberRecords> {
+impl DataInfoReadable<VehicleIdentificationNumberRecordArray> for VehicleIdentificationNumberRecordArray {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleIdentificationNumberRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<String> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {

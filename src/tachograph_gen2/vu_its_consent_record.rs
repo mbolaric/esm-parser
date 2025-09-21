@@ -3,8 +3,11 @@ use serde::Serialize;
 
 use crate::{Readable, Result, gen2::FullCardNumberAndGeneration, helpers::u8_to_bool};
 
+/// Information stored in a vehicle unit, related to the consent of a driver to
+/// use Intelligent Transport Systems.
 #[derive(Debug, Serialize)]
 pub struct VuItsConsentRecord {
+    #[serde(rename = "cardNumberAndGen")]
     pub card_number_and_generation: FullCardNumberAndGeneration,
     pub consent: bool,
 }

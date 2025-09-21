@@ -6,7 +6,7 @@ use crate::{Readable, Result};
 /// The extended seal identifier uniquely identifies a seal (Annex IC requirement 401).
 #[derive(Debug, Serialize)]
 pub struct ExtendedSealIdentifier {
-    /// see database registration to be managed by the European Commission (see https://dtc.jrc.ec.europa.eu).
+    /// see database registration to be managed by the European Commission (see <https://dtc.jrc.ec.europa.eu>).
     #[serde(rename = "manufacturerCode")]
     pub manufacturer_code: Vec<u8>,
     #[serde(rename = "sealIdentifier")]

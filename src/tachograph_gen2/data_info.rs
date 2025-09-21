@@ -10,7 +10,7 @@ use crate::{
 #[derive(Debug)]
 pub struct DataConfig {
     pub trep_id: VUTransferResponseParameterID,
-    pub data_type_id: RecordType,
+    pub record_type: RecordType,
     pub record_size: u16,
     pub no_of_records: u16,
 }
@@ -32,7 +32,7 @@ impl DataInfo {
     fn create_data_config(&self) -> DataConfig {
         DataConfig {
             trep_id: self.trep_id.clone(),
-            data_type_id: self.record_type.clone(),
+            record_type: self.record_type.clone(),
             record_size: self.record_size,
             no_of_records: self.no_of_records,
         }
@@ -78,7 +78,7 @@ pub trait DataInfoReadableWithParams<T> {
 }
 
 #[derive(Debug, Serialize)]
-pub struct DataInfoGenericRecords<T> {
+pub struct DataInfoGenericRecordArray<T> {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
     #[serde(rename = "recordSize")]
@@ -88,11 +88,11 @@ pub struct DataInfoGenericRecords<T> {
     pub records: Vec<T>,
 }
 
-impl<T: Readable<T>> DataInfoReadable<DataInfoGenericRecords<T>> for DataInfoGenericRecords<T> {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecords<T>> {
+impl<T: Readable<T>> DataInfoReadable<DataInfoGenericRecordArray<T>> for DataInfoGenericRecordArray<T> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecordArray<T>> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<T> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {
@@ -103,19 +103,19 @@ impl<T: Readable<T>> DataInfoReadable<DataInfoGenericRecords<T>> for DataInfoGen
     }
 }
 
-impl<T: ReadableWithParams<T, P = VUTransferResponseParameterID>> DataInfoReadableWithParams<DataInfoGenericRecords<T>>
-    for DataInfoGenericRecords<T>
+impl<T: ReadableWithParams<T, P = VUTransferResponseParameterID>> DataInfoReadableWithParams<DataInfoGenericRecordArray<T>>
+    for DataInfoGenericRecordArray<T>
 {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecords<T>> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecordArray<T>> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let data_type_id = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<T> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {
             let record = T::read(reader, &config.trep_id)?;
             records.push(record);
         }
-        Ok(Self { no_of_records, record_size, record_type: data_type_id, records })
+        Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

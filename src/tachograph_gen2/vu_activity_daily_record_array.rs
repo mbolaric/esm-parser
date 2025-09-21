@@ -8,19 +8,25 @@ use crate::{
     tachograph_gen2::data_info::DataConfig,
 };
 
+/// Information, stored in a VU, related to changes of activity and/or
+/// changes of driving status and/or changes of card status for a given
+/// calendar day (Annex 1C requirement 105, 106, 107) and to slots status at 00:00 that day.
 #[derive(Debug, Serialize)]
-pub struct VuActivityDailyRecords {
+pub struct VuActivityDailyRecordArray {
+    #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
-    pub data_type_id: RecordType,
+    #[serde(rename = "recordType")]
+    pub record_type: RecordType,
     pub records: Vec<ActivityChangeInfo>,
 }
 
-impl DataInfoReadable<VuActivityDailyRecords> for VuActivityDailyRecords {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuActivityDailyRecords> {
+impl DataInfoReadable<VuActivityDailyRecordArray> for VuActivityDailyRecordArray {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuActivityDailyRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let data_type_id = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<ActivityChangeInfo> = Vec::with_capacity(no_of_records as usize);
         let params = ActivityChangeInfoParams::new(ActivityCard::Vu);
@@ -28,6 +34,6 @@ impl DataInfoReadable<VuActivityDailyRecords> for VuActivityDailyRecords {
             let record = ActivityChangeInfo::read(reader, &params)?;
             records.push(record);
         }
-        Ok(Self { no_of_records, record_size, data_type_id, records })
+        Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

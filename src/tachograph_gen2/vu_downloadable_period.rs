@@ -3,9 +3,14 @@ use serde::Serialize;
 
 use crate::{Readable, Result, tacho::TimeReal};
 
+/// Oldest and latest dates for which a vehicle unit holds data related to
+/// drivers activities (Annex 1B requirements 081, 084 or 087 and
+/// Annex 1C requirements 102, 105, 108).
 #[derive(Debug, Serialize)]
 pub struct VuDownloadablePeriod {
+    #[serde(rename = "minDownloadableTime")]
     pub min_downloadable_time: TimeReal,
+    #[serde(rename = "maxDownloadableTime")]
     pub max_downloadable_time: TimeReal,
 }
 

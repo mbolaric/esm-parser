@@ -135,17 +135,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_serialize_data_type_id() {
-        let data_type_id = RecordType::ActivityChangeInfo;
-        let serialized = serde_json::to_string(&data_type_id).unwrap();
+    fn test_serialize_record_type() {
+        let record_type = RecordType::ActivityChangeInfo;
+        let serialized = serde_json::to_string(&record_type).unwrap();
         assert_eq!(serialized, r#""ActivityChangeInfo""#);
 
-        let data_type_id = RecordType::VuCalibrationRecord;
-        let serialized = serde_json::to_string(&data_type_id).unwrap();
+        let record_type = RecordType::VuCalibrationRecord;
+        let serialized = serde_json::to_string(&record_type).unwrap();
         assert_eq!(serialized, r#""VuCalibrationRecord""#);
 
-        let data_type_id = RecordType::Unknown;
-        let serialized = serde_json::to_string(&data_type_id).unwrap();
+        let record_type = RecordType::Unknown;
+        let serialized = serde_json::to_string(&record_type).unwrap();
         assert_eq!(serialized, r#""Unknown""#);
     }
 }

@@ -23,7 +23,7 @@ impl DataInfoReadable<VehicleRegistrationIdentificationRecords> for VehicleRegis
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleRegistrationIdentificationRecords> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<VehicleRegistrationIdentification> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {

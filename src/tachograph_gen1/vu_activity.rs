@@ -5,13 +5,20 @@ use crate::gen1::{VuActivityDailyData, VuCardIWData, VuPlaceDailyWorkPeriodData,
 use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID, VUTransferResponseParameterReader};
 use crate::{Readable, Result};
 
+/// Data structure generation 1 (TREP 02 Hex)
 #[derive(Debug, Serialize)]
 pub struct VUActivity {
+    #[serde(rename = "dateOfDayDownloaded")]
     pub date_of_day_downloaded: TimeReal,
+    #[serde(rename = "odometerValueMidnight")]
     pub odometer_value_midnight: OdometerShort,
+    #[serde(rename = "vuCardIWData")]
     pub vu_card_iw_data: VuCardIWData,
+    #[serde(rename = "vuActivityDailyData")]
     pub vu_activity_daily_data: VuActivityDailyData,
+    #[serde(rename = "vuPlaceDailyWorkPeriodData")]
     pub vu_place_daily_work_period_data: VuPlaceDailyWorkPeriodData,
+    #[serde(rename = "vuSpecificConditionData")]
     pub vu_specific_condition_data: VuSpecificConditionData,
     pub signature: Option<Vec<u8>>,
 }

@@ -10,7 +10,7 @@ use crate::{
 
 /// The member state certificate plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
-pub struct MemberStateCertificateRecords {
+pub struct MemberStateCertificateRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
     #[serde(rename = "recordSize")]
@@ -20,11 +20,11 @@ pub struct MemberStateCertificateRecords {
     pub records: Vec<Certificate>,
 }
 
-impl DataInfoReadable<MemberStateCertificateRecords> for MemberStateCertificateRecords {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<MemberStateCertificateRecords> {
+impl DataInfoReadable<MemberStateCertificateRecordArray> for MemberStateCertificateRecordArray {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<MemberStateCertificateRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<Certificate> = Vec::with_capacity(no_of_records as usize);
         let params = CertificateParams::new(Some(record_size));

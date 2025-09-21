@@ -7,12 +7,19 @@ use crate::{
     tacho::{Address, Name, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to one company lock
+/// (Annex 1B requirement 104 and Annex 1C requirement 128).
 #[derive(Debug, Serialize)]
 pub struct VuCompanyLocksRecord {
+    #[serde(rename = "lockInTime")]
     pub lock_in_time: TimeReal,
+    #[serde(rename = "lockOutTime")]
     pub lock_out_time: TimeReal,
+    #[serde(rename = "companyName")]
     pub company_name: Name,
+    #[serde(rename = "companyAddress")]
     pub company_address: Address,
+    #[serde(rename = "companyCardNumberAndGeneration")]
     pub company_card_number_and_generation: FullCardNumberAndGeneration,
 }
 

@@ -7,16 +7,27 @@ use crate::{
     tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to a fault (Annex 1B
+/// requirement 096 and Annex 1C requirement 118).
 #[derive(Debug, Serialize)]
 pub struct VuFaultRecord {
+    #[serde(rename = "faultType")]
     pub fault_type: EventFaultType,
+    #[serde(rename = "faultRecordPurpose")]
     pub fault_record_purpose: EventFaultRecordPurpose,
+    #[serde(rename = "faultBeginTime")]
     pub fault_begin_time: TimeReal,
+    #[serde(rename = "faultEndTime")]
     pub fault_end_time: TimeReal,
+    #[serde(rename = "cardNumberAndGenDriverSlotBegin")]
     pub card_number_driver_slot_begin: FullCardNumberAndGeneration,
+    #[serde(rename = "cardNumberAndGenCodriverSlotBegin")]
     pub card_number_codriver_slot_begin: FullCardNumberAndGeneration,
+    #[serde(rename = "cardNumberAndGenDriverSlotEnd")]
     pub card_number_driver_slot_end: FullCardNumberAndGeneration,
+    #[serde(rename = "cardNumberAndGenCodriverSlotEnd")]
     pub card_number_codriver_slot_end: FullCardNumberAndGeneration,
+    #[serde(rename = "manufacturerSpecificEventFaultData")]
     pub manufacturer_specific_event_fault_data: ManufacturerSpecificEventFaultData,
 }
 

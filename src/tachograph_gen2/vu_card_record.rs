@@ -7,11 +7,16 @@ use crate::{
     tacho::{CardNumber, CardNumberParams, CardStructureVersion, EquipmentType, ExtendedSerialNumber},
 };
 
+/// Information, stored in a vehicle unit, about a tachograph card used (Annex IC requirement 132).
 #[derive(Debug, Serialize)]
 pub struct VuCardRecord {
+    #[serde(rename = "cardNumberAndGenerationInformation")]
     pub full_card_number_and_generation: FullCardNumberAndGeneration,
+    #[serde(rename = "cardExtendedSerialNumber")]
     pub card_extended_serial_number: ExtendedSerialNumber,
+    #[serde(rename = "cardStructureVersion")]
     pub card_structure_version: CardStructureVersion,
+    #[serde(rename = "cardNumber")]
     pub card_number: CardNumber,
 }
 

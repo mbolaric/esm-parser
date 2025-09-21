@@ -7,17 +7,29 @@ use crate::{
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID},
 };
 
+/// Information, stored in a vehicle unit, related to the identification of the
+/// vehicle unit (Annex 1B requirement 075 and Annex 1C requirement 93 and 121).
 #[derive(Debug, Serialize)]
 pub struct VuIdentification {
+    #[serde(rename = "isGen2V2")]
     pub is_gen2_v2: bool,
+    #[serde(rename = "vuManufacturerName")]
     pub vu_manufacturer_name: Name,
+    #[serde(rename = "vuManufacturerAddress")]
     pub vu_manufacturer_address: Address,
+    #[serde(rename = "vuPartNumber")]
     pub vu_part_number: String,
+    #[serde(rename = "vuSerialNumber")]
     pub vu_serial_number: ExtendedSerialNumber,
+    #[serde(rename = "vuSoftwareIdentification")]
     pub vu_software_identification: VuSoftwareIdentification,
+    #[serde(rename = "vuManufacturingDate")]
     pub vu_manufacturing_date: TimeReal,
+    #[serde(rename = "vuApprovalNumber")]
     pub vu_approval_number: String,
+    #[serde(rename = "vuGeneration")]
     pub vu_generation: u8,
+    #[serde(rename = "vuAbility")]
     pub vu_ability: u8,
 }
 
@@ -37,6 +49,7 @@ impl ReadableWithParams<VuIdentification> for VuIdentification {
 
         let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2Activities;
         if is_gen2_v2 {
+            // vuDigitalMapVersion is the version of the digital map stored in the vehicle unit (only present in version 2).
             let _ = reader.read_bytes::<12>()?;
         }
 

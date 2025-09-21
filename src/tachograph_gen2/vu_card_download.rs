@@ -3,13 +3,14 @@ use log::debug;
 use serde::Serialize;
 
 use crate::Result;
-use crate::gen2::{CardData, DataInfo, SignatureRecords};
+use crate::gen2::{CardData, DataInfo, SignatureRecordArray};
 use crate::tacho::{TachographHeader, VUTransferResponseParameterID};
 
 #[derive(Debug, Serialize)]
 pub struct VUCardDownload {
     pub card: CardData,
-    pub signature_records: Option<SignatureRecords>,
+    #[serde(rename = "signatureRecordArray")]
+    pub signature_records: Option<SignatureRecordArray>,
 }
 
 impl VUCardDownload {
@@ -21,7 +22,7 @@ impl VUCardDownload {
         debug!("VUCardDownload::from_data - Trep ID: {trep_id:?}");
         let data_info = DataInfo::read(reader, trep_id.clone())?;
         let card: CardData = CardData::from_data(header, &mut data_info.data_into_mem_reader()?)?;
-        let signature_records: Option<SignatureRecords> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
+        let signature_records: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
 
         Ok(Self { card, signature_records })
     }

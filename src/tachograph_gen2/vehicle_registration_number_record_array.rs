@@ -11,32 +11,35 @@ use crate::{
 };
 
 #[derive(Debug, Serialize)]
-pub struct VuVehicleRegistrationNumberRecords {
+pub struct VehicleRegistrationNumberRecordArray {
+    #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
+    #[serde(rename = "recordSize")]
     pub record_size: u16,
-    pub data_type_id: RecordType,
+    #[serde(rename = "recordType")]
+    pub record_type: RecordType,
     pub records: Vec<VehicleRegistrationNumber>,
 }
 
-impl DataInfoReadable<VuVehicleRegistrationNumberRecords> for VuVehicleRegistrationNumberRecords {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuVehicleRegistrationNumberRecords> {
+impl DataInfoReadable<VehicleRegistrationNumberRecordArray> for VehicleRegistrationNumberRecordArray {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleRegistrationNumberRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let data_type_id = config.data_type_id.clone();
+        let record_type = config.record_type.clone();
 
         let mut records: Vec<VehicleRegistrationNumber> = Vec::with_capacity(no_of_records as usize);
         for _ in 0..no_of_records {
             let record = VehicleRegistrationNumber::read(reader)?;
             records.push(record);
         }
-        Ok(Self { no_of_records, record_size, data_type_id, records })
+        Ok(Self { no_of_records, record_size, record_type, records })
     }
 }
 
-impl From<VehicleRegistrationIdentificationRecords> for VuVehicleRegistrationNumberRecords {
+impl From<VehicleRegistrationIdentificationRecords> for VehicleRegistrationNumberRecordArray {
     fn from(value: VehicleRegistrationIdentificationRecords) -> Self {
         Self {
-            data_type_id: value.record_type,
+            record_type: value.record_type,
             no_of_records: value.no_of_records,
             record_size: value.record_size,
             records: value.records.into_iter().map(|item| item.vehicle_registration_number).collect(),

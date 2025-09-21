@@ -14,6 +14,7 @@ use crate::{
 #[derive(Debug, Serialize)]
 pub struct VUData {
     header: TachographHeader,
+    #[serde(rename = "transferResParams")]
     transfer_res_params: Vec<VUTransferResponseParameterItem<VUTransferResponseParameterData>>,
 }
 

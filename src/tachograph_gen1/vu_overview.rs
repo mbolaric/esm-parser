@@ -8,7 +8,7 @@ use crate::tacho::{
 };
 use crate::{Readable, Result, bytes_to_ia5_fix_string};
 
-/// Data Overview
+/// Data structure generation 1 (TREP 01 Hex)
 #[derive(Debug, Serialize)]
 pub struct VuOverview {
     #[serde(rename = "memberStateCertificate")]
