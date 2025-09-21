@@ -12,6 +12,7 @@ use serde::Serialize;
 /// It abstracts away the generation and data type (Vehicle Unit or Card),
 /// allowing for unified handling of the parsed result.
 #[derive(Debug, Serialize)]
+#[serde(untagged)]
 pub enum TachographData {
     /// Vehicle Unit data from a Gen1 tachograph.
     VUGen1(gen1::VUData),

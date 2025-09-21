@@ -82,6 +82,18 @@ impl From<serde_json::Error> for Error {
     }
 }
 
+impl From<quick_xml::Error> for Error {
+    fn from(value: quick_xml::Error) -> Self {
+        Error::Export(value.to_string())
+    }
+}
+
+impl From<quick_xml::de::DeError> for Error {
+    fn from(value: quick_xml::de::DeError) -> Self {
+        Error::Export(value.to_string())
+    }
+}
+
 impl std::error::Error for Error {}
 
 pub type Result<T> = core::result::Result<T, Error>;

@@ -1,5 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
-use serde::Serialize;
+use serde::{Serialize, ser::Serializer};
 
 use crate::{
     Error, Readable, ReadableWithParams, Result,
@@ -19,12 +19,26 @@ impl IdentificationParams {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub enum Identification {
     CompanyCard(Box<CompanyCardIdentification>),
     DriverCard(Box<DriverCardIdentification>),
     ControlCard(Box<ControlCardIdentification>),
     WorkshopCard(Box<WorkshopCardIdentification>),
+}
+
+impl Serialize for Identification {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            Identification::CompanyCard(data) => data.serialize(serializer),
+            Identification::DriverCard(data) => data.serialize(serializer),
+            Identification::ControlCard(data) => data.serialize(serializer),
+            Identification::WorkshopCard(data) => data.serialize(serializer),
+        }
+    }
 }
 
 impl ReadableWithParams<Identification> for Identification {

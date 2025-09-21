@@ -18,6 +18,7 @@ fn main() {
                 println!("CardGen2:");
                 println!("{:#?}", inner);
                 println!("{:?}", inner.to_json());
+                println!("{:?}", inner.to_xml());
             }
             TachographData::VUGen1(inner) => {
                 println!("VUGen1:");
