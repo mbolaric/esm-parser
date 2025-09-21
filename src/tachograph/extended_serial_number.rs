@@ -13,7 +13,7 @@ pub struct ExtendedSerialNumber {
     pub month_year: String,
     #[serde(rename = "type")]
     pub serial_type: u8,
-    #[serde(rename = "manufacturerCode:")]
+    #[serde(rename = "manufacturerCode")]
     pub manufacturer_code: u8,
 }
 
