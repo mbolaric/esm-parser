@@ -6,7 +6,7 @@ use crate::{
     gen2::DataInfoReadable,
     tacho::{RecordType, VehicleRegistrationNumber},
     tachograph_gen2::{
-        data_info::DataConfig, vehicle_registration_identification_records::VehicleRegistrationIdentificationRecords,
+        data_info::DataConfig, vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray,
     },
 };
 
@@ -36,8 +36,8 @@ impl DataInfoReadable<VehicleRegistrationNumberRecordArray> for VehicleRegistrat
     }
 }
 
-impl From<VehicleRegistrationIdentificationRecords> for VehicleRegistrationNumberRecordArray {
-    fn from(value: VehicleRegistrationIdentificationRecords) -> Self {
+impl From<VehicleRegistrationIdentificationRecordArray> for VehicleRegistrationNumberRecordArray {
+    fn from(value: VehicleRegistrationIdentificationRecordArray) -> Self {
         Self {
             record_type: value.record_type,
             no_of_records: value.no_of_records,

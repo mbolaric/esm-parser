@@ -17,6 +17,7 @@ fn setup() -> &'static TestConfig {
 }
 
 #[test]
+#[ignore = "requires a DDD file that cannot be public"]
 fn test_parse_gen1_card_file_successfully() {
     // --- Arrange ---
     let config = setup();

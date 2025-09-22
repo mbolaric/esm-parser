@@ -22,9 +22,18 @@ This library can be compiled to WebAssembly, allowing you to use the parser dire
 ```bash
 // Install wasm-pack
 cargo install wasm-pack
-
-// Compile ...
-wasm-pack build --target web
 ```
 
 ---
+
+## Running the Web Example
+
+1.  Build the wasm package:
+    ```bash
+    wasm-pack build --target web
+    ```
+2.  Start a simple web server from the project's root directory. If you have Python installed:
+    ```bash
+    python3 -m http.server
+    ```
+3.  Open your browser and navigate to `http://localhost:8000/examples/web/`. Check the developer console for the output.

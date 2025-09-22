@@ -10,7 +10,7 @@ use crate::{
         VuCompanyLocksRecord, VuControlActivityRecord, VuDownloadActivityData, VuDownloadablePeriod,
     },
     tacho::{CardSlotStatus, TimeReal, VUTransferResponseParameterID},
-    tachograph_gen2::vehicle_registration_identification_records::VehicleRegistrationIdentificationRecords,
+    tachograph_gen2::vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray,
 };
 
 /// Data structure generation 2, version 2 (TREP 31 Hex)
@@ -53,7 +53,7 @@ impl VUOverview {
 
         let vehicle_registration_number_record_array: VehicleRegistrationNumberRecordArray =
             if trep_id == VUTransferResponseParameterID::Gen2v2Overview {
-                let records: VehicleRegistrationIdentificationRecords = DataInfo::read(reader, trep_id.clone())?.parse()?;
+                let records: VehicleRegistrationIdentificationRecordArray = DataInfo::read(reader, trep_id.clone())?.parse()?;
                 VehicleRegistrationNumberRecordArray::from(records)
             } else {
                 DataInfo::read(reader, trep_id.clone())?.parse()?

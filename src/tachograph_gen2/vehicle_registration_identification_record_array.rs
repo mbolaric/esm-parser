@@ -8,8 +8,9 @@ use crate::{
     tachograph_gen2::data_info::DataConfig,
 };
 
+/// The Vehicle Registration Identification plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
-pub struct VehicleRegistrationIdentificationRecords {
+pub struct VehicleRegistrationIdentificationRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,
     #[serde(rename = "recordSize")]
@@ -19,8 +20,8 @@ pub struct VehicleRegistrationIdentificationRecords {
     pub records: Vec<VehicleRegistrationIdentification>,
 }
 
-impl DataInfoReadable<VehicleRegistrationIdentificationRecords> for VehicleRegistrationIdentificationRecords {
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleRegistrationIdentificationRecords> {
+impl DataInfoReadable<VehicleRegistrationIdentificationRecordArray> for VehicleRegistrationIdentificationRecordArray {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleRegistrationIdentificationRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
         let record_type = config.record_type.clone();
