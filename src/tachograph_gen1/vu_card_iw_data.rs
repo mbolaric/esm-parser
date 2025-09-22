@@ -7,17 +7,30 @@ use crate::{
     tacho::{CardSlotNumber, FullCardNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to an insertion and withdrawal
+/// cycle of a driver card or of a workshop card in the vehicle unit
+/// (Annex 1B requirement 081 and Annex 1C requirement 102).
 #[derive(Debug, Serialize)]
 pub struct VuCardIWRecord {
+    #[serde(rename = "cardHolderName")]
     pub card_holder_name: HolderName,
+    #[serde(rename = "fullCardNumber")]
     pub full_card_number: FullCardNumber,
+    #[serde(rename = "cardExpiryDate")]
     pub card_expiry_date: TimeReal,
+    #[serde(rename = "cardInsertionTime")]
     pub card_insertion_time: TimeReal,
+    #[serde(rename = "vehicleOdometerValueAtInsertion")]
     pub vehicle_odometer_value_at_insertion: OdometerShort,
+    #[serde(rename = "cardSlotNumber")]
     pub card_slot_number: CardSlotNumber,
+    #[serde(rename = "cardWithdrawalTime")]
     pub card_withdrawal_time: TimeReal,
+    #[serde(rename = "vehicleOdometerValueAtWithdrawal")]
     pub vehicle_odometer_value_at_withdrawal: OdometerShort,
+    #[serde(rename = "previousVehicleInfo")]
     pub previous_vehicle_info: PreviousVehicleInfo,
+    #[serde(rename = "manualInputFlag")]
     pub manual_input_flag: ManualInputFlag,
 }
 

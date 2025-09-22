@@ -2,8 +2,10 @@ use serde::Serialize;
 
 use crate::{Readable, gen1::VuDetailedSpeedData};
 
+/// Data structure generation 1 (TREP 04 Hex)
 #[derive(Debug, Serialize)]
 pub struct VuDetailedSpeed {
+    #[serde(rename = "vuDetailedSpeedData")]
     pub vu_detailed_speed_data: VuDetailedSpeedData,
     pub signature: Option<Vec<u8>>,
 }

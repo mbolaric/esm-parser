@@ -3,9 +3,12 @@ use serde::Serialize;
 
 use crate::{CodePage, Readable, Result, bytes_to_string, tacho::TimeReal};
 
+/// Information, stored in a vehicle unit, related to the software installed.
 #[derive(Debug, Serialize)]
 pub struct VuSoftwareIdentification {
+    #[serde(rename = "vuSoftwareVersion")]
     pub vu_software_version: String,
+    #[serde(rename = "vuSoftInstallationDate")]
     pub vu_soft_installation_date: TimeReal,
 }
 

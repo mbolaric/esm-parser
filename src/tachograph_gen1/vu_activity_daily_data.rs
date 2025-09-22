@@ -6,9 +6,15 @@ use crate::{
     tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams},
 };
 
+/// Information, stored in a VU, related to changes of activity and/or
+/// changes of driving status and/or changes of card status for a given
+/// calendar day (Annex 1B requirement 084 and Annex 1C requirement
+/// 105, 106, 107) and to slots status at 00:00 that day.
 #[derive(Debug, Serialize)]
 pub struct VuActivityDailyData {
+    #[serde(rename = "noOfActivityChanges")]
     pub no_of_activity_changes: u16,
+    #[serde(rename = "activityChangeInfos")]
     pub activity_change_infos: Vec<ActivityChangeInfo>,
 }
 

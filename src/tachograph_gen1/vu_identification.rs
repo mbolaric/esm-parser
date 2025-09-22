@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::{
     Readable, bytes_to_ia5_fix_string,
-    gen1::SoftwareIdentification,
+    gen1::VuSoftwareIdentification,
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal},
 };
 
@@ -19,7 +19,7 @@ pub struct VUIdentification {
     #[serde(rename = "vuSerialNumber")]
     pub vu_serial_number: ExtendedSerialNumber,
     #[serde(rename = "vuSoftwareIdentification")]
-    pub vu_software_identification: SoftwareIdentification,
+    pub vu_software_identification: VuSoftwareIdentification,
     #[serde(rename = "vuManufacturingDate")]
     pub vu_manufacturing_date: TimeReal,
     #[serde(rename = "vuApprovalNumber")]
@@ -32,7 +32,7 @@ impl Readable<VUIdentification> for VUIdentification {
         let vu_manufacturer_address = Address::read(reader)?;
         let vu_part_number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?.trim().to_string();
         let vu_serial_number = ExtendedSerialNumber::read(reader)?;
-        let vu_software_identification = SoftwareIdentification::read(reader)?;
+        let vu_software_identification = VuSoftwareIdentification::read(reader)?;
 
         let vu_manufacturing_date = TimeReal::read(reader)?;
         let vu_approval_number = bytes_to_ia5_fix_string(&reader.read_into_vec(8)?)?.trim().to_string();

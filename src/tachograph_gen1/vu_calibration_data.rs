@@ -6,24 +6,43 @@ use crate::{
     tacho::{Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
+/// Information, stored in a vehicle unit, related a calibration of the
+/// recording equipment (Annex 1B requirement 098 and Annex 1C requirement 119 and 120).
 #[derive(Debug, Serialize)]
 pub struct VuCalibrationRecord {
+    #[serde(rename = "calibrationPurpose")]
     pub calibration_purpose: CalibrationPurpose,
+    #[serde(rename = "workshopName")]
     pub workshop_name: Name,
+    #[serde(rename = "workshopAddress")]
     pub workshop_address: Address,
+    #[serde(rename = "workshopCardNumber")]
     pub workshop_card_number: FullCardNumber,
+    #[serde(rename = "workshopCardExpiryDate")]
     pub workshop_card_expiry_date: TimeReal,
+    #[serde(rename = "vehicleIdentificationNumber")]
     pub vehicle_identification_number: String,
+    #[serde(rename = "vehicleRegistrationIdentification")]
     pub vehicle_registration_identification: VehicleRegistrationIdentification,
+    #[serde(rename = "wVehicleCharacteristicConstant")]
     pub w_vehicle_characteristic_constant: u16,
+    #[serde(rename = "kConstantOfRecordingEquipment")]
     pub k_constant_of_recording_equipment: u16,
+    #[serde(rename = "lTyreCircumference")]
     pub l_tyre_circumference: u16,
+    #[serde(rename = "tyreSize")]
     pub tyre_size: String,
+    #[serde(rename = "authorisedSpeed")]
     pub authorised_speed: u8,
+    #[serde(rename = "oldOdometerValue")]
     pub old_odometer_value: OdometerShort,
+    #[serde(rename = "newOdometerValue")]
     pub new_odometer_value: OdometerShort,
+    #[serde(rename = "oldTimeValue")]
     pub old_time_value: TimeReal,
+    #[serde(rename = "newTimeValue")]
     pub new_time_value: TimeReal,
+    #[serde(rename = "nextCalibrationDate")]
     pub next_calibration_date: TimeReal,
 }
 

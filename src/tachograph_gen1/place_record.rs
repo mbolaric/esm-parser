@@ -5,12 +5,19 @@ use crate::{
     tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal},
 };
 
+/// Information related to a place where a daily work period begins or ends
+/// (Annex 1C requirements 108, 271, 296, 324, and 347).
 #[derive(Debug, Serialize)]
 pub struct PlaceRecord {
+    #[serde(rename = "entryTime")]
     pub entry_time: TimeReal,
+    #[serde(rename = "entryTypeDailyWorkPeriod")]
     pub entry_type_daily_work_period: EntryTypeDailyWorkPeriod,
+    #[serde(rename = "dailyWorkPeriodCountry")]
     pub daily_work_period_country: NationNumeric,
+    #[serde(rename = "dailyWorkPeriodRegion")]
     pub daily_work_period_region: RegionNumeric,
+    #[serde(rename = "vehicleOdometerValue")]
     pub vehicle_odometer_value: OdometerShort,
 }
 

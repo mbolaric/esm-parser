@@ -7,17 +7,28 @@ use crate::{
     tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal},
 };
 
+/// Information, stored in a vehicle unit, related to Power Supply Interruption
+/// events (Annex 1C requirement 117).
 #[derive(Debug, Serialize)]
 pub struct VuPowerSupplyInterruptionRecord {
+    #[serde(rename = "eventType")]
     pub event_type: EventFaultType,
+    #[serde(rename = "eventRecordPurpose")]
     pub event_record_purpose: EventFaultRecordPurpose,
+    #[serde(rename = "eventBeginTime")]
     pub event_begin_time: TimeReal,
+    #[serde(rename = "eventEndTime")]
     pub event_end_time: TimeReal,
+    #[serde(rename = "cardNumberAndGenDriverSlotBegin")]
     pub card_num_and_gen_driver_slot_begin: FullCardNumberAndGeneration,
+    #[serde(rename = "cardNumberAndGenDriverSlotEnd")]
     pub card_num_and_gen_driver_slot_end: FullCardNumberAndGeneration,
+    #[serde(rename = "cardNumberAndGenCodriverSlotBegin")]
     pub card_num_and_gen_codriver_slot_begin: FullCardNumberAndGeneration,
+    #[serde(rename = "cardNumberAndGenCodriverSlotEnd")]
     pub card_num_and_gen_codriver_slot_end: FullCardNumberAndGeneration,
-    pub similar_events: u8,
+    #[serde(rename = "similarEventsNumber")]
+    pub similar_events_number: u8,
 }
 
 impl Readable<VuPowerSupplyInterruptionRecord> for VuPowerSupplyInterruptionRecord {
@@ -30,7 +41,7 @@ impl Readable<VuPowerSupplyInterruptionRecord> for VuPowerSupplyInterruptionReco
         let card_num_and_gen_driver_slot_end = FullCardNumberAndGeneration::read(reader)?;
         let card_num_and_gen_codriver_slot_begin = FullCardNumberAndGeneration::read(reader)?;
         let card_num_and_gen_codriver_slot_end = FullCardNumberAndGeneration::read(reader)?;
-        let similar_events = reader.read_u8()?;
+        let similar_events_number = reader.read_u8()?;
 
         Ok(Self {
             event_type,
@@ -41,7 +52,7 @@ impl Readable<VuPowerSupplyInterruptionRecord> for VuPowerSupplyInterruptionReco
             card_num_and_gen_driver_slot_end,
             card_num_and_gen_codriver_slot_begin,
             card_num_and_gen_codriver_slot_end,
-            similar_events,
+            similar_events_number,
         })
     }
 }

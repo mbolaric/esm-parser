@@ -5,9 +5,13 @@ use crate::{
     tacho::{TimeReal, VehicleRegistrationIdentification},
 };
 
+/// Information related to the vehicle previously used by a driver when
+/// inserting his card in a vehicle unit (Annex 1B requirement 081 and Annex 1C requirement 102).
 #[derive(Debug, Serialize)]
 pub struct PreviousVehicleInfo {
+    #[serde(rename = "vehicleRegistrationIdentification")]
     pub vehicle_registration_identification: VehicleRegistrationIdentification,
+    #[serde(rename = "cardWithdrawalTime")]
     pub card_withdrawal_time: TimeReal,
 }
 

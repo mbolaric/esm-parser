@@ -9,45 +9,55 @@ use crate::gen2::{
 };
 use crate::tacho::VUTransferResponseParameterID;
 
+/// Data structure generation 2, version 1 (TREP 25 Hex)
+/// Data structure generation 2, version 2 (TREP 35 Hex)
 #[derive(Debug, Serialize)]
 pub struct VUTechnicalData {
-    pub vu_identification_records: DataInfoGenericRecordArray<VuIdentification>,
-    pub vu_sensor_paired_records: DataInfoGenericRecordArray<SensorPairedRecord>,
-    pub vu_sensor_external_gnss_coupled_records: DataInfoGenericRecordArray<SensorExternalGNSSCoupledRecord>,
-    pub vu_calibration_records: DataInfoGenericRecordArray<VuCalibrationRecord>,
-    pub vu_card_records: DataInfoGenericRecordArray<VuCardRecord>,
-    pub vu_its_consent_records: DataInfoGenericRecordArray<VuItsConsentRecord>,
-    pub vu_power_supply_interruption_records: DataInfoGenericRecordArray<VuPowerSupplyInterruptionRecord>,
+    #[serde(rename = "vuIdentificationRecordArray")]
+    pub vu_identification_record_array: DataInfoGenericRecordArray<VuIdentification>,
+    #[serde(rename = "vuSensorPairedRecordArray")]
+    pub vu_sensor_paired_record_array: DataInfoGenericRecordArray<SensorPairedRecord>,
+    #[serde(rename = "vuSensorExternalGnssCoupledRecordArray")]
+    pub vu_sensor_external_gnss_coupled_record_array: DataInfoGenericRecordArray<SensorExternalGNSSCoupledRecord>,
+    #[serde(rename = "vuCalibrationRecordArray")]
+    pub vu_calibration_record_array: DataInfoGenericRecordArray<VuCalibrationRecord>,
+    #[serde(rename = "vuCardRecordArray")]
+    pub vu_card_record_array: DataInfoGenericRecordArray<VuCardRecord>,
+    #[serde(rename = "vuItsConsentRecordArray")]
+    pub vu_its_consent_record_array: DataInfoGenericRecordArray<VuItsConsentRecord>,
+    #[serde(rename = "vuPowerSupplyInterruptionRecordArray")]
+    pub vu_power_supply_interruption_record_array: DataInfoGenericRecordArray<VuPowerSupplyInterruptionRecord>,
+    #[serde(rename = "signatureRecordArray")]
     pub signature_record_array: Option<SignatureRecordArray>,
 }
 
 impl VUTechnicalData {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUTechnicalData> {
         debug!("VUTechnicalData::from_data - Trep ID: {trep_id:?}");
-        let vu_identification_records: DataInfoGenericRecordArray<VuIdentification> =
+        let vu_identification_record_array: DataInfoGenericRecordArray<VuIdentification> =
             DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
-        let vu_sensor_paired_records: DataInfoGenericRecordArray<SensorPairedRecord> =
+        let vu_sensor_paired_record_array: DataInfoGenericRecordArray<SensorPairedRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_sensor_external_gnss_coupled_records: DataInfoGenericRecordArray<SensorExternalGNSSCoupledRecord> =
+        let vu_sensor_external_gnss_coupled_record_array: DataInfoGenericRecordArray<SensorExternalGNSSCoupledRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_calibration_records: DataInfoGenericRecordArray<VuCalibrationRecord> =
+        let vu_calibration_record_array: DataInfoGenericRecordArray<VuCalibrationRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
-        let vu_card_records: DataInfoGenericRecordArray<VuCardRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_its_consent_records: DataInfoGenericRecordArray<VuItsConsentRecord> =
+        let vu_card_record_array: DataInfoGenericRecordArray<VuCardRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let vu_its_consent_record_array: DataInfoGenericRecordArray<VuItsConsentRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_power_supply_interruption_records: DataInfoGenericRecordArray<VuPowerSupplyInterruptionRecord> =
+        let vu_power_supply_interruption_record_array: DataInfoGenericRecordArray<VuPowerSupplyInterruptionRecord> =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
 
         let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
 
         Ok(Self {
-            vu_identification_records,
-            vu_sensor_paired_records,
-            vu_sensor_external_gnss_coupled_records,
-            vu_calibration_records,
-            vu_card_records,
-            vu_its_consent_records,
-            vu_power_supply_interruption_records,
+            vu_identification_record_array,
+            vu_sensor_paired_record_array,
+            vu_sensor_external_gnss_coupled_record_array,
+            vu_calibration_record_array,
+            vu_card_record_array,
+            vu_its_consent_record_array,
+            vu_power_supply_interruption_record_array,
             signature_record_array,
         })
     }

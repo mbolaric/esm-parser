@@ -120,7 +120,7 @@ impl CardParser<WorkshopCard> for WorkshopCard {
                     workshop_card.current_usage = Some(CardCurrentUse::read(&mut reader)?);
                 }
                 CardFileID::DriverActivityData => {
-                    let params = CardDriverActivityParams::new(application_identification.card_activity_length_range);
+                    let params = CardDriverActivityParams::new(application_identification.activity_structure_length);
                     workshop_card.card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
                 CardFileID::Identification => {

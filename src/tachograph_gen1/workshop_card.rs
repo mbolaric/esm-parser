@@ -16,25 +16,39 @@ use crate::tacho::{
 };
 use crate::{Readable, ReadableWithParams, Result};
 
+/// Workshop card application generation 1
 #[derive(Debug, Serialize)]
 pub struct WorkshopCard {
+    #[serde(rename = "cardChipIdentification")]
     pub card_chip_identification: CardChipIdentification,
+    #[serde(rename = "cardIccIdentification")]
     pub card_icc_identification: CardIccIdentification,
+    #[serde(rename = "applicationIdentification")]
     pub application_identification: WorkshopCardApplicationIdentification,
-
+    #[serde(rename = "noOfCalibrationsSinceDownload")]
     pub no_of_calibrations_since_download: u16,
-    pub card_calibration_data: Option<WorkshopCardCalibrationData<WorkshopCardCalibrationRecord>>,
-    pub card_event_data: Option<CardEventData>,
-    pub card_fault_data: Option<CardFaultData>,
+    pub calibration: Option<WorkshopCardCalibrationData<WorkshopCardCalibrationRecord>>,
+    #[serde(rename = "eventsData")]
+    pub events_data: Option<CardEventData>,
+    #[serde(rename = "faultsData")]
+    pub faults_data: Option<CardFaultData>,
     pub identification: Option<Identification>,
-    pub card_driver_activity: Option<CardDriverActivity>,
+    #[serde(rename = "driverActivityData")]
+    pub driver_activity_data: Option<CardDriverActivity>,
+    #[serde(rename = "specificConditions")]
     pub specific_conditions: Option<SpecificConditions>,
+    #[serde(rename = "controlActivityData")]
     pub control_activity_data: Option<CardControlActivityDataRecord>,
+    #[serde(rename = "currentUsage")]
     pub current_usage: Option<CardCurrentUse>,
-    pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
-    pub card_places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    #[serde(rename = "vehiclesUsed")]
+    pub vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
+    pub places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    #[serde(rename = "cardCertificate")]
     pub card_certificate: Option<Certificate>,
+    #[serde(rename = "caCertificate")]
     pub ca_certificate: Option<Certificate>,
+    #[serde(rename = "cardNotes")]
     pub card_notes: String,
 }
 
@@ -50,16 +64,16 @@ impl WorkshopCard {
             card_icc_identification,
             application_identification,
             no_of_calibrations_since_download: 0,
-            card_calibration_data: None,
-            card_event_data: None,
-            card_fault_data: None,
+            calibration: None,
+            events_data: None,
+            faults_data: None,
             identification: None,
-            card_driver_activity: None,
+            driver_activity_data: None,
             specific_conditions: None,
             control_activity_data: None,
             current_usage: None,
-            card_vehicles_used: None,
-            card_places: None,
+            vehicles_used: None,
+            places: None,
             card_certificate: None,
             ca_certificate: None,
             card_notes,
@@ -93,28 +107,28 @@ impl CardParser<WorkshopCard> for WorkshopCard {
                 }
                 CardFileID::Calibration => {
                     let params = WorkshopCardCalibrationDataParams::new(application_identification.no_off_calibration_records);
-                    workshop_card.card_calibration_data =
+                    workshop_card.calibration =
                         Some(WorkshopCardCalibrationData::<WorkshopCardCalibrationRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::EventsData => {
                     let params = CardEventDataParams::new(6, application_identification.no_events_per_type);
-                    workshop_card.card_event_data = Some(CardEventData::read(&mut reader, &params)?);
+                    workshop_card.events_data = Some(CardEventData::read(&mut reader, &params)?);
                 }
                 CardFileID::FaultsData => {
                     let params = CardFaultDataParams::new(application_identification.no_faults_per_type);
-                    workshop_card.card_fault_data = Some(CardFaultData::read(&mut reader, &params)?);
+                    workshop_card.faults_data = Some(CardFaultData::read(&mut reader, &params)?);
                 }
                 CardFileID::DriverActivityData => {
                     let params = CardDriverActivityParams::new(application_identification.activity_structure_length);
-                    workshop_card.card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
+                    workshop_card.driver_activity_data = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
                 CardFileID::VehiclesUsed => {
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
-                    workshop_card.card_vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
+                    workshop_card.vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::Places => {
                     let params = CardPlaceDailyWorkPeriodParams::new(application_identification.no_of_card_place_records, 1);
-                    workshop_card.card_places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
+                    workshop_card.places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::CurrentUsage => {
                     workshop_card.current_usage = Some(CardCurrentUse::read(&mut reader)?);

@@ -3,9 +3,12 @@ use serde::Serialize;
 
 use crate::{Readable, tacho::VuDetailedSpeedBlock};
 
+/// Information, stored in a vehicle unit, related to the detailed speed of the vehicle.
 #[derive(Debug, Serialize)]
 pub struct VuDetailedSpeedData {
+    #[serde(rename = "noOfSpeedBlocks")]
     pub no_of_speed_blocks: u16,
+    #[serde(rename = "vuDetailedSpeedBlocks")]
     pub vu_detailed_speed_blocks: Vec<VuDetailedSpeedBlock>,
 }
 
