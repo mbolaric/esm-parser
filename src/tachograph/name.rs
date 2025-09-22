@@ -3,10 +3,9 @@ use serde::Serialize;
 use crate::{CodePage, Readable, bytes_to_string};
 
 /// A Name.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Name {
     /// Specifies a character set.
-    #[serde(rename = "codePage")]
     pub code_page: CodePage,
     /// This is a name encoded using the specified character set.
     pub name: String,
@@ -17,5 +16,14 @@ impl Readable<Name> for Name {
         let code_page: CodePage = reader.read_u8()?.into();
         let name = bytes_to_string(&reader.read_into_vec(35)?, &code_page).trim().to_string();
         Ok(Self { code_page, name })
+    }
+}
+
+impl Serialize for Name {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.name)
     }
 }

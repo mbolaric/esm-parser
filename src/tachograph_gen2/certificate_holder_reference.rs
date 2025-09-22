@@ -3,6 +3,9 @@ use serde::Serialize;
 
 use crate::{Readable, Result, tacho::CertificateContentType};
 
+/// The Certificate Holder Reference is an identifier for the
+/// public key provided in the certificate. It shall be used to
+/// reference this public key in other certificates.
 #[derive(Debug, Serialize)]
 pub struct CertificateHolderReference {
     #[serde(rename = "recordType")]

@@ -6,6 +6,9 @@ use crate::{
     tacho::{CertificateContentType, CertificationAuthorityKid},
 };
 
+/// The Certificate Authority Reference shall be used to identify the public key to be used to verify the certificate signature.
+/// The Certificate Authority Reference shall therefore be equal to the Certificate Holder Reference in the certificate of the
+/// corresponding certificate authority.
 #[derive(Debug, Serialize)]
 pub struct CertificateAuthorityReference {
     #[serde(rename = "recordType")]

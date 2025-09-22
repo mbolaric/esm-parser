@@ -19,6 +19,9 @@ impl PublicKeyParams {
 }
 
 /// A public RSA key.
+/// The Public Key nests two data elements: the standardized domain
+/// parameters to be used with the public key in the certificate and the
+/// value of the public point.
 #[derive(Debug, Serialize)]
 pub struct PublicKey {
     #[serde(rename = "recordType")]

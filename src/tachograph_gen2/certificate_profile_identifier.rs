@@ -3,6 +3,8 @@ use serde::Serialize;
 
 use crate::{Readable, Result, tacho::CertificateContentType};
 
+/// Certificates shall use a Certificate Profile Identifier to
+/// indicate the certificate profile used. Version 1, shall be identified by a value of ‘00’.
 #[derive(Debug, Serialize)]
 pub struct CertificateProfileIdentifier {
     #[serde(rename = "recordType")]

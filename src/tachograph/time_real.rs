@@ -2,16 +2,16 @@ use binary_data::{BigEndian, BinSeek, WriteBytes};
 use chrono::Utc;
 use serde::Serialize;
 
-use crate::helpers::serialize_option_utc_date_time;
 use crate::{Readable, Writable};
 
+const FORMAT_UTC: &str = "%Y-%m-%d %H:%M:%S UTC";
+
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct TimeReal {
     /// The raw Unix timestamp value from the DDD file.
     pub data: u32,
     /// The `chrono::DateTime<Utc>` representation of the timestamp.
-    #[serde(serialize_with = "serialize_option_utc_date_time", rename = "dateTime")]
     date_time: Option<chrono::DateTime<Utc>>,
 }
 
@@ -60,6 +60,20 @@ impl Writable for TimeReal {
     fn write<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> crate::Result<()> {
         writer.write_u32::<BigEndian>(self.data)?;
         Ok(())
+    }
+}
+
+impl Serialize for TimeReal {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        if let Some(val) = self.date_time {
+            let s = format!("{}", val.format(FORMAT_UTC));
+            serializer.serialize_str(&s)
+        } else {
+            serializer.serialize_none()
+        }
     }
 }
 

@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::Readable;
 
 /// the odometer value.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct OdometerShort {
     pub data: Option<u32>,
 }
@@ -17,5 +17,14 @@ impl Readable<OdometerShort> for OdometerShort {
         }
 
         Ok(Self { data: Some(odometar) })
+    }
+}
+
+impl Serialize for OdometerShort {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        if let Some(val) = self.data { serializer.serialize_u32(val) } else { serializer.serialize_none() }
     }
 }
