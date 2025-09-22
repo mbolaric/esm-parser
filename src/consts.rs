@@ -1,6 +1,3 @@
-/// Represents an unknown or undefined value, often used as a default or error indicator.
-pub const UNKNOWN: u8 = 0xFF;
-
 /// Magic number indicating the start of a Vehicle Unit (VU) data block.
 pub const VU_HEADER_MAGIC_NUMBER: u8 = 0x76;
 

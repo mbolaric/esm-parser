@@ -28,6 +28,7 @@
 /// assert_eq!(MyEnum::from(0x03), MyEnum::Unknown);
 /// ```
 #[macro_export]
+#[doc(hidden)]
 macro_rules! impl_enum_from_u8 {
     ($enum_name:ident { $($variant:ident = $value:expr),+ $(,)? }) => {
         impl From<u8> for $enum_name {
@@ -71,6 +72,7 @@ macro_rules! impl_enum_from_u8 {
 /// assert_eq!(MyEnum::from(0x0300), MyEnum::Unknown);
 /// ```
 #[macro_export]
+#[doc(hidden)]
 macro_rules! impl_enum_from_u16 {
     ($enum_name:ident { $($variant:ident = $value:expr),+ $(,)? }) => {
         impl From<u16> for $enum_name {
