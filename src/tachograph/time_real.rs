@@ -146,6 +146,6 @@ mod tests {
         let timestamp: u32 = 1672531199; // 2022-12-31 23:59:59
         let mut reader = BinMemoryBuffer::from(timestamp.to_be_bytes().to_vec());
         let time_real = TimeReal::read(&mut reader).unwrap();
-        assert_eq!(from_obj_to_string(&time_real), "{\"data\":1672531199,\"dateTime\":\"2022-12-31 23:59:59 UTC\"}");
+        assert_eq!(from_obj_to_string(&time_real), "\"2022-12-31 23:59:59 UTC\"");
     }
 }
