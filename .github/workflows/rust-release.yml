@@ -1,5 +1,8 @@
 name: Cross-Platform Release
 
+permissions:
+  contents: write   # allows creating releases and uploading assets
+
 on:
   push:
     tags:
