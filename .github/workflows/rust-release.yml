@@ -40,6 +40,7 @@ jobs:
             name=$(basename $ex .rs)
             cargo build --release --target ${{ matrix.target }} --example $name
           done
+        shell: bash
 
       - name: Package artifacts
         run: |
@@ -60,6 +61,7 @@ jobs:
             tar czf examples-${VERSION}-${{ matrix.suffix }}.tar.gz *
           fi
           cd ..
+        shell: bash
 
       - name: Upload archive
         uses: actions/upload-artifact@v4
