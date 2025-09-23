@@ -69,6 +69,8 @@ jobs:
     name: Release
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # This is the line that fixes the error
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
