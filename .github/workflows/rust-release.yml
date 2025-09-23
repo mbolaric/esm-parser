@@ -78,7 +78,8 @@ jobs:
         with:
           files: |
             release-artifacts-ubuntu-latest/*
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 # release-artifacts-macos-latest/*
 # release-artifacts-windows-latest/*
 
