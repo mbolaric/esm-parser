@@ -29,6 +29,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create empty Changes.md
+        run: touch Changes.md
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -40,11 +43,11 @@ jobs:
       - name: Package and upload esm2json
         uses: houseabsolute/actions-rust-release@v0
         with:
-          executable-path: "./target/${{ matrix.target }}/release/examples/esm2json${{ matrix.executable_suffix }}"
-          executable-name: "esm2json${{ matrix.executable_suffix }}"
-          github-token: ${{ secrets.PAT_TOKEN }}
+          executable-name: "target/${{ matrix.target }}/release/examples/esm2json${{ matrix.executable_suffix }}"
           target: ${{ matrix.target }}
-          archive-includes: "README.md, LICENSE"
+          extra-files: |
+            README.md
+            LICENSE
 
       - name: Build esm2xml
         run: cargo build --example esm2xml --release --target ${{ matrix.target }}
@@ -52,11 +55,12 @@ jobs:
       - name: Package and upload esm2xml
         uses: houseabsolute/actions-rust-release@v0
         with:
-          executable-path: "./target/${{ matrix.target }}/release/examples/esm2xml${{ matrix.executable_suffix }}"
-          executable-name: "esm2xml${{ matrix.executable_suffix }}"
-          github-token: ${{ secrets.PAT_TOKEN }}
+          executable-name: "target/${{ matrix.target }}/release/examples/esm2xml${{ matrix.executable_suffix }}"
           target: ${{ matrix.target }}
-          archive-includes: "README.md, LICENSE"
+          extra-files: |
+            README.md
+            LICENSE
+
 # name: Cross-Platform Release
 
 # permissions:
