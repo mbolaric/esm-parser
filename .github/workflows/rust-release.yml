@@ -42,44 +42,44 @@ jobs:
           cargo build --example esm2json --release --target ${{ matrix.target }}
           cargo build --example esm2xml --release --target ${{ matrix.target }}
 
-      - name: Stage artifacts
+      - name: Package artifacts
         run: |
-          mkdir -p staging
-          cp target/${{ matrix.target }}/release/examples/esm2json${{ matrix.suffix }} staging/
-          cp target/${{ matrix.target }}/release/examples/esm2xml${{ matrix.suffix }} staging/
-          cp README.md staging/
-          cp LICENSE staging/
-          cp Changes.md staging/
+          mkdir -p artifacts
+          cp target/${{ matrix.target }}/release/examples/esm2json${{ matrix.executable_suffix }} artifacts/
+          cp target/${{ matrix.target }}/release/examples/esm2xml${{ matrix.executable_suffix }} artifacts/
+          cp README.md artifacts/
+          cp LICENSE artifacts/
         if: runner.os != 'Windows'
-      - name: Stage artifacts (Windows)
+      - name: Package artifacts (Windows)
         run: |
-          mkdir staging
-          copy target\${{ matrix.target }}elease\examples\esm2json${{ matrix.suffix }} staging
-          copy target\${{ matrix.target }}elease\examples\esm2xml${{ matrix.suffix }} staging
-          copy README.md staging
-          copy LICENSE staging
-          copy Changes.md staging
+          mkdir artifacts
+          copy target\${{ matrix.target }}\release\examples\esm2json${{ matrix.executable_suffix }} artifacts\
+          copy target\${{ matrix.target }}\release\examples\esm2xml${{ matrix.executable_suffix }} artifacts\
+          copy README.md artifacts\
+          copy LICENSE artifacts\
         if: runner.os == 'Windows'
 
-      - name: Package and upload esm2json
-        uses: houseabsolute/actions-rust-release@v0
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          working-directory: staging
-          executable-name: "esm2json${{ matrix.suffix }}"
-          target: ${{ matrix.target }}
-          extra-files: |
-            README.md
-            LICENSE
+          name: release-artifacts-${{ matrix.os }}
+          path: artifacts/
 
-      - name: Package and upload esm2xml
-        uses: houseabsolute/actions-rust-release@v0
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          working-directory: staging
-          executable-name: "esm2xml${{ matrix.suffix }}"
-          target: ${{ matrix.target }}
-          extra-files: |
-            README.md
-            LICENSE
+          files: |
+            release-artifacts-ubuntu-latest/*
+            release-artifacts-macos-latest/*
+            release-artifacts-windows-latest/*
 
 # name: Cross-Platform Release
 
