@@ -2,9 +2,9 @@ use binary_data::{BinSeek, ReadBytes};
 
 use super::{TachographHeader, VUTransferResponseParameterID};
 use crate::{
+    VU_HEADER_MAGIC_NUMBER,
     error::Result,
     tacho::{VUTransferResponseParameter, VUTransferResponseParameterItem},
-    VU_HEADER_MAGIC_NUMBER,
 };
 
 pub trait VUData<D> {
@@ -15,7 +15,7 @@ pub trait VUData<D> {
 impl<D: VUTransferResponseParameter> dyn VUData<D> {
     pub fn from_data<R: ReadBytes + BinSeek>(
         reader: &mut R,
-        parse_trep: &(dyn Fn(VUTransferResponseParameterID, &mut R) -> Result<D>),
+        parse_trep: &dyn Fn(VUTransferResponseParameterID, &mut R) -> Result<D>,
     ) -> Result<Vec<VUTransferResponseParameterItem<D>>> {
         let mut position: u32 = 0;
         let mut transfer_res_params: Vec<VUTransferResponseParameterItem<D>> = Vec::new();
@@ -41,11 +41,7 @@ impl<D: VUTransferResponseParameter> dyn VUData<D> {
             if !vu_trep.is_unknown() {
                 let data = parse_trep(vu_trep.clone(), reader)?;
                 let is_oddball_crash_dump = data.is_oddball_crash_dump();
-                transfer_res_params.push(VUTransferResponseParameterItem::<D> {
-                    type_id: vu_trep.clone(),
-                    position,
-                    data,
-                });
+                transfer_res_params.push(VUTransferResponseParameterItem::<D> { type_id: vu_trep.clone(), position, data });
 
                 if is_oddball_crash_dump {
                     return Ok(transfer_res_params);

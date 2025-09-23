@@ -7,7 +7,7 @@ use serde::Serialize;
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
 
-pub type CardParseFunc<D> = (dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>);
+pub type CardParseFunc<D> = dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>;
 pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

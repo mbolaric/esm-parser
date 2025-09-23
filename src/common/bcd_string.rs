@@ -118,7 +118,7 @@ impl BCDString {
         let mut chars = val.chars();
 
         // Handle odd length by processing a prepended '0' first.
-        if val.len() % 2 != 0 {
+        if !val.len().is_multiple_of(2) {
             let low = (chars.next().unwrap() as u8) - b'0';
             bytes.push(low);
         }

@@ -1,4 +1,5 @@
-use crate::{gen1, gen2};
+use crate::Result;
+use crate::{Export, gen1, gen2};
 use std::fmt;
 
 use serde::Serialize;
@@ -22,6 +23,32 @@ pub enum TachographData {
     CardGen1(gen1::CardData),
     /// Driver Card data from a Gen2 tachograph.
     CardGen2(gen2::CardData),
+}
+
+impl Export for TachographData {
+    fn to_json(&self) -> Result<String>
+    where
+        Self: Serialize,
+    {
+        match self {
+            TachographData::CardGen1(data) => data.to_json(),
+            TachographData::CardGen2(data) => data.to_json(),
+            TachographData::VUGen1(data) => data.to_json(),
+            TachographData::VUGen2(data) => data.to_json(),
+        }
+    }
+
+    fn to_xml(&self) -> Result<String>
+    where
+        Self: Serialize,
+    {
+        match self {
+            TachographData::CardGen1(data) => data.to_xml(),
+            TachographData::CardGen2(data) => data.to_xml(),
+            TachographData::VUGen1(data) => data.to_xml(),
+            TachographData::VUGen2(data) => data.to_xml(),
+        }
+    }
 }
 
 impl fmt::Display for TachographData {
