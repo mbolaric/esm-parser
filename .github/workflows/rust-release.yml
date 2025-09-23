@@ -80,6 +80,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # ensure full history & tags
         
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -100,6 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Create Release
+        working-directory: ${{ github.workspace }}
         run: |
           VERSION=${GITHUB_REF_NAME}
           gh release create "$VERSION" artifacts/**/* --title "$VERSION" --notes "Automated release"
