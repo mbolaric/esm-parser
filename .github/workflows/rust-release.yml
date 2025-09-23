@@ -38,7 +38,7 @@ jobs:
         run: cargo build --example esm2json --release --target ${{ matrix.target }}
 
       - name: Package and upload esm2json
-        uses: houseabsolute/actions-rust-release@v1
+        uses: houseabsolute/actions-rust-release@v0
         with:
           executable-path: "./target/${{ matrix.target }}/release/examples/esm2json${{ matrix.executable_suffix }}"
           executable-name: "esm2json${{ matrix.executable_suffix }}"
@@ -50,7 +50,7 @@ jobs:
         run: cargo build --example esm2xml --release --target ${{ matrix.target }}
 
       - name: Package and upload esm2xml
-        uses: houseabsolute/actions-rust-release@v1
+        uses: houseabsolute/actions-rust-release@v0
         with:
           executable-path: "./target/${{ matrix.target }}/release/examples/esm2xml${{ matrix.executable_suffix }}"
           executable-name: "esm2xml${{ matrix.executable_suffix }}"
