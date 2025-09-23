@@ -6,7 +6,7 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-  build-release:
+  build:
     name: Build examples for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -29,8 +29,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create empty Changes.md
-        run: touch Changes.md
+      # - name: Create empty Changes.md
+      #   run: touch Changes.md
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -78,8 +78,9 @@ jobs:
         with:
           files: |
             release-artifacts-ubuntu-latest/*
-            release-artifacts-macos-latest/*
-            release-artifacts-windows-latest/*
+
+# release-artifacts-macos-latest/*
+# release-artifacts-windows-latest/*
 
 # name: Cross-Platform Release
 
