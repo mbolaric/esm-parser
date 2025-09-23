@@ -95,12 +95,19 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-    
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/**/*
-          overwrite: true
-          fail_on_unmatched_files: false
+
+      - name: Create Release
+        run: |
+          VERSION=${GITHUB_REF_NAME}
+          gh release create "$VERSION" artifacts/**/* --title "$VERSION" --notes "Automated release"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          
+      # - name: Create GitHub Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: artifacts/**/*
+      #     overwrite: true
+      #     fail_on_unmatched_files: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
