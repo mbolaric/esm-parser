@@ -55,8 +55,9 @@ jobs:
           done
 
           cd package
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            zip -r examples-${VERSION}-${{ matrix.suffix }}.zip *
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            powershell.exe -Command "Compress-Archive -Path * -DestinationPath examples-${VERSION}-${{ matrix.suffix }}.zip"
           else
             tar czf examples-${VERSION}-${{ matrix.suffix }}.tar.gz *
           fi
