@@ -134,30 +134,31 @@ jobs:
 
       - name: Package artifacts
         run: |
-          mkdir artifacts
+          mkdir -p artifacts
           VERSION=${GITHUB_REF_NAME}
 
-          # Collect binaries
+          # Collect binaries into a temp folder
+          mkdir -p build_bins
           for ex in $(ls examples/esm2*.rs); do
             name=$(basename $ex .rs)
-            bin=target/${{ matrix.target }}/release/examples/$name${{ endsWith(matrix.suffix, '.exe') && '.exe' || '' }}
-            cp "$bin" artifacts/
+            bin=target/${{ matrix.target }}/release/examples/$name${{ matrix.suffix == 'windows' && '.exe' || '' }}
+            cp "$bin" build_bins/
           done
 
-          cd artifacts
-
+          # Package
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            powershell.exe -Command "Compress-Archive -Path * -DestinationPath examples-${VERSION}-${{ matrix.suffix }}.zip"
+            zipfile="examples-${VERSION}-${{ matrix.suffix }}.zip"
+            powershell.exe -Command "Compress-Archive -Path build_bins\\* -DestinationPath artifacts\\$zipfile"
           else
-            tar czf examples-${VERSION}-${{ matrix.suffix }}.tar.gz *
+            tarfile="examples-${VERSION}-${{ matrix.suffix }}.tar.gz"
+            tar czf "artifacts/$tarfile" -C build_bins .
           fi
-          cd ..
         shell: bash
 
       - name: Upload archive
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts-${{ matrix.suffix }}
+          name: release-artifacts-${{ matrix.target }}
           path: artifacts/*.tar.gz,artifacts/*.zip
 
   release:
