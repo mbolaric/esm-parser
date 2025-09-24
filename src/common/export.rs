@@ -8,11 +8,7 @@ use crate::Result;
 
 /// Export data to JSON or XML.
 pub trait Export {
-    /// Serializes the `TachographData` to a JSON string.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The `TachographData` to serialize.
+    /// Serializes the data structure to a JSON string.
     ///
     /// # Returns
     ///
@@ -24,11 +20,7 @@ pub trait Export {
         Ok(serde_json::to_string(self)?)
     }
 
-    /// Serializes the `TachographData` to a 'pretty' JSON string.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The `TachographData` to serialize.
+    /// Serializes the data structure to a 'pretty' JSON string.
     ///
     /// # Returns
     ///
@@ -40,11 +32,7 @@ pub trait Export {
         Ok(serde_json::to_string_pretty(self)?)
     }
 
-    /// Serializes the `TachographData` to an XML string.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The `TachographData` to serialize.
+    /// Serializes the data structure to an XML string.
     ///
     /// # Returns
     ///
@@ -56,11 +44,7 @@ pub trait Export {
         Ok(quick_xml::se::to_string(self)?)
     }
 
-    /// Serializes the `TachographData` to an 'pretty' XML string.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The `TachographData` to serialize.
+    /// Serializes the data structure to an 'pretty' XML string.
     ///
     /// # Returns
     ///

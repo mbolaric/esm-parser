@@ -165,7 +165,7 @@ pub fn decode_iso_8859_3(b: u8) -> char {
         0xA2 => '\u{02D8}',
         0xA3 => '\u{00A3}',
         0xA4 => '\u{00A4}',
-        0xA5 => b as char,
+        0xA5 => '\u{FFFD}', // Undefined
         0xA6 => '\u{0124}',
         0xA7 => '\u{00A7}',
         0xA8 => '\u{00A8}',
@@ -174,7 +174,7 @@ pub fn decode_iso_8859_3(b: u8) -> char {
         0xAB => '\u{011E}',
         0xAC => '\u{0134}',
         0xAD => '\u{00AD}',
-        0xAE => b as char,
+        0xAE => '\u{FFFD}', // Undefined
         0xAF => '\u{017B}',
         0xB0 => '\u{00B0}',
         0xB1 => '\u{0127}',
@@ -190,12 +190,12 @@ pub fn decode_iso_8859_3(b: u8) -> char {
         0xBB => '\u{011F}',
         0xBC => '\u{0135}',
         0xBD => '\u{00BD}',
-        0xBE => b as char,
+        0xBE => '\u{FFFD}', // Undefined
         0xBF => '\u{017C}',
         0xC0 => '\u{00C0}',
         0xC1 => '\u{00C1}',
         0xC2 => '\u{00C2}',
-        0xC3 => b as char,
+        0xC3 => '\u{FFFD}', // Undefined
         0xC4 => '\u{00C4}',
         0xC5 => '\u{010A}',
         0xC6 => '\u{0108}',
@@ -208,7 +208,7 @@ pub fn decode_iso_8859_3(b: u8) -> char {
         0xCD => '\u{00CD}',
         0xCE => '\u{00CE}',
         0xCF => '\u{00CF}',
-        0xD0 => b as char,
+        0xD0 => '\u{FFFD}', // Undefined
         0xD1 => '\u{00D1}',
         0xD2 => '\u{00D2}',
         0xD3 => '\u{00D3}',
@@ -227,7 +227,7 @@ pub fn decode_iso_8859_3(b: u8) -> char {
         0xE0 => '\u{00E0}',
         0xE1 => '\u{00E1}',
         0xE2 => '\u{00E2}',
-        0xE3 => b as char,
+        0xE3 => '\u{FFFD}', // Undefined
         0xE4 => '\u{00E4}',
         0xE5 => '\u{010B}',
         0xE6 => '\u{0109}',
@@ -240,7 +240,7 @@ pub fn decode_iso_8859_3(b: u8) -> char {
         0xED => '\u{00ED}',
         0xEE => '\u{00EE}',
         0xEF => '\u{00EF}',
-        0xF0 => b as char,
+        0xF0 => '\u{FFFD}', // Undefined
         0xF1 => '\u{00F1}',
         0xF2 => '\u{00F2}',
         0xF3 => '\u{00F3}',

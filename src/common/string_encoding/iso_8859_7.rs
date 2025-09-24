@@ -174,7 +174,7 @@ pub fn decode_iso_8859_7(b: u8) -> char {
         0xAB => '\u{00AB}',
         0xAC => '\u{00AC}',
         0xAD => '\u{00AD}',
-        0xAE => b as char,
+        0xAE => '\u{FFFD}', // Undefined
         0xAF => '\u{2015}',
         0xB0 => '\u{00B0}',
         0xB1 => '\u{00B1}',
@@ -210,7 +210,7 @@ pub fn decode_iso_8859_7(b: u8) -> char {
         0xCF => '\u{039F}',
         0xD0 => '\u{03A0}',
         0xD1 => '\u{03A1}',
-        0xD2 => b as char,
+        0xD2 => '\u{FFFD}', // Undefined
         0xD3 => '\u{03A3}',
         0xD4 => '\u{03A4}',
         0xD5 => '\u{03A5}',
@@ -255,7 +255,7 @@ pub fn decode_iso_8859_7(b: u8) -> char {
         0xFC => '\u{03CC}',
         0xFD => '\u{03CD}',
         0xFE => '\u{03CE}',
-        0xFF => b as char,
+        0xFF => '\u{FFFD}', // Undefined
     }
 }
 
