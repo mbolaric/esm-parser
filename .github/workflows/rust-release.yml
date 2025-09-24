@@ -185,7 +185,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-          files: artifacts/*
+          files: artifacts/*.tar.gz,artifacts/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       # - name: Create Release
