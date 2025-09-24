@@ -3,3 +3,5 @@
 /examples/data/
 .DS_Store
 Thumbs.db
+.secrets
+.act-event.json
