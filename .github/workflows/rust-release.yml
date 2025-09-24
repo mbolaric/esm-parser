@@ -113,7 +113,7 @@ jobs:
           #   suffix: macos-arm64
           # - os: windows-latest
           #   target: x86_64-pc-windows-msvc
-          #   suffix: windows.exe
+          #   suffix: windows
 
     steps:
       - name: Checkout
@@ -157,7 +157,7 @@ jobs:
       - name: Upload archive
         uses: actions/upload-artifact@v4
         with:
-          name: examples-${{ matrix.suffix }}
+          name: release-artifacts-${{ matrix.suffix }}
           path: artifacts/*.tar.gz,artifacts/*.zip
 
   release:
@@ -172,6 +172,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release-artifacts-ubuntu-latest/*
+            release-artifacts-linux/*
+        # release-artifacts-macos-x86_64/*
+        # release-artifacts-macos-arm64/*
+        # release-artifacts-windows/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
