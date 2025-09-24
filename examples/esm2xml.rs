@@ -11,10 +11,13 @@ pub struct Args {
 
     #[clap(global = true, short, long, default_value = "")]
     pub xml_file: String,
+
+    #[clap(global = true, short, long)]
+    pub pretty: bool,
 }
 
 fn main() {
     init_logging();
     let args = Args::parse();
-    export(&ExportType::Xml, &args.ddd_file, &args.xml_file);
+    export(&ExportType::Xml, &args.ddd_file, &args.xml_file, args.pretty);
 }

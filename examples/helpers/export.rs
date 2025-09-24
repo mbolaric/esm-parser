@@ -42,10 +42,13 @@ fn parse_inner(
     data: &(impl Export + Serialize),
     out_path: &str,
     pb: &ProgressBar,
+    pretty: bool,
 ) -> Result<(), Error> {
     pb.println(format!("[+] Obtain {} data ...", export_type));
     let out_str = match export_type {
+        ExportType::Json if pretty => data.to_json_pretty()?,
         ExportType::Json => data.to_json()?,
+        ExportType::Xml if pretty => data.to_xml_pretty()?,
         ExportType::Xml => data.to_xml()?,
     };
     let mut file = File::create(out_path)?;
@@ -54,15 +57,15 @@ fn parse_inner(
     Ok(())
 }
 
-fn parse(export_type: &ExportType, data: &(impl Export + Serialize), out_path: &str, pb: &ProgressBar) {
-    match parse_inner(export_type, data, out_path, pb) {
+fn parse(export_type: &ExportType, data: &(impl Export + Serialize), out_path: &str, pb: &ProgressBar, pretty: bool) {
+    match parse_inner(export_type, data, out_path, pb, pretty) {
         Ok(_) => pb.println("[+] Parsing Done"),
         Err(err) => pb.println(format!("[-] {:}", err)),
     }
 }
 
 #[allow(dead_code)]
-pub fn export(export_type: &ExportType, ddd_file: &str, out_file: &str) {
+pub fn export(export_type: &ExportType, ddd_file: &str, out_file: &str, pretty: bool) {
     #[cfg(debug_assertions)]
     let pb = ProgressBar::hidden();
     #[cfg(not(debug_assertions))]
@@ -79,7 +82,7 @@ pub fn export(export_type: &ExportType, ddd_file: &str, out_file: &str) {
 
     let out_path = prepare_out_path(ddd_file, out_file, export_type);
     match parse_from_file(ddd_file) {
-        Ok(data) => parse(export_type, &data, &out_path, &pb),
+        Ok(data) => parse(export_type, &data, &out_path, &pb, pretty),
         Err(err) => {
             pb.println(format!("[-] {:}", err));
             pb.println("[+] Parsing Done");

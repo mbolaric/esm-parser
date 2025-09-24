@@ -11,10 +11,13 @@ pub struct Args {
 
     #[clap(global = true, short, long, default_value = "")]
     pub json_file: String,
+
+    #[clap(global = true, short, long)]
+    pub pretty: bool,
 }
 
 fn main() {
     init_logging();
     let args = Args::parse();
-    export(&ExportType::Json, &args.ddd_file, &args.json_file);
+    export(&ExportType::Json, &args.ddd_file, &args.json_file, args.pretty);
 }
