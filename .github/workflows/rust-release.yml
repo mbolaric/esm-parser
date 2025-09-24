@@ -167,14 +167,23 @@ jobs:
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v4
         with:
-          files: |
-            release-artifacts-linux/*
-        # release-artifacts-macos-x86_64/*
-        # release-artifacts-macos-arm64/*
-        # release-artifacts-windows/*
+          files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      # - name: Create Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: |
+      #       release-artifacts-linux/*
+      #   # release-artifacts-macos-x86_64/*
+      #   # release-artifacts-macos-arm64/*
+      #   # release-artifacts-windows/*
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
