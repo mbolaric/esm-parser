@@ -73,8 +73,8 @@ jobs:
           # Collect binaries into a temp folder
           if [[ "${{ matrix.target }}" == "wasm32-unknown-unknown" ]]; then
             mkdir -p wasm_bins
-            wasm=esm-parser/pkg/*
-            cp "$wasm" wasm_bins/
+            ls -l pkg/
+            cp -r pkg/* wasm_bins/
             tarfile="esm-parser-${VERSION}-${{ matrix.suffix }}.tar.gz"
             tar czf "artifacts/$tarfile" -C wasm_bins .
           else
