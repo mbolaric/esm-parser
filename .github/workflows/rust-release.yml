@@ -159,7 +159,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-artifacts-${{ matrix.target }}
-          path: artifacts/*.tar.gz,artifacts/*.zip
+          path: artifacts/*
+          if-no-files-found: error
 
   release:
     name: Create Release
