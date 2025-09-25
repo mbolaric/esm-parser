@@ -1,18 +1,49 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>esm-parser WASM Test</title>
-        <link href="style.css" rel="stylesheet" type="text/css" />
-    </head>
-    <body>
-        <h1>Check the developer console for output.</h1>
-        <div id="root-container">
-            <div id="container">
-                <div id="link-container"></div>
-                <div id="middle-container"></div>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>esm-parser WASM Test</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="shell">
+    <div id="shell.container" class="shell__container">
+
+        <div id="shell.content" class="shell__container__row center">
+            <div id="shell.content.left" class="center__column left vertical-border-right">
+                <div id="shell.content.left.body" class="panel-body">
+                    <div id="shell.content.left.body.menu" class="vertical-menu">
+                        <!-- MENU ITEMS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="shell.content.left.splitter.vertical" class="splitter-vertical"></div>
+
+            <div id="shell.content.main" class="center__column middle vertical-border-left">
+                <div id="shell.content.main.body" class="panel-body">
+                    <div class="full-size page-scrollable">
+                        <div id="data-content" class="data-content"></div>                        
+                    </div>
+                </div>
             </div>
         </div>
-        <script type="module" src="index.js"></script>
-    </body>
+
+        <div id="shell.bottom" class="shell__container__row bottom">
+            <footer class="statusbar">
+                <div class="statusbar__left">
+                    <div id="shell.bottom.footer.left.status" class="statusbar-item">
+                        <a id="shell.bottom.footer.left.status.link"></a>
+                    </div>
+                </div>
+                <div class="statusbar__right"></div>
+            </footer>
+        </div>
+
+    </div>
+
+    <script type="module" src="index.js"></script>
+</body>
+
 </html>

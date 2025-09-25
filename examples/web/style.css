@@ -1,0 +1,221 @@
+:root {
+    --hover-color: #eceeef;
+    --border-color: #cccccc;
+}
+
+* {
+    border: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+    vertical-align: top;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    color: #616161;
+}
+
+*::before, *::after  {
+    box-sizing: border-box;
+}
+
+html { 
+    font-size: 62.5%;  /* = 10px, ... 1.2rem == 12px */
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    width: 100%;  
+    height: 100%;
+}
+
+a, a:active, a:visited {
+    text-decoration: none;
+    color: inherit;
+    background-color: inherit    
+}
+
+.vertical-border-right {
+    border-right: 1px solid var(--border-color);
+}
+
+.vertical-border-left {
+    border-left: 1px solid var(--border-color);
+}
+
+.horizontal-border-top {
+    border-top: 1px solid var(--border-color);
+}
+
+.content-empty {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    color: #616161;
+}
+
+.full-size {
+    width: 100%;
+    height: 100%;
+}
+
+.splitter-vertical {
+    min-width: 0.3rem;
+    max-width: 0.3rem;
+    cursor: e-resize; 
+    cursor: col-resize;
+}
+
+.shell {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 1.2rem;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    background-color: #ffffff;
+
+    font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,HelveticaNeue-Light,Ubuntu,Droid Sans,sans-serif;
+}
+
+.shell__container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.shell__container__row {
+    background-color: white;
+}
+
+.shell__container__row.center {
+    display: flex;
+    flex: 1 1 auto;
+    flex-flow: row;
+    overflow: hidden;
+}
+
+.shell__container__row.center .center__column {
+    display: flex;
+    flex-flow: column;
+}
+
+.shell__container__row.center .center__column.left {
+    min-width: 10rem;   
+    width: 20rem;
+    flex-shrink: 0;
+    overflow:hidden;
+}
+
+.shell__container__row.center .center__column.middle {
+    flex: 1 1 auto;
+    min-width: 20rem;
+    overflow:hidden;
+}
+
+.shell__container__row.center .center__column.right {
+    min-width: 10rem;   
+    width: 15rem;
+    flex-shrink: 0;
+    overflow:hidden;
+}
+
+.shell__container__row.center .center__column .panel-header {
+    width: 100%;
+}
+
+.shell__container__row.center .center__column .panel-body {
+    display: flex;
+    flex: 1 1 auto;
+    overflow: hidden;
+    height: 100%;
+}
+
+.shell__container__row.center .center__column .panel-footer {
+    width: 100%;
+}
+
+.shell__container__row.top {
+    flex: 0 1 auto;
+}
+
+.shell__container__row.bottom {
+    flex: 0 1 auto;
+}
+
+.vertical-menu {
+    margin-bottom: 0;
+    margin-top: 0;
+    color: #337ab7;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.vertical-menu a, .vertical-menu a:active, .vertical-menu a:visited {
+    text-decoration: none;
+    color: #337ab7;
+    background-color: inherit
+}
+
+.vertical-menu .menu-header {
+    display: flex;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.5;
+    color: #959595;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    padding-left: 4px;
+}
+
+.vertical-menu .menu-header:first-child {
+    padding-top: 9px;
+}
+
+.vertical-menu .menu-divider {
+    height: 1px;
+    margin: 9px 4px;
+    overflow: hidden;
+    background-color: #cccccc;
+}
+
+.vertical-menu .menu-row {
+    padding-left: 22px;
+    display: flex;
+    cursor: pointer;
+    touch-action: none;
+    box-sizing: border-box;
+    overflow: hidden;
+    width: 100%;
+    height: 28px;
+    line-height: 28px;
+    font-size: 1.2rem;
+}
+
+.vertical-menu .menu-row:hover {
+    color: #337ab7;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    background-color: #eceeef; 
+}
+
+.page-scrollable {
+    scroll-behavior: auto;
+    overflow: auto;
+    position: relative;
+}
+
+.data-content {
+    white-space: pre; 
+    font-family: monospace;
+}

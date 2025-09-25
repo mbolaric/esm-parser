@@ -46,7 +46,7 @@ pub struct DriverCard {
     #[serde(rename = "controlActivityData")]
     pub control_activity_data: Option<CardControlActivityDataRecord>,
     pub identification: Option<Identification>,
-    #[serde(rename = "drivingLicenceInfo")]
+    #[serde(rename = "drivingLicenceInformation")]
     pub driving_license_info: Option<CardDrivingLicenceInformation>,
     #[serde(rename = "specificConditions")]
     pub specific_conditions: Option<SpecificConditions>,
