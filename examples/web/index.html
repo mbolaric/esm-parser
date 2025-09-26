@@ -3,15 +3,29 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>esm-parser WASM Test</title>
+    <title>Demo: Parsing Tachograph '*.DDD' files</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body class="shell">
     <div id="shell.container" class="shell__container">
-
+        <div id="shell.top" class="shell__container__row top">                
+            <div class="top-menu">
+                <div class="top-menu__brand">Demo: Parsing Tachograph '*.DDD' files</div>
+            </div>
+        </div>        
         <div id="shell.content" class="shell__container__row center">
             <div id="shell.content.left" class="center__column left vertical-border-right">
+                <div id="shell.content.left.header" class="panel-header">
+                    <div class="open-file">
+                        <div class="open-file-label">Open File:</div>
+                        <label for="file-upload" class="file-upload">
+                            <span class="open-file-caption">Browse ...</span>
+                        </label>
+                        <input id="file-upload" type="file" />
+                        <div id="file-name" class="file-name"></div>
+                    </div>
+                </div>
                 <div id="shell.content.left.body" class="panel-body">
                     <div id="shell.content.left.body.menu" class="vertical-menu">
                         <!-- MENU ITEMS -->
@@ -22,9 +36,18 @@
             <div id="shell.content.left.splitter.vertical" class="splitter-vertical"></div>
 
             <div id="shell.content.main" class="center__column middle vertical-border-left">
+                <div id="shell.content.main.header" class="panel-header">
+                    <div class="header">
+                        <div id="shell.content.main.header.label" class="header-label">
+                            Full Content
+                        </div>
+                    </div>
+                </div>
                 <div id="shell.content.main.body" class="panel-body">
                     <div class="full-size page-scrollable">
-                        <div id="data-content" class="data-content"></div>                        
+                        <div id="data-content" class="data-content">
+                            <div class="open-file-info">Choose the .DDD file you wish to parse ...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -40,7 +63,6 @@
                 <div class="statusbar__right"></div>
             </footer>
         </div>
-
     </div>
 
     <script type="module" src="index.js"></script>

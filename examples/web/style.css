@@ -1,6 +1,14 @@
 :root {
+    --primary-color: #0964b0;
     --hover-color: #eceeef;
     --border-color: #cccccc;
+
+    --top-menu-backgraund-color: rgba(143, 0, 0, 0.699);
+    --top-menu-height: 2rem;
+
+    --futter-height: 22px;
+    --futter-color: rgb(255, 255, 255);
+    --futter-background-color: rgb(0, 122, 204);    
 }
 
 * {
@@ -15,25 +23,28 @@
     color: #616161;
 }
 
-*::before, *::after  {
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
-html { 
-    font-size: 62.5%;  /* = 10px, ... 1.2rem == 12px */
+html {
+    font-size: 62.5%; /* = 10px, ... 1.2rem == 12px */
     width: 100%;
     height: 100%;
 }
 
 body {
-    width: 100%;  
+    width: 100%;
     height: 100%;
 }
 
-a, a:active, a:visited {
+a,
+a:active,
+a:visited {
     text-decoration: none;
     color: inherit;
-    background-color: inherit    
+    background-color: inherit;
 }
 
 .vertical-border-right {
@@ -64,7 +75,7 @@ a, a:active, a:visited {
 .splitter-vertical {
     min-width: 0.3rem;
     max-width: 0.3rem;
-    cursor: e-resize; 
+    cursor: e-resize;
     cursor: col-resize;
 }
 
@@ -82,7 +93,15 @@ a, a:active, a:visited {
     -ms-user-select: none;
     background-color: #ffffff;
 
-    font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,HelveticaNeue-Light,Ubuntu,Droid Sans,sans-serif;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        Segoe WPC,
+        Segoe UI,
+        HelveticaNeue-Light,
+        Ubuntu,
+        Droid Sans,
+        sans-serif;
 }
 
 .shell__container {
@@ -111,23 +130,23 @@ a, a:active, a:visited {
 }
 
 .shell__container__row.center .center__column.left {
-    min-width: 10rem;   
+    min-width: 10rem;
     width: 20rem;
     flex-shrink: 0;
-    overflow:hidden;
+    overflow: hidden;
 }
 
 .shell__container__row.center .center__column.middle {
     flex: 1 1 auto;
     min-width: 20rem;
-    overflow:hidden;
+    overflow: hidden;
 }
 
 .shell__container__row.center .center__column.right {
-    min-width: 10rem;   
+    min-width: 10rem;
     width: 15rem;
     flex-shrink: 0;
-    overflow:hidden;
+    overflow: hidden;
 }
 
 .shell__container__row.center .center__column .panel-header {
@@ -162,10 +181,12 @@ a, a:active, a:visited {
     overflow-y: auto;
 }
 
-.vertical-menu a, .vertical-menu a:active, .vertical-menu a:visited {
+.vertical-menu a,
+.vertical-menu a:active,
+.vertical-menu a:visited {
     text-decoration: none;
     color: #337ab7;
-    background-color: inherit
+    background-color: inherit;
 }
 
 .vertical-menu .menu-header {
@@ -206,7 +227,7 @@ a, a:active, a:visited {
 .vertical-menu .menu-row:hover {
     color: #337ab7;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-    background-color: #eceeef; 
+    background-color: #eceeef;
 }
 
 .page-scrollable {
@@ -216,6 +237,163 @@ a, a:active, a:visited {
 }
 
 .data-content {
-    white-space: pre; 
+    white-space: pre;
     font-family: monospace;
+    display: flex;
+}
+
+/* Open File */
+.open-file {
+    display: block;
+    font-size: 1.2rem;
+    padding: 5px;
+    border-bottom: 1px solid #cccccc;
+    text-transform: uppercase;
+}
+
+.open-file-label {
+    padding-top: 5px;
+    padding-bottom: 10px;
+}
+
+.open-file-caption {
+    color: var(--primary-color);
+}
+
+.file-name {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+input#file-upload[type="file"] {
+    display: none;
+}
+
+.file-upload {
+    display: block;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    cursor: pointer;
+    width: 100%;
+    height: 30px;
+    text-align: center;
+}
+
+.file-upload:hover {
+    background-color: var(--hover-color);
+}
+
+.open-file-info {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    font-size: 1.6rem;
+    text-align: center;
+    margin: 12px;
+}
+
+.top-menu {
+    padding: 6px 0 6px 0;
+    border: 0;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--top-menu-backgraund-color);
+    min-height: var(--top-menu-height);
+    align-items: center;
+}
+
+.top-menu__brand {
+    flex: 1;
+    font-size: 1.6rem;
+    color: white;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 1rem;
+}
+
+.header {
+    display: block;
+    font-size: 1.2rem;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-bottom: 1px solid #cccccc;
+    text-transform: uppercase;
+}
+
+.header .header-label {
+    line-height: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
+.statusbar {
+    box-sizing: border-box;
+    cursor: default;
+    display: flex;
+    overflow: visible;
+    width: 100%;
+    font-size: 1.2rem;
+    height: var(--futter-height);
+    white-space: normal;
+    color: var(--futter-color);
+    background-color: rgb(0, 122, 204);
+}
+
+.statusbar a, .statusbar a:active, .statusbar a:visited {
+    text-decoration: none;
+    color: var(--futter-color);
+    background-color: inherit
+}
+
+.statusbar__left {
+    display: flex;
+    flex-grow: 1;
+}
+
+.statusbar__right {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+}
+
+.statusbar-item {
+    display: inline-block;
+    line-height: 22px;
+    height: 100%;
+    vertical-align: top;
+    max-width: 50vw;
+}
+
+.statusbar-item:hover {
+    background-color: #248DD4;
+}
+
+.statusbar-item:first-child {
+    margin-right: 3px;
+    margin-left: 3px;
+}
+
+.statusbar-item > a {
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    height: 100%;
+    padding: 0 5px;
+    white-space: pre;
+    align-items: center;
+    outline-width: 0;
+}
+
+.statusbar-item > a:hover {
+    text-decoration: none
+}
+
+.statusbar-item > a.disabled {
+    pointer-events: none
 }

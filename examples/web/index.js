@@ -5,26 +5,31 @@ async function run() {
   await init();
 
   const filePath = "/examples/data/Card0004.DDD";
+  const display = new DisplayData();
 
   try {
     const rootEl = document.getElementById("root-container");
-    console.log(`Fetching data from ${filePath}...`);
-    const response = await fetch(filePath);
+    const inputFile = document.getElementById("file-upload");
+    const fileName = document.getElementById("file-name");
+    const stattusBar = document.getElementById("shell.bottom.footer.left.status.link");
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
+    inputFile.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    console.log(`Successfully loaded ${data.byteLength} bytes. Calling parse_from_memory...`);
-    const start = performance.now();
-    const result = await parse_from_memory(data);
-    const display = new DisplayData();
-    display.applyData(rootEl, result);
-    const end = performance.now();
-    console.log(`Execution time: ${end - start} ms`);
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const arrayBuffer = event.target.result;
+        const data = new Uint8Array(arrayBuffer);
+        const result = await parse_from_memory(data);
+        display.applyData(rootEl, result);
+        fileName.innerText = file.name;
+        stattusBar.innerHTML = `Full file name: ${file.name}`;
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
   } catch (error) {
     console.error("An error occurred:", error);
   }
