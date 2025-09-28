@@ -19,8 +19,8 @@
                 <div id="shell.content.left.header" class="panel-header">
                     <div class="open-file">
                         <div class="open-file-label">Open File:</div>
-                        <label for="file-upload" class="file-upload">
-                            <span class="open-file-caption">Browse ...</span>
+                        <label for="file-upload" class="file-upload button">
+                            Browse ...  
                         </label>
                         <input id="file-upload" type="file" />
                         <div id="file-name" class="file-name"></div>
@@ -45,6 +45,11 @@
                 </div>
                 <div id="shell.content.main.body" class="panel-body">
                     <div class="full-size page-scrollable">
+                        <div class="data-menu">
+                            <div id="button-export-part" class="button disabled">Export File Part</div>
+                            <div class="button-spacer"></div>
+                            <div id="button-export-all" class="button disabled">Export All</div>
+                        </div>
                         <div id="data-content" class="data-content">
                             <div class="open-file-info">Choose the .DDD file you wish to parse ...</div>
                         </div>

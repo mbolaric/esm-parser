@@ -23,7 +23,7 @@ async function run() {
         const arrayBuffer = event.target.result;
         const data = new Uint8Array(arrayBuffer);
         const result = await parse_from_memory(data);
-        display.applyData(rootEl, result);
+        display.applyData(rootEl, result, file.name);
         fileName.innerText = file.name;
         stattusBar.innerHTML = `Full file name: ${file.name}`;
       };

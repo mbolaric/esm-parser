@@ -34,10 +34,55 @@ export const DataParts = {
 
 export class DisplayData {
     constructor() {
+        this.fileName = undefined;
         this.currentData = undefined;
+        this.currentPart = undefined;
         this.verticalMenu = document.getElementById("shell.content.left.body.menu");
         this.dataContent = document.getElementById("data-content");
         this.contentHeader = document.getElementById("shell.content.main.header.label");
+        this.buttionExportPart = document.getElementById("button-export-part");
+        this.buttionExportAll = document.getElementById("button-export-all");
+
+        this.buttionExportPart.addEventListener("pointerup", this.onExport);
+        this.buttionExportAll.addEventListener("pointerup", this.onExport);
+    }
+
+    exportData(key, data) {
+        if (data) {
+            const json = JSON.stringify(data, null, 4);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download =  this.fileName.replace(/.DDD/i, `-${key}.json`);
+            a.click();
+        }
+    };
+
+    onExport = (e) => {
+        if (this.currentData) {
+            switch (e.currentTarget.id) {
+                case "button-export-part":
+                    this.exportData(this.currentPart.key, this.currentPart.data);
+                    break;
+                case "button-export-all":
+                    this.exportData("all", this.currentData);
+                    break;
+            }
+        }
+    };
+
+    disableAllButtons = () => {
+        this.setButtonState(this.buttionExportPart, true);
+        this.setButtonState(this.buttionExportAll, true);
+    };
+
+    setButtonState(buttonEl, disable) {
+        if (disable) {
+            buttonEl.classList.add("disabled");
+        } else {
+            buttonEl.classList.remove("disabled");
+        }
     }
 
     createElement = (getChilds) => {
@@ -92,6 +137,10 @@ export class DisplayData {
                     console.log(key, gen, dataKey);
                     this.contentHeader.textContent = `File part: ${key}`;
                     this.applyDataContent(dataKey);
+                    this.currentPart = {
+                        key,
+                        data: dataKey
+                    };
                 }
             } else {
                 data = this.currentData.transferResParams.filter((item) => item.typeId === key);
@@ -99,8 +148,13 @@ export class DisplayData {
                     console.log(key, gen, data);
                     this.contentHeader.textContent = `File part: ${key}`;
                     this.applyDataContent(data);
+                    this.currentPart = {
+                        key,
+                        data
+                    };
                 }
             }
+            this.setButtonState(this.buttionExportPart, false);
         }
     };
 
@@ -111,19 +165,24 @@ export class DisplayData {
     };
 
     clean = () => {
+        this.fileName = undefined;
         this.verticalMenu.innerHTML = "";
         this.dataContent.innerHTML = "";
         this.currentData = undefined;
+        this.currentPart = undefined;
+        this.disableAllButtons();
     };
 
     applyDataContent = (data) => {
         const formattedData = JSON.stringify(data, null, 2);
         this.dataContent.textContent = formattedData;
         console.log("Success! Parsed data:", formattedData);
+        this.setButtonState(this.buttionExportAll, false);
     };
 
-    applyData = (rootEl, data) => {
+    applyData = (rootEl, data, fileName) => {
         this.clean();
+        this.fileName = fileName;
         this.currentData = data;
         const header = data.header;
         console.log(header.generation);
