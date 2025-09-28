@@ -2,6 +2,10 @@ use serde::Serialize;
 
 use crate::{CodePage, HexDisplay, Readable, bytes_to_string, tacho::NationNumeric};
 
+const SIGNATURE_LENGTH: u32 = 128;
+const PUBLIC_KEY_REMAINDER_LENGTH: u32 = 58;
+const CERTIFICATION_AUTHORITY_REFERENCE_LENGTH: u32 = 8;
+
 #[derive(Debug, Serialize)]
 pub struct ParsedCertificationAuthorityReference {
     #[serde(rename = "nationNumericCode")]
@@ -53,10 +57,10 @@ impl Certificate {
 impl Readable<Certificate> for Certificate {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<Certificate> {
         // Size = 194
-        let signature = reader.read_into_vec(128)?;
-        let public_key_remainder = reader.read_into_vec(58)?;
+        let signature = reader.read_into_vec(SIGNATURE_LENGTH)?;
+        let public_key_remainder = reader.read_into_vec(PUBLIC_KEY_REMAINDER_LENGTH)?;
         // https://dtc.jrc.ec.europa.eu/dtc_public_key_certificates_dt.php.html
-        let certification_authority_reference = reader.read_into_vec(8)?;
+        let certification_authority_reference = reader.read_into_vec(CERTIFICATION_AUTHORITY_REFERENCE_LENGTH)?;
         let parsed_ca_reference = Certificate::parse_certification_authority_reference(&certification_authority_reference);
 
         Ok(Self { signature, public_key_remainder, certification_authority_reference, parsed_ca_reference })

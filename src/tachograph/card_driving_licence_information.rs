@@ -5,6 +5,8 @@ use crate::{
     tacho::{Name, NationNumeric},
 };
 
+const DRIVING_LICENSE_NUMBER_LENGTH: u32 = 16;
+
 /// Information, stored in a driver card, related to the card holder driver
 /// licence data (Annex 1C requirement 259 and 284).
 #[derive(Debug, Serialize)]
@@ -21,7 +23,8 @@ impl Readable<CardDrivingLicenceInformation> for CardDrivingLicenceInformation {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardDrivingLicenceInformation> {
         let driving_licence_issuing_authority = Name::read(reader)?;
         let driving_licence_issuing_nation: NationNumeric = reader.read_u8()?.into();
-        let driving_licence_number = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1);
+        let driving_licence_number =
+            bytes_to_string(&reader.read_into_vec(DRIVING_LICENSE_NUMBER_LENGTH)?, &CodePage::IsoIec8859_1);
         if !driving_licence_issuing_authority.name.is_empty() && driving_licence_number.is_empty() {
             return Err(Error::CorruptedDrivingLicenceNumber);
         }

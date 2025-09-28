@@ -5,6 +5,8 @@ use crate::{
     tacho::{OdometerShort, TimeReal, VehicleRegistrationIdentification, VehicleUse},
 };
 
+const VU_DATA_BLOCK_COUNTER_LENGTH: u32 = 2;
+
 /// Information, stored in a driver or workshop card, related to a period of
 /// use of a vehicle during a calendar day (Annex 1C requirements 269, 294, 322, and 345).
 #[derive(Debug, Serialize)]
@@ -30,7 +32,7 @@ impl Readable<CardVehicleRecord> for CardVehicleRecord {
         let vehicle_first_use = TimeReal::read(reader)?;
         let vehicle_last_use = TimeReal::read(reader)?;
         let vehicle_registration = VehicleRegistrationIdentification::read(reader)?;
-        let vu_data_block_counter = BCDString::decode(&reader.read_into_vec(2)?)?;
+        let vu_data_block_counter = BCDString::decode(&reader.read_into_vec(VU_DATA_BLOCK_COUNTER_LENGTH)?)?;
 
         Ok(Self {
             vehicle_odometer_begin,

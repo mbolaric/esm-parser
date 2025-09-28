@@ -6,6 +6,8 @@ use crate::gen1::{VuEventData, VuFaultData, VuOverSpeedingEventData, VuTimeAdjus
 use crate::tacho::{VUTransferResponseParameterID, VUTransferResponseParameterReader, VuOverSpeedingControlData};
 use crate::{Readable, Result};
 
+const SIGNATURE_LENGTH: u32 = 128;
+
 /// Data structure generation 1,
 #[derive(Debug, Serialize)]
 pub struct VuEvents {
@@ -31,7 +33,7 @@ impl VUTransferResponseParameterReader<VuEvents> for VuEvents {
         let vu_over_speeding_event_data = VuOverSpeedingEventData::read(reader)?;
         let vu_time_adjustment_data = VuTimeAdjustmentData::read(reader)?;
 
-        let signature = Some(reader.read_into_vec(128)?);
+        let signature = Some(reader.read_into_vec(SIGNATURE_LENGTH)?);
 
         Ok(Self {
             vu_fault_data,

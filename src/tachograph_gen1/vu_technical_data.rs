@@ -5,6 +5,8 @@ use crate::gen1::{SensorPaired, VUCalibrationData, VUIdentification};
 use crate::tacho::{VUTransferResponseParameterID, VUTransferResponseParameterReader};
 use crate::{Readable, Result};
 
+const SIGNATURE_LENGTH: u32 = 128;
+
 #[derive(Debug, Serialize)]
 pub struct VuTechnicalData {
     #[serde(rename = "trepId")]
@@ -23,7 +25,7 @@ impl VUTransferResponseParameterReader<VuTechnicalData> for VuTechnicalData {
         let sensor_paired = SensorPaired::read(reader)?;
         let vu_calibration_data = VUCalibrationData::read(reader)?;
 
-        let signature = Some(reader.read_into_vec(128)?);
+        let signature = Some(reader.read_into_vec(SIGNATURE_LENGTH)?);
 
         Ok(Self { trep_id, identification: vu_identification, sensor_paired, vu_calibration_data, signature })
     }

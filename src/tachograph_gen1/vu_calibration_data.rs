@@ -6,6 +6,9 @@ use crate::{
     tacho::{Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VehicleRegistrationIdentification},
 };
 
+const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
+const TYRE_SIZE_LENGTH: u32 = 15;
+
 /// Information, stored in a vehicle unit, related a calibration of the
 /// recording equipment (Annex 1B requirement 098 and Annex 1C requirement 119 and 120).
 #[derive(Debug, Serialize)]
@@ -53,12 +56,13 @@ impl Readable<VuCalibrationRecord> for VuCalibrationRecord {
         let workshop_address = Address::read(reader)?;
         let workshop_card_number = FullCardNumber::read(reader)?;
         let workshop_card_expiry_date = TimeReal::read(reader)?;
-        let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
+        let vehicle_identification_number =
+            bytes_to_ia5_fix_string(&reader.read_into_vec(VEHICLE_IDENTIFICATION_NUMBER_LENGTH)?)?;
         let vehicle_registration_identification = VehicleRegistrationIdentification::read(reader)?;
         let w_vehicle_characteristic_constant: u16 = reader.read_u16::<BigEndian>()?;
         let k_constant_of_recording_equipment: u16 = reader.read_u16::<BigEndian>()?;
         let l_tyre_circumference: u16 = reader.read_u16::<BigEndian>()?;
-        let tyre_size = bytes_to_ia5_fix_string(&reader.read_into_vec(15)?)?;
+        let tyre_size = bytes_to_ia5_fix_string(&reader.read_into_vec(TYRE_SIZE_LENGTH)?)?;
         let authorised_speed = reader.read_u8()?;
         let old_odometer_value = OdometerShort::read(reader)?;
         let new_odometer_value = OdometerShort::read(reader)?;

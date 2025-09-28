@@ -6,6 +6,8 @@ use crate::{
     tacho::{CertificateContentType, EquipmentType},
 };
 
+const TACHOGRAPH_APPLICATION_ID_LENGTH: u32 = 6;
+
 /// Identification of the rights of a certificate holder.
 #[derive(Debug, Serialize)]
 pub struct CertificateHolderAuthorisation {
@@ -23,7 +25,7 @@ impl Readable<CertificateHolderAuthorisation> for CertificateHolderAuthorisation
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CertificateHolderAuthorisation> {
         let record_type: CertificateContentType = (reader.read_u16::<BigEndian>()?).into();
         let record_size = reader.read_u8()? as u16;
-        let tachograph_application_id = reader.read_into_vec(6)?;
+        let tachograph_application_id = reader.read_into_vec(TACHOGRAPH_APPLICATION_ID_LENGTH)?;
         let equipment_type: EquipmentType = reader.read_u8()?.into();
 
         Ok(Self { record_type, record_size, tachograph_application_id, equipment_type })

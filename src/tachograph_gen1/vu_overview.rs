@@ -8,6 +8,11 @@ use crate::tacho::{
 };
 use crate::{Readable, Result, bytes_to_ia5_fix_string};
 
+const MEMBER_STATE_CERTIFICATE_LENGTH: u32 = 194;
+const VU_CERTIFICATE_LENGTH: u32 = 194;
+const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
+const SIGNATURE_LENGTH: u32 = 128;
+
 /// Data structure generation 1 (TREP 01 Hex)
 #[derive(Debug, Serialize)]
 pub struct VuOverview {
@@ -40,9 +45,10 @@ pub struct VuOverview {
 impl VUTransferResponseParameterReader<VuOverview> for VuOverview {
     fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuOverview> {
         debug!("VuOverview::from_data - Trep ID: {trep_id:?}");
-        let member_state_certificate = reader.read_into_vec(194)?;
-        let vu_certificate = reader.read_into_vec(194)?;
-        let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
+        let member_state_certificate = reader.read_into_vec(MEMBER_STATE_CERTIFICATE_LENGTH)?;
+        let vu_certificate = reader.read_into_vec(VU_CERTIFICATE_LENGTH)?;
+        let vehicle_identification_number =
+            bytes_to_ia5_fix_string(&reader.read_into_vec(VEHICLE_IDENTIFICATION_NUMBER_LENGTH)?)?;
         let vehicle_registration_identification: VehicleRegistrationIdentification =
             VehicleRegistrationIdentification::read(reader)?;
         let current_date_time = TimeReal::read(reader)?;
@@ -51,7 +57,7 @@ impl VUTransferResponseParameterReader<VuOverview> for VuOverview {
         let vu_download_activity_data = VuDownloadActivityData::read(reader)?;
         let vu_company_locks_data = VuCompanyLocksData::read(reader)?;
         let vu_control_activity = VuControlActivity::read(reader)?;
-        let signature = Some(reader.read_into_vec(128)?);
+        let signature = Some(reader.read_into_vec(SIGNATURE_LENGTH)?);
 
         Ok(Self {
             member_state_certificate,

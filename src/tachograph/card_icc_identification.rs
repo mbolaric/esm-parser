@@ -5,6 +5,9 @@ use crate::{
     tacho::{EmbedderIcAssemblerId, ExtendedSerialNumber},
 };
 
+const CARD_APPROVAL_NUMBER_LENGTH: u32 = 8;
+const IC_IDENTIFIER_NUMBER_LENGTH: u32 = 2;
+
 /// Information, stored in a card, related to the identification of the integrated
 /// circuit (IC) card (Annex 1C requirement 248).
 #[derive(Debug, Serialize)]
@@ -28,7 +31,7 @@ impl Readable<CardIccIdentification> for CardIccIdentification {
         let clock_stop = reader.read_u8()?;
         let card_extended_serial_number = ExtendedSerialNumber::read(reader)?;
         // It's a string encoded using IA5, which corresponds to ASCII characters.
-        let card_approval_number = bytes_to_string(&reader.read_into_vec(8)?, &CodePage::IsoIec8859_1);
+        let card_approval_number = bytes_to_string(&reader.read_into_vec(CARD_APPROVAL_NUMBER_LENGTH)?, &CodePage::IsoIec8859_1);
         let card_personaliser_id = reader.read_u8()?;
         let embedder_ic_assembler_id = EmbedderIcAssemblerId::read(reader)?;
         // OCTET STRING(SIZE(l))
@@ -36,7 +39,7 @@ impl Readable<CardIccIdentification> for CardIccIdentification {
         //  - Do not decode it as ASCII or UTF-8
         //  - Instead, treat it like a numeric or binary ID
         //  - usually interpreted as a hex code
-        let ic_identifier = reader.read_into_vec(2)?;
+        let ic_identifier = reader.read_into_vec(IC_IDENTIFIER_NUMBER_LENGTH)?;
 
         Ok(Self {
             clock_stop,

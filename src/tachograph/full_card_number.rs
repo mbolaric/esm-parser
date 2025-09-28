@@ -5,6 +5,8 @@ use crate::{
     tacho::{EquipmentType, NationNumeric},
 };
 
+const CARD_NUMBER_LENGTH: u32 = 16;
+
 /// Code fully identifying a tachograph card.
 #[derive(Debug, Serialize)]
 pub struct FullCardNumber {
@@ -20,7 +22,7 @@ impl Readable<FullCardNumber> for FullCardNumber {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<FullCardNumber> {
         let card_type: EquipmentType = reader.read_u8()?.into();
         let mut card_issuing_member_state: NationNumeric = reader.read_u8()?.into();
-        let mut card_number: String = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1);
+        let mut card_number: String = bytes_to_string(&reader.read_into_vec(CARD_NUMBER_LENGTH)?, &CodePage::IsoIec8859_1);
         if card_type == EquipmentType::NullCard {
             card_issuing_member_state = NationNumeric::Unknown;
             card_number = "".to_owned();

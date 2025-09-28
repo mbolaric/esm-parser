@@ -3,6 +3,8 @@ use serde::Serialize;
 
 use crate::{ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::EquipmentType};
 
+const CARD_NUMBER_LENGTH: u32 = 16;
+
 #[derive(Debug)]
 pub struct CardNumberParams {
     pub equipment_type: EquipmentType,
@@ -89,7 +91,7 @@ impl ReadableWithParams<CardNumber> for CardNumber {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardNumber> {
         let equipment_type = params.equipment_type.clone();
-        let number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?;
+        let number = bytes_to_ia5_fix_string(&reader.read_into_vec(CARD_NUMBER_LENGTH)?)?;
         let identification = CardNumber::get_identification(&number, &equipment_type).to_string();
         let card_replacement_index = CardNumber::get_replacement_index(&number).to_string();
         let card_consecutive_index = CardNumber::get_consecutive_index(&number, &equipment_type).to_string();
