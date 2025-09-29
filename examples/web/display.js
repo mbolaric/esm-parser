@@ -47,28 +47,30 @@ export class DisplayData {
         this.buttionExportAll.addEventListener("pointerup", this.onExport);
     }
 
-    exportData(key, data) {
+    exportData = (key, data) => {
         if (data) {
             const json = JSON.stringify(data, null, 4);
             const blob = new Blob([json], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download =  this.fileName.replace(/.DDD/i, `-${key}.json`);
+            a.download = this.fileName.replace(/.DDD/i, `-${key}.json`);
             a.click();
         }
     };
 
     onExport = (e) => {
-        if (this.currentData) {
-            switch (e.currentTarget.id) {
-                case "button-export-part":
+        switch (e.currentTarget.id) {
+            case "button-export-part":
+                if (this.currentPart) {
                     this.exportData(this.currentPart.key, this.currentPart.data);
-                    break;
-                case "button-export-all":
+                }
+                break;
+            case "button-export-all":
+                if (this.currentData) {
                     this.exportData("all", this.currentData);
-                    break;
-            }
+                }
+                break;
         }
     };
 
@@ -216,7 +218,7 @@ export class DisplayData {
     processAllGenerationVU = (dataType, data, gen) => {
         if (data) {
             this.addMenuHeader(`${gen}`);
-            const uniqueTypes = [...new Set(data.map(item => item.typeId))];
+            const uniqueTypes = [...new Set(data.map((item) => item.typeId))];
             uniqueTypes.forEach((item) => {
                 this.addMenuElement(item, item, gen);
             });
@@ -251,6 +253,21 @@ export class DisplayData {
         this.addCardMenu(gen1, "CACertificate", DataParts.CACertificate, CardGeneration.FirstGeneration);
     };
 
+    processCardGen2 = (gen2) => {
+        this.addMenuHeader("Card Generation 2");
+        this.addCardMenu(gen2, "DrivingLicenceInformation", DataParts.DrivingLicenceInformation, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "VehiclesUsed", DataParts.VehiclesUsed, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "EventsData", DataParts.EventsData, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "FaultsData", DataParts.FaultsData, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "Places", DataParts.Places, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "CurrentUsage", DataParts.CurrentUsage, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "DriverActivityData", DataParts.DriverActivityData, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "SpecificConditions", DataParts.SpecificConditions, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "ControlActivityData", DataParts.ControlActivityData, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "CardCertificate", DataParts.CardCertificate, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "CACertificate", DataParts.CACertificate, CardGeneration.SecondGeneration);
+    };
+
     processSecondGenerationCard = (dataType, data) => {
         const gen1 = data.gen1;
         const gen2 = data.gen2;
@@ -261,18 +278,7 @@ export class DisplayData {
             this.processCardGen1(gen1);
         }
         if (gen2) {
-            this.addMenuHeader("Card Generation 2");
-            this.addCardMenu(gen2, "DrivingLicenceInformation", DataParts.DrivingLicenceInformation, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "VehiclesUsed", DataParts.VehiclesUsed, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "EventsData", DataParts.EventsData, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "FaultsData", DataParts.FaultsData, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "Places", DataParts.Places, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "CurrentUsage", DataParts.CurrentUsage, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "DriverActivityData", DataParts.DriverActivityData, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "SpecificConditions", DataParts.SpecificConditions, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "ControlActivityData", DataParts.ControlActivityData, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "CardCertificate", DataParts.CardCertificate, CardGeneration.SecondGeneration);
-            this.addCardMenu(gen2, "CACertificate", DataParts.CACertificate, CardGeneration.SecondGeneration);
+            this.processCardGen2(gen2);
         }
     };
 }
