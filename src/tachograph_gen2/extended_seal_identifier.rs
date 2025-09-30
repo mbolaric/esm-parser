@@ -3,6 +3,9 @@ use serde::Serialize;
 
 use crate::{Readable, Result};
 
+const MANUFACTURES_CODE_LENGTH: u32 = 2;
+const SEAL_IDENTIFIER_LENGTH: u32 = 8;
+
 /// The extended seal identifier uniquely identifies a seal (Annex IC requirement 401).
 #[derive(Debug, Serialize)]
 pub struct ExtendedSealIdentifier {
@@ -15,8 +18,8 @@ pub struct ExtendedSealIdentifier {
 
 impl Readable<ExtendedSealIdentifier> for ExtendedSealIdentifier {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<ExtendedSealIdentifier> {
-        let manufacturer_code = reader.read_into_vec(2)?;
-        let seal_identifier = reader.read_into_vec(8)?;
+        let manufacturer_code = reader.read_into_vec(MANUFACTURES_CODE_LENGTH)?;
+        let seal_identifier = reader.read_into_vec(SEAL_IDENTIFIER_LENGTH)?;
         Ok(Self { manufacturer_code, seal_identifier })
     }
 }

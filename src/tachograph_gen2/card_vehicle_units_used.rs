@@ -3,6 +3,8 @@ use serde::Serialize;
 
 use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::TimeReal};
 
+const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
+
 /// Information, stored in a driver or workshop card, related to a vehicle
 /// unit that was used (Annex 1C requirement 303 and 351).
 #[derive(Debug, Serialize)]
@@ -22,7 +24,7 @@ impl Readable<CardVehicleUnitRecord> for CardVehicleUnitRecord {
         let time_stamp = TimeReal::read(reader)?;
         let manufacturer_code = reader.read_u8()?;
         let device_id = reader.read_u8()?;
-        let vu_software_version = bytes_to_ia5_fix_string(&reader.read_into_vec(4)?)?;
+        let vu_software_version = bytes_to_ia5_fix_string(&reader.read_into_vec(VU_SOFTWARE_VERSION_LENGTH)?)?;
         Ok(Self { time_stamp, manufacturer_code, device_id, vu_software_version })
     }
 }

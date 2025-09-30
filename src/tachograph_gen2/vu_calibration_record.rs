@@ -54,6 +54,9 @@ pub struct VuCalibrationRecord {
     pub seal_data_vu: SealDataVu,
 }
 
+const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
+const TYRE_SIZE_LENGTH: u32 = 15;
+
 impl ReadableWithParams<VuCalibrationRecord> for VuCalibrationRecord {
     type P = VUTransferResponseParameterID;
 
@@ -63,12 +66,13 @@ impl ReadableWithParams<VuCalibrationRecord> for VuCalibrationRecord {
         let workshop_address = Address::read(reader)?;
         let workshop_card_number = FullCardNumber::read(reader)?;
         let workshop_card_expiry_date = TimeReal::read(reader)?;
-        let vehicle_identification_number = bytes_to_ia5_fix_string(&reader.read_into_vec(17)?)?;
+        let vehicle_identification_number =
+            bytes_to_ia5_fix_string(&reader.read_into_vec(VEHICLE_IDENTIFICATION_NUMBER_LENGTH)?)?;
         let vehicle_registration_identification = VehicleRegistrationIdentification::read(reader)?;
         let w_vehicle_characteristic_constant = reader.read_u16::<BigEndian>()?;
         let k_constant_of_recording_equipment = reader.read_u16::<BigEndian>()?;
         let l_tyre_circumference = reader.read_u16::<BigEndian>()?;
-        let tyre_size = bytes_to_ia5_fix_string(&reader.read_into_vec(15)?)?;
+        let tyre_size = bytes_to_ia5_fix_string(&reader.read_into_vec(TYRE_SIZE_LENGTH)?)?;
         let authorised_speed = reader.read_u8()?;
         let old_odometer_value = OdometerShort::read(reader)?;
         let new_odometer_value = OdometerShort::read(reader)?;
@@ -79,6 +83,7 @@ impl ReadableWithParams<VuCalibrationRecord> for VuCalibrationRecord {
 
         let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2Activities;
         if is_gen2_v2 {
+            // TODO: not implemented for now.
             let _ = reader.read_bytes::<30>()?;
         }
 

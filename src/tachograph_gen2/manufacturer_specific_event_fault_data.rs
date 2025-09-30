@@ -3,6 +3,8 @@ use serde::Serialize;
 
 use crate::{Readable, Result};
 
+const MANUFACTURES_SPECIFIC_ERROR_CODE_LENGTH: u32 = 3;
+
 /// Manufacturer specific error codes simplify the error analysis and main-tenance
 /// of vehicle units.
 #[derive(Debug, Serialize)]
@@ -16,7 +18,7 @@ pub struct ManufacturerSpecificEventFaultData {
 impl Readable<ManufacturerSpecificEventFaultData> for ManufacturerSpecificEventFaultData {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<ManufacturerSpecificEventFaultData> {
         let manufacturer_code = reader.read_u8()?;
-        let manufacturer_specific_error_code = reader.read_into_vec(3)?;
+        let manufacturer_specific_error_code = reader.read_into_vec(MANUFACTURES_SPECIFIC_ERROR_CODE_LENGTH)?;
         Ok(Self { manufacturer_code, manufacturer_specific_error_code })
     }
 }

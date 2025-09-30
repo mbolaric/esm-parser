@@ -7,6 +7,9 @@ use crate::{
     tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID},
 };
 
+const VU_PART_NUMBER_LENGTH: u32 = 16;
+const VU_APPROVAL_NUMBER_LENGTH: u32 = 16;
+
 /// Information, stored in a vehicle unit, related to the identification of the
 /// vehicle unit (Annex 1B requirement 075 and Annex 1C requirement 93 and 121).
 #[derive(Debug, Serialize)]
@@ -39,16 +42,17 @@ impl ReadableWithParams<VuIdentification> for VuIdentification {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VuIdentification> {
         let vu_manufacturer_name = Name::read(reader)?;
         let vu_manufacturer_address = Address::read(reader)?;
-        let vu_part_number = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1); // Code Page 1
+        let vu_part_number = bytes_to_string(&reader.read_into_vec(VU_PART_NUMBER_LENGTH)?, &CodePage::IsoIec8859_1); // Code Page 1
         let vu_serial_number = ExtendedSerialNumber::read(reader)?;
         let vu_software_identification = VuSoftwareIdentification::read(reader)?;
         let vu_manufacturing_date = TimeReal::read(reader)?;
-        let vu_approval_number = bytes_to_string(&reader.read_into_vec(16)?, &CodePage::IsoIec8859_1); // Code Page 1
+        let vu_approval_number = bytes_to_string(&reader.read_into_vec(VU_APPROVAL_NUMBER_LENGTH)?, &CodePage::IsoIec8859_1); // Code Page 1
         let vu_generation = reader.read_u8()?;
         let vu_ability = reader.read_u8()?;
 
         let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2Activities;
         if is_gen2_v2 {
+            // TODO: not implemented for now.
             // vuDigitalMapVersion is the version of the digital map stored in the vehicle unit (only present in version 2).
             let _ = reader.read_bytes::<12>()?;
         }
