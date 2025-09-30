@@ -5,10 +5,9 @@ use serde::Serialize;
 const ADDRESS_LENGTH: u32 = 35;
 
 /// Represents a postal address, typically used for company or workshop locations in a DDD file.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Address {
     /// The code page used for encoding the address string.
-    #[serde(rename = "codePage")]
     pub code_page: CodePage,
     /// The address, with a fixed length of 35 bytes.
     pub name: String,
@@ -20,6 +19,15 @@ impl Readable<Address> for Address {
         let code_page: CodePage = reader.read_u8()?.into();
         let name = bytes_to_string(&reader.read_into_vec(ADDRESS_LENGTH)?, &code_page).trim().to_string();
         Ok(Self { code_page, name })
+    }
+}
+
+impl Serialize for Address {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.name)
     }
 }
 
