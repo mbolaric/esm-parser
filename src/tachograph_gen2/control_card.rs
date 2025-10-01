@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
 
@@ -35,6 +36,8 @@ pub struct ControlCard {
     pub link_certificate: Option<Certificate>,
     #[serde(rename = "cardNotes")]
     pub card_notes: String,
+    #[serde(rename = "dataFiles")]
+    pub data_files: HashMap<CardFileID, CardFileData>,
 }
 
 impl ControlCard {
@@ -44,6 +47,7 @@ impl ControlCard {
         application_identification: ControlCardApplicationIdentification,
         application_identification_v2: ControlCardApplicationIdentificationV2,
         card_notes: String,
+        data_files: HashMap<CardFileID, CardFileData>,
     ) -> Self {
         Self {
             card_generation: CardGeneration::Gen1,
@@ -57,6 +61,7 @@ impl ControlCard {
             ca_certificate: None,
             link_certificate: None,
             card_notes,
+            data_files,
         }
     }
 }
@@ -78,12 +83,19 @@ impl CardParser<ControlCard> for ControlCard {
             application_identification.clone(),
             application_identification_v2,
             card_notes.to_owned(),
+            (*card_data_files).clone(),
         );
 
         for card_item in card_data_files.iter() {
             debug!("ControlCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
+            debug!(
+                "ControlCard::parse - ID: {:?}, Data Length: {:?}, Has Signature: {}",
+                card_item.0,
+                reader.len()?,
+                card_file.signature.is_some()
+            );
             match card_item.0 {
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());

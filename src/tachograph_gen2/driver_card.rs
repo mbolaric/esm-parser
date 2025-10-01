@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
 
@@ -64,6 +65,8 @@ pub struct DriverCard {
     pub link_certificate: Option<Certificate>,
     #[serde(rename = "cardNotes")]
     pub card_notes: String,
+    #[serde(rename = "dataFiles")]
+    pub data_files: HashMap<CardFileID, CardFileData>,
 }
 
 impl DriverCard {
@@ -72,6 +75,7 @@ impl DriverCard {
         card_icc_identification: CardIccIdentification,
         application_identification: DriverCardApplicationIdentification,
         card_notes: String,
+        data_files: HashMap<CardFileID, CardFileData>,
     ) -> Self {
         Self {
             card_generation: CardGeneration::Gen2,
@@ -96,6 +100,7 @@ impl DriverCard {
             card_sign_certificate: None,
             link_certificate: None,
             card_notes,
+            data_files,
         }
     }
 }
@@ -114,12 +119,19 @@ impl CardParser<DriverCard> for DriverCard {
             card_icc_identification,
             application_identification.clone(),
             card_notes.to_owned(),
+            (*card_data_files).clone(),
         );
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
+            debug!(
+                "DriverCard::parse - ID: {:?}, Data Length: {:?}, Has Signature: {}",
+                card_item.0,
+                reader.len()?,
+                card_file.signature.is_some()
+            );
             match card_item.0 {
                 CardFileID::CardDownload => {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);

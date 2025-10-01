@@ -55,3 +55,6 @@ serde-wasm-bindgen = "0.6"
 log4rs = "1.4.0"
 clap = { version = "4.5.48", features = ["derive"] }
 indicatif  = "0.17.11"
+# Cert verify
+num-bigint = "0.4"
+sha1 = "0.10"

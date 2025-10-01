@@ -17,10 +17,12 @@ pub enum CardGeneration {
     Combined,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CardFileData {
+    #[serde(rename = "cardFileId")]
     pub card_file_id: CardFileID,
     pub appendix: u8,
+    #[serde(rename = "cardFileNotes")]
     pub card_file_notes: String,
     pub size: u32,
     pub signature: Option<Vec<u8>>,

@@ -1,4 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
+use log::debug;
 
 use super::{TachographHeader, VUTransferResponseParameterID};
 use crate::{
@@ -18,6 +19,7 @@ impl<D: VUTransferResponseParameter> dyn VUData<D> {
         parse_trep: &dyn Fn(VUTransferResponseParameterID, &mut R) -> Result<D>,
     ) -> Result<Vec<VUTransferResponseParameterItem<D>>> {
         let mut position: u32 = 0;
+        let mut data_position: usize = 0;
         let mut transfer_res_params: Vec<VUTransferResponseParameterItem<D>> = Vec::new();
 
         while reader.pos()? < reader.len()? {
@@ -26,6 +28,7 @@ impl<D: VUTransferResponseParameter> dyn VUData<D> {
             let mut magic_number = reader.read_u8()?;
             if magic_number == VU_HEADER_MAGIC_NUMBER {
                 vu_trep = VUTransferResponseParameterID::from(reader.read_u8()?);
+                data_position = reader.pos()?;
             } else {
                 while magic_number != VU_HEADER_MAGIC_NUMBER && reader.pos()? < reader.len()? - 1 {
                     magic_number = reader.read_u8()?;
@@ -39,6 +42,7 @@ impl<D: VUTransferResponseParameter> dyn VUData<D> {
             }
 
             if !vu_trep.is_unknown() {
+                debug!("VUData::from_data - Trep ID: {:?} on position: {}", vu_trep, data_position);
                 let data = parse_trep(vu_trep.clone(), reader)?;
                 let is_oddball_crash_dump = data.is_oddball_crash_dump();
                 transfer_res_params.push(VUTransferResponseParameterItem::<D> { type_id: vu_trep.clone(), position, data });

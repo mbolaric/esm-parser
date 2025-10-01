@@ -1,6 +1,7 @@
 /target
 /.idea/
 /examples/data/
+/examples/cert.rs
 .DS_Store
 Thumbs.db
 .secrets

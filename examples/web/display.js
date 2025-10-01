@@ -182,9 +182,23 @@ export class DisplayData {
         this.setButtonState(this.buttionExportAll, false);
     };
 
+    mapToObject = (map) => {
+      const obj = {};
+      for (const [key, value] of map.entries()) {
+        obj[key] = value instanceof Map ? mapToObject(value) : value;
+      }
+      return obj;
+    }
+
     applyData = (rootEl, data, fileName) => {
         this.clean();
         this.fileName = fileName;
+        if (data.cardDataResponses && data.cardDataResponses.dataFiles) {
+            data.cardDataResponses.dataFiles = this.mapToObject(data.cardDataResponses.dataFiles);
+        }
+        if (data.transferResParams && data.data.transferResParams.dataFiles) {
+            data.transferResParams.dataFiles = this.mapToObject(data.transferResParams.dataFiles);
+        }
         this.currentData = data;
         const header = data.header;
         console.log(header.generation);

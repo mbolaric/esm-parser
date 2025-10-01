@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
 
@@ -20,26 +21,45 @@ use crate::{
 
 #[derive(Debug, Serialize)]
 pub struct WorkshopCard {
+    #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,
+    #[serde(rename = "cardChipIdentification")]
     pub card_chip_identification: CardChipIdentification,
+    #[serde(rename = "cardIccIdentification")]
     pub card_icc_identification: CardIccIdentification,
+    #[serde(rename = "applicationIdentification")]
     pub application_identification: WorkshopCardApplicationIdentification,
-    pub card_event_data: Option<CardEventData>,
-    pub card_fault_data: Option<CardFaultData>,
+    #[serde(rename = "eventsData")]
+    pub events_data: Option<CardEventData>,
+    #[serde(rename = "faultsData")]
+    pub faults_data: Option<CardFaultData>,
+    #[serde(rename = "currentUsage")]
     pub current_usage: Option<CardCurrentUse>,
-    pub card_vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
-    pub card_place_daily_work_period: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    #[serde(rename = "vehiclesUsed")]
+    pub vehicles_used: Option<CardVehiclesUsed<CardVehicleRecord>>,
+    pub places: Option<CardPlaceDailyWorkPeriod<PlaceRecord>>,
+    #[serde(rename = "specificConditions")]
     pub specific_conditions: Option<SpecificConditions>,
-    pub card_driver_activity: Option<CardDriverActivity>,
-    pub card_calibration_data: Option<WorkshopCardCalibrationData<WorkshopCardCalibrationRecord>>,
-    pub card_vehicle_units_used: Option<CardVehicleUnitsUsed>,
+    #[serde(rename = "driverActivityData")]
+    pub driver_activity_data: Option<CardDriverActivity>,
+    pub calibration: Option<WorkshopCardCalibrationData<WorkshopCardCalibrationRecord>>,
+    #[serde(rename = "vehicleUnitsUsed")]
+    pub vehicle_units_used: Option<CardVehicleUnitsUsed>,
     pub identification: Option<Identification>,
+    #[serde(rename = "gnssPlaces")]
     pub gnss_places: Option<GnssAccumulatedDriving>,
+    #[serde(rename = "cardCertificate")]
     pub card_certificate: Option<Certificate>,
+    #[serde(rename = "caCertificate")]
     pub ca_certificate: Option<Certificate>,
+    #[serde(rename = "cardSignCertificate")]
     pub card_sign_certificate: Option<Certificate>,
+    #[serde(rename = "linkCertificate")]
     pub link_certificate: Option<Certificate>,
+    #[serde(rename = "cardNotes")]
     pub card_notes: String,
+    #[serde(rename = "dataFiles")]
+    pub data_files: HashMap<CardFileID, CardFileData>,
 }
 
 impl WorkshopCard {
@@ -48,21 +68,22 @@ impl WorkshopCard {
         card_icc_identification: CardIccIdentification,
         application_identification: WorkshopCardApplicationIdentification,
         card_notes: String,
+        data_files: HashMap<CardFileID, CardFileData>,
     ) -> Self {
         Self {
             card_generation: CardGeneration::Gen2,
             card_chip_identification,
             card_icc_identification,
             application_identification,
-            card_event_data: None,
-            card_fault_data: None,
+            events_data: None,
+            faults_data: None,
             current_usage: None,
-            card_vehicles_used: None,
-            card_place_daily_work_period: None,
+            vehicles_used: None,
+            places: None,
             specific_conditions: None,
-            card_driver_activity: None,
-            card_calibration_data: None,
-            card_vehicle_units_used: None,
+            driver_activity_data: None,
+            calibration: None,
+            vehicle_units_used: None,
             identification: None,
             gnss_places: None,
             card_certificate: None,
@@ -70,6 +91,7 @@ impl WorkshopCard {
             card_sign_certificate: None,
             link_certificate: None,
             card_notes,
+            data_files,
         }
     }
 }
@@ -87,41 +109,47 @@ impl CardParser<WorkshopCard> for WorkshopCard {
             card_icc_identification,
             application_identification.clone(),
             card_notes.to_owned(),
+            (*card_data_files).clone(),
         );
 
         for card_item in card_data_files.iter() {
             debug!("WorkshopCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
+            debug!(
+                "WorkshopCard::parse - ID: {:?}, Data Length: {:?}, Has Signature: {}",
+                card_item.0,
+                reader.len()?,
+                card_file.signature.is_some()
+            );
             match card_item.0 {
                 CardFileID::Calibration => {
                     let params = WorkshopCardCalibrationDataParams::new(application_identification.no_off_calibration_records);
-                    workshop_card.card_calibration_data =
+                    workshop_card.calibration =
                         Some(WorkshopCardCalibrationData::<WorkshopCardCalibrationRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::EventsData => {
                     let params = CardEventDataParams::new(11, application_identification.no_events_per_type);
-                    workshop_card.card_event_data = Some(CardEventData::read(&mut reader, &params)?);
+                    workshop_card.events_data = Some(CardEventData::read(&mut reader, &params)?);
                 }
                 CardFileID::FaultsData => {
                     let params = CardFaultDataParams::new(application_identification.no_faults_per_type);
-                    workshop_card.card_fault_data = Some(CardFaultData::read(&mut reader, &params)?);
+                    workshop_card.faults_data = Some(CardFaultData::read(&mut reader, &params)?);
                 }
                 CardFileID::VehiclesUsed => {
                     let params = VehiclesUsedParams::new(application_identification.no_of_card_vehicle_records);
-                    workshop_card.card_vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
+                    workshop_card.vehicles_used = Some(CardVehiclesUsed::<CardVehicleRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::Places => {
                     let params = CardPlaceDailyWorkPeriodParams::new(application_identification.no_of_card_place_records, 2);
-                    workshop_card.card_place_daily_work_period =
-                        Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
+                    workshop_card.places = Some(CardPlaceDailyWorkPeriod::<PlaceRecord>::read(&mut reader, &params)?);
                 }
                 CardFileID::CurrentUsage => {
                     workshop_card.current_usage = Some(CardCurrentUse::read(&mut reader)?);
                 }
                 CardFileID::DriverActivityData => {
                     let params = CardDriverActivityParams::new(application_identification.activity_structure_length);
-                    workshop_card.card_driver_activity = Some(CardDriverActivity::read(&mut reader, &params)?);
+                    workshop_card.driver_activity_data = Some(CardDriverActivity::read(&mut reader, &params)?);
                 }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
@@ -133,7 +161,7 @@ impl CardParser<WorkshopCard> for WorkshopCard {
                 }
                 CardFileID::VehicleUnitsUsed => {
                     let params = CardVehicleUnitsUsedParams::new(application_identification.no_of_card_vehicle_unit_records);
-                    workshop_card.card_vehicle_units_used = Some(CardVehicleUnitsUsed::read(&mut reader, &params)?);
+                    workshop_card.vehicle_units_used = Some(CardVehicleUnitsUsed::read(&mut reader, &params)?);
                 }
                 CardFileID::GnssPlaces => {
                     let params = GnssAccumulatedDrivingParams::new(application_identification.no_of_gnssad_records);

@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt;
 
 use serde::Serialize;
 
@@ -72,9 +72,42 @@ pub enum CardFileID {
     MF = 0x3F00,
 }
 
-impl Display for CardFileID {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
+impl fmt::Display for CardFileID {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            CardFileID::Unknown => "Unknown",
+            CardFileID::ICC => "ICC",
+            CardFileID::IC => "IC",
+            CardFileID::Tachograph => "Tachograph",
+            CardFileID::ApplicationIdentification => "ApplicationIdentification",
+            CardFileID::ApplicationIdentificationV2 => "ApplicationIdentificationV2",
+            CardFileID::EventsData => "EventsData",
+            CardFileID::FaultsData => "FaultsData",
+            CardFileID::DriverActivityData => "DriverActivityData",
+            CardFileID::VehiclesUsed => "VehiclesUsed",
+            CardFileID::Places => "Places",
+            CardFileID::CurrentUsage => "CurrentUsage",
+            CardFileID::ControlActivityData => "ControlActivityData",
+            CardFileID::Calibration => "Calibration",
+            CardFileID::SensorInstallationData => "SensorInstallationData",
+            CardFileID::ControllerActivityData => "ControllerActivityData",
+            CardFileID::CompanyActivityData => "CompanyActivityData",
+            CardFileID::CardDownload => "CardDownload",
+            CardFileID::Identification => "Identification",
+            CardFileID::DrivingLicenseInfo => "DrivingLicenseInfo",
+            CardFileID::SpecificConditions => "SpecificConditions",
+            CardFileID::VehicleUnitsUsed => "VehicleUnitsUsed",
+            CardFileID::GnssPlaces => "GnssPlaces",
+            CardFileID::BorderCrossings => "BorderCrossings",
+            CardFileID::CalibrationAddData => "CalibrationAddData",
+            CardFileID::VUConfiguration => "VUConfiguration",
+            CardFileID::CardCertificate => "CardCertificate",
+            CardFileID::CardSignCertificate => "CardSignCertificate",
+            CardFileID::CACertificate => "CACertificate",
+            CardFileID::LinkCertificate => "LinkCertificate",
+            CardFileID::MF => "MF",
+        };
+        write!(f, "{}", s)
     }
 }
 
