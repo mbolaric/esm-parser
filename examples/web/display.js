@@ -49,7 +49,7 @@ export class DisplayData {
 
     exportData = (key, data) => {
         if (data) {
-            const json = JSON.stringify(data, null, 4);
+            const json = JSON.stringify(data, this.mapToObject, 4);
             const blob = new Blob([json], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -176,37 +176,23 @@ export class DisplayData {
     };
 
     applyDataContent = (data) => {
-        const formattedData = JSON.stringify(data, null, 2);
+        const formattedData = JSON.stringify(data, this.mapToObject, 2);
         this.dataContent.textContent = formattedData;
         console.log("Success! Parsed data:", formattedData);
         this.setButtonState(this.buttionExportAll, false);
     };
 
-    mapToObject = (map) => {
-      const obj = {};
-      for (const [key, value] of map.entries()) {
-        obj[key] = value instanceof Map ? mapToObject(value) : value;
-      }
-      return obj;
-    }
+    mapToObject = (key, value) => {
+        if (value instanceof Map) {
+            return Object.fromEntries(value);
+        } else {
+            return value;
+        }
+    };
 
     applyData = (rootEl, data, fileName) => {
         this.clean();
         this.fileName = fileName;
-        if (data.cardDataResponses) {
-            if (data.cardDataResponses.dataFiles) {
-                data.cardDataResponses.dataFilesObj = this.mapToObject(data.cardDataResponses.dataFiles);
-            }
-            if (data.cardDataResponses.gen1 && data.cardDataResponses.gen1.dataFiles) {
-                data.cardDataResponses.gen1.dataFilesObj = this.mapToObject(data.cardDataResponses.gen1.dataFiles);
-            }
-            if (data.cardDataResponses.gen2 && data.cardDataResponses.gen2.dataFiles) {
-                data.cardDataResponses.gen2.dataFilesObj = this.mapToObject(data.cardDataResponses.gen2.dataFiles);
-            }
-        }
-        if (data.transferResParams && data.data.transferResParams.dataFiles) {
-            data.transferResParams.dataFilesObj = this.mapToObject(data.transferResParams.dataFiles);
-        }
         this.currentData = data;
         const header = data.header;
         console.log(header.generation);
