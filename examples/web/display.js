@@ -193,11 +193,19 @@ export class DisplayData {
     applyData = (rootEl, data, fileName) => {
         this.clean();
         this.fileName = fileName;
-        if (data.cardDataResponses && data.cardDataResponses.dataFiles) {
-            data.cardDataResponses.dataFiles = this.mapToObject(data.cardDataResponses.dataFiles);
+        if (data.cardDataResponses) {
+            if (data.cardDataResponses.dataFiles) {
+                data.cardDataResponses.dataFilesObj = this.mapToObject(data.cardDataResponses.dataFiles);
+            }
+            if (data.cardDataResponses.gen1 && data.cardDataResponses.gen1.dataFiles) {
+                data.cardDataResponses.gen1.dataFilesObj = this.mapToObject(data.cardDataResponses.gen1.dataFiles);
+            }
+            if (data.cardDataResponses.gen2 && data.cardDataResponses.gen2.dataFiles) {
+                data.cardDataResponses.gen2.dataFilesObj = this.mapToObject(data.cardDataResponses.gen2.dataFiles);
+            }
         }
         if (data.transferResParams && data.data.transferResParams.dataFiles) {
-            data.transferResParams.dataFiles = this.mapToObject(data.transferResParams.dataFiles);
+            data.transferResParams.dataFilesObj = this.mapToObject(data.transferResParams.dataFiles);
         }
         this.currentData = data;
         const header = data.header;
