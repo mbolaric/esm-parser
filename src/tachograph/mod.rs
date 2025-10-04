@@ -153,7 +153,7 @@ pub use tachograph_header::TachographHeader;
 pub use time_real::TimeReal;
 pub use vehicle_registration_identification::VehicleRegistrationIdentification;
 pub use vehicle_registration_number::VehicleRegistrationNumber;
-pub use verify_result::VerifyResult;
+pub use verify_result::{VerifyResult, VerifyStatus};
 pub use vu_data::VUData;
 pub use vu_detailed_speed_block::VuDetailedSpeedBlock;
 pub use vu_over_speeding_control_data::VuOverSpeedingControlData;

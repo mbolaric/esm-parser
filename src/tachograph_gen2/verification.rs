@@ -1,5 +1,8 @@
-use crate::{Error, Result, tacho::VerifyResult};
+use crate::{
+    Error, Result,
+    tacho::{CardFilesMap, VerifyResult},
+};
 
-pub fn verify() -> Result<VerifyResult> {
+pub fn verify(_data_files: &CardFilesMap, _erca_pk: &[u8]) -> Result<VerifyResult> {
     Err(Error::NotImplemented)
 }

@@ -103,4 +103,4 @@ pub mod gen2 {
 }
 pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::TachographData;
-pub use verification::verify;
+pub use verification::{verify, verify_with_erca_path};
