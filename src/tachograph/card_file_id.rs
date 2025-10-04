@@ -1,12 +1,12 @@
 use std::fmt;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::impl_enum_from_u16;
 
 /// Identifiers for files on a tachograph card.
 /// These files are also known as "tacho blocks".
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[repr(u16)]
 pub enum CardFileID {
     Unknown = 0x00,

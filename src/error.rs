@@ -44,6 +44,9 @@ pub enum Error {
     CardActivityDailyRecord(String),
     /// An error occurred when we try to export data with serde.
     Export(String),
+    /// Input data into function are empty.
+    EmptyInputData(String),
+    VerifyError(String),
 }
 
 impl fmt::Display for Error {

@@ -70,6 +70,7 @@ mod tachograph;
 mod tachograph_data;
 mod tachograph_gen1;
 mod tachograph_gen2;
+mod verification;
 
 pub use common::*;
 pub(crate) use consts::*;
@@ -102,3 +103,4 @@ pub mod gen2 {
 }
 pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::TachographData;
+pub use verification::verify;

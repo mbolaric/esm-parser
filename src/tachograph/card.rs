@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
@@ -17,7 +17,7 @@ pub enum CardGeneration {
     Combined,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CardFileData {
     #[serde(rename = "cardFileId")]
     pub card_file_id: CardFileID,

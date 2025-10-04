@@ -1,3 +1,5 @@
+import { verify } from "../../pkg/esm_parser.js";
+
 export const Generation = {
     FirstGeneration: "FirstGeneration",
     SecondGeneration: "SecondGeneration",
@@ -190,6 +192,14 @@ export class DisplayData {
         }
     };
 
+    verifyData = (data) => {
+        setTimeout(() => {
+            // FIXME: we need to load cert file and send to function with data for verification.
+            let resutl = verify(data, new Uint8Array());
+            console.log("Verify: ", resutl);
+        }, 0);
+    };
+
     applyData = (rootEl, data, fileName) => {
         this.clean();
         this.fileName = fileName;
@@ -244,6 +254,7 @@ export class DisplayData {
     processFirstGenerationCard = (dataType, data) => {
         this.processCardAllGenHeader(data);
         this.processCardGen1(data);
+        this.verifyData(data.dataFiles);
     };
 
     processCardGen1 = (gen1) => {
@@ -284,9 +295,11 @@ export class DisplayData {
         this.processCardAllGenHeader(rootData);
         if (gen1) {
             this.processCardGen1(gen1);
+            this.verifyData(gen1.dataFiles);
         }
         if (gen2) {
             this.processCardGen2(gen2);
+            this.verifyData(gen2.dataFiles);
         }
     };
 }
