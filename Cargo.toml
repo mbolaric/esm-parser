@@ -51,10 +51,11 @@ quick-xml = { version = "0.31.0", features = ["serialize"] }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 serde-wasm-bindgen = "0.6"
 
+# Cert verify
+num-bigint = "0.4"
+sha1 = "0.10"
+
 [dev-dependencies]
 log4rs = "1.4.0"
 clap = { version = "4.5.48", features = ["derive"] }
 indicatif  = "0.17.11"
-# Cert verify
-num-bigint = "0.4"
-sha1 = "0.10"

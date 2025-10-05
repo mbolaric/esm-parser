@@ -46,6 +46,7 @@ pub enum Error {
     Export(String),
     /// Input data into function are empty.
     EmptyInputData(String),
+    /// Errors in process of verification
     VerifyError(String),
 }
 
