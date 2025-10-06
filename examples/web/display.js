@@ -32,7 +32,28 @@ export const DataParts = {
     CACertificate: "caCertificate",
     CardDownload: "cardDownload",
     CardNotes: "cardNotes",
+    CardSignCertificate: "cardSignCertificate"
 };
+
+const ec_pk_gen2 = new Uint8Array([
+        127, 33, 129, 201, 127, 78, 129, 130, 95, 41, 1, 0, 66, 8, 253, 69, 67, 32, 1, 255, 255, 1, 95, 76, 7, 255, 83, 77, 82, 68,
+        84, 13, 127, 73, 78, 6, 9, 43, 36, 3, 3, 2, 8, 1, 1, 7, 134, 65, 4, 8, 192, 78, 57, 38, 200, 222, 133, 84, 66, 64, 205, 228,
+        13, 171, 112, 210, 180, 126, 15, 131, 118, 37, 34, 215, 176, 184, 84, 59, 155, 41, 220, 128, 229, 198, 123, 130, 166, 45, 85,
+        227, 72, 58, 180, 176, 10, 36, 194, 162, 86, 108, 55, 134, 121, 122, 26, 5, 40, 34, 171, 75, 241, 242, 146, 95, 32, 8, 253,
+        69, 67, 32, 1, 255, 255, 1, 95, 37, 4, 91, 33, 176, 0, 95, 36, 4, 155, 143, 174, 128, 95, 55, 64, 101, 198, 42, 193, 61, 237,
+        20, 127, 168, 209, 209, 26, 143, 91, 242, 207, 158, 149, 219, 27, 67, 210, 83, 180, 139, 97, 91, 47, 231, 11, 63, 216, 42,
+        168, 211, 61, 39, 240, 244, 215, 54, 124, 4, 144, 59, 187, 230, 55, 91, 100, 58, 25, 197, 184, 61, 25, 252, 116, 133, 219,
+        71, 108, 112, 103,
+    ]);
+
+const ec_pk_gen1 = new Uint8Array([
+        253, 69, 67, 32, 0, 255, 255, 1, 233, 128, 118, 58, 68, 74, 149, 37, 10, 149, 135, 130, 209, 213, 74, 207, 195, 35, 210,
+        95, 57, 70, 184, 22, 233, 47, 207, 157, 50, 180, 42, 38, 19, 209, 163, 99, 180, 228, 53, 50, 160, 38, 104, 99, 41, 200,
+        150, 99, 204, 192, 1, 247, 39, 130, 6, 182, 171, 101, 173, 40, 113, 132, 138, 104, 15, 106, 87, 216, 253, 161, 215, 130,
+        201, 181, 129, 41, 3, 234, 91, 102, 226, 169, 190, 29, 133, 189, 208, 253, 174, 118, 164, 96, 136, 215, 26, 97, 118, 177,
+        246, 169, 132, 25, 16, 4, 36, 220, 86, 208, 132, 106, 163, 200, 67, 144, 211, 81, 122, 15, 17, 146, 222, 223, 247, 64,
+        146, 76, 219, 167, 0, 0, 0, 0, 0, 1, 0, 1,
+    ]);
 
 export class DisplayData {
     constructor() {
@@ -192,18 +213,8 @@ export class DisplayData {
         }
     };
 
-    verifyData = (data) => {
+    verifyData = (data, ec_pk) => {
         setTimeout(() => {
-            // FIXME: we need to load cert file and send to function with data for verification.
-            // ec_pk for Gen1
-            let ec_pk = new Uint8Array([
-                    253, 69, 67, 32, 0, 255, 255, 1, 233, 128, 118, 58, 68, 74, 149, 37, 10, 149, 135, 130, 209, 213, 74, 207, 195, 35, 210,
-                    95, 57, 70, 184, 22, 233, 47, 207, 157, 50, 180, 42, 38, 19, 209, 163, 99, 180, 228, 53, 50, 160, 38, 104, 99, 41, 200,
-                    150, 99, 204, 192, 1, 247, 39, 130, 6, 182, 171, 101, 173, 40, 113, 132, 138, 104, 15, 106, 87, 216, 253, 161, 215, 130,
-                    201, 181, 129, 41, 3, 234, 91, 102, 226, 169, 190, 29, 133, 189, 208, 253, 174, 118, 164, 96, 136, 215, 26, 97, 118, 177,
-                    246, 169, 132, 25, 16, 4, 36, 220, 86, 208, 132, 106, 163, 200, 67, 144, 211, 81, 122, 15, 17, 146, 222, 223, 247, 64,
-                    146, 76, 219, 167, 0, 0, 0, 0, 0, 1, 0, 1,
-                ]);
             let resutl = verify(data, ec_pk);
             console.log("Verify: ", resutl);
         }, 0);
@@ -263,7 +274,7 @@ export class DisplayData {
     processFirstGenerationCard = (dataType, data) => {
         this.processCardAllGenHeader(data);
         this.processCardGen1(data);
-        this.verifyData(data.dataFiles);
+        this.verifyData(data.dataFiles, ec_pk_gen1);
     };
 
     processCardGen1 = (gen1) => {
@@ -293,6 +304,7 @@ export class DisplayData {
         this.addCardMenu(gen2, "SpecificConditions", DataParts.SpecificConditions, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "ControlActivityData", DataParts.ControlActivityData, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CardCertificate", DataParts.CardCertificate, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "CardSignCertificate", DataParts.CardSignCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CACertificate", DataParts.CACertificate, CardGeneration.SecondGeneration);
     };
 
@@ -304,11 +316,11 @@ export class DisplayData {
         this.processCardAllGenHeader(rootData);
         if (gen1) {
             this.processCardGen1(gen1);
-            this.verifyData(gen1.dataFiles);
+            this.verifyData(gen1.dataFiles, ec_pk_gen1);
         }
         if (gen2) {
             this.processCardGen2(gen2);
-            this.verifyData(gen2.dataFiles);
+            this.verifyData(gen2.dataFiles, ec_pk_gen2);
         }
     };
 }

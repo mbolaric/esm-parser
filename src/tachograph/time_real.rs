@@ -16,6 +16,10 @@ pub struct TimeReal {
 }
 
 impl TimeReal {
+    pub(crate) fn new(data: u32) -> Self {
+        Self { data, date_time: chrono::DateTime::from_timestamp(data as i64, 0) }
+    }
+
     /// Returns the date part of the timestamp as a string in "YYYY-MM-DD" format.
     /// This is useful for extracting the date of an event from the tachograph data.
     pub fn get_date_str(&self) -> String {

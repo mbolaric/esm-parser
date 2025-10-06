@@ -22,6 +22,7 @@ pub struct VerifyItem {
 pub enum VerifyResultStatus {
     Invalid,
     Valid,
+    Unsigned,
     PartialyValid,
 }
 

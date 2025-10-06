@@ -1,9 +1,11 @@
 use binary_data::BinMemoryBuffer;
+use log::debug;
 use num_bigint::BigUint;
 use sha1::{Digest, Sha1};
 
 use crate::{
     Error, Readable, Result,
+    helpers::get_sub_array,
     tacho::{CardFileData, CardFileID, CardFilesMap, TimeReal, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus},
 };
 
@@ -169,10 +171,6 @@ fn decrypt_card_certificate(certificate: &Certificate, ca_certificate: &Decrypte
     certificate.decrypt(&cr, &h)
 }
 
-fn get_sub_array(data: &[u8], offset: usize, len: usize) -> &[u8] {
-    &data[offset..offset + len]
-}
-
 fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificate) -> Result<Vec<VerifyItem>> {
     let mut result: Vec<VerifyItem> = Vec::new();
     for data_file in data_files.iter() {
@@ -237,9 +235,9 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     let card_certificate = create_certificate_from(card_cert_file)?;
 
     let ca_decrypted = decrypt_ca_certificate(&ca_certificate, &ec_pk_certificate)?;
-    println!("CA Decrypted: {:?}", ca_decrypted);
+    debug!("CA Decrypted: {:?}", ca_decrypted);
     let card_decrypted = decrypt_card_certificate(&card_certificate, &ca_decrypted)?;
-    println!("Card Decrypted: {:?}", card_decrypted);
+    debug!("Card Decrypted: {:?}", card_decrypted);
 
     let mut result = vec![
         VerifyItem {

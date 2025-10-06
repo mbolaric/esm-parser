@@ -174,9 +174,6 @@ impl<D> dyn Card<D> {
                 debug!("Card::procces_card_data_file - CardDataFile: {data_file:?}");
                 return Err(Error::UnknownCardType);
             }
-            CardFileID::ApplicationIdentificationV2 => {
-                debug!("Card::procces_card_data_file - CardDataFile: {data_file:?} is not processed");
-            }
             _ => {
                 debug!(
                     "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?}",

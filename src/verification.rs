@@ -58,7 +58,7 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8]) -> Result<VerifyResult>
     if erca_pk.len() == 144 {
         return gen1::verify(data_files, erca_pk.try_into().unwrap());
     }
-    gen2::verify(data_files, erca_pk)
+    gen2::verify(data_files, erca_pk.try_into().unwrap())
 }
 
 /// Verifies signatures by loading the ERCA public key from a file path.
