@@ -32,7 +32,11 @@ export const DataParts = {
     CACertificate: "caCertificate",
     CardDownload: "cardDownload",
     CardNotes: "cardNotes",
-    CardSignCertificate: "cardSignCertificate"
+    CardSignCertificate: "cardSignCertificate",
+    LinkCertificate: "linkCertificate",
+    CardDownload: "cardDownload",
+    VehicleUnitsUsed: "vehicleUnitsUsed",
+    GnssPlaces: "gnssPlaces"
 };
 
 const ec_pk_gen2 = new Uint8Array([
@@ -306,6 +310,10 @@ export class DisplayData {
         this.addCardMenu(gen2, "CardCertificate", DataParts.CardCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CardSignCertificate", DataParts.CardSignCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CACertificate", DataParts.CACertificate, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "LinkCertificate", DataParts.LinkCertificate, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "CardDownload", DataParts.CardDownload, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "VehicleUnitsUsed", DataParts.VehicleUnitsUsed, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "GnssPlaces", DataParts.GnssPlaces, CardGeneration.SecondGeneration);
     };
 
     processSecondGenerationCard = (dataType, data) => {
