@@ -6,14 +6,16 @@ use crate::tacho::{CardFileID, TimeReal};
 pub enum VerifyStatus {
     Invalid,
     Valid,
+    InvalidSignatureSize,
     NotHaveSignature,
+    NotHaveData,
 }
 
 #[derive(Debug, Serialize)]
 pub struct VerifyItem {
     pub card_file_id: CardFileID,
     pub status: VerifyStatus,
-    pub end_of_validity: TimeReal,
+    pub end_of_validity: Option<TimeReal>,
 }
 
 #[derive(Debug, Serialize)]

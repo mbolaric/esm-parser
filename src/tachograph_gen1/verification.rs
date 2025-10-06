@@ -15,6 +15,9 @@ const HASH_SIZE: usize = 20;
 const RSA_KEY_SIZE: usize = 136;
 const DECRYPTED_CERT_SIZE: usize = 164;
 
+const DATA_PATTERN: [u8; 15] = [48, 33, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20];
+const SIGNATURE_PADDING: [u8; 90] = [0xFF; 90];
+
 #[derive(Debug)]
 struct RsaPublicKey {
     modulus: BigUint,
@@ -166,6 +169,63 @@ fn decrypt_card_certificate(certificate: &Certificate, ca_certificate: &Decrypte
     certificate.decrypt(&cr, &h)
 }
 
+fn get_sub_array(data: &[u8], offset: usize, len: usize) -> &[u8] {
+    &data[offset..offset + len]
+}
+
+fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificate) -> Result<Vec<VerifyItem>> {
+    let mut result: Vec<VerifyItem> = Vec::new();
+    for data_file in data_files.iter() {
+        let id = data_file.0;
+        if id == &CardFileID::CACertificate || id == &CardFileID::CardCertificate {
+            continue;
+        }
+
+        let data = data_file.1;
+
+        if data.data.is_none() {
+            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveData, end_of_validity: None });
+            continue;
+        }
+
+        if data.signature.is_none() {
+            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveSignature, end_of_validity: None });
+            continue;
+        }
+
+        let raw_data = data.data.as_ref().unwrap();
+        match data.signature.as_ref().unwrap()[0..SIG_SIZE].try_into() {
+            Ok(signature) => {
+                let perf_ret = card_certificate.rsa_public_key.perform(&signature);
+
+                let mut hasher = Sha1::new();
+                hasher.update(raw_data);
+                let hash: [u8; HASH_SIZE] = hasher.finalize().into();
+
+                if perf_ret.len() == 127
+                    && hash.as_slice() == get_sub_array(&perf_ret, 107, 20)
+                    && get_sub_array(&perf_ret, 92, 15) == DATA_PATTERN
+                    && get_sub_array(&perf_ret, 1, 90) == SIGNATURE_PADDING
+                {
+                    result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Valid, end_of_validity: None });
+                    continue;
+                }
+
+                result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Invalid, end_of_validity: None });
+            }
+            Err(_) => {
+                result.push(VerifyItem {
+                    card_file_id: id.clone(),
+                    status: VerifyStatus::InvalidSignatureSize,
+                    end_of_validity: None,
+                });
+            }
+        }
+    }
+
+    Ok(result)
+}
+
 pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyResult> {
     let ca_cert_file =
         data_files.get(&CardFileID::CACertificate).ok_or(Error::VerifyError("Missing CA Certificate.".to_string()))?;
@@ -181,20 +241,20 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     let card_decrypted = decrypt_card_certificate(&card_certificate, &ca_decrypted)?;
     println!("Card Decrypted: {:?}", card_decrypted);
 
-    // FIXME: only for test ... we need after thet test all file parts and return proper response.
-    Ok(VerifyResult {
-        status: VerifyResultStatus::Valid,
-        result: vec![
-            VerifyItem {
-                status: VerifyStatus::Valid,
-                card_file_id: CardFileID::CACertificate,
-                end_of_validity: ca_decrypted.end_of_validity,
-            },
-            VerifyItem {
-                status: VerifyStatus::Valid,
-                card_file_id: CardFileID::CardCertificate,
-                end_of_validity: card_decrypted.end_of_validity,
-            },
-        ],
-    })
+    let mut result = vec![
+        VerifyItem {
+            status: VerifyStatus::Valid,
+            card_file_id: CardFileID::CACertificate,
+            end_of_validity: Some(ca_decrypted.end_of_validity),
+        },
+        VerifyItem {
+            status: VerifyStatus::Valid,
+            card_file_id: CardFileID::CardCertificate,
+            end_of_validity: Some(card_decrypted.end_of_validity.clone()),
+        },
+    ];
+    let verifed_data = verify_data(data_files, &card_decrypted)?;
+    result.extend(verifed_data);
+
+    Ok(VerifyResult { status: VerifyResultStatus::Valid, result })
 }

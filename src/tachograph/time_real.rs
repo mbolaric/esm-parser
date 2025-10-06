@@ -7,7 +7,7 @@ use crate::{Readable, Writable};
 const FORMAT_UTC: &str = "%Y-%m-%d %H:%M:%S UTC";
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TimeReal {
     /// The raw Unix timestamp value from the DDD file.
     pub data: u32,
