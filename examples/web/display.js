@@ -19,6 +19,8 @@ export const DataParts = {
     Identification: "identification",
     IC: "cardChipIdentification",
     ICC: "cardIccIdentification",
+    ApplicationIdentification: "applicationIdentification",
+    ApplicationIdentificationV2: "applicationIdentificationV2",
     DrivingLicenceInformation: "drivingLicenceInformation",
     VehiclesUsed: "vehiclesUsed",
     EventsData: "eventsData",
@@ -283,6 +285,7 @@ export class DisplayData {
 
     processCardGen1 = (gen1) => {
         this.addMenuHeader("Card Generation 1");
+        this.addCardMenu(gen1, "ApplicationIdentification", DataParts.ApplicationIdentification, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "DrivingLicenceInformation", DataParts.DrivingLicenceInformation, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "VehiclesUsed", DataParts.VehiclesUsed, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "EventsData", DataParts.EventsData, CardGeneration.FirstGeneration);
@@ -298,6 +301,8 @@ export class DisplayData {
 
     processCardGen2 = (gen2) => {
         this.addMenuHeader("Card Generation 2");
+        this.addCardMenu(gen2, "ApplicationIdentification", DataParts.ApplicationIdentification, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "ApplicationIdentificationV2", DataParts.ApplicationIdentificationV2, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "DrivingLicenceInformation", DataParts.DrivingLicenceInformation, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "VehiclesUsed", DataParts.VehiclesUsed, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "EventsData", DataParts.EventsData, CardGeneration.SecondGeneration);

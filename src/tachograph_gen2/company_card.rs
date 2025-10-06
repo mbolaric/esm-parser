@@ -10,7 +10,7 @@ use crate::tacho::{
     CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, Identification,
     IdentificationParams,
 };
-use crate::{ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Company card application generation 2
 #[derive(Debug, Serialize)]
@@ -24,7 +24,7 @@ pub struct CompanyCard {
     #[serde(rename = "applicationIdentification")]
     pub application_identification: CompanyCardApplicationIdentification,
     #[serde(rename = "applicationIdentificationV2")]
-    pub application_identification_v2: CompanyCardApplicationIdentificationV2,
+    pub application_identification_v2: Option<CompanyCardApplicationIdentificationV2>,
     pub identification: Option<Identification>,
     #[serde(rename = "companyActivityData")]
     pub company_activity_data: Option<CompanyActivityData<CompanyActivityRecord>>,
@@ -45,7 +45,6 @@ impl CompanyCard {
         card_chip_identification: CardChipIdentification,
         card_icc_identification: CardIccIdentification,
         application_identification: CompanyCardApplicationIdentification,
-        application_identification_v2: CompanyCardApplicationIdentificationV2,
         card_notes: String,
         data_files: HashMap<CardFileID, CardFileData>,
     ) -> Self {
@@ -54,7 +53,7 @@ impl CompanyCard {
             card_chip_identification,
             card_icc_identification,
             application_identification,
-            application_identification_v2,
+            application_identification_v2: None,
             identification: None,
             company_activity_data: None,
             card_certificate: None,
@@ -73,15 +72,11 @@ impl CardParser<CompanyCard> for CompanyCard {
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
             CompanyCardApplicationIdentification,
         >(card_data_files)?;
-        let application_identification_v2 = <dyn Card<CardResponseParameterData>>::parse_by_card_file_id::<
-            CompanyCardApplicationIdentificationV2,
-        >(&CardFileID::ApplicationIdentificationV2, card_data_files)?;
 
         let mut company_card = CompanyCard::new(
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
-            application_identification_v2,
             card_notes.to_owned(),
             (*card_data_files).clone(),
         );
@@ -97,6 +92,9 @@ impl CardParser<CompanyCard> for CompanyCard {
                 card_file.signature.is_some()
             );
             match card_item.0 {
+                CardFileID::ApplicationIdentificationV2 => {
+                    company_card.application_identification_v2 = Some(CompanyCardApplicationIdentificationV2::read(&mut reader)?);
+                }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
                     company_card.identification = Some(Identification::read(&mut reader, &params)?);
@@ -117,10 +115,7 @@ impl CardParser<CompanyCard> for CompanyCard {
                     let params = CertificateParams::new(None);
                     company_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
-                CardFileID::IC
-                | CardFileID::ICC
-                | CardFileID::ApplicationIdentification
-                | CardFileID::ApplicationIdentificationV2 => {
+                CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
                     trace!("CompanyCard::parse - Already parsed: {:?}", card_item.0)
                 }
                 _ => trace!("CompanyCard::parse - Not Parsed: {:?}", card_item.0),

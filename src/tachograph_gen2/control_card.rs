@@ -10,7 +10,7 @@ use crate::tacho::{
     ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
     ControlCardControlActivityDataParams, Identification, IdentificationParams,
 };
-use crate::{ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Control card application generation 2
 #[derive(Debug, Serialize)]
@@ -24,7 +24,7 @@ pub struct ControlCard {
     #[serde(rename = "applicationIdentification")]
     pub application_identification: ControlCardApplicationIdentification,
     #[serde(rename = "applicationIdentificationV2")]
-    pub application_identification_v2: ControlCardApplicationIdentificationV2,
+    pub application_identification_v2: Option<ControlCardApplicationIdentificationV2>,
     pub identification: Option<Identification>,
     #[serde(rename = "controlCardControlActivityData")]
     pub controller_activity_data: Option<ControlCardControlActivityData<ControlCardActivityRecord>>,
@@ -45,7 +45,6 @@ impl ControlCard {
         card_chip_identification: CardChipIdentification,
         card_icc_identification: CardIccIdentification,
         application_identification: ControlCardApplicationIdentification,
-        application_identification_v2: ControlCardApplicationIdentificationV2,
         card_notes: String,
         data_files: HashMap<CardFileID, CardFileData>,
     ) -> Self {
@@ -54,7 +53,7 @@ impl ControlCard {
             card_chip_identification,
             card_icc_identification,
             application_identification,
-            application_identification_v2,
+            application_identification_v2: None,
             identification: None,
             controller_activity_data: None,
             card_certificate: None,
@@ -73,15 +72,11 @@ impl CardParser<ControlCard> for ControlCard {
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
             ControlCardApplicationIdentification,
         >(card_data_files)?;
-        let application_identification_v2 = <dyn Card<CardResponseParameterData>>::parse_by_card_file_id::<
-            ControlCardApplicationIdentificationV2,
-        >(&CardFileID::ApplicationIdentificationV2, card_data_files)?;
 
         let mut control_card = ControlCard::new(
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
-            application_identification_v2,
             card_notes.to_owned(),
             (*card_data_files).clone(),
         );
@@ -97,6 +92,9 @@ impl CardParser<ControlCard> for ControlCard {
                 card_file.signature.is_some()
             );
             match card_item.0 {
+                CardFileID::ApplicationIdentificationV2 => {
+                    control_card.application_identification_v2 = Some(ControlCardApplicationIdentificationV2::read(&mut reader)?);
+                }
                 CardFileID::Identification => {
                     let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
                     control_card.identification = Some(Identification::read(&mut reader, &params)?);
@@ -118,10 +116,7 @@ impl CardParser<ControlCard> for ControlCard {
                     let params = CertificateParams::new(None);
                     control_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
-                CardFileID::IC
-                | CardFileID::ICC
-                | CardFileID::ApplicationIdentification
-                | CardFileID::ApplicationIdentificationV2 => {
+                CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
                     trace!("ControlCard::parse - Already parsed: {:?}", card_item.0)
                 }
                 _ => trace!("ControlCard::parse - Not Parsed: {:?}", card_item.0),

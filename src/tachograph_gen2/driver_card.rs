@@ -8,8 +8,8 @@ use crate::{
     Readable, ReadableWithParams, Result,
     gen2::{
         CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
-        CertificateParams, DriverCardApplicationIdentification, GnssAccumulatedDriving, GnssAccumulatedDrivingParams,
-        PlaceRecord, SpecificConditions, SpecificConditionsParams,
+        CertificateParams, DriverCardApplicationIdentification, DriverCardApplicationIdentificationV2, GnssAccumulatedDriving,
+        GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions, SpecificConditionsParams,
     },
     tacho::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
@@ -31,6 +31,8 @@ pub struct DriverCard {
     pub card_icc_identification: CardIccIdentification,
     #[serde(rename = "applicationIdentification")]
     pub application_identification: DriverCardApplicationIdentification,
+    #[serde(rename = "applicationIdentificationV2")]
+    pub application_identification_v2: Option<DriverCardApplicationIdentificationV2>,
     #[serde(rename = "cardDownload")]
     pub card_download: Option<TimeReal>,
     #[serde(rename = "eventsData")]
@@ -82,6 +84,7 @@ impl DriverCard {
             card_chip_identification,
             card_icc_identification,
             application_identification,
+            application_identification_v2: None,
             card_download: None,
             events_data: None,
             faults_data: None,
@@ -133,6 +136,9 @@ impl CardParser<DriverCard> for DriverCard {
                 card_file.signature.is_some()
             );
             match card_item.0 {
+                CardFileID::ApplicationIdentificationV2 => {
+                    driver_card.application_identification_v2 = Some(DriverCardApplicationIdentificationV2::read(&mut reader)?);
+                }
                 CardFileID::CardDownload => {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }

@@ -21,6 +21,7 @@ mod control_card_application_identification_v2;
 mod data_info;
 mod driver_card;
 mod driver_card_application_identification;
+mod driver_card_application_identification_v2;
 mod ecc_certificate;
 mod extended_seal_identifier;
 mod full_card_number_and_generation;
@@ -92,6 +93,7 @@ pub use control_card_application_identification_v2::ControlCardApplicationIdenti
 pub use data_info::{DataInfo, DataInfoGenericRecordArray, DataInfoReadable};
 pub use driver_card::DriverCard;
 pub use driver_card_application_identification::DriverCardApplicationIdentification;
+pub use driver_card_application_identification_v2::DriverCardApplicationIdentificationV2;
 pub use ecc_certificate::EccCertificate;
 pub use extended_seal_identifier::ExtendedSealIdentifier;
 pub use full_card_number_and_generation::FullCardNumberAndGeneration;
