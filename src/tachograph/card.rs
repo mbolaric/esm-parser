@@ -1,8 +1,11 @@
+use core::fmt;
 use std::collections::HashMap;
 
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
 use serde::{Deserialize, Serialize};
+
+use wasm_bindgen::prelude::*;
 
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
@@ -10,11 +13,23 @@ use crate::{Error, Readable, Result};
 pub type CardParseFunc<D> = dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>;
 pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[wasm_bindgen]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CardGeneration {
     Gen1,
     Gen2,
     Combined,
+}
+
+impl fmt::Display for CardGeneration {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            CardGeneration::Combined => "Combined",
+            CardGeneration::Gen1 => "Gen1",
+            CardGeneration::Gen2 => "Gen2",
+        };
+        write!(f, "{}", s)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

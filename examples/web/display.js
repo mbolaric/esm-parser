@@ -1,4 +1,4 @@
-import { verify } from "../../pkg/esm_parser.js";
+import { verify_card, CardGeneration as EsmCardGeneration } from "../../pkg/esm_parser.js";
 
 export const Generation = {
     FirstGeneration: "FirstGeneration",
@@ -219,11 +219,25 @@ export class DisplayData {
         }
     };
 
-    verifyData = (data, ec_pk) => {
-        setTimeout(() => {
-            let resutl = verify(data, ec_pk);
+    getCardGenerationFromString = (gen) => {
+        switch (gen) {
+            case "Gen1":
+                return EsmCardGeneration.Gen1
+            case "Gen2":
+                return EsmCardGeneration.Gen2
+            case "Combined":
+                return EsmCardGeneration.Combined
+        }
+    }
+
+    verifyCardData = (gen, data, ecPk) => {
+        console.log("Call with:", gen, data, ecPk);
+        try {
+            let resutl = verify_card(this.getCardGenerationFromString(gen), data, ecPk);
             console.log("Verify: ", resutl);
-        }, 0);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     applyData = (rootEl, data, fileName) => {
@@ -280,7 +294,7 @@ export class DisplayData {
     processFirstGenerationCard = (dataType, data) => {
         this.processCardAllGenHeader(data);
         this.processCardGen1(data);
-        this.verifyData(data.dataFiles, ec_pk_gen1);
+        this.verifyCardData(data.cardGeneration, data.dataFiles, ec_pk_gen1);
     };
 
     processCardGen1 = (gen1) => {
@@ -329,11 +343,11 @@ export class DisplayData {
         this.processCardAllGenHeader(rootData);
         if (gen1) {
             this.processCardGen1(gen1);
-            this.verifyData(gen1.dataFiles, ec_pk_gen1);
+            this.verifyCardData(gen1.cardGeneration, gen1.dataFiles, ec_pk_gen1);
         }
         if (gen2) {
             this.processCardGen2(gen2);
-            this.verifyData(gen2.dataFiles, ec_pk_gen2);
+            this.verifyCardData(gen2.cardGeneration, gen2.dataFiles, ec_pk_gen2);
         }
     };
 }

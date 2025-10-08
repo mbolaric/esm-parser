@@ -14,10 +14,28 @@ pub struct Args {
 
     #[clap(global = true, short, long)]
     pub pretty: bool,
+
+    #[clap(
+        global = true,
+        short,
+        long,
+        default_value = "",
+        help = "Path for ERCA PK *.bin file (144 bytes). When this file is provided we verify vertificates, Work only for Gen1 Version."
+    )]
+    pub erca_gen1_file: String,
+
+    #[clap(
+        global = true,
+        short,
+        long,
+        default_value = "",
+        help = "Path for ERCA PK *.bin file (205 bytes). When this file is provided we verify vertificates, Work for Gen2 Version."
+    )]
+    pub erca_gen2_file: String,
 }
 
 fn main() {
     init_logging();
     let args = Args::parse();
-    export(&ExportType::Xml, &args.ddd_file, &args.xml_file, args.pretty);
+    export(&ExportType::Json, &args.ddd_file, &args.xml_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty);
 }

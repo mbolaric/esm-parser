@@ -1,8 +1,10 @@
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 
+use esm_parser::TachographData;
 use esm_parser::{Export, parse_from_file};
 use indicatif::ProgressBar;
 use serde::Serialize;
@@ -51,6 +53,7 @@ fn parse_inner(
         ExportType::Xml if pretty => data.to_xml_pretty()?,
         ExportType::Xml => data.to_xml()?,
     };
+
     let mut file = File::create(out_path)?;
     pb.println(format!("[+] Write {} to file ({:}) ...", export_type, out_path));
     file.write_all(out_str.as_bytes())?;
@@ -64,8 +67,43 @@ fn parse(export_type: &ExportType, data: &(impl Export + Serialize), out_path: &
     }
 }
 
+fn verify(data: &TachographData, erca_gen1_file: &str, _erca_gen2_file: &str, pb: &ProgressBar) {
+    // Verification
+    pb.println("[+] Start certificate verification.");
+    match data {
+        TachographData::CardGen1(_card_gen1) => {
+            // FIXME:
+            let _erca_cert: Vec<u8> = if !erca_gen1_file.is_empty() {
+                let path = Path::new(erca_gen1_file);
+                if !path.exists() {
+                    pb.println(format!("[-] ERCA File not Exists: {:}", erca_gen1_file));
+                    pb.println("[-] Certificate verification disabled.");
+                    Vec::new()
+                } else {
+                    fs::read(erca_gen1_file).unwrap_or_default()
+                }
+            } else {
+                Vec::new()
+            };
+            pb.println("[-] Certificate verification is not implemented.");
+        }
+        TachographData::CardGen2(_card_gen1) => {}
+        _ => {
+            pb.println("[-] Certificate Verification not supported");
+            pb.println("[-] Certificate verification disabled.");
+        }
+    }
+}
+
 #[allow(dead_code)]
-pub fn export(export_type: &ExportType, ddd_file: &str, out_file: &str, pretty: bool) {
+pub fn export(
+    export_type: &ExportType,
+    ddd_file: &str,
+    out_file: &str,
+    erca_gen1_file: &str,
+    erca_gen2_file: &str,
+    pretty: bool,
+) {
     #[cfg(debug_assertions)]
     let pb = ProgressBar::hidden();
     #[cfg(not(debug_assertions))]
@@ -82,7 +120,10 @@ pub fn export(export_type: &ExportType, ddd_file: &str, out_file: &str, pretty: 
 
     let out_path = prepare_out_path(ddd_file, out_file, export_type);
     match parse_from_file(ddd_file) {
-        Ok(data) => parse(export_type, &data, &out_path, &pb, pretty),
+        Ok(data) => {
+            parse(export_type, &data, &out_path, &pb, pretty);
+            verify(&data, &erca_gen1_file, &erca_gen2_file, &pb);
+        }
         Err(err) => {
             pb.println(format!("[-] {:}", err));
             pb.println("[+] Parsing Done");

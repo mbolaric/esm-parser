@@ -1,3 +1,4 @@
+use log::debug;
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -50,7 +51,10 @@ impl From<u8> for VUTransferResponseParameterID {
             0x33 => VUTransferResponseParameterID::Gen2v2EventsAndFaults,
             0x34 => VUTransferResponseParameterID::Gen2v2Speed,
             0x35 => VUTransferResponseParameterID::Gen2v2TechnicalData,
-            _ => VUTransferResponseParameterID::Unknown,
+            _ => {
+                debug!("Unknown TREP ID: {:2X}", value);
+                VUTransferResponseParameterID::Unknown
+            }
         }
     }
 }
