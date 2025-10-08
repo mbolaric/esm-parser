@@ -17,7 +17,7 @@ pub struct Args {
 
     #[clap(
         global = true,
-        short,
+        short = 'e',
         long,
         default_value = "",
         help = "Path for ERCA PK *.bin file (144 bytes). When this file is provided we verify vertificates, Work only for Gen1 Version."
@@ -26,7 +26,7 @@ pub struct Args {
 
     #[clap(
         global = true,
-        short,
+        short = 'E',
         long,
         default_value = "",
         help = "Path for ERCA PK *.bin file (205 bytes). When this file is provided we verify vertificates, Work for Gen2 Version."

@@ -94,7 +94,7 @@ pub fn verify_card(generation: &CardGeneration, data_files: &CardFilesMap, erca_
 /// This function can fail if:
 /// * The file at `erca_pk_file_path` cannot be opened or read.
 /// * Any of the conditions for an error in the `verify_card` function are met.
-pub fn verify_with_erca_path(
+pub fn verify_card_with_erca_path(
     generation: CardGeneration,
     data_files: &CardFilesMap,
     erca_pk_file_path: &str,

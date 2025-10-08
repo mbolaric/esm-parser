@@ -1,6 +1,9 @@
 use serde::Serialize;
 
-use crate::tacho::{CardFileID, TimeReal};
+use crate::{
+    Export,
+    tacho::{CardFileID, TimeReal},
+};
 
 #[derive(Debug, Serialize)]
 pub enum VerifyStatus {
@@ -31,3 +34,5 @@ pub struct VerifyResult {
     pub status: VerifyResultStatus,
     pub result: Vec<VerifyItem>,
 }
+
+impl Export for VerifyResult {}

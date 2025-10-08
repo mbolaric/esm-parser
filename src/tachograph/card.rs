@@ -13,6 +13,10 @@ use crate::{Error, Readable, Result};
 pub type CardParseFunc<D> = dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>;
 pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
+pub trait DataFiles {
+    fn get_data_files(&self) -> &CardFilesMap;
+}
+
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CardGeneration {

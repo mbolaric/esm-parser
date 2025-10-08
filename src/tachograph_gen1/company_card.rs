@@ -7,8 +7,8 @@ use serde::Serialize;
 use crate::gen1::{CardResponseParameterData, Certificate};
 use crate::tacho::{
     Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
-    CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, Identification,
-    IdentificationParams,
+    CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, DataFiles,
+    Identification, IdentificationParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -105,5 +105,11 @@ impl CardParser<CompanyCard> for CompanyCard {
         }
 
         Ok(Box::new(company_card))
+    }
+}
+
+impl DataFiles for CompanyCard {
+    fn get_data_files(&self) -> &crate::tacho::CardFilesMap {
+        &self.data_files
     }
 }
