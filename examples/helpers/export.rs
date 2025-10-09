@@ -126,6 +126,7 @@ fn verify(
                     },
                     Err(err) => {
                         pb.println(format!("[-] Certificate verification error: {}.", err));
+                        pb.println("[+] Certificate verification Done.")
                     }
                 }
                 return;
@@ -170,7 +171,9 @@ pub fn export(
     match parse_from_file(ddd_file) {
         Ok(data) => {
             parse(export_type, &data, &out_path, &pb, pretty);
-            verify(export_type, &data, &erca_gen1_file, &erca_gen2_file, &out_verify_path, &pb, pretty);
+            if !erca_gen1_file.is_empty() || !erca_gen2_file.is_empty() {
+                verify(export_type, &data, erca_gen1_file, erca_gen2_file, &out_verify_path, &pb, pretty);
+            }
         }
         Err(err) => {
             pb.println(format!("[-] {:}", err));
