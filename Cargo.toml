@@ -36,12 +36,9 @@ wasm-opt = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-log = { version = "0.4.28", features = [
-    "max_level_debug",
-    "release_max_level_warn",
-] }
+log = { version = "0.4.28", default-features = false, features = ["max_level_debug", "release_max_level_debug"] }
 
-binary-data = { git = "https://github.com/mbolaric/binary-data.git" }
+binary-data = { git = "https://github.com/mbolaric/binary-data.git", default-features = false }
 chrono = "0.4.42"
 
 serde = { version = "1.0.226", features = ["derive"] }
@@ -55,6 +52,7 @@ sha1 = "0.10"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 serde-wasm-bindgen = "0.6"
+web-sys = { version = "0.3.81", features = ['console'] }
 
 [dev-dependencies]
 log4rs = "1.4.0"

@@ -1,5 +1,5 @@
 use binary_data::{BinMemoryBuffer, BinReader, BinSeek, ReadBytes};
-use log::debug;
+use log::{debug, trace};
 
 use crate::{
     Error, Result, TachographData, gen1, gen2,
@@ -91,7 +91,7 @@ pub fn parse_from_file(esm_file_path: &str) -> Result<TachographData> {
 /// A `Result` containing the parsed `TachographData` or an `Error` if parsing fails.
 pub fn parse_from_memory(esm_data: &[u8]) -> Result<TachographData> {
     let mut reader = BinMemoryBuffer::from(esm_data);
-    debug!("EsmParser::parse_inner - File: {reader:?}");
+    trace!("EsmParser::parse_inner - File: {reader:?}");
 
     parse_inner(&reader.read_bytes::<2>()?, reader.len()? as u64, &mut reader)
 }
@@ -120,6 +120,7 @@ mod wasm_support {
     /// - On failure, the `Promise` rejects with a `JsValue` containing the error message.
     #[wasm_bindgen(js_name = parse_from_memory)]
     pub fn parse_from_memory_wasm(esm_data: &[u8]) -> std::result::Result<JsValue, JsValue> {
+        debug!("EsmParser::parse_from_memory_wasm - is called.");
         let result = parse_from_memory(esm_data);
         match result {
             Ok(data) => to_value(&data).map_err(|e| e.into()),

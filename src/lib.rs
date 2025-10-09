@@ -104,3 +104,15 @@ pub mod gen2 {
 pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::TachographData;
 pub use verification::{verify_card, verify_card_with_erca_path};
+
+#[cfg(target_arch = "wasm32")]
+pub use helpers::{LogLevel, init_console_logging};
+
+/// This function is the entry point for the WebAssembly module.
+/// It is executed automatically when the WASM module is loaded in the browser.
+/// It sets up a custom panic hook to provide more informative error messages in the console.
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start_wasm() {
+    helpers::set_panic_hook();
+}

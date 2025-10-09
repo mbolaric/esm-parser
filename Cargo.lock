@@ -82,10 +82,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 [[package]]
 name = "binary-data"
 version = "0.1.0"
-source = "git+https://github.com/mbolaric/binary-data.git#34498be60b99269162c923ef03e9e80dd95b3533"
-dependencies = [
- "log",
-]
+source = "git+https://github.com/mbolaric/binary-data.git#992a33241564ee912f7bf45a76458af485c7ef48"
 
 [[package]]
 name = "bitflags"
@@ -287,6 +284,7 @@ dependencies = [
  "serde_json",
  "sha1",
  "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -954,6 +952,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bad67dc8b2a1a6e5448428adec4c3e84c43e561d8c9ee8a9e5aabeb193ec41d1"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "web-sys"
+version = "0.3.81"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9367c417a924a74cae129e6a2ae3b47fabb1f8995595ab474029da749a8be120"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
 ]
 
 [[package]]
