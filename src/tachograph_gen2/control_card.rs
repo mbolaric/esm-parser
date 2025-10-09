@@ -8,7 +8,7 @@ use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, Con
 use crate::tacho::{
     Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
     ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
-    ControlCardControlActivityDataParams, Identification, IdentificationParams,
+    ControlCardControlActivityDataParams, DataFiles, Identification, IdentificationParams,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -124,5 +124,11 @@ impl CardParser<ControlCard> for ControlCard {
         }
 
         Ok(Box::new(control_card))
+    }
+}
+
+impl DataFiles for ControlCard {
+    fn get_data_files(&self) -> &crate::tacho::CardFilesMap {
+        &self.data_files
     }
 }

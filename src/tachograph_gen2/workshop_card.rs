@@ -14,7 +14,7 @@ use crate::{
     tacho::{
         Card, CardChipIdentification, CardCurrentUse, CardDriverActivity, CardDriverActivityParams, CardEventData,
         CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification,
-        CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification,
+        CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
         IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
     },
 };
@@ -190,5 +190,11 @@ impl CardParser<WorkshopCard> for WorkshopCard {
             }
         }
         Ok(Box::new(workshop_card))
+    }
+}
+
+impl DataFiles for WorkshopCard {
+    fn get_data_files(&self) -> &crate::tacho::CardFilesMap {
+        &self.data_files
     }
 }

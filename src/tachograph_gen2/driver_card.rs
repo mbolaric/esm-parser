@@ -15,8 +15,8 @@ use crate::{
         Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
         CardDriverActivityParams, CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData,
         CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
-        CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, Identification, IdentificationParams,
-        TimeReal, VehiclesUsedParams,
+        CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
+        IdentificationParams, TimeReal, VehiclesUsedParams,
     },
 };
 
@@ -231,5 +231,11 @@ impl CardParser<DriverCard> for DriverCard {
         }
 
         Ok(Box::new(driver_card))
+    }
+}
+
+impl DataFiles for DriverCard {
+    fn get_data_files(&self) -> &crate::tacho::CardFilesMap {
+        &self.data_files
     }
 }
