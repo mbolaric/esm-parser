@@ -86,12 +86,6 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<serde_wasm_bindgen::Error> for Error {
-    fn from(value: serde_wasm_bindgen::Error) -> Self {
-        Error::Export(value.to_string())
-    }
-}
-
 impl From<quick_xml::Error> for Error {
     fn from(value: quick_xml::Error) -> Self {
         Error::Export(value.to_string())
@@ -107,3 +101,14 @@ impl From<quick_xml::de::DeError> for Error {
 impl std::error::Error for Error {}
 
 pub type Result<T> = core::result::Result<T, Error>;
+
+#[cfg(target_arch = "wasm32")]
+mod wasm_support {
+    use super::*;
+
+    impl From<serde_wasm_bindgen::Error> for Error {
+        fn from(value: serde_wasm_bindgen::Error) -> Self {
+            Error::Export(value.to_string())
+        }
+    }
+}

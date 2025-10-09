@@ -1,7 +1,5 @@
 use binary_data::{BinMemoryBuffer, BinReader, BinSeek, ReadBytes};
 use log::debug;
-use serde_wasm_bindgen::to_value;
-use wasm_bindgen::prelude::*;
 
 use crate::{
     Error, Result, TachographData, gen1, gen2,
@@ -98,27 +96,34 @@ pub fn parse_from_memory(esm_data: &[u8]) -> Result<TachographData> {
     parse_inner(&reader.read_bytes::<2>()?, reader.len()? as u64, &mut reader)
 }
 
-/// WebAssembly-specific wrapper for the `parse_from_memory` function.
-///
-/// This function is exposed to JavaScript as `parse_from_memory`. It takes a byte slice
-/// of DDD file data, calls the native Rust parser, and converts the result into a
-/// JavaScript-compatible format (`JsValue`).
-///
-/// # Arguments
-///
-/// * `esm_data` - A byte slice (`&[u8]`) containing the raw binary data from a DDD file.
-///
-/// # Returns
-///
-/// This function returns a `Result<JsValue, JsValue>`, which corresponds to a JavaScript
-/// `Promise`.
-/// - On success, the `Promise` resolves with a `JsValue` object representing the parsed `TachographData`.
-/// - On failure, the `Promise` rejects with a `JsValue` containing the error message.
-#[wasm_bindgen(js_name = parse_from_memory)]
-pub fn parse_from_memory_wasm(esm_data: &[u8]) -> std::result::Result<JsValue, JsValue> {
-    let result = parse_from_memory(esm_data);
-    match result {
-        Ok(data) => to_value(&data).map_err(|e| e.into()),
-        Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
+#[cfg(target_arch = "wasm32")]
+mod wasm_support {
+    use super::*;
+    use serde_wasm_bindgen::to_value;
+    use wasm_bindgen::prelude::*;
+
+    /// WebAssembly-specific wrapper for the `parse_from_memory` function.
+    ///
+    /// This function is exposed to JavaScript as `parse_from_memory`. It takes a byte slice
+    /// of DDD file data, calls the native Rust parser, and converts the result into a
+    /// JavaScript-compatible format (`JsValue`).
+    ///
+    /// # Arguments
+    ///
+    /// * `esm_data` - A byte slice (`&[u8]`) containing the raw binary data from a DDD file.
+    ///
+    /// # Returns
+    ///
+    /// This function returns a `Result<JsValue, JsValue>`, which corresponds to a JavaScript
+    /// `Promise`.
+    /// - On success, the `Promise` resolves with a `JsValue` object representing the parsed `TachographData`.
+    /// - On failure, the `Promise` rejects with a `JsValue` containing the error message.
+    #[wasm_bindgen(js_name = parse_from_memory)]
+    pub fn parse_from_memory_wasm(esm_data: &[u8]) -> std::result::Result<JsValue, JsValue> {
+        let result = parse_from_memory(esm_data);
+        match result {
+            Ok(data) => to_value(&data).map_err(|e| e.into()),
+            Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
+        }
     }
 }

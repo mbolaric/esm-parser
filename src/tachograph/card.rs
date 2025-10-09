@@ -5,8 +5,6 @@ use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use wasm_bindgen::prelude::*;
-
 use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
 use crate::{Error, Readable, Result};
 
@@ -17,7 +15,7 @@ pub trait DataFiles {
     fn get_data_files(&self) -> &CardFilesMap;
 }
 
-#[wasm_bindgen]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CardGeneration {
     Gen1,

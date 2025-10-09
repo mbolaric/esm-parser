@@ -4,15 +4,13 @@
 //! It supports both Gen1 and Gen2 tachograph data, dispatching to the appropriate verification
 //! logic based on the provided European Root Certification Authority (ERCA) public key size.
 
-use std::{collections::HashMap, io::Read};
+use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
-use serde_wasm_bindgen::to_value;
-use wasm_bindgen::prelude::*;
 
 use crate::{
     Error, Result, gen1, gen2,
-    tacho::{CardFileData, CardFileID, CardFilesMap, CardGeneration, VerifyResult},
+    tacho::{CardFilesMap, CardGeneration, VerifyResult},
 };
 
 /// Verifies the signature of tachograph card data files.
@@ -105,34 +103,43 @@ pub fn verify_card_with_erca_path(
     verify_card(&generation, data_files, &erca_pk)
 }
 
-/// A WASM-bindgen wrapper for the `verify_card` function.
-///
-/// This function exposes the signature verification functionality to JavaScript/WebAssembly environments.
-/// It handles the serialization and deserialization of data between JavaScript's `JsValue` and Rust's native types.
-///
-/// # Arguments
-///
-/// * `generation` - The card generation (`Gen1` or `Gen2`).
-/// * `data_files_map` - A `JsValue` representing the map of data files to be verified. This should be
-///   an object where keys are `CardFileID` (as strings) and values are `CardFileData` (as byte arrays or similar).
-/// * `erca_pk` - A byte slice (`&[u8]`) containing the ERCA public key. Using a slice allows for an efficient, zero-copy transfer from JavaScript.
-///
-/// # Returns
-///
-/// A `Result` which, on success, contains a `JsValue` representing the serialized `VerifyResult`.
-/// On failure, it returns a `JsValue` containing the error message as a string.
-#[wasm_bindgen(js_name = verify_card)]
-pub fn verify_card_wasm(
-    generation: CardGeneration,
-    data_files_map: JsValue,
-    erca_pk: &[u8],
-) -> std::result::Result<JsValue, JsValue> {
-    let data_files: HashMap<CardFileID, CardFileData> =
-        serde_wasm_bindgen::from_value(data_files_map).map_err(|err| JsValue::from_str(&format!("Invalid input: {}", err)))?;
+#[cfg(target_arch = "wasm32")]
+mod wasm_support {
+    use super::*;
+    use crate::tacho::{CardFileData, CardFileID};
+    use serde_wasm_bindgen::to_value;
+    use std::collections::HashMap;
+    use wasm_bindgen::prelude::*;
 
-    let result = verify_card(&generation, &data_files, erca_pk);
-    match result {
-        Ok(data) => to_value(&data).map_err(|e| e.into()),
-        Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
+    /// A WASM-bindgen wrapper for the `verify_card` function.
+    ///
+    /// This function exposes the signature verification functionality to JavaScript/WebAssembly environments.
+    /// It handles the serialization and deserialization of data between JavaScript's `JsValue` and Rust's native types.
+    ///
+    /// # Arguments
+    ///
+    /// * `generation` - The card generation (`Gen1` or `Gen2`).
+    /// * `data_files_map` - A `JsValue` representing the map of data files to be verified. This should be
+    ///   an object where keys are `CardFileID` (as strings) and values are `CardFileData` (as byte arrays or similar).
+    /// * `erca_pk` - A byte slice (`&[u8]`) containing the ERCA public key. Using a slice allows for an efficient, zero-copy transfer from JavaScript.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` which, on success, contains a `JsValue` representing the serialized `VerifyResult`.
+    /// On failure, it returns a `JsValue` containing the error message as a string.
+    #[wasm_bindgen(js_name = verify_card)]
+    pub fn verify_card_wasm(
+        generation: CardGeneration,
+        data_files_map: JsValue,
+        erca_pk: &[u8],
+    ) -> std::result::Result<JsValue, JsValue> {
+        let data_files: HashMap<CardFileID, CardFileData> = serde_wasm_bindgen::from_value(data_files_map)
+            .map_err(|err| JsValue::from_str(&format!("Invalid input: {}", err)))?;
+
+        let result = verify_card(&generation, &data_files, erca_pk);
+        match result {
+            Ok(data) => to_value(&data).map_err(|e| e.into()),
+            Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
+        }
     }
 }
