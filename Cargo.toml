@@ -35,8 +35,12 @@ wasm-opt = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = []
+logging = ["binary-data/logging"]
+
 [dependencies]
-log = { version = "0.4.28", default-features = false, features = ["max_level_debug", "release_max_level_debug"] }
+log = { version = "0.4.28", default-features = false }
 
 binary-data = { git = "https://github.com/mbolaric/binary-data.git", default-features = false }
 chrono = "0.4.42"

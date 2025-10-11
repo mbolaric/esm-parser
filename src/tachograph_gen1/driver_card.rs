@@ -98,7 +98,7 @@ impl CardParser<DriverCard> for DriverCard {
         let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
             DriverCardApplicationIdentification,
         >(card_data_files)?;
-        debug!("DriverCard::parse - Application Identification: {application_identification:?}");
+        trace!("DriverCard::parse - Application Identification: {application_identification:?}");
 
         let mut driver_card = DriverCard::new(
             card_chip_identification,
@@ -107,7 +107,6 @@ impl CardParser<DriverCard> for DriverCard {
             card_notes.to_owned(),
             (*card_data_files).clone(),
         );
-        debug!("DriverCard::parse - CARD: {driver_card:?}");
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - ID: {:?}", card_item.0);

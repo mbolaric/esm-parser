@@ -212,7 +212,7 @@ pub fn verify(data_files: &CardFilesMap, _erca_pk: &[u8; 205]) -> Result<VerifyR
         .map_err(|_| Error::VerifyError("Invalid signature length in Certificate.".to_string()))?;
 
     let ca_certificate = Certificate::from_bytes(ca_signature_array);
-    debug!("CA Certificate: {:?}", ca_certificate);
+    debug!("verify - CA Certificate: {:?}", ca_certificate);
 
     Err(Error::NotImplemented)
 }

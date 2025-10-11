@@ -1,5 +1,5 @@
 use binary_data::{BinSeek, ReadBytes};
-use log::debug;
+use log::{debug, trace};
 use serde::Serialize;
 
 use crate::{
@@ -25,7 +25,7 @@ impl CardData {
             &|card_data_files: &CardFilesDataByCardGeneration| CardData::parse_card(card_data_files),
         )?;
 
-        debug!("CardData::from_data - Header: {header:?}, Note: {card_data_responses:?}");
+        trace!("CardData::from_data - Header: {header:?}, Note: {card_data_responses:?}");
 
         Ok(Self { header, card_data_responses })
     }
@@ -69,7 +69,7 @@ impl CardData {
         let application_identification = <dyn tacho::Card<CardResponseParameterData>>::parse_application_identification(
             &card_files_data_gen1.card_files_data,
         )?;
-        debug!("CardData::parse_card - Application identification: {application_identification:?}");
+        trace!("CardData::parse_card - Application identification: {application_identification:?}");
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
                 let cards = CardData::get_card_by_equipment_type::<gen1::DriverCard, gen2::DriverCard>(
