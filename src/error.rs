@@ -98,6 +98,12 @@ impl From<quick_xml::de::DeError> for Error {
     }
 }
 
+impl From<quick_xml::se::SeError> for Error {
+    fn from(value: quick_xml::se::SeError) -> Self {
+        Error::Export(value.to_string())
+    }
+}
+
 impl std::error::Error for Error {}
 
 pub type Result<T> = core::result::Result<T, Error>;

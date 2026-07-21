@@ -77,7 +77,7 @@ pub trait Export {
 ///   or if any other parsing or writing error occurs.
 fn pretty_print_xml(xml: &str) -> Result<String> {
     let mut reader = Reader::from_str(xml);
-    reader.trim_text(true);
+    reader.config_mut().trim_text(true);
     let mut writer = Writer::new_with_indent(Cursor::new(Vec::new()), b' ', 4);
 
     loop {

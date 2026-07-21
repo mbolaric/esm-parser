@@ -37,7 +37,7 @@ impl ReadableWithParams<PublicKey> for PublicKey {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<PublicKey> {
         let record_type: CertificateContentType = reader.read_u16::<BigEndian>()?.into();
-        let record_size = if params.length.is_some() { params.length.unwrap() } else { reader.read_u8()? };
+        let record_size = if let Some(length) = params.length { length } else { reader.read_u8()? };
         let rsa_key_modulus = reader.read_into_vec(record_size as u32)?;
         Ok(Self { record_type, record_size: record_size as u16, rsa_key_modulus })
     }
