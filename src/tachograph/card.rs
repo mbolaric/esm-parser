@@ -216,7 +216,7 @@ impl<D> dyn Card<D> {
                         return Err(Error::DuplicateCardFile);
                     }
                     if !data_file.card_file_notes.is_empty() {
-                        card_file_notes.push_str(&format!("[{}] {}", &data_file.card_file_id, &data_file.card_file_notes));
+                        card_file_notes.push_str(&format!("[{}] {}", data_file.card_file_id, data_file.card_file_notes));
                     }
                     if data_file.appendix == 0 {
                         card_items.card_files_data_gen1.card_files_data.insert(data_file.card_file_id.clone(), data_file);
@@ -230,7 +230,7 @@ impl<D> dyn Card<D> {
                     }
                     if !data_file.card_file_notes.is_empty() {
                         card_file_notes
-                            .push_str(&format!("[{} (signature)] {}", &data_file.card_file_id, &data_file.card_file_notes));
+                            .push_str(&format!("[{} (signature)] {}", data_file.card_file_id, data_file.card_file_notes));
                     }
                     card_file_temp.unwrap().signature = data_file.data.clone()
                 }
