@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    CodePage, Readable, bytes_to_string,
-    tacho::{EmbedderIcAssemblerId, ExtendedSerialNumber},
-};
+use crate::tacho::{EmbedderIcAssemblerId, ExtendedSerialNumber};
+use crate::{CodePage, Readable, bytes_to_string};
 
 const CARD_APPROVAL_NUMBER_LENGTH: u32 = 8;
 const IC_IDENTIFIER_NUMBER_LENGTH: u32 = 2;

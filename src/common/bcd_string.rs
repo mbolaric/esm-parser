@@ -21,8 +21,7 @@ impl BCDString {
     /// # Examples
     ///
     /// ```
-    /// use esm_parser::BCDString;
-    /// use esm_parser::Result;
+    /// use esm_parser::{BCDString, Result};
     ///
     /// fn main() -> Result<()> {
     ///     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];
@@ -95,8 +94,7 @@ impl BCDString {
     /// # Examples
     ///
     /// ```
-    /// use esm_parser::BCDString;
-    /// use esm_parser::Result;
+    /// use esm_parser::{BCDString, Result};
     ///
     /// fn main() -> Result<()> {
     ///     let bcd_data: &[u8] = &[0x12, 0x34, 0x56];

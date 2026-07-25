@@ -1,7 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, gen2::SealRecord};
+use crate::gen2::SealRecord;
+use crate::{Readable, Result};
 
 /// This data type stores information about the seals that are attached to the
 /// different components of a vehicle and is intended for storage on a card.

@@ -1,10 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    tacho::{TimeReal, VehicleRegistrationIdentification},
-};
+use crate::tacho::{TimeReal, VehicleRegistrationIdentification};
+use crate::{Readable, Result};
 
 /// Information related to the vehicle previously used by a driver when
 /// inserting his card in a vehicle unit (Annex 1B requirement 081 and

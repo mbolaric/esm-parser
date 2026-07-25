@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, gen1::VuDetailedSpeedData};
+use crate::Readable;
+use crate::gen1::VuDetailedSpeedData;
 
 const SIGNATURE_LENGTH: u32 = 128;
 

@@ -1,10 +1,8 @@
 use serde::Serialize;
 
-use crate::{
-    CARD_HEADER, CARD_HEADER_VU_DATA, MINIMUM_G2_CARD_DATA_LENGTH, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2,
-    error::{Error, Result},
-    tacho::{TachographDataGeneration, TachographDataType},
-};
+use crate::error::{Error, Result};
+use crate::tacho::{TachographDataGeneration, TachographDataType};
+use crate::{CARD_HEADER, CARD_HEADER_VU_DATA, MINIMUM_G2_CARD_DATA_LENGTH, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2};
 
 /// Represents the header of a tachograph file.
 #[derive(Debug, Clone, Serialize)]

@@ -1,7 +1,8 @@
 mod helpers;
 
-use crate::helpers::{ExportType, export, init_logging};
 use clap::Parser;
+
+use crate::helpers::{ExportType, export, init_logging};
 
 #[derive(Parser, Default, Debug)]
 #[clap(version, author = "Milan Bolaric", about = "Export ESM files (*.DDD) into XML", name = "esm2xml")]

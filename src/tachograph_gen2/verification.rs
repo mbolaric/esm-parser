@@ -1,15 +1,14 @@
-use bp256::{BrainpoolP256r1, r1::ecdsa::Signature};
+use bp256::BrainpoolP256r1;
+use bp256::r1::ecdsa::Signature;
 use ecdsa::VerifyingKey;
 use sha2::{Digest, Sha256};
 use signature::hazmat::PrehashVerifier;
 
-use crate::{
-    Error, Result,
-    tacho::{
-        CardFileData, CardFileID, CardFilesMap, CertificateContentType, EquipmentType, TimeReal, VerifyItem, VerifyResult,
-        VerifyResultStatus, VerifyStatus,
-    },
+use crate::tacho::{
+    CardFileData, CardFileID, CardFilesMap, CertificateContentType, EquipmentType, TimeReal, VerifyItem, VerifyResult,
+    VerifyResultStatus, VerifyStatus,
 };
+use crate::{Error, Result};
 
 const GEN2_CERTIFICATE_SIZE: usize = 205;
 const CAR_SIZE: usize = 8;
@@ -522,11 +521,12 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) 
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::collections::HashMap;
 
     use ecdsa::SigningKey;
     use signature::hazmat::PrehashSigner;
+
+    use super::*;
 
     const ROOT_CERTIFICATE_HEX: &str = "7f2181c97f4e81825f2901004208fd45432001ffff015f4c07ff534d5244540d7f494e06092b240303020801010786410408c04e3926c8de85544240cde40dab70d2b47e0f83762522d7b0b8543b9b29dc80e5c67b82a62d55e3483ab4b00a24c2a2566c3786797a1a052822ab4bf1f2925f2008fd45432001ffff015f25045b21b0005f24049b8fae805f374065c62ac13ded147fa8d1d11a8f5bf2cf9e95db1b43d253b48b615b2fe70b3fd82aa8d33d27f0f4d7367c04903bbbe6375b643a19c5b83d19fc7485db476c7067";
     const MSCA_CERTIFICATE_HEX: &str = "7f2181c97f4e81825f2901004208fd45432001ffff015f4c07ff534d5244540e7f494e06092b24030302080101078641044cdeb93fb90256c7a7ebf9df3214560b6d2f4f2e72f3bb1544fcd8061ce1653e37f60de125bea0fcd5076f94557b605b40ba1c0a0a3e96de9cb37c4c053a6f095f20081948522003ff02015f2504633588c05f2404708821405f37401139ba4ee2b4b4180e56f65c90f1aedc876804ab54fb97abe9a7a4e7bcb1ea2d89e6a446e3ad4e6f82676530980b872f6885ad4559a69e08b8fce023a201b727";

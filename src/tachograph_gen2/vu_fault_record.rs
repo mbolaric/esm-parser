@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::{FullCardNumberAndGeneration, ManufacturerSpecificEventFaultData},
-    tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal},
-};
+use crate::gen2::{FullCardNumberAndGeneration, ManufacturerSpecificEventFaultData};
+use crate::tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal};
+use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to a fault (Annex 1B
 /// requirement 096 and Annex 1C requirement 118).

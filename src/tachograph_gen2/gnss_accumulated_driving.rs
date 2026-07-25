@@ -1,11 +1,9 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen2::GnssPlaceRecord,
-    tacho::{OdometerShort, TimeReal},
-};
+use crate::gen2::GnssPlaceRecord;
+use crate::tacho::{OdometerShort, TimeReal};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a driver or workshop card, related to the GNSS
 /// position of the vehicle if the accumulated driving time reaches a multiple

@@ -1,7 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, tacho::CertificateContentType};
+use crate::tacho::CertificateContentType;
+use crate::{Readable, Result};
 
 /// The Certificate Holder Reference is an identifier for the
 /// public key provided in the certificate. It shall be used to

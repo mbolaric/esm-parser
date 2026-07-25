@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{SpecificConditionType, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{SpecificConditionType, TimeReal};
 
 /// Information, stored in a driver card, a workshop card or a vehicle unit,
 /// related to a specific condition (requirements Annex 1C 130, 276, 301, 328, and 355).

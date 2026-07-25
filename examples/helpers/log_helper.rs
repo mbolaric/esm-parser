@@ -1,9 +1,7 @@
 use log::LevelFilter;
-use log4rs::{
-    Config,
-    append::console::ConsoleAppender,
-    config::{Appender, Root},
-};
+use log4rs::Config;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::config::{Appender, Root};
 
 pub fn init_logging() {
     let stdout = ConsoleAppender::builder().build();

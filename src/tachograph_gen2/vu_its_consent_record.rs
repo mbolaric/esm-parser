@@ -1,7 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, gen2::FullCardNumberAndGeneration};
+use crate::gen2::FullCardNumberAndGeneration;
+use crate::{Readable, Result};
 
 /// Information stored in a vehicle unit, related to the consent of a driver to
 /// use Intelligent Transport Systems.

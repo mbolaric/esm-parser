@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal};
 
 /// Information, stored in a vehicle unit, related to a fault (Annex 1B
 /// requirement 096 and Annex 1C requirement 118).

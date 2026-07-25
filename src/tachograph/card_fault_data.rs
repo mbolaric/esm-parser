@@ -1,10 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    tacho::{EventFaultType, TimeReal, VehicleRegistrationIdentification},
-};
+use crate::tacho::{EventFaultType, TimeReal, VehicleRegistrationIdentification};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a driver or a workshop card, related to a fault
 /// associated to the card holder (Annex 1C requirement 264, 289, 318, and 341).

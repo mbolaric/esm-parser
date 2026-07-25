@@ -1,10 +1,8 @@
 use binary_data::{BinMemoryBuffer, BinReader, BinSeek, ReadBytes};
 use log::{debug, trace};
 
-use crate::{
-    Error, Result, TachographData, gen1, gen2,
-    tacho::{TachographDataGeneration, TachographDataType, TachographHeader},
-};
+use crate::tacho::{TachographDataGeneration, TachographDataType, TachographHeader};
+use crate::{Error, Result, TachographData, gen1, gen2};
 
 /// Reads the tachograph data based on the data type and generation specified in the header.
 ///
@@ -98,9 +96,10 @@ pub fn parse_from_memory(esm_data: &[u8]) -> Result<TachographData> {
 
 #[cfg(target_arch = "wasm32")]
 mod wasm_support {
-    use super::*;
     use serde_wasm_bindgen::to_value;
     use wasm_bindgen::prelude::*;
+
+    use super::*;
 
     /// WebAssembly-specific wrapper for the `parse_from_memory` function.
     ///

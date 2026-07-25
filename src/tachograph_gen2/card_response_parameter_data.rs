@@ -1,9 +1,8 @@
-use serde::{
-    Serialize,
-    ser::{SerializeStruct, Serializer},
-};
+use serde::Serialize;
+use serde::ser::{SerializeStruct, Serializer};
 
-use crate::{gen1, gen2, tacho::CardParser};
+use crate::tacho::CardParser;
+use crate::{gen1, gen2};
 
 #[derive(Debug)]
 pub enum ParsedCard<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>> {

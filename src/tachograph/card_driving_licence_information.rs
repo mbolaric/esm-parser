@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    CodePage, Error, Readable, bytes_to_string,
-    tacho::{Name, NationNumeric},
-};
+use crate::tacho::{Name, NationNumeric};
+use crate::{CodePage, Error, Readable, bytes_to_string};
 
 const DRIVING_LICENSE_NUMBER_LENGTH: u32 = 16;
 

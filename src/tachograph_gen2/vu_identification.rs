@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    CodePage, Readable, ReadableWithParams, Result, bytes_to_string,
-    gen2::VuSoftwareIdentification,
-    tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID},
-};
+use crate::gen2::VuSoftwareIdentification;
+use crate::tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID};
+use crate::{CodePage, Readable, ReadableWithParams, Result, bytes_to_string};
 
 const VU_PART_NUMBER_LENGTH: u32 = 16;
 const VU_APPROVAL_NUMBER_LENGTH: u32 = 16;

@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::FullCardNumberAndGeneration,
-    tacho::{Name, TimeReal},
-};
+use crate::gen2::FullCardNumberAndGeneration;
+use crate::tacho::{Name, TimeReal};
+use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to its last download (Annex
 /// 1B requirement 105 and Annex 1C requirement 129).

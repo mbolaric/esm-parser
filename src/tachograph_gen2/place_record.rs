@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::GnssPlaceRecord,
-    tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal},
-};
+use crate::gen2::GnssPlaceRecord;
+use crate::tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal};
+use crate::{Readable, Result};
 
 /// Information related to a place where a daily work period begins or ends
 /// (Annex 1C requirements 108, 271, 296, 324, and 347).

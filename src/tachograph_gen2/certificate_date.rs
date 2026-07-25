@@ -1,10 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    tacho::{CertificateContentType, TimeReal},
-};
+use crate::tacho::{CertificateContentType, TimeReal};
+use crate::{Readable, Result};
 
 #[derive(Debug, Serialize)]
 pub struct CertificateDate {

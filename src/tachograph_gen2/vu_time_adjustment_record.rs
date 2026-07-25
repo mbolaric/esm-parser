@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::FullCardNumberAndGeneration,
-    tacho::{Address, Name, TimeReal},
-};
+use crate::gen2::FullCardNumberAndGeneration;
+use crate::tacho::{Address, Name, TimeReal};
+use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related a time adjustment
 /// performed outside the frame of a regular calibration (Annex 1B

@@ -4,20 +4,18 @@ use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen2::{
-        CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
-        CertificateParams, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions,
-        SpecificConditionsParams, WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
-    },
-    tacho::{
-        Card, CardChipIdentification, CardCurrentUse, CardDriverActivity, CardDriverActivityParams, CardEventData,
-        CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification,
-        CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
-        IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
-    },
+use crate::gen2::{
+    CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
+    CertificateParams, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions,
+    SpecificConditionsParams, WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
 };
+use crate::tacho::{
+    Card, CardChipIdentification, CardCurrentUse, CardDriverActivity, CardDriverActivityParams, CardEventData,
+    CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification,
+    CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
+    IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
+};
+use crate::{Readable, ReadableWithParams, Result};
 
 #[derive(Debug, Serialize)]
 pub struct WorkshopCard {

@@ -86,10 +86,10 @@ impl Serialize for TimeReal {
 
 #[cfg(test)]
 mod tests {
-    use crate::helpers::from_obj_to_string;
+    use binary_data::BinMemoryBuffer;
 
     use super::*;
-    use binary_data::BinMemoryBuffer;
+    use crate::helpers::from_obj_to_string;
 
     #[test]
     fn test_read_time_real() {

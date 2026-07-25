@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Export,
-    tacho::{CardFileID, TimeReal},
-};
+use crate::Export;
+use crate::tacho::{CardFileID, TimeReal};
 
 #[derive(Debug, Serialize)]
 pub enum VerifyStatus {

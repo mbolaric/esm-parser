@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen2::{FullCardNumberAndGeneration, GnssPlaceRecord},
-    tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID},
-};
+use crate::gen2::{FullCardNumberAndGeneration, GnssPlaceRecord};
+use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a vehicle unit, related to the GNSS position of the
 /// vehicle if the accumulated driving time reaches a multiple of three hours

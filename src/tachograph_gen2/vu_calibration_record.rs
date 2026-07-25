@@ -1,14 +1,12 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string,
-    gen2::SealDataVu,
-    tacho::{
-        Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VUTransferResponseParameterID,
-        VehicleRegistrationIdentification,
-    },
+use crate::gen2::SealDataVu;
+use crate::tacho::{
+    Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VUTransferResponseParameterID,
+    VehicleRegistrationIdentification,
 };
+use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string};
 
 /// Information, stored in a vehicle unit, related a calibration of the
 /// recording equipment (Annex 1B requirement 098 and Annex 1C requirement 119 and 120).

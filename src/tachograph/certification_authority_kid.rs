@@ -1,7 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{Readable, bytes_to_ia5_fix_string, tacho::NationNumeric};
+use crate::tacho::NationNumeric;
+use crate::{Readable, bytes_to_ia5_fix_string};
 
 const NATION_ALPHA_LENGTH: u32 = 3;
 

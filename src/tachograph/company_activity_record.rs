@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{CompanyActivityType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
-};
+use crate::Readable;
+use crate::tacho::{CompanyActivityType, FullCardNumber, TimeReal, VehicleRegistrationIdentification};
 
 /// Information, stored in a company card, related to activities performed
 /// with the card (Annex 1C requirement 373 and 379).

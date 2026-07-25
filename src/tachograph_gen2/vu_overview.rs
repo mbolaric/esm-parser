@@ -2,16 +2,14 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 use serde::Serialize;
 
-use crate::{
-    Result,
-    gen2::{
-        DataInfo, DataInfoGenericRecordArray, MemberStateCertificateRecordArray, SignatureRecordArray,
-        VehicleIdentificationNumberRecordArray, VehicleRegistrationNumberRecordArray, VuCertificateRecordArray,
-        VuCompanyLocksRecord, VuControlActivityRecord, VuDownloadActivityData, VuDownloadablePeriod,
-    },
-    tacho::{CardSlotStatus, TimeReal, VUTransferResponseParameterID},
-    tachograph_gen2::vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray,
+use crate::Result;
+use crate::gen2::{
+    DataInfo, DataInfoGenericRecordArray, MemberStateCertificateRecordArray, SignatureRecordArray,
+    VehicleIdentificationNumberRecordArray, VehicleRegistrationNumberRecordArray, VuCertificateRecordArray, VuCompanyLocksRecord,
+    VuControlActivityRecord, VuDownloadActivityData, VuDownloadablePeriod,
 };
+use crate::tacho::{CardSlotStatus, TimeReal, VUTransferResponseParameterID};
+use crate::tachograph_gen2::vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray;
 
 /// Data structure generation 2, version 2 (TREP 31 Hex)
 #[derive(Debug, Serialize)]

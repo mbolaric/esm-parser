@@ -1,7 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, gen2::GeoCoordinate, tacho::TimeReal};
+use crate::gen2::GeoCoordinate;
+use crate::tacho::TimeReal;
+use crate::{Readable, Result};
 
 /// Information related to the GNSS position of the vehicle (Annex IC
 /// requirements 108, 109, 110, 296, 306a, 306c, 306e, 306g, 356a, 356c, 356e and 356g).

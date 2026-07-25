@@ -1,12 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    ReadableWithParams, Result,
-    gen2::{Certificate, CertificateParams, DataInfoReadable},
-    tacho::RecordType,
-    tachograph_gen2::data_info::DataConfig,
-};
+use crate::gen2::{Certificate, CertificateParams, DataInfoReadable};
+use crate::tacho::RecordType;
+use crate::tachograph_gen2::data_info::DataConfig;
+use crate::{ReadableWithParams, Result};
 
 /// The VU certificate plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]

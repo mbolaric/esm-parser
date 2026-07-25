@@ -1,7 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{ReadableWithParams, Result, bytes_to_ia5_fix_string, tacho::EquipmentType};
+use crate::tacho::EquipmentType;
+use crate::{ReadableWithParams, Result, bytes_to_ia5_fix_string};
 
 const CARD_NUMBER_LENGTH: u32 = 16;
 
@@ -102,8 +103,9 @@ impl ReadableWithParams<CardNumber> for CardNumber {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use binary_data::BinMemoryBuffer;
+
+    use super::*;
 
     #[test]
     fn test_read_driver_card_number() {

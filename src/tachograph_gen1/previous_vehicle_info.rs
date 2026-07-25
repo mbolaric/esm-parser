@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{TimeReal, VehicleRegistrationIdentification},
-};
+use crate::Readable;
+use crate::tacho::{TimeReal, VehicleRegistrationIdentification};
 
 /// Information related to the vehicle previously used by a driver when
 /// inserting his card in a vehicle unit (Annex 1B requirement 081 and Annex 1C requirement 102).

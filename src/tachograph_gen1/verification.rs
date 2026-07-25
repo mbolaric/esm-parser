@@ -3,11 +3,11 @@ use log::debug;
 use num_bigint::BigUint;
 use sha1::{Digest, Sha1};
 
-use crate::{
-    Error, Readable, Result,
-    helpers::get_sub_array,
-    tacho::{CardFileData, CardFileID, CardFilesMap, TimeReal, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus},
+use crate::helpers::get_sub_array;
+use crate::tacho::{
+    CardFileData, CardFileID, CardFilesMap, TimeReal, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
 };
+use crate::{Error, Readable, Result};
 
 const SIG_SIZE: usize = 128;
 const PKR_SIZE: usize = 58;

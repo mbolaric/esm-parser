@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable, bytes_to_ia5_fix_string,
-    tacho::{ExtendedSerialNumber, TimeReal},
-};
+use crate::tacho::{ExtendedSerialNumber, TimeReal};
+use crate::{Readable, bytes_to_ia5_fix_string};
 
 const SENSOR_APPROVAL_NUMBER_LENGTH: u32 = 8;
 

@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::FullCardNumberAndGeneration,
-    tacho::{Address, Name, TimeReal},
-};
+use crate::gen2::FullCardNumberAndGeneration;
+use crate::tacho::{Address, Name, TimeReal};
+use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to one company lock
 /// (Annex 1B requirement 104 and Annex 1C requirement 128).

@@ -1,6 +1,7 @@
-use crate::{CodePage, Readable, Writable, bytes_to_string, string_to_bytes};
 use binary_data::{BinSeek, WriteBytes};
 use serde::Serialize;
+
+use crate::{CodePage, Readable, Writable, bytes_to_string, string_to_bytes};
 
 const ADDRESS_LENGTH: u32 = 35;
 

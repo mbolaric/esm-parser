@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
-};
+use crate::Readable;
+use crate::tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification};
 
 /// Information, stored in a driver or workshop card, related to the last
 /// control the driver has been subject to (Annex 1C requirements 274,

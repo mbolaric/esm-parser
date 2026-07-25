@@ -1,7 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, tacho::TimeReal};
+use crate::tacho::TimeReal;
+use crate::{Readable, Result};
 
 /// Oldest and latest dates for which a vehicle unit holds data related to
 /// drivers activities (Annex 1B requirements 081, 084 or 087 and

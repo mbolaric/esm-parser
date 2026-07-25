@@ -1,12 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    ReadableWithParams, Result,
-    gen2::DataInfoReadable,
-    tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, RecordType},
-    tachograph_gen2::data_info::DataConfig,
-};
+use crate::gen2::DataInfoReadable;
+use crate::tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, RecordType};
+use crate::tachograph_gen2::data_info::DataConfig;
+use crate::{ReadableWithParams, Result};
 
 /// Information, stored in a VU, related to changes of activity and/or
 /// changes of driving status and/or changes of card status for a given

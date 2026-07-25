@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen2::FullCardNumberAndGeneration,
-    tacho::{CardNumber, CardNumberParams, CardStructureVersion, EquipmentType, ExtendedSerialNumber},
-};
+use crate::gen2::FullCardNumberAndGeneration;
+use crate::tacho::{CardNumber, CardNumberParams, CardStructureVersion, EquipmentType, ExtendedSerialNumber};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a vehicle unit, about a tachograph card used (Annex IC requirement 132).
 #[derive(Debug, Serialize)]

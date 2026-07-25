@@ -1,22 +1,20 @@
+use std::collections::HashMap;
+
 use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
-use std::collections::HashMap;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen1::{
-        CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord,
-        SpecificConditions, SpecificConditionsParams,
-    },
-    tacho::{
-        Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
-        CardDriverActivityParams, CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData,
-        CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
-        CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
-        IdentificationParams, TimeReal, VehiclesUsedParams,
-    },
+use crate::gen1::{
+    CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord,
+    SpecificConditions, SpecificConditionsParams,
 };
+use crate::tacho::{
+    Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
+    CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
+    CardFileID, CardGeneration, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
+    CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal, VehiclesUsedParams,
+};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Driver Card application generation 1
 #[derive(Debug, Serialize)]

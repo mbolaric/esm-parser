@@ -4,21 +4,18 @@ use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen2::{
-        CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
-        CertificateParams, DriverCardApplicationIdentification, DriverCardApplicationIdentificationV2, GnssAccumulatedDriving,
-        GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions, SpecificConditionsParams,
-    },
-    tacho::{
-        Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity,
-        CardDriverActivityParams, CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData,
-        CardFaultDataParams, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
-        CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
-        IdentificationParams, TimeReal, VehiclesUsedParams,
-    },
+use crate::gen2::{
+    CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
+    CertificateParams, DriverCardApplicationIdentification, DriverCardApplicationIdentificationV2, GnssAccumulatedDriving,
+    GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions, SpecificConditionsParams,
 };
+use crate::tacho::{
+    Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
+    CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
+    CardFileID, CardGeneration, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
+    CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal, VehiclesUsedParams,
+};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Driver card application generation 2
 #[derive(Debug, Serialize)]

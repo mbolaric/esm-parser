@@ -1,10 +1,8 @@
 use binary_data::{BigEndian, BinRingMemoryBuffer, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    BCDString, Error, Readable, ReadableWithParams, Result,
-    tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, TimeReal},
-};
+use crate::tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, TimeReal};
+use crate::{BCDString, Error, Readable, ReadableWithParams, Result};
 
 /// Information, stored in a card, related to the driver activities for a
 /// particular calendar day. This data type is related to Annex 1C

@@ -1,10 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams,
-    tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams},
-};
+use crate::tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams};
+use crate::{Readable, ReadableWithParams};
 
 /// Information, stored in a VU, related to changes of activity and/or
 /// changes of driving status and/or changes of card status for a given

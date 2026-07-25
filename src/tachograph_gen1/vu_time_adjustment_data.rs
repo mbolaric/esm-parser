@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{Address, FullCardNumber, Name, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{Address, FullCardNumber, Name, TimeReal};
 
 /// Information, stored in a vehicle unit, related a time adjustment
 /// performed outside the frame of a regular calibration (Annex 1B

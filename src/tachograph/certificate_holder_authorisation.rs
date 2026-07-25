@@ -1,10 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    tacho::{CertificateContentType, EquipmentType},
-};
+use crate::tacho::{CertificateContentType, EquipmentType};
+use crate::{Readable, Result};
 
 const TACHOGRAPH_APPLICATION_ID_LENGTH: u32 = 6;
 

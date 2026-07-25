@@ -2,14 +2,11 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 use serde::Serialize;
 
-use crate::{
-    Export, Readable, Result,
-    gen1::{VUActivity, VUTransferResponseParameterData, VuDetailedSpeed, VuEvents, VuOverview, VuTechnicalData},
-    tacho::{
-        self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
-    },
-    tachograph,
+use crate::gen1::{VUActivity, VUTransferResponseParameterData, VuDetailedSpeed, VuEvents, VuOverview, VuTechnicalData};
+use crate::tacho::{
+    self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
 };
+use crate::{Export, Readable, Result, tachograph};
 
 #[derive(Debug, Serialize)]
 pub struct VUData {

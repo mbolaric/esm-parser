@@ -9,10 +9,8 @@ use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
 
-use crate::{
-    Error, Result, gen1, gen2,
-    tacho::{CardFilesMap, CardGeneration, VerifyResult},
-};
+use crate::tacho::{CardFilesMap, CardGeneration, VerifyResult};
+use crate::{Error, Result, gen1, gen2};
 
 /// Verifies the signature of tachograph card data files.
 ///
@@ -114,11 +112,13 @@ pub fn verify_card_with_erca_path(
 
 #[cfg(target_arch = "wasm32")]
 mod wasm_support {
+    use std::collections::HashMap;
+
+    use serde_wasm_bindgen::to_value;
+    use wasm_bindgen::prelude::*;
+
     use super::*;
     use crate::tacho::{CardFileData, CardFileID};
-    use serde_wasm_bindgen::to_value;
-    use std::collections::HashMap;
-    use wasm_bindgen::prelude::*;
 
     /// A WASM-bindgen wrapper for the `verify_card` function.
     ///

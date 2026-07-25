@@ -32,9 +32,10 @@ impl Serialize for VehicleRegistrationNumber {
 
 #[cfg(test)]
 mod tests {
+    use binary_data::BinMemoryBuffer;
+
     use super::*;
     use crate::Readable;
-    use binary_data::BinMemoryBuffer;
 
     #[test]
     fn test_read_vehicle_registration_number() {

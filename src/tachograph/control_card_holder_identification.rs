@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable, bytes_to_ia5_fix_string,
-    tacho::{Address, HolderName, Name},
-};
+use crate::tacho::{Address, HolderName, Name};
+use crate::{Readable, bytes_to_ia5_fix_string};
 
 const CARD_HOLDER_PREFERRED_LANGUAGE_LENGTH: u32 = 2;
 

@@ -1,7 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{Readable, tacho::VuDetailedSpeedBlock};
+use crate::Readable;
+use crate::tacho::VuDetailedSpeedBlock;
 
 /// Information, stored in a vehicle unit, related to the detailed speed of the vehicle.
 #[derive(Debug, Serialize)]

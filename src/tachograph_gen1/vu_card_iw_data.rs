@@ -1,11 +1,9 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    gen1::PreviousVehicleInfo,
-    tacho::{CardSlotNumber, FullCardNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal},
-};
+use crate::Readable;
+use crate::gen1::PreviousVehicleInfo;
+use crate::tacho::{CardSlotNumber, FullCardNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal};
 
 /// Information, stored in a vehicle unit, related to an insertion and withdrawal
 /// cycle of a driver card or of a workshop card in the vehicle unit

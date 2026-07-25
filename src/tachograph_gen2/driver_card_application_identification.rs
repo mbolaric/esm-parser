@@ -1,10 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{CardStructureVersion, EquipmentType},
-};
+use crate::Readable;
+use crate::tacho::{CardStructureVersion, EquipmentType};
 
 /// Information, stored in a driver card related to the identification of the
 /// application of the card (Annex 1C requirement 253 and 278).

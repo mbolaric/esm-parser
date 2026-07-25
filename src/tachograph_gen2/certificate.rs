@@ -1,10 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    ReadableWithParams, Result,
-    gen2::{CertificateProfile, CertificateProfileParams},
-};
+use crate::gen2::{CertificateProfile, CertificateProfileParams};
+use crate::{ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct CertificateParams {

@@ -1,8 +1,8 @@
-use crate::Result;
-use crate::{Export, gen1, gen2};
 use std::fmt;
 
 use serde::Serialize;
+
+use crate::{Export, Result, gen1, gen2};
 
 /// # Top-Level Tachograph Data Container
 /// Represents the parsed data from a tachograph file.

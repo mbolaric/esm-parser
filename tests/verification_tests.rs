@@ -1,12 +1,10 @@
-use std::{env, fs, path::PathBuf};
+use std::path::PathBuf;
+use std::{env, fs};
 
-use esm_parser::{
-    TachographData,
-    gen1::{self, CardResponseParameterData as CardResponseParameterDataGen1},
-    gen2::{self, CardResponseParameterData as CardResponseParameterDataGen2, ParsedCard},
-    parse_from_file,
-    tacho::{CardFileID, CardFilesMap, DataFiles, VerifyResultStatus, VerifyStatus},
-};
+use esm_parser::gen1::{self, CardResponseParameterData as CardResponseParameterDataGen1};
+use esm_parser::gen2::{self, CardResponseParameterData as CardResponseParameterDataGen2, ParsedCard};
+use esm_parser::tacho::{CardFileID, CardFilesMap, DataFiles, VerifyResultStatus, VerifyStatus};
+use esm_parser::{TachographData, parse_from_file};
 
 const COMBINED_DDD_ENV: &str = "ESM_PARSER_COMBINED_DDD";
 const COMBINED_GEN1_ERCA_ENV: &str = "ESM_PARSER_COMBINED_GEN1_ERCA";

@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, tacho::TimeReal};
+use crate::Readable;
+use crate::tacho::TimeReal;
 
 /// Information, stored in a vehicle unit, related to the vehicle's detailed
 /// speed for a minute during which the vehicle has been moving

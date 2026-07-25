@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{ControlType, FullCardNumber, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{ControlType, FullCardNumber, TimeReal};
 
 /// Information, stored in a vehicle unit, related to a control performed using
 /// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).

@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{CardStructureVersion, EquipmentType},
-};
+use crate::Readable;
+use crate::tacho::{CardStructureVersion, EquipmentType};
 
 /// Base Information, stored in a card related to the identification of the application of the card.
 #[derive(Debug, Serialize)]

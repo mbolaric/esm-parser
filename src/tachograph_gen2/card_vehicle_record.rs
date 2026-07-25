@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    BCDString, Readable, bytes_to_ia5_fix_string,
-    tacho::{OdometerShort, TimeReal, VehicleRegistrationIdentification, VehicleUse},
-};
+use crate::tacho::{OdometerShort, TimeReal, VehicleRegistrationIdentification, VehicleUse};
+use crate::{BCDString, Readable, bytes_to_ia5_fix_string};
 
 const VU_DATA_BLOCK_COUNTER_LENGTH: u32 = 2;
 const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;

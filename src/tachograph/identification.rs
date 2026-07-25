@@ -1,12 +1,11 @@
 use binary_data::{BinSeek, ReadBytes};
-use serde::{Serialize, ser::Serializer};
+use serde::Serialize;
+use serde::ser::Serializer;
 
-use crate::{
-    Error, Readable, ReadableWithParams, Result,
-    tacho::{
-        CompanyCardIdentification, ControlCardIdentification, DriverCardIdentification, EquipmentType, WorkshopCardIdentification,
-    },
+use crate::tacho::{
+    CompanyCardIdentification, ControlCardIdentification, DriverCardIdentification, EquipmentType, WorkshopCardIdentification,
 };
+use crate::{Error, Readable, ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct IdentificationParams {

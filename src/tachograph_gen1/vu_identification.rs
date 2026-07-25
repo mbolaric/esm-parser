@@ -1,10 +1,8 @@
 use serde::Serialize;
 
-use crate::{
-    Readable, bytes_to_ia5_fix_string,
-    gen1::VuSoftwareIdentification,
-    tacho::{Address, ExtendedSerialNumber, Name, TimeReal},
-};
+use crate::gen1::VuSoftwareIdentification;
+use crate::tacho::{Address, ExtendedSerialNumber, Name, TimeReal};
+use crate::{Readable, bytes_to_ia5_fix_string};
 
 const VU_PART_NUMBER_LENGTH: u32 = 16;
 const VU_APPROVAL_NUMBER_LENGTH: u32 = 8;

@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::FullCardNumberAndGeneration,
-    tacho::{ControlType, TimeReal},
-};
+use crate::gen2::FullCardNumberAndGeneration;
+use crate::tacho::{ControlType, TimeReal};
+use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to a control performed using
 /// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).

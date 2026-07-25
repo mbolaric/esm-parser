@@ -1,17 +1,14 @@
+use std::fmt;
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use esm_parser::TachographData;
 use esm_parser::gen1::CardResponseParameterData as CardResponseParameterDataGen1;
 use esm_parser::gen2::{CardResponseParameterData as CardResponseParameterDataGen2, ParsedCard};
 use esm_parser::tacho::{CardGeneration, DataFiles};
-use esm_parser::verify_card_with_erca_path;
-use esm_parser::{Export, parse_from_file};
+use esm_parser::{Export, TachographData, parse_from_file, verify_card_with_erca_path};
 use indicatif::ProgressBar;
 use serde::Serialize;
-use std::fmt;
 
 #[allow(dead_code)]
 pub enum ExportType {

@@ -1,12 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::DataInfoReadable,
-    tacho::{RecordType, VehicleRegistrationIdentification},
-    tachograph_gen2::data_info::DataConfig,
-};
+use crate::gen2::DataInfoReadable;
+use crate::tacho::{RecordType, VehicleRegistrationIdentification};
+use crate::tachograph_gen2::data_info::DataConfig;
+use crate::{Readable, Result};
 
 /// The Vehicle Registration Identification plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]

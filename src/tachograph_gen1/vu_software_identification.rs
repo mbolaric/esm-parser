@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, bytes_to_ia5_fix_string, tacho::TimeReal};
+use crate::tacho::TimeReal;
+use crate::{Readable, bytes_to_ia5_fix_string};
 
 const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
 

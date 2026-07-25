@@ -1,7 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Result, gen2::DataInfoReadable, tacho::RecordType, tachograph_gen2::data_info::DataConfig};
+use crate::Result;
+use crate::gen2::DataInfoReadable;
+use crate::tacho::RecordType;
+use crate::tachograph_gen2::data_info::DataConfig;
 
 /// A set of signatures plus metadata used in the download protocol.
 #[derive(Debug, Serialize)]

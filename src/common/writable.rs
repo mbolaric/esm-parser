@@ -1,5 +1,6 @@
-use crate::Result;
 use binary_data::{BinSeek, WriteBytes};
+
+use crate::Result;
 
 /// A trait for types that can be serialized and written to a binary stream.
 /// The `Writable` trait provides a standardized way to write data structures to a
@@ -13,9 +14,8 @@ use binary_data::{BinSeek, WriteBytes};
 /// # Examples
 ///
 /// ```
-/// use binary_data::{BinMemoryBuffer, BigEndian, WriteBytes, BinSeek};
-/// use esm_parser::Writable;
-/// use esm_parser::Result;
+/// use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, WriteBytes};
+/// use esm_parser::{Result, Writable};
 ///
 /// // A simple struct that can be written to a binary stream
 /// struct MyData {

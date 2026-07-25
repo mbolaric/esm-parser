@@ -1,7 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{ReadableWithParams, Result, tacho::CertificateContentType};
+use crate::tacho::CertificateContentType;
+use crate::{ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct PublicKeyParams {

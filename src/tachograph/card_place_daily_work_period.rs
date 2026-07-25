@@ -1,7 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, ReadableWithParams, Result, tacho::TimeReal};
+use crate::tacho::TimeReal;
+use crate::{Readable, ReadableWithParams, Result};
 
 pub trait CardPlace {
     fn get_entry_time(&self) -> &TimeReal;

@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams,
-    tacho::{CardIdentification, CardNumberParams, CompanyCardHolderIdentification, EquipmentType},
-};
+use crate::tacho::{CardIdentification, CardNumberParams, CompanyCardHolderIdentification, EquipmentType};
+use crate::{Readable, ReadableWithParams};
 
 /// Information, stored in a card, related to the identification of the card
 /// (Annex 1C requirements 255, 280, 310, 333, 359, 365, 371, and 377).

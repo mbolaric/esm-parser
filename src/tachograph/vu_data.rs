@@ -2,11 +2,9 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 
 use super::{TachographHeader, VUTransferResponseParameterID};
-use crate::{
-    VU_HEADER_MAGIC_NUMBER,
-    error::Result,
-    tacho::{VUTransferResponseParameter, VUTransferResponseParameterItem},
-};
+use crate::VU_HEADER_MAGIC_NUMBER;
+use crate::error::Result;
+use crate::tacho::{VUTransferResponseParameter, VUTransferResponseParameterItem};
 
 pub trait VUData<D> {
     fn get_header(&self) -> &TachographHeader;

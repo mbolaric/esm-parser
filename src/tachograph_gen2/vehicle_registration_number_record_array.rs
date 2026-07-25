@@ -1,14 +1,11 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::DataInfoReadable,
-    tacho::{RecordType, VehicleRegistrationNumber},
-    tachograph_gen2::{
-        data_info::DataConfig, vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray,
-    },
-};
+use crate::gen2::DataInfoReadable;
+use crate::tacho::{RecordType, VehicleRegistrationNumber};
+use crate::tachograph_gen2::data_info::DataConfig;
+use crate::tachograph_gen2::vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray;
+use crate::{Readable, Result};
 
 #[derive(Debug, Serialize)]
 pub struct VehicleRegistrationNumberRecordArray {

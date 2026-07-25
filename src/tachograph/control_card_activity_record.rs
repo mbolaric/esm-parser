@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification},
-};
+use crate::Readable;
+use crate::tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIdentification};
 
 /// Information, stored in a control card, related to control activity
 /// performed with the card (Annex 1C requirement 361 and 367).

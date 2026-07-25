@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, tacho::CardSlotStatusType};
+use crate::Readable;
+use crate::tacho::CardSlotStatusType;
 
 #[derive(Debug, Serialize)]
 pub struct CardSlotStatus {

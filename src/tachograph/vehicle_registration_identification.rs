@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{NationNumeric, VehicleRegistrationNumber},
-};
+use crate::Readable;
+use crate::tacho::{NationNumeric, VehicleRegistrationNumber};
 
 /// Identification of a vehicle, unique for Europe (VRN and Member State).
 #[derive(Debug, Serialize)]

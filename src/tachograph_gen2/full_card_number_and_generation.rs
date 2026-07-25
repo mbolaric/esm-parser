@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, tacho::FullCardNumber};
+use crate::Readable;
+use crate::tacho::FullCardNumber;
 
 /// Code fully identifying a tachograph card and its generation.
 #[derive(Debug, Serialize)]

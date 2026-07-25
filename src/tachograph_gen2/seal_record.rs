@@ -1,7 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, gen2::ExtendedSealIdentifier, tacho::EquipmentType};
+use crate::gen2::ExtendedSealIdentifier;
+use crate::tacho::EquipmentType;
+use crate::{Readable, Result};
 
 /// This data type stores information about a seal that is attached to a
 /// component. This data type is related to Annex 1C requirement 337.

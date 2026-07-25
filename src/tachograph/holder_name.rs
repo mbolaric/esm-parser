@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, tacho::Name};
+use crate::Readable;
+use crate::tacho::Name;
 
 /// This is the name and first name(s) of the holder of the Card.
 #[derive(Debug, Serialize)]

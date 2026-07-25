@@ -1,11 +1,9 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{
-    Readable, bytes_to_ia5_fix_string,
-    gen2::SealDataCard,
-    tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal, VehicleRegistrationIdentification},
-};
+use crate::gen2::SealDataCard;
+use crate::tacho::{CalibrationPurpose, ExtendedSerialNumber, OdometerShort, TimeReal, VehicleRegistrationIdentification};
+use crate::{Readable, bytes_to_ia5_fix_string};
 
 const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
 const TYRE_SIZE_LENGTH: u32 = 15;

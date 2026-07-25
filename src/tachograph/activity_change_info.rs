@@ -1,10 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    ReadableWithParams, Result,
-    tacho::{ActivitySource, ActivityType, CardSlotNumber, CardStatus, DrivingStatus},
-};
+use crate::tacho::{ActivitySource, ActivityType, CardSlotNumber, CardStatus, DrivingStatus};
+use crate::{ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct ActivityChangeInfoParams {

@@ -1,11 +1,9 @@
 use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Error, Readable, ReadableWithParams,
-    error::Result,
-    tacho::{RecordType, VUTransferResponseParameterID},
-};
+use crate::error::Result;
+use crate::tacho::{RecordType, VUTransferResponseParameterID};
+use crate::{Error, Readable, ReadableWithParams};
 
 #[derive(Debug)]
 pub struct DataConfig {

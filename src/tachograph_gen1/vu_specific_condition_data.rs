@@ -1,7 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::{Readable, tacho::SpecificConditionRecord};
+use crate::Readable;
+use crate::tacho::SpecificConditionRecord;
 
 /// Information, stored in a vehicle unit, related to specific conditions.
 #[derive(Debug, Serialize)]

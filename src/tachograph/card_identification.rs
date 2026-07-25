@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    tacho::{CardNumber, Name, NationNumeric, TimeReal},
-    tachograph::card_number::CardNumberParams,
-};
+use crate::tacho::{CardNumber, Name, NationNumeric, TimeReal};
+use crate::tachograph::card_number::CardNumberParams;
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a card, related to the identification of the card
 /// (Annex 1C requirements 255, 280, 310, 333, 359, 365, 371, and 377).

@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{CodePage, HexDisplay, Readable, bytes_to_string, tacho::NationNumeric};
+use crate::tacho::NationNumeric;
+use crate::{CodePage, HexDisplay, Readable, bytes_to_string};
 
 const SIGNATURE_LENGTH: u32 = 128;
 const PUBLIC_KEY_REMAINDER_LENGTH: u32 = 58;

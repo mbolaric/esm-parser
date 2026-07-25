@@ -1,14 +1,18 @@
 use log::trace;
 
-use crate::common::{
-    Error,
-    string_encoding::{
-        code_page::CodePage, iso_8859_1::decode_iso_8859_1, iso_8859_2::decode_iso_8859_2, iso_8859_3::decode_iso_8859_3,
-        iso_8859_5::decode_iso_8859_5, iso_8859_7::decode_iso_8859_7, iso_8859_9::decode_iso_8859_9,
-        iso_8859_13::decode_iso_8859_13, iso_8859_15::decode_iso_8859_15, iso_8859_16::decode_iso_8859_16, koi8_r::decode_koi8_r,
-        koi8_u::decode_koi8_u,
-    },
-};
+use crate::common::Error;
+use crate::common::string_encoding::code_page::CodePage;
+use crate::common::string_encoding::iso_8859_1::decode_iso_8859_1;
+use crate::common::string_encoding::iso_8859_2::decode_iso_8859_2;
+use crate::common::string_encoding::iso_8859_3::decode_iso_8859_3;
+use crate::common::string_encoding::iso_8859_5::decode_iso_8859_5;
+use crate::common::string_encoding::iso_8859_7::decode_iso_8859_7;
+use crate::common::string_encoding::iso_8859_9::decode_iso_8859_9;
+use crate::common::string_encoding::iso_8859_13::decode_iso_8859_13;
+use crate::common::string_encoding::iso_8859_15::decode_iso_8859_15;
+use crate::common::string_encoding::iso_8859_16::decode_iso_8859_16;
+use crate::common::string_encoding::koi8_r::decode_koi8_r;
+use crate::common::string_encoding::koi8_u::decode_koi8_u;
 
 /// Decodes a single byte into a character based on the specified code page.
 ///
@@ -59,7 +63,7 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 /// # Examples
 ///
 /// ```
-/// use esm_parser::{bytes_to_string, CodePage};
+/// use esm_parser::{CodePage, bytes_to_string};
 ///
 /// // Example of decoding a byte slice using ISO-8859-1
 /// let bytes: &[u8] = &[0x48, 0x65, 0x6C, 0x6C, 0x6F]; // "Hello"

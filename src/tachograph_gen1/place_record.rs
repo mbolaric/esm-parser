@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{CardPlace, EntryTypeDailyWorkPeriod, NationNumeric, OdometerShort, RegionNumeric, TimeReal};
 
 /// Information related to a place where a daily work period begins or ends
 /// (Annex 1C requirements 108, 271, 296, 324, and 347).

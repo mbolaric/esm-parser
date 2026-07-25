@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{TimeReal, VehicleRegistrationIdentification},
-};
+use crate::Readable;
+use crate::tacho::{TimeReal, VehicleRegistrationIdentification};
 
 /// Information about the actual usage of the card (Annex 1C requirement
 /// 273, 298, 326, and 349).

@@ -1,4 +1,5 @@
-use serde::{Serialize, ser::Serializer};
+use serde::Serialize;
+use serde::ser::Serializer;
 
 use crate::gen1::{CompanyCard, ControlCard, DriverCard, WorkshopCard};
 

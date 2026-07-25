@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    CodePage, Readable, bytes_to_string,
-    tacho::{EquipmentType, NationNumeric},
-};
+use crate::tacho::{EquipmentType, NationNumeric};
+use crate::{CodePage, Readable, bytes_to_string};
 
 const CARD_NUMBER_LENGTH: u32 = 16;
 

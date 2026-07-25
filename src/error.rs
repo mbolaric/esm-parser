@@ -1,5 +1,6 @@
-use crate::common;
 use core::fmt;
+
+use crate::common;
 
 /// Represents an error that can occur during parsing.
 #[derive(Debug)]

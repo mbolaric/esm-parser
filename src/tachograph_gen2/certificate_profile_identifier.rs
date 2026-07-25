@@ -1,7 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, Result, tacho::CertificateContentType};
+use crate::tacho::CertificateContentType;
+use crate::{Readable, Result};
 
 /// Certificates shall use a Certificate Profile Identifier to
 /// indicate the certificate profile used. Version 1, shall be identified by a value of ‘00’.

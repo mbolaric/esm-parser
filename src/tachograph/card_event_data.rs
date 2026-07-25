@@ -1,10 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    tacho::{EventFaultType, TimeReal, VehicleRegistrationIdentification},
-};
+use crate::tacho::{EventFaultType, TimeReal, VehicleRegistrationIdentification};
+use crate::{Readable, ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct CardEventDataParams {

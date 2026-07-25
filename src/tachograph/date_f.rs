@@ -40,8 +40,9 @@ impl Readable<Datef> for Datef {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use binary_data::BinMemoryBuffer;
+
+    use super::*;
 
     #[test]
     fn test_datef_read() {

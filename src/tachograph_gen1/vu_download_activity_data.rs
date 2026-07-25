@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{FullCardNumber, Name, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{FullCardNumber, Name, TimeReal};
 
 /// Information, stored in a vehicle unit, related to its last download (Annex
 /// 1B requirement 105 and Annex 1C requirement 129).

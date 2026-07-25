@@ -1,9 +1,7 @@
 use serde::Serialize;
 
-use crate::{
-    Readable,
-    tacho::{Address, FullCardNumber, Name, TimeReal},
-};
+use crate::Readable;
+use crate::tacho::{Address, FullCardNumber, Name, TimeReal};
 
 /// Information, stored in a vehicle unit, related to one company lock
 /// (Annex 1B requirement 104 and Annex 1C requirement 128).

@@ -1,8 +1,9 @@
+use std::io::Cursor;
+
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use quick_xml::writer::Writer;
 use serde::Serialize;
-use std::io::Cursor;
 
 use crate::Result;
 

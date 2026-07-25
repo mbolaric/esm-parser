@@ -1,12 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, ReadableWithParams, Result,
-    gen2::{DataInfoReadable, FullCardNumberAndGeneration, PlaceAuthRecord, PlaceRecord},
-    tacho::{RecordType, VUTransferResponseParameterID},
-    tachograph_gen2::data_info::DataConfig,
-};
+use crate::gen2::{DataInfoReadable, FullCardNumberAndGeneration, PlaceAuthRecord, PlaceRecord};
+use crate::tacho::{RecordType, VUTransferResponseParameterID};
+use crate::tachograph_gen2::data_info::DataConfig;
+use crate::{Readable, ReadableWithParams, Result};
 
 pub struct VuPlaceDailyWorkPeriodRecordParams {
     pub is_gen2_v2: bool,

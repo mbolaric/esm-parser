@@ -1,11 +1,9 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result,
-    gen2::{FullCardNumberAndGeneration, PreviousVehicleInfo},
-    tacho::{CardSlotNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal},
-};
+use crate::gen2::{FullCardNumberAndGeneration, PreviousVehicleInfo};
+use crate::tacho::{CardSlotNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal};
+use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to an insertion and with­
 /// drawal cycle of a driver card or of a workshop card in the vehicle unit

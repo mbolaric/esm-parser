@@ -1,7 +1,6 @@
 mod helpers;
 
-use esm_parser::Export;
-use esm_parser::{TachographData, parse_from_file};
+use esm_parser::{Export, TachographData, parse_from_file};
 use helpers::init_logging;
 use log::debug;
 

@@ -1,7 +1,9 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{ReadableWithParams, Result, gen2::CertificateParams, tacho::CertificateContentType};
+use crate::gen2::CertificateParams;
+use crate::tacho::CertificateContentType;
+use crate::{ReadableWithParams, Result};
 
 #[derive(Debug, Serialize)]
 pub struct EccCertificate {

@@ -1,6 +1,8 @@
 use serde::Serialize;
 
-use crate::{Readable, gen1::PlaceRecord, tacho::FullCardNumber};
+use crate::Readable;
+use crate::gen1::PlaceRecord;
+use crate::tacho::FullCardNumber;
 
 /// Information, stored in a vehicle unit, related to a place where a driver
 /// begins or ends a daily work period (Annex 1B requirement 087 and

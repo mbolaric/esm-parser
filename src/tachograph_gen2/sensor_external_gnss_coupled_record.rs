@@ -1,10 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{
-    Readable, Result, bytes_to_ia5_fix_string,
-    tacho::{ExtendedSerialNumber, TimeReal},
-};
+use crate::tacho::{ExtendedSerialNumber, TimeReal};
+use crate::{Readable, Result, bytes_to_ia5_fix_string};
 
 /// Information, stored in a vehicle unit, related to the identification of the
 /// external GNSS facility coupled with the vehicle unit (Annex 1C requirement 100).

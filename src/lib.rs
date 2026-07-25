@@ -19,7 +19,7 @@
 //! To parse a DDD file from the filesystem:
 //!
 //! ```rust,no_run
-//! use esm_parser::{parse_from_file, TachographData};
+//! use esm_parser::{TachographData, parse_from_file};
 //!
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let path_to_ddd = "path/to/your_file.ddd";
@@ -101,12 +101,11 @@ pub mod gen2 {
     //! support for new features like GNSS data and updated record formats.
     pub use super::tachograph_gen2::*;
 }
+#[cfg(target_arch = "wasm32")]
+pub use helpers::{LogLevel, init_console_logging};
 pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::TachographData;
 pub use verification::{verify_card, verify_card_with_erca_path};
-
-#[cfg(target_arch = "wasm32")]
-pub use helpers::{LogLevel, init_console_logging};
 
 /// This function is the entry point for the WebAssembly module.
 /// It is executed automatically when the WASM module is loaded in the browser.

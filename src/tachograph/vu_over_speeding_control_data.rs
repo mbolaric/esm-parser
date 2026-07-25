@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{Readable, tacho::TimeReal};
+use crate::Readable;
+use crate::tacho::TimeReal;
 
 /// Information, stored in a vehicle unit, related to over speeding events
 /// since the last over speeding control (Annex 1B requirement 095 and

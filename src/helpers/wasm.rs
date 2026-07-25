@@ -1,7 +1,8 @@
 // This file contains helper functions for interacting with the browser's console and setting up logging and panic hooks for the WebAssembly module.
+use std::panic;
+
 use log::{self, Level, Log, Metadata, Record};
 use serde::{Deserialize, Serialize};
-use std::panic;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 

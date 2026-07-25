@@ -1,7 +1,8 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, ReadableWithParams, Result, tacho::SpecificConditionRecord};
+use crate::tacho::SpecificConditionRecord;
+use crate::{Readable, ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct SpecificConditionsParams {

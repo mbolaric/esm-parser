@@ -1,7 +1,8 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{CodePage, Readable, Result, bytes_to_string, tacho::TimeReal};
+use crate::tacho::TimeReal;
+use crate::{CodePage, Readable, Result, bytes_to_string};
 
 const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
 

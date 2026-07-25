@@ -13,9 +13,8 @@ use crate::Result;
 /// # Examples
 ///
 /// ```
-/// use binary_data::{BinMemoryBuffer, BigEndian, ReadBytes, BinSeek};
-/// use esm_parser::Readable;
-/// use esm_parser::Result;
+/// use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
+/// use esm_parser::{Readable, Result};
 ///
 /// // A simple struct that can be read from a binary stream
 /// struct MyData {

@@ -1,6 +1,7 @@
 use std::sync::OnceLock;
 
-use esm_parser::{TachographData, gen1, parse_from_file, tacho::EquipmentType};
+use esm_parser::tacho::EquipmentType;
+use esm_parser::{TachographData, gen1, parse_from_file};
 
 #[derive(Debug)]
 struct TestConfig {
