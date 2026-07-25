@@ -1,8 +1,9 @@
 //! Signature verification for tachograph files.
 //!
 //! This module provides functionality to verify the digital signatures of tachograph data files.
-//! It supports both Gen1 and Gen2 tachograph data, dispatching to the appropriate verification
-//! logic based on the provided European Root Certification Authority (ERCA) public key size.
+//! It supports one Gen1 or Gen2 tachograph-card application at a time, dispatching to the
+//! appropriate verification logic after validating the corresponding European Root
+//! Certification Authority (ERCA) certificate size.
 
 use std::io::Read;
 
@@ -22,6 +23,7 @@ use crate::{
 /// # Arguments
 ///
 /// * `generation` - The card generation (`Gen1` or `Gen2`), used to validate the ERCA public key length.
+///   A `Combined` card must be split into its Gen1 and Gen2 application maps and verified separately.
 /// * `data_files` - A map containing the file data to be verified, with `CardFileID` as keys.
 /// * `erca_pk` - A byte slice representing the European Root Certification Authority (ERCA) public key.
 ///   - For `Gen1`, this must be 144 bytes.
@@ -37,9 +39,16 @@ use crate::{
 /// This function will return an `Error` if:
 /// * `data_files` is empty (`Error::EmptyInputData`).
 /// * `erca_pk` is empty (`Error::EmptyInputData`).
+/// * `generation` is `Combined` (`Error::VerifyError`), because one file map and one ERCA certificate
+///   cannot verify both applications.
 /// * The length of `erca_pk` does not match the expected length for the specified `generation` (`Error::VerifyError`).
 /// * The length of `erca_pk` is not a supported size (144 for Gen1, 205 for Gen2) (`Error::VerifyError`).
 pub fn verify_card(generation: &CardGeneration, data_files: &CardFilesMap, erca_pk: &[u8]) -> Result<VerifyResult> {
+    if matches!(generation, CardGeneration::Combined) {
+        return Err(Error::VerifyError(
+            "Combined card verification requires separate Gen1 and Gen2 application data maps.".to_owned(),
+        ));
+    }
     if data_files.is_empty() {
         return Err(Error::EmptyInputData("Data for verification are not provided.".to_owned()));
     }
@@ -66,7 +75,7 @@ pub fn verify_card(generation: &CardGeneration, data_files: &CardFilesMap, erca_
         )));
     }
 
-    if erca_pk.len() == 144 {
+    if matches!(generation, CardGeneration::Gen1) {
         return gen1::verify(data_files, erca_pk.try_into().unwrap());
     }
     gen2::verify(data_files, erca_pk.try_into().unwrap())
@@ -141,5 +150,17 @@ mod wasm_support {
             Ok(data) => to_value(&data).map_err(|e| e.into()),
             Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rejects_ambiguous_combined_generation() {
+        let error = verify_card(&CardGeneration::Combined, &CardFilesMap::new(), &[0; 205]).unwrap_err();
+
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("separate Gen1 and Gen2")));
     }
 }

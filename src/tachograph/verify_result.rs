@@ -26,7 +26,7 @@ pub enum VerifyResultStatus {
     Invalid,
     Valid,
     Unsigned,
-    PartialyValid,
+    PartiallyValid,
 }
 
 #[derive(Debug, Serialize)]

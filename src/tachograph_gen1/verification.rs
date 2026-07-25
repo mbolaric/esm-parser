@@ -16,6 +16,8 @@ const CR_SIZE: usize = 106;
 const HASH_SIZE: usize = 20;
 const RSA_KEY_SIZE: usize = 136;
 const DECRYPTED_CERT_SIZE: usize = 164;
+const RSA_SIGNATURE_START_SENTINEL: u8 = 106;
+const RSA_SIGNATURE_END_SENTINEL: u8 = 188;
 
 const DATA_PATTERN: [u8; 15] = [48, 33, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20];
 const SIGNATURE_PADDING: [u8; 90] = [0xFF; 90];
@@ -139,8 +141,11 @@ fn decrypt_ca_certificate(certificate: &Certificate, ec_pk_certificate: &ECPKCer
     }
 
     let perf_ret = ec_pk_certificate.rsa_public_key.perform(&certificate.signature);
-    if perf_ret.first() != Some(&106) || perf_ret.last() != Some(&188) {
-        return Err(Error::VerifyError(format!("CA RsaPublicKey need to start with {:2X} and end with {:2X}", 106, 188)));
+    if perf_ret.first() != Some(&RSA_SIGNATURE_START_SENTINEL) || perf_ret.last() != Some(&RSA_SIGNATURE_END_SENTINEL) {
+        return Err(Error::VerifyError(format!(
+            "CA RsaPublicKey need to start with {:2X} and end with {:2X}",
+            RSA_SIGNATURE_START_SENTINEL, RSA_SIGNATURE_END_SENTINEL
+        )));
     }
 
     let cr: [u8; CR_SIZE] =
@@ -153,14 +158,15 @@ fn decrypt_ca_certificate(certificate: &Certificate, ec_pk_certificate: &ECPKCer
 
 fn decrypt_card_certificate(certificate: &Certificate, ca_certificate: &DecryptedCertificate) -> Result<DecryptedCertificate> {
     if certificate.certification_authority_reference != ca_certificate.holder_reference {
-        return Err(Error::VerifyError(
-            "Certification authority referenceCould and ERCA holder reference are not same".to_string(),
-        ));
+        return Err(Error::VerifyError("Certification authority reference and ERCA holder reference are not same".to_string()));
     }
 
     let perf_ret = ca_certificate.rsa_public_key.perform(&certificate.signature);
-    if perf_ret.first() != Some(&106) || perf_ret.last() != Some(&188) {
-        return Err(Error::VerifyError(format!("RsaPublicKey need to start with {:2X} and end with {:2X}", 106, 188)));
+    if perf_ret.first() != Some(&RSA_SIGNATURE_START_SENTINEL) || perf_ret.last() != Some(&RSA_SIGNATURE_END_SENTINEL) {
+        return Err(Error::VerifyError(format!(
+            "RsaPublicKey need to start with {:2X} and end with {:2X}",
+            RSA_SIGNATURE_START_SENTINEL, RSA_SIGNATURE_END_SENTINEL
+        )));
     }
 
     let cr: [u8; CR_SIZE] =
@@ -171,11 +177,17 @@ fn decrypt_card_certificate(certificate: &Certificate, ca_certificate: &Decrypte
     certificate.decrypt(&cr, &h)
 }
 
+/// These elementary files are present on a signed Gen1 card, but are not
+/// protected by a card-data signature.
+fn is_non_signed_file(id: &CardFileID) -> bool {
+    id == &CardFileID::IC || id == &CardFileID::ICC || id == &CardFileID::CACertificate || id == &CardFileID::CardCertificate
+}
+
 fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificate) -> Result<Vec<VerifyItem>> {
     let mut result: Vec<VerifyItem> = Vec::new();
     for data_file in data_files.iter() {
         let id = data_file.0;
-        if id == &CardFileID::CACertificate || id == &CardFileID::CardCertificate {
+        if is_non_signed_file(id) {
             continue;
         }
 
@@ -224,6 +236,16 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificat
     Ok(result)
 }
 
+fn result_status(items: &[VerifyItem]) -> VerifyResultStatus {
+    if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+        VerifyResultStatus::Valid
+    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+        VerifyResultStatus::PartiallyValid
+    } else {
+        VerifyResultStatus::Invalid
+    }
+}
+
 pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyResult> {
     let ca_cert_file =
         data_files.get(&CardFileID::CACertificate).ok_or(Error::VerifyError("Missing CA Certificate.".to_string()))?;
@@ -254,5 +276,63 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     let verifed_data = verify_data(data_files, &card_decrypted)?;
     result.extend(verifed_data);
 
-    Ok(VerifyResult { status: VerifyResultStatus::Valid, result })
+    Ok(VerifyResult { status: result_status(&result), result })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn data_file(card_file_id: CardFileID, data: Vec<u8>) -> CardFileData {
+        CardFileData {
+            card_file_id,
+            appendix: 0,
+            card_file_notes: String::new(),
+            size: data.len() as u32,
+            signature: None,
+            data: Some(data),
+        }
+    }
+
+    fn verify_item(status: VerifyStatus) -> VerifyItem {
+        VerifyItem { card_file_id: CardFileID::EventsData, status, end_of_validity: None }
+    }
+
+    #[test]
+    fn test_verify_requires_ca_certificate() {
+        let error = verify(&CardFilesMap::new(), &[0; 144]).unwrap_err();
+
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("Missing CA Certificate")));
+    }
+
+    #[test]
+    fn test_verify_requires_card_certificate() {
+        let mut data_files = CardFilesMap::new();
+        data_files.insert(CardFileID::CACertificate, data_file(CardFileID::CACertificate, vec![0; 194]));
+
+        let error = verify(&data_files, &[0; 144]).unwrap_err();
+
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("Missing Card Certificate")));
+    }
+
+    #[test]
+    fn test_verify_rejects_an_invalid_ca_certificate_size() {
+        let mut data_files = CardFilesMap::new();
+        data_files.insert(CardFileID::CACertificate, data_file(CardFileID::CACertificate, vec![0; 193]));
+        data_files.insert(CardFileID::CardCertificate, data_file(CardFileID::CardCertificate, vec![0; 194]));
+
+        let error = verify(&data_files, &[0; 144]).unwrap_err();
+
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("Invalid signature length in Certificate")));
+    }
+
+    #[test]
+    fn test_result_status_reflects_per_file_results() {
+        assert!(matches!(result_status(&[verify_item(VerifyStatus::Valid)]), VerifyResultStatus::Valid));
+        assert!(matches!(
+            result_status(&[verify_item(VerifyStatus::Valid), verify_item(VerifyStatus::Invalid)]),
+            VerifyResultStatus::PartiallyValid
+        ));
+        assert!(matches!(result_status(&[verify_item(VerifyStatus::Invalid)]), VerifyResultStatus::Invalid));
+    }
 }

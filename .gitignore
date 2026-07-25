@@ -8,3 +8,8 @@ Thumbs.db
 .secrets
 .act-event.json
 /.vscode/
+graphify-out/
+.codex/
+.claude/
+.agents/
+AGENTS.md

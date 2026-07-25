@@ -1,218 +1,712 @@
-use log::debug;
+use bp256::{BrainpoolP256r1, r1::ecdsa::Signature};
+use ecdsa::VerifyingKey;
+use sha2::{Digest, Sha256};
+use signature::hazmat::PrehashVerifier;
 
 use crate::{
     Error, Result,
-    tacho::{CardFileID, CardFilesMap, TimeReal, VerifyResult},
+    tacho::{
+        CardFileData, CardFileID, CardFilesMap, CertificateContentType, EquipmentType, TimeReal, VerifyItem, VerifyResult,
+        VerifyResultStatus, VerifyStatus,
+    },
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(u32)]
-pub enum CertificateTag {
-    ApplicationTemplate = 0x7F81,
-    CertificateBody = 0x7FAE,
-    CertificateProfileIdentifier = 0x5F19,
-    CertificateAuthorityReference = 0x42,
-    CertificateHolderAuthorisation = 0x5F3C,
-    Extensions = 0x7FA9,
-    DomainParameters = 0x06,
-    PublicPoint = 0x86,
-    CertificateHolderReference = 0x5F20,
-    CertificateEffectiveDate = 0x5F25,
-    CertificateExpirationDate = 0x5F24,
-    CertificateSignature = 0x5F37,
-    Unknown = 0xFFFF,
+const GEN2_CERTIFICATE_SIZE: usize = 205;
+const CAR_SIZE: usize = 8;
+const CHR_SIZE: usize = 8;
+const CHA_SIZE: usize = 7;
+const CPI_VERSION_1: u8 = 0x00;
+const ECDSA_P256_SIGNATURE_SIZE: usize = 64;
+const SEC1_UNCOMPRESSED_P256_POINT_SIZE: usize = 65;
+const BRAINPOOL_P256_R1_OID: &str = "1.3.36.3.3.2.8.1.1.7";
+
+#[derive(Debug)]
+struct Tlv<'a> {
+    tag: u16,
+    encoded: &'a [u8],
+    value: &'a [u8],
 }
 
-impl From<u32> for CertificateTag {
-    fn from(value: u32) -> Self {
-        match value {
-            0x7F81 => Self::ApplicationTemplate,
-            0x7FAE => Self::CertificateBody,
-            0x5F19 => Self::CertificateProfileIdentifier,
-            0x42 => Self::CertificateAuthorityReference,
-            0x5F3C => Self::CertificateHolderAuthorisation,
-            0x7FA9 => Self::Extensions,
-            0x06 => Self::DomainParameters,
-            0x86 => Self::PublicPoint,
-            0x5F20 => Self::CertificateHolderReference,
-            0x5F25 => Self::CertificateEffectiveDate,
-            0x5F24 => Self::CertificateExpirationDate,
-            0x5F37 => Self::CertificateSignature,
-            _ => Self::Unknown,
+fn parse_tlv(input: &[u8]) -> Result<Tlv<'_>> {
+    let Some(&first_tag_byte) = input.first() else {
+        return Err(Error::VerifyError("Unexpected end of CVC data while reading a tag.".to_string()));
+    };
+
+    let (tag, tag_len) = if first_tag_byte & 0x1F == 0x1F {
+        let Some(&second_tag_byte) = input.get(1) else {
+            return Err(Error::VerifyError("Truncated multi-byte CVC tag.".to_string()));
+        };
+        if second_tag_byte & 0x80 != 0 {
+            return Err(Error::VerifyError("Unsupported CVC tag with more than two bytes.".to_string()));
+        }
+        (((first_tag_byte as u16) << 8) | second_tag_byte as u16, 2)
+    } else {
+        (first_tag_byte as u16, 1)
+    };
+
+    let Some(&first_length_byte) = input.get(tag_len) else {
+        return Err(Error::VerifyError("Unexpected end of CVC data while reading a length.".to_string()));
+    };
+
+    let (value_len, length_len) = if first_length_byte & 0x80 == 0 {
+        (first_length_byte as usize, 1)
+    } else {
+        let length_byte_count = (first_length_byte & 0x7F) as usize;
+        if length_byte_count == 0 {
+            return Err(Error::VerifyError("Indefinite CVC lengths are not supported.".to_string()));
+        }
+        if length_byte_count > core::mem::size_of::<usize>() {
+            return Err(Error::VerifyError("CVC length is too large.".to_string()));
+        }
+        let length_bytes = input
+            .get(tag_len + 1..tag_len + 1 + length_byte_count)
+            .ok_or_else(|| Error::VerifyError("Truncated long-form CVC length.".to_string()))?;
+        if length_bytes.first() == Some(&0) {
+            return Err(Error::VerifyError("CVC length is not minimally encoded.".to_string()));
+        }
+        let value_len = length_bytes.iter().try_fold(0usize, |acc, &byte| {
+            acc.checked_shl(8)
+                .and_then(|value| value.checked_add(byte as usize))
+                .ok_or_else(|| Error::VerifyError("CVC length overflows usize.".to_string()))
+        })?;
+        if value_len < 128 {
+            return Err(Error::VerifyError("CVC long-form length is not minimally encoded.".to_string()));
+        }
+        (value_len, 1 + length_byte_count)
+    };
+
+    let header_len = tag_len + length_len;
+    let encoded_len =
+        header_len.checked_add(value_len).ok_or_else(|| Error::VerifyError("CVC tag length overflows usize.".to_string()))?;
+    let encoded = input
+        .get(..encoded_len)
+        .ok_or_else(|| Error::VerifyError("CVC tag value exceeds the certificate boundary.".to_string()))?;
+
+    Ok(Tlv { tag, encoded, value: &encoded[header_len..] })
+}
+
+fn take_tlv<'a>(input: &mut &'a [u8]) -> Result<Tlv<'a>> {
+    let tlv = parse_tlv(input)?;
+    *input = &input[tlv.encoded.len()..];
+    Ok(tlv)
+}
+
+fn expect_tlv<'a>(input: &mut &'a [u8], expected_tag: u16, field: &str) -> Result<Tlv<'a>> {
+    let tlv = take_tlv(input)?;
+    if tlv.tag != expected_tag {
+        return Err(Error::VerifyError(format!("Expected {field} tag {expected_tag:#06X}, found {:#06X}.", tlv.tag)));
+    }
+    Ok(tlv)
+}
+
+fn fixed_value<const N: usize>(tlv: &Tlv<'_>, field: &str) -> Result<[u8; N]> {
+    tlv.value
+        .try_into()
+        .map_err(|_| Error::VerifyError(format!("Invalid {field} size: expected {N} bytes, found {} bytes.", tlv.value.len())))
+}
+
+fn oid_from_der(bytes: &[u8]) -> Result<String> {
+    let Some(&first) = bytes.first() else {
+        return Err(Error::VerifyError("Domain parameters OID is empty.".to_string()));
+    };
+
+    let (first_component, second_component) = match first {
+        0..=39 => (0, first as u64),
+        40..=79 => (1, (first - 40) as u64),
+        _ => (2, (first - 80) as u64),
+    };
+    let mut parts = vec![first_component.to_string(), second_component.to_string()];
+    let mut index = 1;
+
+    while index < bytes.len() {
+        let mut component = 0u64;
+        let mut complete = false;
+        while index < bytes.len() {
+            let byte = bytes[index];
+            index += 1;
+            component = component
+                .checked_shl(7)
+                .and_then(|value| value.checked_add((byte & 0x7F) as u64))
+                .ok_or_else(|| Error::VerifyError("Domain parameters OID component overflows u64.".to_string()))?;
+            if byte & 0x80 == 0 {
+                complete = true;
+                break;
+            }
+        }
+        if !complete {
+            return Err(Error::VerifyError("Truncated domain parameters OID.".to_string()));
+        }
+        parts.push(component.to_string());
+    }
+
+    Ok(parts.join("."))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Curve {
+    BrainpoolP256r1,
+}
+
+impl Curve {
+    fn from_oid(oid: &str) -> Result<Self> {
+        match oid {
+            BRAINPOOL_P256_R1_OID => Ok(Self::BrainpoolP256r1),
+            _ => Err(Error::VerifyError(format!("Unsupported Gen2 ECDSA curve OID: {oid}."))),
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct Certificate {
-    pub certificate_profile_identifier: u32,
-    pub certificate_authority_reference: Option<Vec<u8>>,
-    pub certificate_holder_authorisation: Option<Vec<u8>>,
-    pub domain_parameters: Option<String>,
-    pub public_point: Option<Vec<u8>>,
-    pub certificate_holder_reference: Option<Vec<u8>>,
-    pub certificate_effective_date: Option<TimeReal>,
-    pub certificate_expiration_date: Option<TimeReal>,
-    pub certificate_body: Option<Vec<u8>>,
-    pub certificate_signature: Option<Vec<u8>>,
+struct EcdsaPublicKey {
+    curve: Curve,
+    public_point: [u8; SEC1_UNCOMPRESSED_P256_POINT_SIZE],
+}
+
+impl EcdsaPublicKey {
+    fn new(domain_parameters: &str, public_point: &[u8]) -> Result<Self> {
+        let curve = Curve::from_oid(domain_parameters)?;
+        let public_point: [u8; SEC1_UNCOMPRESSED_P256_POINT_SIZE] = public_point.try_into().map_err(|_| {
+            Error::VerifyError(format!(
+                "Invalid {domain_parameters} public point size: expected {SEC1_UNCOMPRESSED_P256_POINT_SIZE} bytes, found {} bytes.",
+                public_point.len()
+            ))
+        })?;
+        if public_point[0] != 0x04 {
+            return Err(Error::VerifyError("Gen2 ECDSA public point must use uncompressed SEC1 encoding.".to_string()));
+        }
+        Ok(Self { curve, public_point })
+    }
+
+    fn verify(&self, prehash: &[u8], signature: &[u8]) -> Result<()> {
+        match self.curve {
+            Curve::BrainpoolP256r1 => {
+                if signature.len() != ECDSA_P256_SIGNATURE_SIZE {
+                    return Err(Error::VerifyError(format!(
+                        "Invalid brainpoolP256r1 ECDSA signature size: expected {ECDSA_P256_SIGNATURE_SIZE} bytes, found {} bytes.",
+                        signature.len()
+                    )));
+                }
+                let verifying_key = VerifyingKey::<BrainpoolP256r1>::from_sec1_bytes(&self.public_point)
+                    .map_err(|_| Error::VerifyError("Invalid brainpoolP256r1 public point.".to_string()))?;
+                let signature = Signature::from_slice(signature)
+                    .map_err(|_| Error::VerifyError("Invalid raw brainpoolP256r1 ECDSA signature.".to_string()))?;
+                verifying_key
+                    .verify_prehash(prehash, &signature)
+                    .map_err(|_| Error::VerifyError("ECDSA signature verification failed.".to_string()))
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Certificate {
+    certificate_authority_reference: [u8; CAR_SIZE],
+    certificate_holder_authorisation: [u8; CHA_SIZE],
+    domain_parameters: String,
+    public_point: [u8; SEC1_UNCOMPRESSED_P256_POINT_SIZE],
+    certificate_holder_reference: [u8; CHR_SIZE],
+    certificate_effective_date: TimeReal,
+    certificate_expiration_date: TimeReal,
+    certificate_body: Vec<u8>,
+    certificate_signature: [u8; ECDSA_P256_SIGNATURE_SIZE],
 }
 
 impl Certificate {
-    pub fn from_bytes(data: &[u8; 205]) -> Result<Self> {
-        let mut cert = Certificate {
-            certificate_profile_identifier: 0,
-            certificate_authority_reference: None,
-            certificate_holder_authorisation: None,
-            domain_parameters: None,
-            public_point: None,
-            certificate_holder_reference: None,
-            certificate_effective_date: None,
-            certificate_expiration_date: None,
-            certificate_body: None,
-            certificate_signature: None,
-        };
-        Ok(Certificate::parse(data, &mut cert))
-    }
-
-    #[allow(dead_code)]
-    fn read_tlv(data: &[u8; 205], pos: &mut usize) -> Option<(u32, usize)> {
-        if *pos >= data.len() {
-            return None;
+    fn from_bytes(data: &[u8; GEN2_CERTIFICATE_SIZE]) -> Result<Self> {
+        let outer = parse_tlv(data)?;
+        if outer.tag != CertificateContentType::ECCCertificate as u16 {
+            return Err(Error::VerifyError("Gen2 certificate does not start with an ECC Certificate tag.".to_string()));
+        }
+        if outer.encoded.len() != data.len() {
+            return Err(Error::VerifyError("Trailing bytes found after the Gen2 ECC Certificate.".to_string()));
         }
 
-        let mut tag = data[*pos] as u32;
-
-        // Handle multi-byte tag
-        if tag & 0x1F == 0x1F {
-            *pos += 1;
-            tag = (tag << 8) + data[*pos] as u32;
-        }
-        *pos += 1;
-
-        // Parse length
-        let data_part_len: usize;
-        if data[*pos] & 0x80 == 0x80 {
-            let int_len = (data[*pos] & 0x7F) as usize;
-            data_part_len = Certificate::to_u32(data.as_slice(), *pos + 1, int_len) as usize;
-            *pos += int_len;
-        } else {
-            data_part_len = data[*pos] as usize;
-        }
-        *pos += 1;
-
-        Some((tag, data_part_len))
-    }
-
-    fn parse(data: &[u8; 205], cert: &mut Certificate) -> Certificate {
-        let mut i = 0;
-        // while let Some((tag, data_part_len)) = Certificate::read_tlv(&data, &mut i) {
-        //     let tag_enum = CertificateTag::from(tag);
-        // }
-
-        while i < data.len() {
-            let start = i;
-            let mut tag = data[i] as u32;
-
-            // Handle multi-byte tag
-            if tag & 0x1F == 0x1F {
-                i += 1;
-                tag = (tag << 8) + data[i] as u32;
-            }
-            i += 1;
-
-            // Parse length
-            let data_part_len: usize;
-            if data[i] & 0x80 == 0x80 {
-                let int_len = (data[i] & 0x7F) as usize;
-                data_part_len = Certificate::to_u32(data.as_slice(), i + 1, int_len) as usize;
-                i += int_len;
-            } else {
-                data_part_len = data[i] as usize;
-            }
-            i += 1;
-
-            // Use enum instead of raw numbers
-            let tag_enum = CertificateTag::from(tag);
-
-            match tag_enum {
-                CertificateTag::ApplicationTemplate => { /* ignore */ }
-                CertificateTag::Extensions => { /* ignore */ }
-                CertificateTag::CertificateBody => {
-                    cert.certificate_body = Some(data[start..i + data_part_len].to_vec());
-                }
-                CertificateTag::CertificateProfileIdentifier => {
-                    cert.certificate_profile_identifier = Certificate::to_u32(data.as_slice(), i, data_part_len);
-                }
-                CertificateTag::CertificateAuthorityReference => {
-                    cert.certificate_authority_reference = Some(data[i..i + data_part_len].to_vec());
-                }
-                CertificateTag::CertificateHolderAuthorisation => {
-                    cert.certificate_holder_authorisation = Some(data[i..i + data_part_len].to_vec());
-                }
-                CertificateTag::DomainParameters => {
-                    cert.domain_parameters = Some(Certificate::to_object_identifier(&data[i..i + data_part_len]));
-                }
-                CertificateTag::PublicPoint => {
-                    cert.public_point = Some(data[i..i + data_part_len].to_vec());
-                }
-                CertificateTag::CertificateHolderReference => {
-                    cert.certificate_holder_reference = Some(data[i..i + data_part_len].to_vec());
-                }
-                CertificateTag::CertificateEffectiveDate => {
-                    cert.certificate_effective_date = Some(Certificate::to_time_real(&data[i..i + data_part_len]));
-                }
-                CertificateTag::CertificateExpirationDate => {
-                    cert.certificate_expiration_date = Some(Certificate::to_time_real(&data[i..i + data_part_len]));
-                }
-                CertificateTag::CertificateSignature => {
-                    cert.certificate_signature = Some(data[i..i + data_part_len].to_vec());
-                }
-                CertificateTag::Unknown => {
-                    debug!("Unknown tag: {:#X}", tag);
-                }
-            }
-
-            i += data_part_len;
+        let mut outer_value = outer.value;
+        let certificate_body =
+            expect_tlv(&mut outer_value, CertificateContentType::ECCCertificateBody as u16, "ECC Certificate Body")?;
+        let certificate_signature =
+            expect_tlv(&mut outer_value, CertificateContentType::CertificateSignature as u16, "ECC Certificate Signature")?;
+        if !outer_value.is_empty() {
+            return Err(Error::VerifyError("Unexpected fields after the Gen2 certificate signature.".to_string()));
         }
 
-        cert.clone()
+        let mut body_value = certificate_body.value;
+        let profile = expect_tlv(
+            &mut body_value,
+            CertificateContentType::CertificateProfileIdentifier as u16,
+            "Certificate Profile Identifier",
+        )?;
+        let certificate_profile_identifier = fixed_value::<1>(&profile, "Certificate Profile Identifier")?[0];
+        if certificate_profile_identifier != CPI_VERSION_1 {
+            return Err(Error::VerifyError(format!(
+                "Unsupported Gen2 certificate profile identifier: {certificate_profile_identifier:#04X}."
+            )));
+        }
+
+        let car = expect_tlv(
+            &mut body_value,
+            CertificateContentType::CertificateAuthorityReference as u16,
+            "Certificate Authority Reference",
+        )?;
+        let certificate_authority_reference = fixed_value::<CAR_SIZE>(&car, "Certificate Authority Reference")?;
+
+        let cha = expect_tlv(
+            &mut body_value,
+            CertificateContentType::CertificateHolderAuthorisation as u16,
+            "Certificate Holder Authorisation",
+        )?;
+        let certificate_holder_authorisation = fixed_value::<CHA_SIZE>(&cha, "Certificate Holder Authorisation")?;
+
+        let public_key = expect_tlv(&mut body_value, CertificateContentType::PublicKey as u16, "Public Key")?;
+        let (domain_parameters, public_point) = Self::parse_public_key(public_key.value)?;
+
+        let chr = expect_tlv(
+            &mut body_value,
+            CertificateContentType::CertificateHolderReference as u16,
+            "Certificate Holder Reference",
+        )?;
+        let certificate_holder_reference = fixed_value::<CHR_SIZE>(&chr, "Certificate Holder Reference")?;
+
+        let effective_date =
+            expect_tlv(&mut body_value, CertificateContentType::CertificateEffectiveDate as u16, "Certificate Effective Date")?;
+        let certificate_effective_date =
+            TimeReal::new(u32::from_be_bytes(fixed_value::<4>(&effective_date, "Certificate Effective Date")?));
+
+        let expiration_date =
+            expect_tlv(&mut body_value, CertificateContentType::CertificateExpirationDate as u16, "Certificate Expiration Date")?;
+        let certificate_expiration_date =
+            TimeReal::new(u32::from_be_bytes(fixed_value::<4>(&expiration_date, "Certificate Expiration Date")?));
+
+        if !body_value.is_empty() {
+            return Err(Error::VerifyError("Unexpected fields in the Gen2 ECC Certificate Body.".to_string()));
+        }
+
+        Ok(Self {
+            certificate_authority_reference,
+            certificate_holder_authorisation,
+            domain_parameters,
+            public_point,
+            certificate_holder_reference,
+            certificate_effective_date,
+            certificate_expiration_date,
+            certificate_body: certificate_body.encoded.to_vec(),
+            certificate_signature: fixed_value::<ECDSA_P256_SIGNATURE_SIZE>(&certificate_signature, "ECC Certificate Signature")?,
+        })
     }
 
-    fn to_u32(data: &[u8], offset: usize, len: usize) -> u32 {
-        data[offset..offset + len].iter().fold(0u32, |acc, &b| (acc << 8) | b as u32)
-    }
+    fn parse_public_key(data: &[u8]) -> Result<(String, [u8; SEC1_UNCOMPRESSED_P256_POINT_SIZE])> {
+        let mut public_key_value = data;
+        let domain_parameters =
+            expect_tlv(&mut public_key_value, CertificateContentType::DomainParameters as u16, "Domain Parameters")?;
+        let public_point = expect_tlv(&mut public_key_value, CertificateContentType::PublicPoint as u16, "Public Point")?;
+        if !public_key_value.is_empty() {
+            return Err(Error::VerifyError("Unexpected fields in the Gen2 public key.".to_string()));
+        }
 
-    fn to_object_identifier(bytes: &[u8]) -> String {
-        // basic OID decode placeholder
-        bytes.iter().map(|b| b.to_string()).collect::<Vec<_>>().join(".")
-    }
-
-    fn to_time_real(data: &[u8]) -> TimeReal {
-        TimeReal::new(Certificate::to_u32(data, 0, data.len()))
+        Ok((
+            oid_from_der(domain_parameters.value)?,
+            fixed_value::<SEC1_UNCOMPRESSED_P256_POINT_SIZE>(&public_point, "Public Point")?,
+        ))
     }
 }
 
-pub fn verify(data_files: &CardFilesMap, _erca_pk: &[u8; 205]) -> Result<VerifyResult> {
-    let ic = data_files.get(&CardFileID::IC);
-    let icc = data_files.get(&CardFileID::ICC);
-    if ic.is_none() || icc.is_none() {
-        return Ok(VerifyResult { status: crate::tacho::VerifyResultStatus::Unsigned, result: Vec::new() });
+#[derive(Debug)]
+struct ERCACertificate {
+    holder_reference: [u8; CHR_SIZE],
+    ecdsa_public_key: EcdsaPublicKey,
+}
+
+impl ERCACertificate {
+    fn new_at(data: &[u8; GEN2_CERTIFICATE_SIZE], validation_time: u32) -> Result<Self> {
+        let certificate = Certificate::from_bytes(data)?;
+        validate_certificate_validity(&certificate, validation_time)?;
+        validate_certificate_role(&certificate, EquipmentType::EuropeanRootCA, "ERCA")?;
+        if certificate.certificate_authority_reference != certificate.certificate_holder_reference {
+            return Err(Error::VerifyError("ERCA CAR and CHR are not the same.".to_string()));
+        }
+        let ecdsa_public_key = EcdsaPublicKey::new(&certificate.domain_parameters, &certificate.public_point)?;
+        ecdsa_public_key.verify(&Sha256::digest(&certificate.certificate_body), &certificate.certificate_signature)?;
+        Ok(Self { holder_reference: certificate.certificate_holder_reference, ecdsa_public_key })
     }
-    let ca_cert_file =
-        data_files.get(&CardFileID::CACertificate).ok_or(Error::VerifyError("Missing CA Certificate.".to_string()))?;
-    let _card_cert_file = data_files
-        .get(&CardFileID::CardSignCertificate)
-        .ok_or(Error::VerifyError("Missing Card Sign Certificate.".to_string()))?;
+}
 
-    let ca_signature = ca_cert_file.data.as_ref().ok_or_else(|| Error::VerifyError("Missing Certificate Data.".to_string()))?;
+#[derive(Debug)]
+struct VerifiedCertificate {
+    end_of_validity: TimeReal,
+    holder_reference: [u8; CHR_SIZE],
+    ecdsa_public_key: EcdsaPublicKey,
+}
 
-    let ca_signature_array: &[u8; 205] = ca_signature
+impl VerifiedCertificate {
+    fn new(certificate: &Certificate) -> Result<Self> {
+        Ok(Self {
+            end_of_validity: certificate.certificate_expiration_date.clone(),
+            holder_reference: certificate.certificate_holder_reference,
+            ecdsa_public_key: EcdsaPublicKey::new(&certificate.domain_parameters, &certificate.public_point)?,
+        })
+    }
+}
+
+fn current_unix_timestamp() -> Result<u32> {
+    u32::try_from(time::OffsetDateTime::now_utc().unix_timestamp())
+        .map_err(|_| Error::VerifyError("Current system time is outside the supported tachograph range.".to_string()))
+}
+
+fn validate_certificate_validity(certificate: &Certificate, validation_time: u32) -> Result<()> {
+    let effective = certificate.certificate_effective_date.get_data();
+    let expiration = certificate.certificate_expiration_date.get_data();
+    if effective > expiration {
+        return Err(Error::VerifyError("Certificate effective date is after its expiration date.".to_string()));
+    }
+    if validation_time < effective || validation_time > expiration {
+        return Err(Error::VerifyError("Certificate is not valid at the verification time.".to_string()));
+    }
+    Ok(())
+}
+
+fn validate_certificate_role(certificate: &Certificate, expected: EquipmentType, name: &str) -> Result<()> {
+    let actual = certificate.certificate_holder_authorisation[CHA_SIZE - 1];
+    let expected_description = format!("{expected:?}");
+    if actual != expected as u8 {
+        return Err(Error::VerifyError(format!(
+            "{name} certificate has equipment type {actual:#04X}; expected {expected_description}."
+        )));
+    }
+    Ok(())
+}
+
+fn validate_card_sign_role(certificate: &Certificate) -> Result<()> {
+    let equipment_type = certificate.certificate_holder_authorisation[CHA_SIZE - 1];
+    if equipment_type != EquipmentType::DriverCardSign as u8 && equipment_type != EquipmentType::WorkshopCardSign as u8 {
+        return Err(Error::VerifyError(format!(
+            "Card signing certificate has unsupported equipment type {equipment_type:#04X}."
+        )));
+    }
+    Ok(())
+}
+
+fn create_certificate_from(card_file_data: &CardFileData) -> Result<Certificate> {
+    let data = card_file_data.data.as_ref().ok_or_else(|| Error::VerifyError("Missing certificate data.".to_string()))?;
+    let certificate: &[u8; GEN2_CERTIFICATE_SIZE] = data
         .as_slice()
         .try_into()
-        .map_err(|_| Error::VerifyError("Invalid signature length in Certificate.".to_string()))?;
+        .map_err(|_| Error::VerifyError(format!("Invalid Gen2 certificate length: expected {GEN2_CERTIFICATE_SIZE} bytes.")))?;
+    Certificate::from_bytes(certificate)
+}
 
-    let ca_certificate = Certificate::from_bytes(ca_signature_array);
-    debug!("verify - CA Certificate: {:?}", ca_certificate);
+fn verify_ca_certificate_at(
+    certificate: &Certificate,
+    erca_certificate: &ERCACertificate,
+    validation_time: u32,
+) -> Result<VerifiedCertificate> {
+    if certificate.certificate_authority_reference != erca_certificate.holder_reference {
+        return Err(Error::VerifyError("MSCA CAR and ERCA CHR are not the same.".to_string()));
+    }
+    validate_certificate_role(certificate, EquipmentType::MemberStateCA, "MSCA")?;
+    validate_certificate_validity(certificate, validation_time)?;
+    erca_certificate
+        .ecdsa_public_key
+        .verify(&Sha256::digest(&certificate.certificate_body), &certificate.certificate_signature)?;
+    VerifiedCertificate::new(certificate)
+}
 
-    Err(Error::NotImplemented)
+fn verify_card_certificate_at(
+    certificate: &Certificate,
+    ca_certificate: &VerifiedCertificate,
+    validation_time: u32,
+) -> Result<VerifiedCertificate> {
+    if certificate.certificate_authority_reference != ca_certificate.holder_reference {
+        return Err(Error::VerifyError("Card_Sign CAR and MSCA CHR are not the same.".to_string()));
+    }
+    validate_card_sign_role(certificate)?;
+    validate_certificate_validity(certificate, validation_time)?;
+    ca_certificate.ecdsa_public_key.verify(&Sha256::digest(&certificate.certificate_body), &certificate.certificate_signature)?;
+    VerifiedCertificate::new(certificate)
+}
+
+/// These elementary files are present on a signed Gen2 card, but are not
+/// themselves protected by the card-signing key.
+fn is_non_signed_file(id: &CardFileID) -> bool {
+    matches!(
+        id,
+        CardFileID::IC
+            | CardFileID::ICC
+            | CardFileID::CACertificate
+            | CardFileID::CardCertificate
+            | CardFileID::CardSignCertificate
+            | CardFileID::LinkCertificate
+            | CardFileID::CardDownload
+    )
+}
+
+fn verify_data(data_files: &CardFilesMap, card_certificate: &VerifiedCertificate) -> Result<Vec<VerifyItem>> {
+    let mut result = Vec::new();
+    for (id, data_file) in data_files {
+        if is_non_signed_file(id) {
+            continue;
+        }
+        let Some(raw_data) = data_file.data.as_ref() else {
+            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveData, end_of_validity: None });
+            continue;
+        };
+        let Some(signature) = data_file.signature.as_ref() else {
+            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveSignature, end_of_validity: None });
+            continue;
+        };
+        if signature.len() != ECDSA_P256_SIGNATURE_SIZE {
+            result.push(VerifyItem {
+                card_file_id: id.clone(),
+                status: VerifyStatus::InvalidSignatureSize,
+                end_of_validity: None,
+            });
+            continue;
+        }
+
+        let status = if card_certificate.ecdsa_public_key.verify(&Sha256::digest(raw_data), signature).is_ok() {
+            VerifyStatus::Valid
+        } else {
+            VerifyStatus::Invalid
+        };
+        result.push(VerifyItem { card_file_id: id.clone(), status, end_of_validity: None });
+    }
+    Ok(result)
+}
+
+fn result_status(items: &[VerifyItem]) -> VerifyResultStatus {
+    if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+        VerifyResultStatus::Valid
+    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+        VerifyResultStatus::PartiallyValid
+    } else {
+        VerifyResultStatus::Invalid
+    }
+}
+
+pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) -> Result<VerifyResult> {
+    if !data_files.contains_key(&CardFileID::IC) || !data_files.contains_key(&CardFileID::ICC) {
+        return Ok(VerifyResult { status: VerifyResultStatus::Unsigned, result: Vec::new() });
+    }
+
+    let msca_cert_file = data_files
+        .get(&CardFileID::CACertificate)
+        .ok_or_else(|| Error::VerifyError("Missing MSCA Certificate (CACertificate).".to_string()))?;
+    let (card_certificate_id, card_certificate_file) = data_files
+        .get_key_value(&CardFileID::CardSignCertificate)
+        .or_else(|| data_files.get_key_value(&CardFileID::CardCertificate))
+        .ok_or_else(|| Error::VerifyError("Missing Card Sign Certificate.".to_string()))?;
+
+    let validation_time = current_unix_timestamp()?;
+    let erca_certificate = ERCACertificate::new_at(erca_pk, validation_time)?;
+    let msca_certificate = create_certificate_from(msca_cert_file)?;
+    let card_sign_certificate = create_certificate_from(card_certificate_file)?;
+
+    let msca_verified = verify_ca_certificate_at(&msca_certificate, &erca_certificate, validation_time)?;
+    let card_verified = verify_card_certificate_at(&card_sign_certificate, &msca_verified, validation_time)?;
+
+    let mut result = vec![
+        VerifyItem {
+            card_file_id: CardFileID::CACertificate,
+            status: VerifyStatus::Valid,
+            end_of_validity: Some(msca_verified.end_of_validity.clone()),
+        },
+        VerifyItem {
+            card_file_id: card_certificate_id.clone(),
+            status: VerifyStatus::Valid,
+            end_of_validity: Some(card_verified.end_of_validity.clone()),
+        },
+    ];
+    result.extend(verify_data(data_files, &card_verified)?);
+
+    Ok(VerifyResult { status: result_status(&result), result })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    use ecdsa::SigningKey;
+    use signature::hazmat::PrehashSigner;
+
+    const ROOT_CERTIFICATE_HEX: &str = "7f2181c97f4e81825f2901004208fd45432001ffff015f4c07ff534d5244540d7f494e06092b240303020801010786410408c04e3926c8de85544240cde40dab70d2b47e0f83762522d7b0b8543b9b29dc80e5c67b82a62d55e3483ab4b00a24c2a2566c3786797a1a052822ab4bf1f2925f2008fd45432001ffff015f25045b21b0005f24049b8fae805f374065c62ac13ded147fa8d1d11a8f5bf2cf9e95db1b43d253b48b615b2fe70b3fd82aa8d33d27f0f4d7367c04903bbbe6375b643a19c5b83d19fc7485db476c7067";
+    const MSCA_CERTIFICATE_HEX: &str = "7f2181c97f4e81825f2901004208fd45432001ffff015f4c07ff534d5244540e7f494e06092b24030302080101078641044cdeb93fb90256c7a7ebf9df3214560b6d2f4f2e72f3bb1544fcd8061ce1653e37f60de125bea0fcd5076f94557b605b40ba1c0a0a3e96de9cb37c4c053a6f095f20081948522003ff02015f2504633588c05f2404708821405f37401139ba4ee2b4b4180e56f65c90f1aedc876804ab54fb97abe9a7a4e7bcb1ea2d89e6a446e3ad4e6f82676530980b872f6885ad4559a69e08b8fce023a201b727";
+
+    fn from_hex(hex: &str) -> Vec<u8> {
+        assert_eq!(hex.len() % 2, 0);
+        hex.as_bytes()
+            .chunks_exact(2)
+            .map(|pair| {
+                let value = core::str::from_utf8(pair).unwrap();
+                u8::from_str_radix(value, 16).unwrap()
+            })
+            .collect()
+    }
+
+    fn certificate(hex: &str) -> [u8; GEN2_CERTIFICATE_SIZE] {
+        from_hex(hex).try_into().unwrap()
+    }
+
+    fn signing_key(last_byte: u8) -> SigningKey<BrainpoolP256r1> {
+        let mut scalar = [0u8; 32];
+        scalar[31] = last_byte;
+        SigningKey::from_slice(&scalar).unwrap()
+    }
+
+    fn sign(signer: &SigningKey<BrainpoolP256r1>, payload: &[u8]) -> Vec<u8> {
+        let signature: Signature = signer.sign_prehash(&Sha256::digest(payload)).unwrap();
+        signature.to_bytes().as_slice().to_vec()
+    }
+
+    fn certificate_for(
+        holder_key: &SigningKey<BrainpoolP256r1>,
+        issuer_key: &SigningKey<BrainpoolP256r1>,
+        car: [u8; CAR_SIZE],
+        chr: [u8; CHR_SIZE],
+        equipment_type: u8,
+    ) -> [u8; GEN2_CERTIFICATE_SIZE] {
+        let public_point = holder_key.verifying_key().to_sec1_point(false);
+        let public_point = public_point.as_bytes();
+        assert_eq!(public_point.len(), SEC1_UNCOMPRESSED_P256_POINT_SIZE);
+
+        let mut body = vec![0x7F, 0x4E, 0x81, 0x82];
+        body.extend_from_slice(&[0x5F, 0x29, 0x01, CPI_VERSION_1]);
+        body.extend_from_slice(&[0x42, 0x08]);
+        body.extend_from_slice(&car);
+        body.extend_from_slice(&[0x5F, 0x4C, 0x07, 0xFF, b'S', b'M', b'R', b'D', b'T', equipment_type]);
+        body.extend_from_slice(&[0x7F, 0x49, 0x4E, 0x06, 0x09]);
+        body.extend_from_slice(&[0x2B, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x07]);
+        body.extend_from_slice(&[0x86, 0x41]);
+        body.extend_from_slice(public_point);
+        body.extend_from_slice(&[0x5F, 0x20, 0x08]);
+        body.extend_from_slice(&chr);
+        body.extend_from_slice(&[0x5F, 0x25, 0x04, 0x00, 0x00, 0x00, 0x00]);
+        body.extend_from_slice(&[0x5F, 0x24, 0x04, 0xFF, 0xFF, 0xFF, 0xFF]);
+        assert_eq!(body.len(), 134);
+
+        let signature = sign(issuer_key, &body);
+        let mut certificate = vec![0x7F, 0x21, 0x81, 0xC9];
+        certificate.extend_from_slice(&body);
+        certificate.extend_from_slice(&[0x5F, 0x37, 0x40]);
+        certificate.extend_from_slice(&signature);
+        certificate.try_into().unwrap()
+    }
+
+    fn data_file(card_file_id: CardFileID, data: Vec<u8>, signature: Option<Vec<u8>>) -> CardFileData {
+        CardFileData {
+            card_file_id,
+            appendix: 2,
+            card_file_notes: String::new(),
+            size: data.len() as u32,
+            signature,
+            data: Some(data),
+        }
+    }
+
+    #[test]
+    fn parses_the_known_gen2_erca_certificate() {
+        let certificate = Certificate::from_bytes(&certificate(ROOT_CERTIFICATE_HEX)).unwrap();
+
+        assert_eq!(certificate.domain_parameters, BRAINPOOL_P256_R1_OID);
+        assert_eq!(certificate.certificate_holder_reference, [0xFD, 0x45, 0x43, 0x20, 0x01, 0xFF, 0xFF, 0x01]);
+        assert_eq!(certificate.certificate_signature.len(), ECDSA_P256_SIGNATURE_SIZE);
+    }
+
+    #[test]
+    fn verifies_the_known_gen2_msca_chain() {
+        let validation_time = 1_735_689_600; // 2025-01-01T00:00:00Z
+        let erca = ERCACertificate::new_at(&certificate(ROOT_CERTIFICATE_HEX), validation_time).unwrap();
+        let msca = Certificate::from_bytes(&certificate(MSCA_CERTIFICATE_HEX)).unwrap();
+
+        let verified = verify_ca_certificate_at(&msca, &erca, validation_time).unwrap();
+
+        assert_eq!(verified.holder_reference, [0x19, 0x48, 0x52, 0x20, 0x03, 0xFF, 0x02, 0x01]);
+    }
+
+    #[test]
+    fn verifies_the_known_gen2_erca_self_signature() {
+        let root = certificate(ROOT_CERTIFICATE_HEX);
+        let certificate = Certificate::from_bytes(&root).unwrap();
+        let erca = ERCACertificate::new_at(&root, 1_735_689_600).unwrap();
+
+        erca.ecdsa_public_key.verify(&Sha256::digest(&certificate.certificate_body), &certificate.certificate_signature).unwrap();
+    }
+
+    #[test]
+    fn rejects_a_tampered_erca_self_signature() {
+        let mut root = certificate(ROOT_CERTIFICATE_HEX);
+        root[GEN2_CERTIFICATE_SIZE - 1] ^= 0x01;
+
+        assert!(ERCACertificate::new_at(&root, 1_735_689_600).is_err());
+    }
+
+    #[test]
+    fn verifies_a_complete_fixed_size_gen2_card_chain_and_data() {
+        let root_key = signing_key(1);
+        let msca_key = signing_key(2);
+        let card_key = signing_key(3);
+        let root_chr = [0x10; CHR_SIZE];
+        let msca_chr = [0x20; CHR_SIZE];
+        let card_chr = [0x30; CHR_SIZE];
+        let root = certificate_for(&root_key, &root_key, root_chr, root_chr, EquipmentType::EuropeanRootCA as u8);
+        let msca = certificate_for(&msca_key, &root_key, root_chr, msca_chr, EquipmentType::MemberStateCA as u8);
+        let card_sign = certificate_for(&card_key, &msca_key, msca_chr, card_chr, EquipmentType::DriverCardSign as u8);
+
+        let mut data_files = HashMap::new();
+        data_files.insert(CardFileID::IC, data_file(CardFileID::IC, vec![0x01, 0x02], None));
+        data_files.insert(CardFileID::ICC, data_file(CardFileID::ICC, vec![0x03, 0x04], None));
+        data_files.insert(CardFileID::CardDownload, data_file(CardFileID::CardDownload, vec![0x05], None));
+        let signed_data = b"Gen2 signed card data".to_vec();
+        let signature = sign(&card_key, &signed_data);
+        data_files.insert(CardFileID::EventsData, data_file(CardFileID::EventsData, signed_data, Some(signature)));
+        data_files.insert(CardFileID::CACertificate, data_file(CardFileID::CACertificate, msca.to_vec(), None));
+        data_files.insert(CardFileID::CardSignCertificate, data_file(CardFileID::CardSignCertificate, card_sign.to_vec(), None));
+
+        let verified = verify(&data_files, &root).unwrap();
+        assert!(matches!(verified.status, VerifyResultStatus::Valid));
+        assert_eq!(verified.result.len(), 3);
+        assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
+        assert!(verified.result.iter().all(|item| !matches!(item.card_file_id, CardFileID::IC | CardFileID::ICC)));
+        assert!(verified.result.iter().all(|item| item.card_file_id != CardFileID::CardDownload));
+
+        data_files.get_mut(&CardFileID::EventsData).unwrap().data.as_mut().unwrap()[0] ^= 0x01;
+        let tampered = verify(&data_files, &root).unwrap();
+        assert!(matches!(tampered.status, VerifyResultStatus::PartiallyValid));
+        assert!(
+            tampered
+                .result
+                .iter()
+                .any(|item| { item.card_file_id == CardFileID::EventsData && matches!(item.status, VerifyStatus::Invalid) })
+        );
+    }
+
+    #[test]
+    fn rejects_a_certificate_that_is_not_205_bytes() {
+        let certificate = data_file(CardFileID::CACertificate, vec![0; GEN2_CERTIFICATE_SIZE - 1], None);
+
+        let error = create_certificate_from(&certificate).unwrap_err();
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("expected 205 bytes")));
+    }
+
+    #[test]
+    fn rejects_a_tampered_gen2_certificate_body() {
+        let validation_time = 1_735_689_600;
+        let erca = ERCACertificate::new_at(&certificate(ROOT_CERTIFICATE_HEX), validation_time).unwrap();
+        let mut msca = certificate(MSCA_CERTIFICATE_HEX);
+        msca[50] ^= 0x01;
+        let msca = Certificate::from_bytes(&msca).unwrap();
+
+        assert!(verify_ca_certificate_at(&msca, &erca, validation_time).is_err());
+    }
+
+    #[test]
+    fn rejects_the_wrong_certificate_authority_reference_before_crypto() {
+        let validation_time = 1_735_689_600;
+        let erca = ERCACertificate::new_at(&certificate(ROOT_CERTIFICATE_HEX), validation_time).unwrap();
+        let mut msca = certificate(MSCA_CERTIFICATE_HEX);
+        msca[15] ^= 0x01;
+        let msca = Certificate::from_bytes(&msca).unwrap();
+
+        let error = verify_ca_certificate_at(&msca, &erca, validation_time).unwrap_err();
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("CAR and ERCA CHR")));
+    }
 }

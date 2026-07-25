@@ -1,41 +1,43 @@
 use binary_data::{BigEndian, BinSeek, WriteBytes};
-use chrono::Utc;
 use serde::Serialize;
+use time::OffsetDateTime;
+use time::macros::format_description;
 
 use crate::{Readable, Writable};
-
-const FORMAT_UTC: &str = "%Y-%m-%d %H:%M:%S UTC";
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
 #[derive(Debug, Clone)]
 pub struct TimeReal {
     /// The raw Unix timestamp value from the DDD file.
     pub data: u32,
-    /// The `chrono::DateTime<Utc>` representation of the timestamp.
-    date_time: Option<chrono::DateTime<Utc>>,
+    /// The `OffsetDateTime` representation of the timestamp.
+    date_time: Option<OffsetDateTime>,
 }
 
 impl TimeReal {
     pub(crate) fn new(data: u32) -> Self {
-        Self { data, date_time: chrono::DateTime::from_timestamp(data as i64, 0) }
+        Self { data, date_time: OffsetDateTime::from_unix_timestamp(data as i64).ok() }
     }
 
     /// Returns the date part of the timestamp as a string in "YYYY-MM-DD" format.
     /// This is useful for extracting the date of an event from the tachograph data.
     pub fn get_date_str(&self) -> String {
-        self.date_time.map_or("".to_owned(), |data| data.format("%Y-%m-%d").to_string())
+        let fmt = format_description!("[year]-[month]-[day]");
+        self.date_time.map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
     }
 
     /// Returns the date and time part of the timestamp as a string in "YYYY-MM-DD HH:MM:SS" format.
     /// This provides a full timestamp for an event from the tachograph data.
     pub fn get_date_time_str(&self) -> String {
-        self.date_time.map_or("".to_owned(), |data| data.format("%Y-%m-%d %H:%M:%S").to_string())
+        let fmt = format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
+        self.date_time.map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
     }
 
     /// Returns the time part of the timestamp as a string in "HH:MM:SS" format.
     /// This is useful for extracting the time of an event from the tachograph data.
     pub fn get_time_str(&self) -> String {
-        self.date_time.map_or("".to_owned(), |data| data.format("%H:%M:%S").to_string())
+        let fmt = format_description!("[hour]:[minute]:[second]");
+        self.date_time.map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
     }
 
     /// Returns the raw u32 timestamp value.
@@ -54,7 +56,7 @@ impl Readable<TimeReal> for TimeReal {
     /// Reads a `TimeReal` from a binary stream of a DDD file.
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<TimeReal> {
         let data = reader.read_u32::<BigEndian>()?;
-        let date_time = chrono::DateTime::from_timestamp(data as i64, 0);
+        let date_time = OffsetDateTime::from_unix_timestamp(data as i64).ok();
         Ok(Self { data, date_time })
     }
 }
@@ -73,7 +75,8 @@ impl Serialize for TimeReal {
         S: serde::Serializer,
     {
         if let Some(val) = self.date_time {
-            let s = format!("{}", val.format(FORMAT_UTC));
+            let fmt = format_description!("[year]-[month]-[day] [hour]:[minute]:[second] UTC");
+            let s = val.format(&fmt).unwrap_or_default();
             serializer.serialize_str(&s)
         } else {
             serializer.serialize_none()
@@ -99,7 +102,7 @@ mod tests {
     #[test]
     fn test_write_time_real() {
         let timestamp: u32 = 1672531199;
-        let time_real = TimeReal { data: timestamp, date_time: chrono::DateTime::from_timestamp(timestamp as i64, 0) };
+        let time_real = TimeReal { data: timestamp, date_time: OffsetDateTime::from_unix_timestamp(timestamp as i64).ok() };
         let mut writer = BinMemoryBuffer::new();
         time_real.write(&mut writer).unwrap();
         let _ = writer.seek(0);

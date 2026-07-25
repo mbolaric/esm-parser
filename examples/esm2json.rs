@@ -20,7 +20,7 @@ pub struct Args {
         short = 'e',
         long,
         default_value = "",
-        help = "Path for ERCA PK *.bin file (144 bytes). When this file is provided we verify vertificates, Work only for Gen1 Version."
+        help = "Path to the Gen1 ERCA certificate (144 bytes). Used for Gen1 cards and the Gen1 application of combined cards."
     )]
     pub erca_gen1_file: String,
 
@@ -29,7 +29,7 @@ pub struct Args {
         short = 'E',
         long,
         default_value = "",
-        help = "Path for ERCA PK *.bin file (205 bytes). When this file is provided we verify vertificates, Work for Gen2 Version."
+        help = "Path to the Gen2 ERCA certificate (205 bytes). Used for Gen2 Driver/Workshop cards and their combined-card Gen2 application."
     )]
     pub erca_gen2_file: String,
 }

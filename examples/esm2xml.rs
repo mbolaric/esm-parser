@@ -20,7 +20,7 @@ pub struct Args {
         short = 'e',
         long,
         default_value = "",
-        help = "Path for ERCA PK *.bin file (144 bytes). When this file is provided we verify vertificates, Work only for Gen1 Version."
+        help = "Path to the Gen1 ERCA certificate (144 bytes). Used for Gen1 cards and the Gen1 application of combined cards."
     )]
     pub erca_gen1_file: String,
 
@@ -29,13 +29,28 @@ pub struct Args {
         short = 'E',
         long,
         default_value = "",
-        help = "Path for ERCA PK *.bin file (205 bytes). When this file is provided we verify vertificates, Work for Gen2 Version."
+        help = "Path to the Gen2 ERCA certificate (205 bytes). Used for Gen2 Driver/Workshop cards and their combined-card Gen2 application."
     )]
     pub erca_gen2_file: String,
+}
+
+fn output_format() -> ExportType {
+    ExportType::Xml
 }
 
 fn main() {
     init_logging();
     let args = Args::parse();
-    export(&ExportType::Json, &args.ddd_file, &args.xml_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty);
+    export(&output_format(), &args.ddd_file, &args.xml_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::output_format;
+    use crate::helpers::ExportType;
+
+    #[test]
+    fn selects_xml_output() {
+        assert!(matches!(output_format(), ExportType::Xml));
+    }
 }
