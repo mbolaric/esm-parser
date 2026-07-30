@@ -7,6 +7,7 @@ use crate::{HexDisplay, Readable};
 /// together with the icManufacturingReferences identifies the card chip
 /// uniquely. The icSerialNumber alone does not uniquely identify the card chip.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardChipIdentification {
     #[serde(rename = "icSerialNumber")]
     pub ic_serial_number: Vec<u8>,

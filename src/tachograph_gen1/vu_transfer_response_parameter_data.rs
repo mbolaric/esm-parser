@@ -4,6 +4,8 @@ use crate::gen1::{VUActivity, VuDetailedSpeed, VuEvents, VuOverview, VuTechnical
 use crate::tacho::VUTransferResponseParameter;
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VUTransferResponseParameterData"))]
 pub enum VUTransferResponseParameterData {
     Unknown,
     Control(VuOverview),

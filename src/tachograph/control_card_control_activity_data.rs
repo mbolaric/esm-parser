@@ -17,6 +17,7 @@ impl ControlCardControlActivityDataParams {
 /// Information, stored in a control card, related to control activity
 /// performed with the card (Annex 1C requirement 361 and 367).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct ControlCardControlActivityData<T> {
     #[serde(rename = "controlPointerNewestRecord")]
     pub control_pointer_newest_record: u16,

@@ -4,6 +4,7 @@ use crate::Export;
 use crate::tacho::{CardFileID, TimeReal};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum VerifyStatus {
     Invalid,
     Valid,
@@ -13,6 +14,7 @@ pub enum VerifyStatus {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VerifyItem {
     pub card_file_id: CardFileID,
     pub status: VerifyStatus,
@@ -20,6 +22,7 @@ pub struct VerifyItem {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum VerifyResultStatus {
     Invalid,
     Valid,
@@ -28,6 +31,7 @@ pub enum VerifyResultStatus {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VerifyResult {
     pub status: VerifyResultStatus,
     pub result: Vec<VerifyItem>,

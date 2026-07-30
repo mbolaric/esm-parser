@@ -8,6 +8,7 @@ use crate::{BCDString, Error, Readable, ReadableWithParams, Result};
 /// particular calendar day. This data type is related to Annex 1C
 /// requirements 266, 291, 320 and 343.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardActivityDailyRecord {
     #[serde(rename = "activityPreviousRecordLength")]
     pub activity_previous_record_length: u16,
@@ -90,6 +91,7 @@ impl CardDriverActivityParams {
 /// Information, stored in a driver or a workshop card, related to the
 /// activities of the driver
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardDriverActivity {
     #[serde(rename = "activityPointerOldestDayRecord")]
     pub activity_pointer_oldest_day_record: u32,

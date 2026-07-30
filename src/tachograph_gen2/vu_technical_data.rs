@@ -12,6 +12,8 @@ use crate::tacho::VUTransferResponseParameterID;
 /// Data structure generation 2, version 1 (TREP 25 Hex)
 /// Data structure generation 2, version 2 (TREP 35 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUTechnicalData"))]
 pub struct VUTechnicalData {
     #[serde(rename = "vuIdentificationRecordArray")]
     pub vu_identification_record_array: DataInfoGenericRecordArray<VuIdentification>,

@@ -7,6 +7,7 @@ use crate::tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIde
 /// control the driver has been subject to (Annex 1C requirements 274,
 /// 299, 327, and 350).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardControlActivityDataRecord {
     #[serde(rename = "controlType")]
     pub control_type: ControlType,

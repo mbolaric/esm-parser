@@ -7,6 +7,8 @@ const VEHICLE_REG_NUMBER_LENGTH: u32 = 13;
 /// Registration number of the vehicle (VRN). The registration number is
 /// assigned by the vehicle licensing authority.
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(type = "string"))]
 pub struct VehicleRegistrationNumber {
     pub code_page: CodePage,
     pub vehicle_reg_number: String,

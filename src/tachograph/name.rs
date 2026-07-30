@@ -6,6 +6,8 @@ const NAME_LENGTH: u32 = 35;
 
 /// A Name.
 #[derive(Debug)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(type = "string"))]
 pub struct Name {
     /// Specifies a character set.
     pub code_page: CodePage,

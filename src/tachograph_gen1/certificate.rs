@@ -8,6 +8,8 @@ const PUBLIC_KEY_REMAINDER_LENGTH: u32 = 58;
 const CERTIFICATION_AUTHORITY_REFERENCE_LENGTH: u32 = 8;
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1ParsedCertificationAuthorityReference"))]
 pub struct ParsedCertificationAuthorityReference {
     #[serde(rename = "nationNumericCode")]
     pub nation_numeric_code: u8,
@@ -25,6 +27,8 @@ pub struct ParsedCertificationAuthorityReference {
 
 /// The certificate of a public key issued by a Certification Authority.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1Certificate"))]
 pub struct Certificate {
     pub signature: Vec<u8>,
     #[serde(rename = "publicKeyRemainder")]

@@ -8,6 +8,8 @@ const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
 
 /// Information, stored in a vehicle unit, related to the software installed.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuSoftwareIdentification"))]
 pub struct VuSoftwareIdentification {
     #[serde(rename = "vuSoftwareVersion")]
     pub vu_software_version: String,

@@ -8,6 +8,8 @@ const SEAL_IDENTIFIER_LENGTH: u32 = 8;
 
 /// The extended seal identifier uniquely identifies a seal (Annex IC requirement 401).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2ExtendedSealIdentifier"))]
 pub struct ExtendedSealIdentifier {
     /// see database registration to be managed by the European Commission (see <https://dtc.jrc.ec.europa.eu>).
     #[serde(rename = "manufacturerCode")]

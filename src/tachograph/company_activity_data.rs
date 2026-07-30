@@ -17,6 +17,7 @@ impl CompanyActivityDataParams {
 /// Information, stored in a company card, related to activities performed
 /// with the card (Annex 1C requirement 373 and 379).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CompanyActivityData<T> {
     #[serde(rename = "companyPointerNewestRecord")]
     pub company_pointer_newest_record: u16,

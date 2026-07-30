@@ -17,6 +17,7 @@ impl WorkshopCardCalibrationDataParams {
 /// Information, stored in a workshop card, related to workshop activity
 /// performed with the card (Annex 1C requirements 314, 316, 337, and 339).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct WorkshopCardCalibrationData<T> {
     #[serde(rename = "calibrationTotalNumber")]
     pub calibration_total_number: u16,

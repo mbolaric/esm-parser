@@ -6,6 +6,8 @@ use crate::tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, Time
 /// Information, stored in a vehicle unit, related to over speeding events
 /// (Annex 1B requirement 094 and Annex 1C requirement 117).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuOverSpeedingEventRecord"))]
 pub struct VuOverSpeedingEventRecord {
     #[serde(rename = "eventType")]
     pub event_type: EventFaultType,
@@ -52,6 +54,8 @@ impl Readable<VuOverSpeedingEventRecord> for VuOverSpeedingEventRecord {
 /// Information, stored in a vehicle unit, related to over speeding events
 /// (Annex 1B requirement 094).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuOverSpeedingEventData"))]
 pub struct VuOverSpeedingEventData {
     #[serde(rename = "noOfVuOverSpeedingEvents")]
     pub no_of_vu_over_speeding_events: u8,

@@ -118,9 +118,20 @@ The parser can be compiled for browser use with `wasm-pack`.
 
 ```bash
 cargo install wasm-pack
-wasm-pack build --target web
+./scripts/build-wasm.sh
 python3 -m http.server 8090
 ```
+
+The repository build script regenerates the TypeScript contract before invoking
+`wasm-pack build --target web`. Additional `wasm-pack build` options can be
+passed through, for example `./scripts/build-wasm.sh --release`.
+
+The generated declaration is checked in at `types/wasm-boundary.d.ts` and is
+embedded into the `wasm-bindgen` package. The WebAssembly parser returns a
+discriminated `{ kind, data }` envelope while native Rust and CLI exports retain
+their existing untagged output. Regenerate the declaration whenever a serialized
+parser type changes; the TypeScript-enabled test suite fails if the checked-in
+contract is stale.
 
 Open <http://127.0.0.1:8090/examples/web/> after starting the server from the
 **repository root**. Do not serve `examples/web/` as the server root: the demo
@@ -139,6 +150,7 @@ Run the standard local validation suite before submitting a change:
 ```bash
 cargo check --all-targets
 cargo test --all-targets
+cargo test --all-features
 cargo test --doc
 cargo fmt -- --check
 cargo clippy --all-targets -- -D warnings

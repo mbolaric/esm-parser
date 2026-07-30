@@ -7,6 +7,8 @@ use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a vehicle unit, about a tachograph card used (Annex IC requirement 132).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuCardRecord"))]
 pub struct VuCardRecord {
     #[serde(rename = "cardNumberAndGenerationInformation")]
     pub full_card_number_and_generation: FullCardNumberAndGeneration,

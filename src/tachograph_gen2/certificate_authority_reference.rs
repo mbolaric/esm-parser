@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// The Certificate Authority Reference shall therefore be equal to the Certificate Holder Reference in the certificate of the
 /// corresponding certificate authority.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CertificateAuthorityReference"))]
 pub struct CertificateAuthorityReference {
     #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,

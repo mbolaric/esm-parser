@@ -9,6 +9,7 @@ const IC_IDENTIFIER_NUMBER_LENGTH: u32 = 2;
 /// Information, stored in a card, related to the identification of the integrated
 /// circuit (IC) card (Annex 1C requirement 248).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardIccIdentification {
     #[serde(rename = "clockStop")]
     pub clock_stop: u8,

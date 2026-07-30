@@ -10,6 +10,7 @@ use crate::{BCDString, Readable};
 /// A date structure containing year, month, and day.
 /// The values are stored as strings, as they are decoded from BCD format.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct Datef {
     pub year: String,
     pub month: String,

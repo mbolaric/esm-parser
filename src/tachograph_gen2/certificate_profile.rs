@@ -20,6 +20,8 @@ impl CertificateProfileParams {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CertificateProfile"))]
 pub struct CertificateProfile {
     #[serde(rename = "eccCertificate")]
     pub ecc_certificate: EccCertificate,

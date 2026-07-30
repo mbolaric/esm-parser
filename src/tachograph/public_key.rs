@@ -24,6 +24,7 @@ impl PublicKeyParams {
 /// parameters to be used with the public key in the certificate and the
 /// value of the public point.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct PublicKey {
     #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,

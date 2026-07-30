@@ -10,6 +10,8 @@ const SIGNATURE_LENGTH: u32 = 128;
 
 /// Data structure generation 1,
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuEvents"))]
 pub struct VuEvents {
     #[serde(rename = "vuFaultData")]
     pub vu_fault_data: VuFaultData,

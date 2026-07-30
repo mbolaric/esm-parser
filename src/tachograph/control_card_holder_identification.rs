@@ -8,6 +8,7 @@ const CARD_HOLDER_PREFERRED_LANGUAGE_LENGTH: u32 = 2;
 /// Information, stored in a control card, related to the identification of the
 /// cardholder (Annex 1C requirement 360 and 366).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct ControlCardHolderIdentification {
     #[serde(rename = "controlBodyName")]
     pub control_body_name: Name,

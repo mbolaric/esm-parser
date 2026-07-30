@@ -7,6 +7,8 @@ const ADDRESS_LENGTH: u32 = 35;
 
 /// Represents a postal address, typically used for company or workshop locations in a DDD file.
 #[derive(Debug)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(type = "string"))]
 pub struct Address {
     /// The code page used for encoding the address string.
     pub code_page: CodePage,

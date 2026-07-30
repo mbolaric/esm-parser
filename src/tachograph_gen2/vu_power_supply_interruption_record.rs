@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information, stored in a vehicle unit, related to Power Supply Interruption
 /// events (Annex 1C requirement 117).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuPowerSupplyInterruptionRecord"))]
 pub struct VuPowerSupplyInterruptionRecord {
     #[serde(rename = "eventType")]
     pub event_type: EventFaultType,

@@ -9,6 +9,8 @@ use crate::tacho::{self, TachographHeader, VUTransferResponseParameterID, VUTran
 use crate::{Export, Result, tachograph};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUData"))]
 pub struct VUData {
     header: TachographHeader,
     #[serde(rename = "transferResParams")]

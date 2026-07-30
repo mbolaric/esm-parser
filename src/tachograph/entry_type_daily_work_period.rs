@@ -3,6 +3,7 @@ use serde::Serialize;
 use crate::impl_enum_from_u8;
 
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum EntryTypeDailyWorkPeriod {
     BeginCardInsertion = 0,

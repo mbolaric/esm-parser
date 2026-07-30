@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// public key provided in the certificate. It shall be used to
 /// reference this public key in other certificates.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CertificateHolderReference"))]
 pub struct CertificateHolderReference {
     #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,

@@ -56,7 +56,7 @@ jobs:
       - name: Build all examples
         run: |
           if [[ "${{ matrix.target }}" == "wasm32-unknown-unknown" ]]; then
-            wasm-pack build --target web --release
+            ./scripts/build-wasm.sh --release
           else
             for ex in $(ls examples/esm2*.rs); do
               name=$(basename $ex .rs)

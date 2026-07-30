@@ -8,6 +8,8 @@ use crate::{CodePage, Result, bytes_to_string};
 
 /// The Vehicle Idenification Number plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VehicleIdentificationNumberRecordArray"))]
 pub struct VehicleIdentificationNumberRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,

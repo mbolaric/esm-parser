@@ -14,6 +14,8 @@ pub struct VuPlaceDailyWorkPeriodRecordParams {
 /// begins or ends a daily work period (Annex 1B requirement 087 and
 /// Annex 1C requirement 108 and 110).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuPlaceDailyWorkPeriodRecord"))]
 pub struct VuPlaceDailyWorkPeriodRecord {
     #[serde(rename = "fullCardNumberAndGeneration")]
     pub full_card_number: FullCardNumberAndGeneration,
@@ -43,6 +45,8 @@ impl ReadableWithParams<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriod
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuPlaceDailyWorkPeriodRecordArray"))]
 pub struct VuPlaceDailyWorkPeriodRecordArray {
     #[serde(rename = "isGen2V2")]
     pub is_gen2_v2: bool,

@@ -6,6 +6,7 @@ use crate::tacho::{ControlType, FullCardNumber, TimeReal, VehicleRegistrationIde
 /// Information, stored in a control card, related to control activity
 /// performed with the card (Annex 1C requirement 361 and 367).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct ControlCardActivityRecord {
     #[serde(rename = "controlType")]
     pub control_type: ControlType,

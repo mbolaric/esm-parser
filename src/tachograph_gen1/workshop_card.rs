@@ -18,6 +18,8 @@ use crate::{Readable, ReadableWithParams, Result};
 
 /// Workshop card application generation 1
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1WorkshopCard"))]
 pub struct WorkshopCard {
     #[serde(rename = "cardChipIdentification")]
     pub card_chip_identification: CardChipIdentification,

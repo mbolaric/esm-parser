@@ -8,6 +8,8 @@ const SENSOR_APPROVAL_NUMBER_LENGTH: u32 = 8;
 /// Information, stored in a vehicle unit, related to the identification of the
 /// motion sensor paired with the vehicle unit (Annex 1B requirement 079).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1SensorPaired"))]
 pub struct SensorPaired {
     #[serde(rename = "sensorSerialNumber")]
     pub sensor_serial_number: ExtendedSerialNumber,

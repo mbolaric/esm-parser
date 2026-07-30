@@ -6,6 +6,8 @@ use crate::{Readable, bytes_to_ia5_fix_string};
 const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuSoftwareIdentification"))]
 pub struct VuSoftwareIdentification {
     #[serde(rename = "vuSoftwareVersion")]
     pub vu_software_version: String,

@@ -8,6 +8,7 @@ const CARD_HOLDER_PREFERRED_LANGUAGE_LENGTH: u32 = 2;
 /// Information, stored in a workshop card, related to the identification of
 /// the cardholder (Annex 1C requirement 311 and 334).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct WorkshopCardHolderIdentification {
     #[serde(rename = "workshopName")]
     pub workshop_name: Name,

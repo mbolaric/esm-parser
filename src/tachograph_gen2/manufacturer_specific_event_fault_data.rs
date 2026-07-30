@@ -8,6 +8,8 @@ const MANUFACTURES_SPECIFIC_ERROR_CODE_LENGTH: u32 = 3;
 /// Manufacturer specific error codes simplify the error analysis and main-tenance
 /// of vehicle units.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2ManufacturerSpecificEventFaultData"))]
 pub struct ManufacturerSpecificEventFaultData {
     #[serde(rename = "manufacturerCode")]
     pub manufacturer_code: u8,

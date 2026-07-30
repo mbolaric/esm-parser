@@ -6,6 +6,7 @@ use crate::{Readable, ReadableWithParams};
 /// Information, stored in a card, related to the identification of the card
 /// (Annex 1C requirements 255, 280, 310, 333, 359, 365, 371, and 377).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct WorkshopCardIdentification {
     #[serde(rename = "cardIdentification")]
     pub card_identification: CardIdentification,

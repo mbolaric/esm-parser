@@ -12,6 +12,8 @@ const TYRE_SIZE_LENGTH: u32 = 15;
 /// Information, stored in a vehicle unit, related a calibration of the
 /// recording equipment (Annex 1B requirement 098 and Annex 1C requirement 119 and 120).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuCalibrationRecord"))]
 pub struct VuCalibrationRecord {
     #[serde(rename = "calibrationPurpose")]
     pub calibration_purpose: CalibrationPurpose,
@@ -93,6 +95,8 @@ impl Readable<VuCalibrationRecord> for VuCalibrationRecord {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VUCalibrationData"))]
 pub struct VUCalibrationData {
     pub no_of_vu_calibrations: u8,
     pub calibrations: Vec<VuCalibrationRecord>,

@@ -11,6 +11,8 @@ const VU_PART_NUMBER_LENGTH: u32 = 16;
 /// Information, stored in a workshop card, related to a calibration
 /// performed with the card (Annex 1C requirement 314 and 337).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1WorkshopCardCalibrationRecord"))]
 pub struct WorkshopCardCalibrationRecord {
     #[serde(rename = "calibrationPurpose")]
     pub calibration_purpose: CalibrationPurpose,

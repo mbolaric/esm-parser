@@ -70,6 +70,8 @@ mod tachograph;
 mod tachograph_data;
 mod tachograph_gen1;
 mod tachograph_gen2;
+#[cfg(feature = "typescript")]
+mod typescript;
 mod verification;
 
 pub use common::*;
@@ -104,7 +106,9 @@ pub mod gen2 {
 #[cfg(target_arch = "wasm32")]
 pub use helpers::{LogLevel, init_console_logging};
 pub use parser::{parse_from_file, parse_from_memory};
-pub use tachograph_data::TachographData;
+pub use tachograph_data::{TachographData, WasmTachographData};
+#[cfg(feature = "typescript")]
+pub use typescript::wasm_boundary_declaration;
 pub use verification::{verify_card, verify_card_with_erca_path};
 
 #[cfg(target_arch = "wasm32")]

@@ -14,6 +14,8 @@ pub struct DataConfig {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2DataInfo"))]
 pub struct DataInfo {
     #[serde(rename = "trepId")]
     pub trep_id: VUTransferResponseParameterID,
@@ -76,6 +78,8 @@ pub trait DataInfoReadableWithParams<T> {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2DataInfoGenericRecordArray"))]
 pub struct DataInfoGenericRecordArray<T> {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,

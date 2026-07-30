@@ -9,6 +9,8 @@ use crate::{Readable, Result};
 /// MM.M the minutes. Longitude and latitude of an unknown position
 /// shall be represented as Hex ‘7FFFFF’ (Decimal 8388607).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2GeoCoordinate"))]
 pub struct GeoCoordinate {
     pub latitude: f64,
     pub longitude: f64,

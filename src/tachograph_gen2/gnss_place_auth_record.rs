@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information related to the GNSS position of the vehicle (Annex IC
 /// requirements 108, 109, 110, 296, 306a, 306c, 306e, 306g, 356a, 356c, 356e and 356g).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2GnssPlaceAuthRecord"))]
 pub struct GnssPlaceAuthRecord {
     #[serde(rename = "timeStamp")]
     pub time_stamp: TimeReal,

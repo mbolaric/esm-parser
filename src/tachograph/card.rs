@@ -17,6 +17,8 @@ pub trait DataFiles {
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "ParsedCardGeneration"))]
 pub enum CardGeneration {
     Gen1,
     Gen2,
@@ -35,6 +37,7 @@ impl fmt::Display for CardGeneration {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardFileData {
     #[serde(rename = "cardFileId")]
     pub card_file_id: CardFileID,

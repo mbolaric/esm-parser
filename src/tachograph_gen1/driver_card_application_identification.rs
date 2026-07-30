@@ -7,6 +7,8 @@ use crate::tacho::{CardStructureVersion, EquipmentType};
 /// Information, stored in a driver card related to the identification of the
 /// application of the card (Annex 1C requirement 253 and 278).
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1DriverCardApplicationIdentification"))]
 pub struct DriverCardApplicationIdentification {
     #[serde(rename = "typeOfTachographCardId")]
     pub type_of_tachograph_card_id: EquipmentType,

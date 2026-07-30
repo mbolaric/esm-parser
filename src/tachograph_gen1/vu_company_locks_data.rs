@@ -6,6 +6,8 @@ use crate::tacho::{Address, FullCardNumber, Name, TimeReal};
 /// Information, stored in a vehicle unit, related to one company lock
 /// (Annex 1B requirement 104 and Annex 1C requirement 128).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuCompanyLocksRecord"))]
 pub struct VuCompanyLocksRecord {
     #[serde(rename = "lockInTime")]
     pub lock_in_time: TimeReal,
@@ -32,6 +34,8 @@ impl Readable<VuCompanyLocksRecord> for VuCompanyLocksRecord {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuCompanyLocksData"))]
 pub struct VuCompanyLocksData {
     pub no_of_locks: u8,
     pub company_locks: Vec<VuCompanyLocksRecord>,

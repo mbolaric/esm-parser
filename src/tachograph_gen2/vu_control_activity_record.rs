@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information, stored in a vehicle unit, related to a control performed using
 /// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuControlActivityRecord"))]
 pub struct VuControlActivityRecord {
     #[serde(rename = "controlType")]
     pub control_type: ControlType,

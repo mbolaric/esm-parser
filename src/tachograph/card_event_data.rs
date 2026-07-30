@@ -19,6 +19,7 @@ impl CardEventDataParams {
 /// Information, stored in a driver or a workshop card, related to an event
 /// associated to the card holder (Annex 1C requirements 261, 286, 318 and 341).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardEventRecord {
     #[serde(rename = "eventType")]
     pub event_type: EventFaultType,
@@ -45,6 +46,7 @@ impl Readable<CardEventRecord> for CardEventRecord {
 /// of cardEventRecords (except security breach attempts related
 /// records which are gathered in the last set of the sequence).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardEventData {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u8,

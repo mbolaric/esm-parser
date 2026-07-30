@@ -6,6 +6,7 @@ use crate::{CARD_HEADER, CARD_HEADER_VU_DATA, MINIMUM_G2_CARD_DATA_LENGTH, VU_HE
 
 /// Represents the header of a tachograph file.
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct TachographHeader {
     /// The generation of the tachograph data.
     pub generation: TachographDataGeneration,

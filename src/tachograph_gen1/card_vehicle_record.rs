@@ -8,6 +8,8 @@ const VU_DATA_BLOCK_COUNTER_LENGTH: u32 = 2;
 /// Information, stored in a driver or workshop card, related to a period of
 /// use of a vehicle during a calendar day (Annex 1C requirements 269, 294, 322, and 345).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1CardVehicleRecord"))]
 pub struct CardVehicleRecord {
     #[serde(rename = "vehicleOdometerBegin")]
     pub vehicle_odometer_begin: OdometerShort,

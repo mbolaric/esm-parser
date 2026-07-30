@@ -13,6 +13,8 @@ use crate::tachograph_gen2::vehicle_registration_identification_record_array::Ve
 
 /// Data structure generation 2, version 2 (TREP 31 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUOverview"))]
 pub struct VUOverview {
     #[serde(rename = "trepId")]
     pub trep_id: VUTransferResponseParameterID,

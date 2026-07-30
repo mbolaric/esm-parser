@@ -18,6 +18,8 @@ use crate::{Readable, ReadableWithParams, Result};
 
 /// Driver Card application generation 1
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1DriverCard"))]
 pub struct DriverCard {
     #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,

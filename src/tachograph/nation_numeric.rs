@@ -6,6 +6,7 @@ use crate::impl_enum_from_u8;
 
 /// Numerical reference to a country.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum NationNumeric {
     Unknown = 0,

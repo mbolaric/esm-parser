@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information, stored in a vehicle unit, related to an event (Annex 1B
 /// requirement 094 and Annex 1C requirement 117 except over speeding event).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuEventRecord"))]
 pub struct VuEventRecord {
     #[serde(rename = "eventType")]
     pub event_type: EventFaultType,

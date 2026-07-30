@@ -5,6 +5,8 @@ use crate::tacho::FullCardNumber;
 
 /// Code fully identifying a tachograph card and its generation.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2FullCardNumberAndGeneration"))]
 pub struct FullCardNumberAndGeneration {
     #[serde(rename = "fullcardNumber")]
     pub full_card_number: FullCardNumber,

@@ -9,6 +9,8 @@ const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
 /// Information, stored in a driver or workshop card, related to a vehicle
 /// unit that was used (Annex 1C requirement 303 and 351).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CardVehicleUnitRecord"))]
 pub struct CardVehicleUnitRecord {
     #[serde(rename = "timeStamp")]
     pub time_stamp: TimeReal,
@@ -44,6 +46,8 @@ impl CardVehicleUnitsUsedParams {
 /// Information, stored in a driver or workshop card, related to the vehicle
 /// units used by the card holder (Annex IC requirements 304 and 352).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CardVehicleUnitsUsed"))]
 pub struct CardVehicleUnitsUsed {
     #[serde(rename = "vehicleUnitPointerNewestRecord")]
     pub vehicle_unit_pointer_newest_record: u16,

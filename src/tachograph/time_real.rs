@@ -7,6 +7,8 @@ use crate::{Readable, Writable};
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(type = "string | null"))]
 pub struct TimeReal {
     /// The raw Unix timestamp value from the DDD file.
     pub data: u32,

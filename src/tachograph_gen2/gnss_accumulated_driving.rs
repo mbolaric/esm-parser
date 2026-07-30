@@ -9,6 +9,8 @@ use crate::{Readable, ReadableWithParams, Result};
 /// position of the vehicle if the accumulated driving time reaches a multiple
 /// of three hours (Annex IC requirement 305 and 353)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2GnssAccumulatedDrivingRecord"))]
 pub struct GnssAccumulatedDrivingRecord {
     #[serde(rename = "timeStamp")]
     pub time_stamp: TimeReal,
@@ -42,6 +44,8 @@ impl GnssAccumulatedDrivingParams {
 /// position of the vehicle if the accumulated driving time reaches a multiple
 /// of three hours (Annex IC requirement 306 and 354).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2GnssAccumulatedDriving"))]
 pub struct GnssAccumulatedDriving {
     #[serde(rename = "gnssADPointerNewestRecord")]
     pub gnss_ad_pointer_newest_record: u16,

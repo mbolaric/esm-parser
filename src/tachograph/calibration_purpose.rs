@@ -6,6 +6,7 @@ use crate::impl_enum_from_u8;
 // data type is related to Annex 1B requirements 097 and 098 and
 // Annex 1C requirements 119.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum CalibrationPurpose {
     Reserved = 0,
     Activation = 1,

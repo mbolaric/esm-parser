@@ -4,6 +4,7 @@ use crate::Readable;
 use crate::tacho::CardSlotStatusType;
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardSlotStatus {
     pub data: u8,
     #[serde(rename = "driverSlot")]

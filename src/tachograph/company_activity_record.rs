@@ -6,6 +6,7 @@ use crate::tacho::{CompanyActivityType, FullCardNumber, TimeReal, VehicleRegistr
 /// Information, stored in a company card, related to activities performed
 /// with the card (Annex 1C requirement 373 and 379).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CompanyActivityRecord {
     #[serde(rename = "companyActivityType")]
     pub company_activity_type: CompanyActivityType,

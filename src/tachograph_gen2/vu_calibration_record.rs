@@ -11,6 +11,8 @@ use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string};
 /// Information, stored in a vehicle unit, related a calibration of the
 /// recording equipment (Annex 1B requirement 098 and Annex 1C requirement 119 and 120).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuCalibrationRecord"))]
 pub struct VuCalibrationRecord {
     #[serde(rename = "isGen2V2")]
     pub is_gen2_v2: bool,

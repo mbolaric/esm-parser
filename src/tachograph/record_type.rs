@@ -2,6 +2,7 @@ use serde::Serialize;
 
 /// Represents the identifier of a data type.
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum RecordType {
     /// Unknown data type.
     Unknown = 0,

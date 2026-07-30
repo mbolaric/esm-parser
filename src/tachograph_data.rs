@@ -13,6 +13,7 @@ use crate::{Export, Result, gen1, gen2};
 /// It abstracts away the generation and data type (Vehicle Unit or Card),
 /// allowing for unified handling of the parsed result.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[serde(untagged)]
 pub enum TachographData {
     /// Vehicle Unit data from a Gen1 tachograph.
@@ -23,6 +24,32 @@ pub enum TachographData {
     CardGen1(gen1::CardData),
     /// Driver Card data from a Gen2 tachograph.
     CardGen2(gen2::CardData),
+}
+
+/// Typed envelope used by the WebAssembly boundary.
+///
+/// Native Rust and CLI exports retain the historical untagged representation.
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[serde(tag = "kind", content = "data", rename_all = "camelCase")]
+pub enum WasmTachographData {
+    #[serde(rename = "vuGen1")]
+    VUGen1(gen1::VUData),
+    #[serde(rename = "vuGen2")]
+    VUGen2(gen2::VUData),
+    CardGen1(gen1::CardData),
+    CardGen2(gen2::CardData),
+}
+
+impl From<TachographData> for WasmTachographData {
+    fn from(value: TachographData) -> Self {
+        match value {
+            TachographData::VUGen1(data) => Self::VUGen1(data),
+            TachographData::VUGen2(data) => Self::VUGen2(data),
+            TachographData::CardGen1(data) => Self::CardGen1(data),
+            TachographData::CardGen2(data) => Self::CardGen2(data),
+        }
+    }
 }
 
 impl Export for TachographData {

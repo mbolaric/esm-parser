@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// different components of a vehicle and is intended for storage on a card.
 /// This data type is related to Annex 1C requirement 337.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2SealDataCard"))]
 pub struct SealDataCard {
     #[serde(rename = "noOfSealRecords")]
     pub no_of_seal_records: u8,

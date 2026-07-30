@@ -16,6 +16,7 @@ impl ActivityChangeInfoParams {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum ActivityCard {
     Vu,
     Card,
@@ -25,6 +26,7 @@ pub enum ActivityCard {
 /// 00:00 and/or a driver status at 00:00 and/or changes of activity and/or
 /// changes of driving status and/or changes of card status for a driver or a co-driver.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct ActivityChangeInfo {
     /// The source of the activity, either from the VU or a card.
     #[serde(rename = "activityCard")]

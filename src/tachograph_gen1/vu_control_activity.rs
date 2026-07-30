@@ -6,6 +6,8 @@ use crate::tacho::{ControlType, FullCardNumber, TimeReal};
 /// Information, stored in a vehicle unit, related to a control performed using
 /// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuControlActivityRecord"))]
 pub struct VuControlActivityRecord {
     #[serde(rename = "controlType")]
     pub control_type: ControlType,
@@ -42,6 +44,8 @@ impl Readable<VuControlActivityRecord> for VuControlActivityRecord {
 /// Collection of Information, stored in a vehicle unit, related to a control performed using
 /// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuControlActivity"))]
 pub struct VuControlActivity {
     #[serde(rename = "noOfControls")]
     pub no_of_controls: u8,

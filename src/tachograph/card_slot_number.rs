@@ -4,6 +4,7 @@ use crate::impl_enum_from_u8;
 
 /// Represents the card slot in the Vehicle Unit, distinguishing between the driver and co-driver slots.
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum CardSlotNumber {
     /// The slot designated for the main driver.

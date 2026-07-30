@@ -9,6 +9,7 @@ const NATION_ALPHA_LENGTH: u32 = 3;
 /// Identifier of the Public Key of a Certification Authority (a Member State
 /// or the European Certification Authority).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CertificationAuthorityKid {
     #[serde(rename = "nationNumeric")]
     pub nation_numeric: NationNumeric,

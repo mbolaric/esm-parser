@@ -24,6 +24,7 @@ impl CardPlaceDailyWorkPeriodParams {
 /// where daily work periods begin and/or end (Annex 1C requirements 272,
 /// 297, 325, and 348).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardPlaceDailyWorkPeriod<T> {
     #[serde(rename = "placePointerNewestRecord")]
     pub place_pointer_newest_record: i32,

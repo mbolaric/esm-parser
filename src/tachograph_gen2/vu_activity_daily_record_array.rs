@@ -10,6 +10,8 @@ use crate::{ReadableWithParams, Result};
 /// changes of driving status and/or changes of card status for a given
 /// calendar day (Annex 1C requirement 105, 106, 107) and to slots status at 00:00 that day.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuActivityDailyRecordArray"))]
 pub struct VuActivityDailyRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,

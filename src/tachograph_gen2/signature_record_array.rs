@@ -8,6 +8,8 @@ use crate::tachograph_gen2::data_info::DataConfig;
 
 /// A set of signatures plus metadata used in the download protocol.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2SignatureRecordArray"))]
 pub struct SignatureRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,

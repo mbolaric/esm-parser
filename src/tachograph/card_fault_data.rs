@@ -7,6 +7,7 @@ use crate::{Readable, ReadableWithParams, Result};
 /// Information, stored in a driver or a workshop card, related to a fault
 /// associated to the card holder (Annex 1C requirement 264, 289, 318, and 341).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardFaultRecord {
     #[serde(rename = "faultType")]
     pub fault_type: EventFaultType,
@@ -43,6 +44,7 @@ impl CardFaultDataParams {
 /// Information, stored in a driver or a workshop card, related to the faults
 /// associated to the card holder (Annex 1C requirements 263, 288, 318, and 341).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardFaultData {
     #[serde(rename = "noFaultsPerType")]
     pub no_faults_per_type: u8,

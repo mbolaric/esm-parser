@@ -9,6 +9,8 @@ use crate::{Readable, ReadableWithParams};
 /// calendar day (Annex 1B requirement 084 and Annex 1C requirement
 /// 105, 106, 107) and to slots status at 00:00 that day.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuActivityDailyData"))]
 pub struct VuActivityDailyData {
     #[serde(rename = "noOfActivityChanges")]
     pub no_of_activity_changes: u16,

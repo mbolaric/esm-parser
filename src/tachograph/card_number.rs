@@ -32,6 +32,7 @@ impl CardNumberParams {
 ///     }
 /// }
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardNumber {
     #[serde(rename = "cardIssuingMemberState")]
     pub equipment_type: EquipmentType,

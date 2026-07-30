@@ -4,6 +4,7 @@ use crate::impl_enum_from_u16;
 
 /// Represents the type of activity a driver is engaged in, such as driving, working, or resting.
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u16)]
 pub enum ActivityType {
     /// The driver is on a break or resting.

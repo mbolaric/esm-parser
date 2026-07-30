@@ -5,6 +5,8 @@ use crate::Readable;
 
 /// the odometer value.
 #[derive(Debug)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(type = "number | null"))]
 pub struct OdometerShort {
     pub data: Option<u32>,
 }

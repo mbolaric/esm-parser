@@ -11,6 +11,8 @@ use crate::tacho::{OdometerShort, SpecificConditionRecord, TimeReal, VUTransferR
 
 /// Data structure generation 2, version 1 (TREP 22 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUActivity"))]
 pub struct VUActivity {
     #[serde(rename = "dateOfDayDownloadedRecordArray")]
     pub date_of_day_downloaded_record_array: DataInfoGenericRecordArray<TimeReal>,

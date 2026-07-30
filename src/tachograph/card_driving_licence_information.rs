@@ -8,6 +8,7 @@ const DRIVING_LICENSE_NUMBER_LENGTH: u32 = 16;
 /// Information, stored in a driver card, related to the card holder driver
 /// licence data (Annex 1C requirement 259 and 284).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardDrivingLicenceInformation {
     #[serde(rename = "drivingLicenceIssuingAuthority")]
     pub driving_licence_issuing_authority: Name,

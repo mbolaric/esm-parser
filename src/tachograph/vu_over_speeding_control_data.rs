@@ -7,6 +7,7 @@ use crate::tacho::TimeReal;
 /// since the last over speeding control (Annex 1B requirement 095 and
 /// Annex 1C requirement 117).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VuOverSpeedingControlData {
     #[serde(rename = "lastOverspeedControlTime")]
     pub last_overspeed_control_time: TimeReal,

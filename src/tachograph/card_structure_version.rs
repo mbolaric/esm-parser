@@ -4,6 +4,7 @@ use crate::Readable;
 
 /// Code indicating the version of the implemented structure in a tachograph card.
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardStructureVersion {
     #[serde(rename = "structureVersion")]
     pub structure_version: u8,

@@ -7,6 +7,8 @@ use crate::{Readable, Result};
 /// Certificates shall use a Certificate Profile Identifier to
 /// indicate the certificate profile used. Version 1, shall be identified by a value of ‘00’.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CertificateProfileIdentifier"))]
 pub struct CertificateProfileIdentifier {
     #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,

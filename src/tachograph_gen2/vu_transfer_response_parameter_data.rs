@@ -4,6 +4,8 @@ use crate::gen2::{DataInfo, VUActivity, VUCardDownload, VUEvents, VUOverview, VU
 use crate::tacho::VUTransferResponseParameter;
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUTransferResponseParameterData"))]
 pub enum VUTransferResponseParameterData {
     Unknown(DataInfo),
     Control(VUOverview),

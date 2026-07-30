@@ -7,6 +7,8 @@ use crate::tacho::{Address, FullCardNumber, Name, TimeReal};
 /// performed outside the frame of a regular calibration (Annex 1B
 /// requirement 101 and Annex 1C requirement 124 and 125).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuTimeAdjustmentRecord"))]
 pub struct VuTimeAdjustmentRecord {
     #[serde(rename = "oldTimeValue")]
     pub old_time_value: TimeReal,
@@ -35,6 +37,8 @@ impl Readable<VuTimeAdjustmentRecord> for VuTimeAdjustmentRecord {
 /// Information, stored in a vehicle unit, related to time adjustments
 /// performed outside the frame of a regular calibration (Annex 1B requirement 101).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuTimeAdjustmentData"))]
 pub struct VuTimeAdjustmentData {
     #[serde(rename = "noOfVuTimeAdjRecords")]
     pub no_of_vu_time_adj_records: u8,

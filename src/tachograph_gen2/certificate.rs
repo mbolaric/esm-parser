@@ -17,6 +17,8 @@ impl CertificateParams {
 
 /// The certificate of a public key issued by a Certification Authority.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2Certificate"))]
 pub struct Certificate {
     #[serde(rename = "certificateProfile")]
     pub certificate_profile: Option<CertificateProfile>,

@@ -4,6 +4,7 @@ use crate::impl_enum_from_u8;
 
 /// Indicates the status of a tachograph card, specifically whether it is inserted or removed from a card slot.
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum CardStatus {
     /// The card is currently inserted in a card slot.

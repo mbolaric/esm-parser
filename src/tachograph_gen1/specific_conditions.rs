@@ -18,6 +18,8 @@ impl SpecificConditionsParams {
 /// Information, stored in a driver card, a workshop card or a vehicle unit,
 /// related to a specific condition (Annex 1C requirement 131, 277, 302, 329, and 356).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1SpecificConditions"))]
 pub struct SpecificConditions {
     #[serde(rename = "specificConditionRecords")]
     pub specific_condition_records: Vec<SpecificConditionRecord>,

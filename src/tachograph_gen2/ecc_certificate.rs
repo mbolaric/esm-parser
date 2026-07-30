@@ -6,6 +6,8 @@ use crate::tacho::CertificateContentType;
 use crate::{ReadableWithParams, Result};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2EccCertificate"))]
 pub struct EccCertificate {
     #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,

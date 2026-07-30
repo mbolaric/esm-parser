@@ -4,6 +4,7 @@ use crate::impl_enum_from_u8;
 
 /// Code qualifying an event or a fault.
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum EventFaultType {
     NoFurtherDetails = 0,

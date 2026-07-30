@@ -4,6 +4,7 @@ use crate::impl_enum_from_u8;
 
 /// Code explaining why an event or a fault has been recorded.
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum EventFaultRecordPurpose {
     OneOf10MostRecentOrLast = 0,

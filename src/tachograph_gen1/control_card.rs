@@ -14,6 +14,8 @@ use crate::{Readable, ReadableWithParams, Result};
 
 /// Control Card application generation 1
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1ControlCard"))]
 pub struct ControlCard {
     #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,

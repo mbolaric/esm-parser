@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information, stored in a vehicle unit, related to one company lock
 /// (Annex 1B requirement 104 and Annex 1C requirement 128).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuCompanyLocksRecord"))]
 pub struct VuCompanyLocksRecord {
     #[serde(rename = "lockInTime")]
     pub lock_in_time: TimeReal,

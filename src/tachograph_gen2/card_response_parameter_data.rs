@@ -4,8 +4,29 @@ use serde::ser::{SerializeStruct, Serializer};
 use crate::tacho::CardParser;
 use crate::{gen1, gen2};
 
+#[cfg(feature = "typescript")]
+#[derive(ts_rs::TS)]
+#[ts(rename = "Gen2NoParsedCard")]
+#[ts(type = "null")]
+struct NoParsedCard;
+
+#[cfg(feature = "typescript")]
+#[allow(dead_code)]
+#[derive(ts_rs::TS)]
+#[ts(rename = "Gen2ParsedCardOutput")]
+#[ts(untagged)]
+enum ParsedCardOutput<TGen1, TGen2> {
+    Gen1 { gen1: Box<TGen1> },
+    Gen2 { gen2: Box<TGen2> },
+    Combined { gen1: Box<TGen1>, gen2: Box<TGen2> },
+    None(NoParsedCard),
+}
+
 #[derive(Debug)]
-pub enum ParsedCard<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>> {
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2ParsedCard"))]
+#[cfg_attr(feature = "typescript", ts(as = "ParsedCardOutput<TGen1, TGen2>"))]
+pub enum ParsedCard<TGen1, TGen2> {
     Gen1(Box<TGen1>),
     Gen2(Box<TGen2>),
     Combined(Box<TGen1>, Box<TGen2>),
@@ -43,7 +64,29 @@ where
     }
 }
 
+#[cfg(feature = "typescript")]
+#[derive(ts_rs::TS)]
+#[ts(rename = "Gen2UnsupportedResponse")]
+#[ts(type = "\"Unsupported\"")]
+struct UnsupportedResponse;
+
+#[cfg(feature = "typescript")]
+#[allow(dead_code)]
+#[derive(ts_rs::TS)]
+#[ts(rename = "Gen2CardResponseParameterDataOutput")]
+#[ts(untagged)]
+enum CardResponseParameterDataOutput {
+    Unsupported(UnsupportedResponse),
+    DriverCard(ParsedCard<gen1::DriverCard, gen2::DriverCard>),
+    CompanyCard(ParsedCard<gen1::CompanyCard, gen2::CompanyCard>),
+    WorkshopCard(ParsedCard<gen1::WorkshopCard, gen2::WorkshopCard>),
+    ControlCard(ParsedCard<gen1::ControlCard, gen2::ControlCard>),
+}
+
 #[derive(Debug)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CardResponseParameterData"))]
+#[cfg_attr(feature = "typescript", ts(as = "CardResponseParameterDataOutput"))]
 pub enum CardResponseParameterData {
     Unsupported,
     DriverCard(ParsedCard<gen1::DriverCard, gen2::DriverCard>),

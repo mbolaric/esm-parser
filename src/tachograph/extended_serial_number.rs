@@ -8,6 +8,7 @@ const MONTH_YEAR_LENGTH: usize = 2;
 /// Unique identification of an equipment. It can also be used as an
 /// equipment Public Key Identifier.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct ExtendedSerialNumber {
     #[serde(rename = "serialNumber")]
     pub serial_number: u32,

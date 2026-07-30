@@ -7,6 +7,7 @@ const CARD_NUMBER_LENGTH: u32 = 16;
 
 /// Code fully identifying a tachograph card.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct FullCardNumber {
     #[serde(rename = "cardType")]
     pub card_type: EquipmentType,

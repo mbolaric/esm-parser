@@ -10,6 +10,8 @@ const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
 /// use of a vehicle during a calendar day (Annex 1C requirements 269,
 /// 294, 322, and 345).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CardVehicleRecord"))]
 pub struct CardVehicleRecord {
     #[serde(rename = "vehicleOdometerBegin")]
     pub vehicle_odometer_begin: OdometerShort,

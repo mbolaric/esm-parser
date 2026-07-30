@@ -6,6 +6,7 @@ use crate::tacho::{TimeReal, VehicleRegistrationIdentification};
 /// Information about the actual usage of the card (Annex 1C requirement
 /// 273, 298, 326, and 349).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardCurrentUse {
     #[serde(rename = "sessionOpenTime")]
     pub session_open_time: TimeReal,

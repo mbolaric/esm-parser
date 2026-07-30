@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information related to a place where a daily work period begins or ends
 /// (Annex 1C requirements 108, 271, 296, 324, and 347).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2PlaceRecord"))]
 pub struct PlaceRecord {
     #[serde(rename = "entryTime")]
     pub entry_time: TimeReal,

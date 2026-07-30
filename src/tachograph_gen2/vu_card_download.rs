@@ -7,6 +7,8 @@ use crate::gen2::{CardData, DataInfo, SignatureRecordArray};
 use crate::tacho::{TachographHeader, VUTransferResponseParameterID};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUCardDownload"))]
 pub struct VUCardDownload {
     pub card: CardData,
     #[serde(rename = "signatureRecordArray")]

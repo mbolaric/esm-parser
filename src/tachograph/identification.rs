@@ -19,6 +19,8 @@ impl IdentificationParams {
 }
 
 #[derive(Debug)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(untagged))]
 pub enum Identification {
     CompanyCard(Box<CompanyCardIdentification>),
     DriverCard(Box<DriverCardIdentification>),

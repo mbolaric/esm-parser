@@ -9,6 +9,8 @@ use crate::{Readable, ReadableWithParams, Result};
 /// vehicle if the accumulated driving time reaches a multiple of three hours
 /// (Annex IC requirement 108, 110).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuGnssadRecord"))]
 pub struct VuGnssadRecord {
     #[serde(rename = "isGen2V2")]
     pub is_gen2_v2: bool,

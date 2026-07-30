@@ -101,6 +101,7 @@ mod wasm_support {
     use wasm_bindgen::prelude::*;
 
     use super::*;
+    use crate::WasmTachographData;
     use crate::tacho::NationNumeric;
 
     /// WebAssembly-specific wrapper for the `parse_from_memory` function.
@@ -124,7 +125,7 @@ mod wasm_support {
         debug!("EsmParser::parse_from_memory_wasm - is called.");
         let result = parse_from_memory(esm_data);
         match result {
-            Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
+            Ok(data) => WasmTachographData::from(data).serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
             Err(e) => Err(JsValue::from_str(&e.to_string())),
         }
     }

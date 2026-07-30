@@ -11,6 +11,8 @@ const VU_APPROVAL_NUMBER_LENGTH: u32 = 16;
 /// Information, stored in a vehicle unit, related to the identification of the
 /// vehicle unit (Annex 1B requirement 075 and Annex 1C requirement 93 and 121).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuIdentification"))]
 pub struct VuIdentification {
     #[serde(rename = "isGen2V2")]
     pub is_gen2_v2: bool,

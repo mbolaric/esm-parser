@@ -6,6 +6,8 @@ use crate::Readable;
 /// Information, stored in a company card related to the identification of the
 /// application of the card (Annex IC requirement 375a).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2CompanyCardApplicationIdentificationV2"))]
 pub struct CompanyCardApplicationIdentificationV2 {
     #[serde(rename = "lengthOfFollowingData")]
     pub length_of_following_data: u16,

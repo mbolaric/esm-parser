@@ -6,6 +6,8 @@ use crate::Readable;
 /// Information, stored in a control card related to the identification of the
 /// application of the card (Annex IC requirement 363a).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2ControlCardApplicationIdentificationV2"))]
 pub struct ControlCardApplicationIdentificationV2 {
     #[serde(rename = "lengthOfFollowingData")]
     pub length_of_following_data: u16,

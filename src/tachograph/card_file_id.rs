@@ -7,6 +7,7 @@ use crate::impl_enum_from_u16;
 /// Identifiers for files on a tachograph card.
 /// These files are also known as "tacho blocks".
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u16)]
 pub enum CardFileID {
     Unknown = 0x00,

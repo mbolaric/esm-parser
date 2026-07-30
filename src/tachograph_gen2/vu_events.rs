@@ -11,6 +11,8 @@ use crate::tacho::{VUTransferResponseParameterID, VuOverSpeedingControlData};
 
 /// Data structure generation 2, version 2 (TREP 33 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUEvents"))]
 pub struct VUEvents {
     #[serde(rename = "vuFaultRecordArray")]
     pub vu_fault_record_array: DataInfoGenericRecordArray<VuFaultRecord>,

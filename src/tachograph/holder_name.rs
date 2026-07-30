@@ -5,6 +5,7 @@ use crate::tacho::Name;
 
 /// This is the name and first name(s) of the holder of the Card.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct HolderName {
     #[serde(rename = "holderSurname")]
     pub holder_surname: Name,

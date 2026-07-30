@@ -8,6 +8,7 @@ const CARD_HOLDER_PREFERRED_LANGUAGE_LENGTH: u32 = 2;
 /// Information, stored in a company card, related to the cardholder identification
 /// (Annex 1C requirement 372 and 378).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CompanyCardHolderIdentification {
     #[serde(rename = "companyName")]
     pub company_name: Name,

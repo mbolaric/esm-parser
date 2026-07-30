@@ -6,6 +6,8 @@ use crate::tacho::VuDetailedSpeedBlock;
 
 /// Information, stored in a vehicle unit, related to the detailed speed of the vehicle.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuDetailedSpeedData"))]
 pub struct VuDetailedSpeedData {
     #[serde(rename = "noOfSpeedBlocks")]
     pub no_of_speed_blocks: u16,

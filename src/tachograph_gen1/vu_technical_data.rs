@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 const SIGNATURE_LENGTH: u32 = 128;
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuTechnicalData"))]
 pub struct VuTechnicalData {
     #[serde(rename = "trepId")]
     pub trep_id: VUTransferResponseParameterID,

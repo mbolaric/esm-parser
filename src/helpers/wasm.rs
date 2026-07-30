@@ -61,6 +61,7 @@ pub fn init_console_logging(log_level: LogLevel) -> Result<(), JsValue> {
 /// The log levels that can be set from JavaScript.
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum LogLevel {
     Error,
     Warn,

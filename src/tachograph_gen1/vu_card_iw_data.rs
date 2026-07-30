@@ -9,6 +9,8 @@ use crate::tacho::{CardSlotNumber, FullCardNumber, HolderName, ManualInputFlag, 
 /// cycle of a driver card or of a workshop card in the vehicle unit
 /// (Annex 1B requirement 081 and Annex 1C requirement 102).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuCardIWRecord"))]
 pub struct VuCardIWRecord {
     #[serde(rename = "cardHolderName")]
     pub card_holder_name: HolderName,
@@ -60,6 +62,8 @@ impl Readable<VuCardIWRecord> for VuCardIWRecord {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuCardIWData"))]
 pub struct VuCardIWData {
     pub no_of_iw_records: u16,
     pub vu_card_iw_records: Vec<VuCardIWRecord>,

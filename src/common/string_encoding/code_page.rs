@@ -2,6 +2,7 @@ use serde::Serialize;
 
 /// Represents a code page for character encoding.
 #[derive(Debug, Clone, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum CodePage {
     /// ISO/IEC 8859-1 (Latin-1).
     IsoIec8859_1 = 1,

@@ -8,6 +8,8 @@ use crate::tachograph_gen2::vehicle_registration_identification_record_array::Ve
 use crate::{Readable, Result};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VehicleRegistrationNumberRecordArray"))]
 pub struct VehicleRegistrationNumberRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,

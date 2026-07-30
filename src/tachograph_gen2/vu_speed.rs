@@ -8,6 +8,8 @@ use crate::tacho::{VUTransferResponseParameterID, VuDetailedSpeedBlock};
 
 /// Data structure generation 2 (TREP 24 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VUSpeed"))]
 pub struct VUSpeed {
     #[serde(rename = "vuDetailedSpeedBlockRecordArray")]
     pub vu_detailed_speed_block_record_array: DataInfoGenericRecordArray<VuDetailedSpeedBlock>,

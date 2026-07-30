@@ -8,6 +8,7 @@ const MODULE_EMBEDDER_LENGTH: usize = 1;
 
 /// Provides information about the IC embedder.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct EmbedderIcAssemblerId {
     #[serde(rename = "countryCode")]
     pub country_code: String,

@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information, stored in a vehicle unit, related to over speeding events
 /// (Annex 1B requirement 094 and Annex 1C requirement 117).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuOverSpeedingEventRecord"))]
 pub struct VuOverSpeedingEventRecord {
     #[serde(rename = "cardNumberAndGen")]
     pub event_type: EventFaultType,

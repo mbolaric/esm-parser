@@ -6,6 +6,8 @@ use crate::tacho::{TimeReal, VehicleRegistrationIdentification};
 /// Information related to the vehicle previously used by a driver when
 /// inserting his card in a vehicle unit (Annex 1B requirement 081 and Annex 1C requirement 102).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1PreviousVehicleInfo"))]
 pub struct PreviousVehicleInfo {
     #[serde(rename = "vehicleRegistrationIdentification")]
     pub vehicle_registration_identification: VehicleRegistrationIdentification,

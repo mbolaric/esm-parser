@@ -2,6 +2,7 @@ use log::debug;
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum VUTransferResponseParameterID {
     Unknown = 0x00,
     Overview = 0x01,

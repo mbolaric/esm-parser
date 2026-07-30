@@ -5,6 +5,7 @@ use crate::impl_enum_from_u8;
 /// Code identifying a specific condition (Annex 1B requirements 050b,
 /// 105a, 212a and 230a and Annex 1C requirements 62).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum SpecificConditionType {
     OutOfScopeBegin = 1,

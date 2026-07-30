@@ -8,6 +8,8 @@ use crate::tacho::FullCardNumber;
 /// begins or ends a daily work period (Annex 1B requirement 087 and
 /// Annex 1C requirement 108 and 110).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuPlaceDailyWorkPeriodRecord"))]
 pub struct VuPlaceDailyWorkPeriodRecord {
     #[serde(rename = "fullCardNumber")]
     pub full_card_number: FullCardNumber,
@@ -27,6 +29,8 @@ impl Readable<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriodRecord {
 /// begin or end a daily work period (Annex 1B requirement 087 and
 /// Annex 1C requirement 108 and 110).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuPlaceDailyWorkPeriodData"))]
 pub struct VuPlaceDailyWorkPeriodData {
     #[serde(rename = "noOfPlaceRecords")]
     pub no_of_place_records: u8,

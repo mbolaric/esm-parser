@@ -8,6 +8,7 @@ const TACHOGRAPH_APPLICATION_ID_LENGTH: u32 = 6;
 
 /// Identification of the rights of a certificate holder.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CertificateHolderAuthorisation {
     #[serde(rename = "recordType")]
     pub record_type: CertificateContentType,

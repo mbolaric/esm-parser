@@ -8,6 +8,7 @@ const CARD_HOLDER_PREFERRED_LANGUAGE_LENGTH: u32 = 2;
 /// Information, stored in a driver card, related to the identification of the
 /// cardholder (Annex 1C requirement 256 and 281).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct DriverCardHolderIdentification {
     #[serde(rename = "cardHolderName")]
     pub card_holder_name: HolderName,

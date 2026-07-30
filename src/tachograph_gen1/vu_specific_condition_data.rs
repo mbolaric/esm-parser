@@ -6,6 +6,8 @@ use crate::tacho::SpecificConditionRecord;
 
 /// Information, stored in a vehicle unit, related to specific conditions.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuSpecificConditionData"))]
 pub struct VuSpecificConditionData {
     #[serde(rename = "noOfSpecificConditionRecords")]
     pub no_of_specific_condition_records: u16,

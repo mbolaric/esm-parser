@@ -9,6 +9,8 @@ use crate::{Readable, Result};
 /// performed outside the frame of a regular calibration (Annex 1B
 /// requirement 101 and Annex 1C requirement 124 and 125).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuTimeAdjustmentRecord"))]
 pub struct VuTimeAdjustmentRecord {
     #[serde(rename = "oldTimeValue")]
     pub old_time_value: TimeReal,

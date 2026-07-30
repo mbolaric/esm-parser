@@ -2,6 +2,7 @@ use serde::Serialize;
 
 /// Represents the driving status, indicating whether the vehicle is being operated by a single driver or a crew.
 #[derive(Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum DrivingStatus {
     /// The driving status is unknown.

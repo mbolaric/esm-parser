@@ -7,6 +7,8 @@ use crate::tacho::{self, CardFilesDataByCardGeneration, CardGeneration, CardPars
 use crate::{Error, Export, Result};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1CardData"))]
 pub struct CardData {
     pub header: TachographHeader,
     #[serde(rename = "cardDataResponses")]

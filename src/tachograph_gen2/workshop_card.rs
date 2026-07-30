@@ -18,6 +18,8 @@ use crate::tacho::{
 use crate::{Readable, ReadableWithParams, Result};
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2WorkshopCard"))]
 pub struct WorkshopCard {
     #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,

@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// Information, stored in a vehicle unit, related to its last download (Annex
 /// 1B requirement 105 and Annex 1C requirement 129).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuDownloadActivityData"))]
 pub struct VuDownloadActivityData {
     #[serde(rename = "downloadingTime")]
     pub downloading_time: TimeReal,

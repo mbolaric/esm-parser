@@ -8,6 +8,8 @@ use crate::{ReadableWithParams, Result};
 
 /// The VU certificate plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2VuCertificateRecordArray"))]
 pub struct VuCertificateRecordArray {
     #[serde(rename = "noOfRecords")]
     pub no_of_records: u16,

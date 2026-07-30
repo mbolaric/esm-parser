@@ -23,6 +23,7 @@ impl VehiclesUsedParams {
 /// Information, stored in a driver or workshop card, related to the vehicles
 /// used by the card holder (Annex 1C requirements 270, 295, 323, and 346).
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardVehiclesUsed<T> {
     #[serde(rename = "vehiclePointerNewestRecord")]
     pub vehicle_pointer_newest_record: u16,

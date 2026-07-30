@@ -8,6 +8,8 @@ use crate::{Readable, Result};
 /// This data type stores information about a seal that is attached to a
 /// component. This data type is related to Annex 1C requirement 337.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2SealRecord"))]
 pub struct SealRecord {
     #[serde(rename = "equipmentType")]
     pub equipment_type: EquipmentType,

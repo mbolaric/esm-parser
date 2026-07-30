@@ -7,6 +7,8 @@ const SIGNATURE_LENGTH: u32 = 128;
 
 /// Data structure generation 1 (TREP 04 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VuDetailedSpeed"))]
 pub struct VuDetailedSpeed {
     #[serde(rename = "vuDetailedSpeedData")]
     pub vu_detailed_speed_data: VuDetailedSpeedData,

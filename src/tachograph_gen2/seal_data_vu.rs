@@ -7,6 +7,8 @@ use crate::{Readable, Result};
 /// This data type stores information about the seals that are attached to the
 /// different components of a vehicle and is intended for storage in a Vehicle Unit.
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen2SealDataVu"))]
 pub struct SealDataVu {
     #[serde(rename = "sealRecords")]
     pub seal_records: Vec<SealRecord>,

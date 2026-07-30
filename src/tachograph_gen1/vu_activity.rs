@@ -9,6 +9,8 @@ const SIGNATURE_LENGTH: u32 = 128;
 
 /// Data structure generation 1 (TREP 02 Hex)
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[cfg_attr(feature = "typescript", ts(rename = "Gen1VUActivity"))]
 pub struct VUActivity {
     #[serde(rename = "dateOfDayDownloaded")]
     pub date_of_day_downloaded: TimeReal,
