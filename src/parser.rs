@@ -96,10 +96,12 @@ pub fn parse_from_memory(esm_data: &[u8]) -> Result<TachographData> {
 
 #[cfg(target_arch = "wasm32")]
 mod wasm_support {
-    use serde_wasm_bindgen::to_value;
+    use serde::Serialize;
+    use serde_wasm_bindgen::Serializer;
     use wasm_bindgen::prelude::*;
 
     use super::*;
+    use crate::tacho::NationNumeric;
 
     /// WebAssembly-specific wrapper for the `parse_from_memory` function.
     ///
@@ -117,13 +119,20 @@ mod wasm_support {
     /// `Promise`.
     /// - On success, the `Promise` resolves with a `JsValue` object representing the parsed `TachographData`.
     /// - On failure, the `Promise` rejects with a `JsValue` containing the error message.
-    #[wasm_bindgen(js_name = parse_from_memory)]
+    #[wasm_bindgen(js_name = parse_from_memory, skip_typescript)]
     pub fn parse_from_memory_wasm(esm_data: &[u8]) -> std::result::Result<JsValue, JsValue> {
         debug!("EsmParser::parse_from_memory_wasm - is called.");
         let result = parse_from_memory(esm_data);
         match result {
-            Ok(data) => to_value(&data).map_err(|e| e.into()),
-            Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
+            Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
+            Err(e) => Err(JsValue::from_str(&e.to_string())),
         }
+    }
+
+    /// Returns the parser-owned mapping from serialized nation names to
+    /// supported NationAlpha codes.
+    #[wasm_bindgen(js_name = getSupportedNationAlphaCodes, skip_typescript)]
+    pub fn get_supported_nation_alpha_codes_wasm() -> std::result::Result<JsValue, JsValue> {
+        NationNumeric::get_supported_nation_alpha_codes().serialize(&Serializer::json_compatible()).map_err(|e| e.into())
     }
 }

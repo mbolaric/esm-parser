@@ -107,11 +107,16 @@ pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::TachographData;
 pub use verification::{verify_card, verify_card_with_erca_path};
 
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen(typescript_custom_section)]
+const TS_WASM_BOUNDARY: &'static str = include_str!("../types/wasm-boundary.d.ts");
+
 /// This function is the entry point for the WebAssembly module.
 /// It is executed automatically when the WASM module is loaded in the browser.
 /// It sets up a custom panic hook to provide more informative error messages in the console.
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen::prelude::wasm_bindgen(start)]
 pub fn start_wasm() {
+    #[cfg(feature = "wasm-console-panic-hook")]
     helpers::set_panic_hook();
 }

@@ -1,4 +1,5 @@
 // This file contains helper functions for interacting with the browser's console and setting up logging and panic hooks for the WebAssembly module.
+#[cfg(feature = "wasm-console-panic-hook")]
 use std::panic;
 
 use log::{self, Level, Log, Metadata, Record};
@@ -82,6 +83,7 @@ impl LogLevel {
 }
 
 // Bindings to JavaScript functions and objects.
+#[cfg(feature = "wasm-console-panic-hook")]
 #[wasm_bindgen]
 extern "C" {
     // Binds to `console.error`.
@@ -102,6 +104,7 @@ extern "C" {
 
 /// The custom panic hook that is called when a panic occurs in the WASM module.
 /// It logs the panic message and a JavaScript stack trace to the console.
+#[cfg(feature = "wasm-console-panic-hook")]
 pub fn hook(info: &panic::PanicHookInfo) {
     let mut msg = info.to_string();
 
@@ -118,6 +121,7 @@ pub fn hook(info: &panic::PanicHookInfo) {
 
 /// Sets the custom panic hook.
 /// This function should be called once when the WASM module is initialized.
+#[cfg(feature = "wasm-console-panic-hook")]
 #[inline]
 pub fn set_panic_hook() {
     use std::sync::Once;

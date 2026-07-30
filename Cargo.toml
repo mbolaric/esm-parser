@@ -10,6 +10,7 @@ description = "Library for parsing ESM files (.DDD). *.DDD files are digital exp
 keywords = ["tachograph", "tacho", "DDD", "parsing"]
 include = [
     "src/**/*",
+    "types/**/*",
     "examples/**/*",
     "tests/**",
     "Cargo.toml",
@@ -38,6 +39,7 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = []
 logging = ["binary-data/logging"]
+wasm-console-panic-hook = []
 
 [dependencies]
 log = { version = "0.4.33", default-features = false }

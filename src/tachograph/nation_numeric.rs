@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use serde::Serialize;
 
 use crate::impl_enum_from_u8;
@@ -62,8 +64,8 @@ pub enum NationNumeric {
     Serbia = 53,
     Uzbekistan = 54,
     Tajikistan = 55,
-    RFU38 = 56,
-    RFU39 = 57,
+    KyrgyzRepublic = 56,
+    Israel = 57,
     RFU3A = 58,
     RFU3B = 59,
     RFU3C = 60,
@@ -311,6 +313,8 @@ impl From<&NationNumeric> for u8 {
             Serbia => 53,
             Uzbekistan => 54,
             Tajikistan => 55,
+            KyrgyzRepublic => 56,
+            Israel => 57,
             EuropeanCommunity => 0xFD,
             RestOfEurope => 0xFE,
             RestOfTheWorld => 0xFF,
@@ -355,7 +359,7 @@ impl NationNumeric {
             29 => "KZ",
             30 => "L",
             31 => "LT",
-            32 => "LV′",
+            32 => "LV",
             33 => "M",
             34 => "MC",
             35 => "MD",
@@ -375,15 +379,30 @@ impl NationNumeric {
             49 => "UA",
             50 => "V",
             51 => "YU",
-            52 => "ME",
-            53 => "RS",
-            54 => "US",
+            52 => "MNE",
+            53 => "SRB",
+            54 => "UZ",
             55 => "TJ",
+            56 => "KG",
+            57 => "IL",
             253 => "EC",
             254 => "EUR",
             255 => "WLD",
             _ => "UNK",
         }
+    }
+
+    /// Return the supported NationAlpha codes keyed by the NationNumeric names
+    /// emitted by serde.
+    pub fn get_supported_nation_alpha_codes() -> BTreeMap<String, &'static str> {
+        (u8::MIN..=u8::MAX)
+            .filter_map(|code| {
+                let nation = NationNumeric::from(code);
+                let alpha = nation.get_nation_alpha();
+
+                (alpha != "UNK").then(|| (format!("{nation:?}"), alpha))
+            })
+            .collect()
     }
 }
 
@@ -445,8 +464,8 @@ impl_enum_from_u8!(
         Serbia = 53,
         Uzbekistan = 54,
         Tajikistan = 55,
-        RFU38 = 56,
-        RFU39 = 57,
+        KyrgyzRepublic = 56,
+        Israel = 57,
         RFU3A = 58,
         RFU3B = 59,
         RFU3C = 60,
@@ -635,3 +654,35 @@ impl_enum_from_u8!(
         RestOfTheWorld = 0xFF,
     }
 );
+
+#[cfg(test)]
+mod tests {
+    use super::NationNumeric;
+
+    #[test]
+    fn returns_current_nation_alpha_codes() {
+        assert_eq!(NationNumeric::Latvia.get_nation_alpha(), "LV");
+        assert_eq!(NationNumeric::Montenegro.get_nation_alpha(), "MNE");
+        assert_eq!(NationNumeric::Serbia.get_nation_alpha(), "SRB");
+        assert_eq!(NationNumeric::Uzbekistan.get_nation_alpha(), "UZ");
+        assert_eq!(NationNumeric::KyrgyzRepublic.get_nation_alpha(), "KG");
+        assert_eq!(NationNumeric::Israel.get_nation_alpha(), "IL");
+    }
+
+    #[test]
+    fn returns_supported_codes_keyed_by_serialized_nation_name() {
+        let codes = NationNumeric::get_supported_nation_alpha_codes();
+
+        assert_eq!(codes.get("Germany"), Some(&"D"));
+        assert_eq!(codes.get("Israel"), Some(&"IL"));
+        assert!(!codes.contains_key("Unknown"));
+        assert!(!codes.contains_key("RFU3A"));
+
+        for code in u8::MIN..=u8::MAX {
+            let nation = NationNumeric::from(code);
+            if nation.get_nation_alpha() != "UNK" {
+                assert_eq!(serde_json::to_value(&nation).unwrap(), format!("{nation:?}"));
+            }
+        }
+    }
+}

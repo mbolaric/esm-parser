@@ -114,7 +114,8 @@ pub fn verify_card_with_erca_path(
 mod wasm_support {
     use std::collections::HashMap;
 
-    use serde_wasm_bindgen::to_value;
+    use serde::Serialize;
+    use serde_wasm_bindgen::Serializer;
     use wasm_bindgen::prelude::*;
 
     use super::*;
@@ -136,7 +137,7 @@ mod wasm_support {
     ///
     /// A `Result` which, on success, contains a `JsValue` representing the serialized `VerifyResult`.
     /// On failure, it returns a `JsValue` containing the error message as a string.
-    #[wasm_bindgen(js_name = verify_card)]
+    #[wasm_bindgen(js_name = verify_card, skip_typescript)]
     pub fn verify_card_wasm(
         generation: CardGeneration,
         data_files_map: JsValue,
@@ -147,8 +148,8 @@ mod wasm_support {
 
         let result = verify_card(&generation, &data_files, erca_pk);
         match result {
-            Ok(data) => to_value(&data).map_err(|e| e.into()),
-            Err(e) => Err(to_value(&e.to_string()).unwrap_or(JsValue::NULL)),
+            Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
+            Err(e) => Err(JsValue::from_str(&e.to_string())),
         }
     }
 }
