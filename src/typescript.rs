@@ -5,6 +5,7 @@ use std::fmt::Write;
 use ts_rs::{Config, TS, TypeVisitor};
 
 use crate::WasmTachographData;
+use crate::gen2::{LoadType, OperationType};
 use crate::tacho::{
     ActivityCard, ActivitySource, ActivityType, CalibrationPurpose, CardSlotNumber, CardStatus, ControlType, DrivingStatus,
     EntryTypeDailyWorkPeriod, EquipmentType, EventFaultRecordPurpose, EventFaultType, RegionNumeric, SpecificConditionType,
@@ -61,6 +62,8 @@ pub fn wasm_boundary_declaration() -> String {
     collector.collect::<EquipmentType>();
     collector.collect::<EventFaultRecordPurpose>();
     collector.collect::<EventFaultType>();
+    collector.collect::<LoadType>();
+    collector.collect::<OperationType>();
     collector.collect::<RegionNumeric>();
     collector.collect::<SpecificConditionType>();
     collector.collect::<WasmTachographData>();

@@ -5,9 +5,11 @@ use log::{debug, trace};
 use serde::Serialize;
 
 use crate::gen2::{
-    CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
-    CertificateParams, DriverCardApplicationIdentification, DriverCardApplicationIdentificationV2, GnssAccumulatedDriving,
-    GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions, SpecificConditionsParams,
+    BorderCrossings, BorderCrossingsParams, CardResponseParameterData, CardVehicleRecord, CardVehicleUnitsUsed,
+    CardVehicleUnitsUsedParams, Certificate, CertificateParams, DriverCardApplicationIdentification,
+    DriverCardApplicationIdentificationV2, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, LoadTypeEntries,
+    LoadTypeEntriesParams, LoadUnloadOperations, LoadUnloadOperationsParams, PlaceRecord, SpecificConditions,
+    SpecificConditionsParams,
 };
 use crate::tacho::{
     Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
@@ -56,6 +58,12 @@ pub struct DriverCard {
     pub vehicle_units_used: Option<CardVehicleUnitsUsed>,
     #[serde(rename = "gnssPlaces")]
     pub gnss_places: Option<GnssAccumulatedDriving>,
+    #[serde(rename = "borderCrossings")]
+    pub border_crossings: Option<BorderCrossings>,
+    #[serde(rename = "loadUnloadOperations")]
+    pub load_unload_operations: Option<LoadUnloadOperations>,
+    #[serde(rename = "loadTypeEntries")]
+    pub load_type_entries: Option<LoadTypeEntries>,
     #[serde(rename = "cardCertificate")]
     pub card_certificate: Option<Certificate>,
     #[serde(rename = "caCertificate")]
@@ -96,8 +104,11 @@ impl DriverCard {
             driving_license_info: None,
             specific_conditions: None,
             vehicle_units_used: None,
-            card_certificate: None,
             gnss_places: None,
+            border_crossings: None,
+            load_unload_operations: None,
+            load_type_entries: None,
+            card_certificate: None,
             ca_certificate: None,
             card_sign_certificate: None,
             link_certificate: None,
@@ -116,6 +127,11 @@ impl CardParser<DriverCard> for DriverCard {
         >(card_data_files)?;
         debug!("DriverCard::parse - Application Identification: {application_identification:?}");
 
+        let application_identification_v2 = <dyn Card<CardResponseParameterData>>::parse_by_card_file_id::<
+            DriverCardApplicationIdentificationV2,
+        >(&CardFileID::ApplicationIdentificationV2, card_data_files)
+        .ok();
+
         let mut driver_card = DriverCard::new(
             card_chip_identification,
             card_icc_identification,
@@ -123,6 +139,8 @@ impl CardParser<DriverCard> for DriverCard {
             card_notes.to_owned(),
             (*card_data_files).clone(),
         );
+
+        driver_card.application_identification_v2 = application_identification_v2.clone();
 
         for card_item in card_data_files.iter() {
             debug!("DriverCard::parse - ID: {:?}", card_item.0,);
@@ -136,7 +154,7 @@ impl CardParser<DriverCard> for DriverCard {
             );
             match card_item.0 {
                 CardFileID::ApplicationIdentificationV2 => {
-                    driver_card.application_identification_v2 = Some(DriverCardApplicationIdentificationV2::read(&mut reader)?);
+                    driver_card.application_identification_v2 = application_identification_v2.clone();
                 }
                 CardFileID::CardDownload => {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
@@ -205,6 +223,23 @@ impl CardParser<DriverCard> for DriverCard {
                 CardFileID::GnssPlaces => {
                     let params = GnssAccumulatedDrivingParams::new(application_identification.no_gnssad_records);
                     driver_card.gnss_places = Some(GnssAccumulatedDriving::read(&mut reader, &params)?);
+                }
+                CardFileID::BorderCrossings => {
+                    let no_records =
+                        application_identification_v2.as_ref().map(|v2| v2.no_of_border_crossing_records).unwrap_or(0);
+                    let params = BorderCrossingsParams::new(no_records);
+                    driver_card.border_crossings = Some(BorderCrossings::read(&mut reader, &params)?);
+                }
+                CardFileID::LoadUnloadOperations => {
+                    let no_records = application_identification_v2.as_ref().map(|v2| v2.no_of_load_unload_records).unwrap_or(0);
+                    let params = LoadUnloadOperationsParams::new(no_records);
+                    driver_card.load_unload_operations = Some(LoadUnloadOperations::read(&mut reader, &params)?);
+                }
+                CardFileID::LoadTypeEntries => {
+                    let no_records =
+                        application_identification_v2.as_ref().map(|v2| v2.no_of_load_type_entry_records).unwrap_or(0);
+                    let params = LoadTypeEntriesParams::new(no_records);
+                    driver_card.load_type_entries = Some(LoadTypeEntries::read(&mut reader, &params)?);
                 }
                 CardFileID::CardCertificate => {
                     let params = CertificateParams::new(None);

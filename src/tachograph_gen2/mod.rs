@@ -4,6 +4,7 @@
 //! for the second generation (Gen2) of digital tachograph data. It includes
 //! support for new features like GNSS data and updated record formats.
 
+mod border_crossings;
 mod card_data;
 mod card_response_parameter_data;
 mod card_vehicle_record;
@@ -29,8 +30,12 @@ mod geo_coordinate;
 mod gnss_accumulated_driving;
 mod gnss_place_auth_record;
 mod gnss_place_record;
+mod load_type;
+mod load_type_entries;
+mod load_unload_operations;
 mod manufacturer_specific_event_fault_data;
 mod member_state_certificate_record_array;
+mod operation_type;
 mod place_auth_record;
 mod place_record;
 mod previous_vehicle_info;
@@ -76,6 +81,7 @@ mod workshop_card;
 mod workshop_card_application_identification;
 mod workshop_card_calibration_record;
 
+pub use border_crossings::{BorderCrossingRecord, BorderCrossings, BorderCrossingsParams};
 pub use card_data::CardData;
 pub use card_response_parameter_data::{CardResponseParameterData, ParsedCard};
 pub use card_vehicle_record::CardVehicleRecord;
@@ -101,8 +107,12 @@ pub use geo_coordinate::GeoCoordinate;
 pub use gnss_accumulated_driving::{GnssAccumulatedDriving, GnssAccumulatedDrivingParams, GnssAccumulatedDrivingRecord};
 pub use gnss_place_auth_record::GnssPlaceAuthRecord;
 pub use gnss_place_record::GnssPlaceRecord;
+pub use load_type::LoadType;
+pub use load_type_entries::{LoadTypeEntries, LoadTypeEntriesParams, LoadTypeEntryRecord};
+pub use load_unload_operations::{LoadUnloadOperations, LoadUnloadOperationsParams, LoadUnloadRecord};
 pub use manufacturer_specific_event_fault_data::ManufacturerSpecificEventFaultData;
 pub use member_state_certificate_record_array::MemberStateCertificateRecordArray;
+pub use operation_type::OperationType;
 pub use place_auth_record::PlaceAuthRecord;
 pub use place_record::PlaceRecord;
 pub use previous_vehicle_info::PreviousVehicleInfo;

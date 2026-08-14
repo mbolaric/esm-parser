@@ -57,6 +57,10 @@ pub enum CardFileID {
     GnssPlaces = 0x524,
     /// Border crossings.
     BorderCrossings = 0x528,
+    /// Load/unload operations.
+    LoadUnloadOperations = 0x529,
+    /// Load type entries.
+    LoadTypeEntries = 0x52A,
     /// Calibration additional data.
     CalibrationAddData = 0x531,
     /// VU configuration.
@@ -100,6 +104,8 @@ impl fmt::Display for CardFileID {
             CardFileID::VehicleUnitsUsed => "VehicleUnitsUsed",
             CardFileID::GnssPlaces => "GnssPlaces",
             CardFileID::BorderCrossings => "BorderCrossings",
+            CardFileID::LoadUnloadOperations => "LoadUnloadOperations",
+            CardFileID::LoadTypeEntries => "LoadTypeEntries",
             CardFileID::CalibrationAddData => "CalibrationAddData",
             CardFileID::VUConfiguration => "VUConfiguration",
             CardFileID::CardCertificate => "CardCertificate",
@@ -138,6 +144,8 @@ impl_enum_from_u16!(
         VehicleUnitsUsed = 0x523,
         GnssPlaces = 0x524,
         BorderCrossings = 0x528,
+        LoadUnloadOperations = 0x529,
+        LoadTypeEntries = 0x52A,
         CalibrationAddData = 0x531,
         VUConfiguration = 0x540,
         CardCertificate = 0xC100,

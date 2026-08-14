@@ -75,7 +75,7 @@ export type CardFaultRecord = { faultType: EventFaultType, faultBeginTime: TimeR
 
 export type CardFileData = { cardFileId: CardFileID, appendix: number, cardFileNotes: string, size: number, signature: Array<number> | null, data: Array<number> | null, };
 
-export type CardFileID = "Unknown" | "ICC" | "IC" | "Tachograph" | "ApplicationIdentification" | "ApplicationIdentificationV2" | "EventsData" | "FaultsData" | "DriverActivityData" | "VehiclesUsed" | "Places" | "CurrentUsage" | "ControlActivityData" | "Calibration" | "SensorInstallationData" | "ControllerActivityData" | "CompanyActivityData" | "CardDownload" | "Identification" | "DrivingLicenseInfo" | "SpecificConditions" | "VehicleUnitsUsed" | "GnssPlaces" | "BorderCrossings" | "CalibrationAddData" | "VUConfiguration" | "CardCertificate" | "CardSignCertificate" | "CACertificate" | "LinkCertificate" | "MF";
+export type CardFileID = "Unknown" | "ICC" | "IC" | "Tachograph" | "ApplicationIdentification" | "ApplicationIdentificationV2" | "EventsData" | "FaultsData" | "DriverActivityData" | "VehiclesUsed" | "Places" | "CurrentUsage" | "ControlActivityData" | "Calibration" | "SensorInstallationData" | "ControllerActivityData" | "CompanyActivityData" | "CardDownload" | "Identification" | "DrivingLicenseInfo" | "SpecificConditions" | "VehicleUnitsUsed" | "GnssPlaces" | "BorderCrossings" | "LoadUnloadOperations" | "LoadTypeEntries" | "CalibrationAddData" | "VUConfiguration" | "CardCertificate" | "CardSignCertificate" | "CACertificate" | "LinkCertificate" | "MF";
 
 export type CardIccIdentification = { clockStop: number, cardExtendedSerialNumber: ExtendedSerialNumber, cardApprovalNumber: string, cardPersonaliserID: number, embedderIcAssemblerId: EmbedderIcAssemblerId, icIdentifier: Array<number>, };
 
@@ -256,6 +256,10 @@ export type Gen1WorkshopCardApplicationIdentification = { typeOfTachographCardId
 
 export type Gen1WorkshopCardCalibrationRecord = { calibrationPurpose: CalibrationPurpose, vehicleIdentificationNumber: string, vehicleRegistration: VehicleRegistrationIdentification, wVehicleCharacteristicConstant: number, kConstantOfRecordingEquipment: number, lTyreCircumference: number, tyreSize: string, authorisedSpeed: number, oldOdometerValue: OdometerShort, newOdometerValue: OdometerShort, oldTimeValue: TimeReal, newTimeValue: TimeReal, nextCalibrationDate: TimeReal, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, sensorSerialNumber: ExtendedSerialNumber, };
 
+export type Gen2BorderCrossingRecord = { timeStamp: TimeReal, countryLeft: NationNumeric, countryEntered: NationNumeric, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
+
+export type Gen2BorderCrossings = { borderCrossingPointerNewestRecord: number, cardBorderCrossingRecords: Array<Gen2BorderCrossingRecord>, };
+
 export type Gen2CardData = { header: TachographHeader, cardDataResponses: Gen2CardResponseParameterData, };
 
 export type Gen2CardResponseParameterData = Gen2UnsupportedResponse | Gen2ParsedCard<Gen1DriverCard, Gen2DriverCard> | Gen2ParsedCard<Gen1CompanyCard, Gen2CompanyCard> | Gen2ParsedCard<Gen1WorkshopCard, Gen2WorkshopCard> | Gen2ParsedCard<Gen1ControlCard, Gen2ControlCard>;
@@ -290,7 +294,7 @@ export type Gen2DataInfo = { trepId: VUTransferResponseParameterID, recordType: 
 
 export type Gen2DataInfoGenericRecordArray<T> = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<T>, };
 
-export type Gen2DriverCard = { cardGeneration: ParsedCardGeneration, cardChipIdentification: CardChipIdentification, cardIccIdentification: CardIccIdentification, applicationIdentification: Gen2DriverCardApplicationIdentification, applicationIdentificationV2: Gen2DriverCardApplicationIdentificationV2 | null, cardDownload: TimeReal | null, eventsData: CardEventData | null, faultsData: CardFaultData | null, driverActivityData: CardDriverActivity | null, vehiclesUsed: CardVehiclesUsed<Gen2CardVehicleRecord> | null, places: CardPlaceDailyWorkPeriod<Gen2PlaceRecord> | null, currentUsage: CardCurrentUse | null, controlActivityData: CardControlActivityDataRecord | null, identification: Identification | null, drivingLicenceInformation: CardDrivingLicenceInformation | null, specificConditions: Gen2SpecificConditions | null, vehicleUnitsUsed: Gen2CardVehicleUnitsUsed | null, gnssPlaces: Gen2GnssAccumulatedDriving | null, cardCertificate: Gen2Certificate | null, caCertificate: Gen2Certificate | null, cardSignCertificate: Gen2Certificate | null, linkCertificate: Gen2Certificate | null, cardNotes: string, dataFiles: { [key in CardFileID]?: CardFileData }, };
+export type Gen2DriverCard = { cardGeneration: ParsedCardGeneration, cardChipIdentification: CardChipIdentification, cardIccIdentification: CardIccIdentification, applicationIdentification: Gen2DriverCardApplicationIdentification, applicationIdentificationV2: Gen2DriverCardApplicationIdentificationV2 | null, cardDownload: TimeReal | null, eventsData: CardEventData | null, faultsData: CardFaultData | null, driverActivityData: CardDriverActivity | null, vehiclesUsed: CardVehiclesUsed<Gen2CardVehicleRecord> | null, places: CardPlaceDailyWorkPeriod<Gen2PlaceRecord> | null, currentUsage: CardCurrentUse | null, controlActivityData: CardControlActivityDataRecord | null, identification: Identification | null, drivingLicenceInformation: CardDrivingLicenceInformation | null, specificConditions: Gen2SpecificConditions | null, vehicleUnitsUsed: Gen2CardVehicleUnitsUsed | null, gnssPlaces: Gen2GnssAccumulatedDriving | null, borderCrossings: Gen2BorderCrossings | null, loadUnloadOperations: Gen2LoadUnloadOperations | null, loadTypeEntries: Gen2LoadTypeEntries | null, cardCertificate: Gen2Certificate | null, caCertificate: Gen2Certificate | null, cardSignCertificate: Gen2Certificate | null, linkCertificate: Gen2Certificate | null, cardNotes: string, dataFiles: { [key in CardFileID]?: CardFileData }, };
 
 export type Gen2DriverCardApplicationIdentification = { typeOfTachographCardId: EquipmentType, cardStructureVersion: CardStructureVersion, noOfEventsPerType: number, noOfFaultsPerType: number, activityStructureLength: number, noOfCardVehicleRecords: number, noOfCardPlaceRecords: number, noOfGnssadRecords: number, noOfSpecificConditionRecords: number, noOfCardVehicleUnitRecords: number, };
 
@@ -319,6 +323,14 @@ export type Gen2GnssAccumulatedDrivingRecord = { timeStamp: TimeReal, gnssPlaceR
 export type Gen2GnssPlaceAuthRecord = { timeStamp: TimeReal, gnssAccuracy: number, geoCoordinates: Gen2GeoCoordinate, authenticationStatus: number, };
 
 export type Gen2GnssPlaceRecord = { timeStamp: TimeReal, gnssAccuracy: number, geoCoordinates: Gen2GeoCoordinate, };
+
+export type Gen2LoadTypeEntries = { loadTypeEntryPointerNewestRecord: number, cardLoadTypeEntryRecords: Array<Gen2LoadTypeEntryRecord>, };
+
+export type Gen2LoadTypeEntryRecord = { timeStamp: TimeReal, loadTypeEntered: LoadType, };
+
+export type Gen2LoadUnloadOperations = { loadUnloadPointerNewestRecord: number, cardLoadUnloadRecords: Array<Gen2LoadUnloadRecord>, };
+
+export type Gen2LoadUnloadRecord = { operationType: OperationType, timeStamp: TimeReal, country: NationNumeric, region: RegionNumeric, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
 
 export type Gen2ManufacturerSpecificEventFaultData = { manufacturerCode: number, manufacturerSpecificErrorCode: Array<number>, };
 
@@ -420,6 +432,8 @@ export type HolderName = { holderSurname: Name, holderFirstNames: Name, };
 
 export type Identification = CompanyCardIdentification | DriverCardIdentification | ControlCardIdentification | WorkshopCardIdentification;
 
+export type LoadType = "Undefined" | "Goods" | "Passengers" | "Unknown";
+
 export type ManualInputFlag = "NoEntry" | "ManualEntries" | "Unknown";
 
 export type Name = string;
@@ -427,6 +441,8 @@ export type Name = string;
 export type NationNumeric = "Unknown" | "Austria" | "Albania" | "Andorra" | "Armenia" | "Azerbaijan" | "Belgium" | "Bulgaria" | "BosniaAndHerzegovina" | "Belarus" | "Switzerland" | "Cyprus" | "CzechRepublic" | "Germany" | "Denmark" | "Spain" | "Estonia" | "France" | "Finland" | "Liechtenstein" | "FaeroeIslands" | "UnitedKingdom" | "Georgia" | "Greece" | "Hungary" | "Croatia" | "Italy" | "Ireland" | "Iceland" | "Kazakhstan" | "Luxembourg" | "Lithuania" | "Latvia" | "Malta" | "Monaco" | "RepublicOfMoldova" | "Macedonia" | "Norway" | "Netherlands" | "Portugal" | "Poland" | "Romania" | "SanMarino" | "RussianFederation" | "Sweden" | "Slovakia" | "Slovenia" | "Turkmenistan" | "Turkey" | "Ukraine" | "VaticanCity" | "Yugoslavia" | "Montenegro" | "Serbia" | "Uzbekistan" | "Tajikistan" | "KyrgyzRepublic" | "Israel" | "RFU3A" | "RFU3B" | "RFU3C" | "RFU3D" | "RFU3E" | "RFU3F" | "RFU40" | "RFU41" | "RFU42" | "RFU44" | "RFU45A" | "RFU46" | "RFU47" | "RFU48" | "RFU49" | "RFU4A" | "RFU4B" | "RFU4C" | "RFU4D" | "RFU4E" | "RFU4F" | "RFU50" | "RFU51" | "RFU52" | "RFU54" | "RFU55A" | "RFU56" | "RFU57" | "RFU58" | "RFU59" | "RFU5A" | "RFU5B" | "RFU5C" | "RFU5D" | "RFU5E" | "RFU5F" | "RFU60" | "RFU61" | "RFU62" | "RFU64" | "RFU65A" | "RFU66" | "RFU67" | "RFU68" | "RFU69" | "RFU6A" | "RFU6B" | "RFU6C" | "RFU6D" | "RFU6E" | "RFU6F" | "RFU70" | "RFU71" | "RFU72" | "RFU74" | "RFU75A" | "RFU76" | "RFU77" | "RFU78" | "RFU79" | "RFU7A" | "RFU7B" | "RFU7C" | "RFU7D" | "RFU7E" | "RFU7F" | "RFU80" | "RFU81" | "RFU82" | "RFU84" | "RFU85A" | "RFU86" | "RFU87" | "RFU88" | "RFU89" | "RFU8A" | "RFU8B" | "RFU8C" | "RFU8D" | "RFU8E" | "RFU8F" | "RFU90" | "RFU91" | "RFU92" | "RFU94" | "RFU95A" | "RFU96" | "RFU97" | "RFU98" | "RFU99" | "RFU9A" | "RFU9B" | "RFU9C" | "RFU9D" | "RFU9E" | "RFU9F" | "RFUA0" | "RFUA1" | "RFUA2" | "RFUA4" | "RFUA5A" | "RFUA6" | "RFUA7" | "RFUA8" | "RFUA9" | "RFUAA" | "RFUAB" | "RFUAC" | "RFUAD" | "RFUAE" | "RFUAF" | "RFUB0" | "RFUB1" | "RFUB2" | "RFUB4" | "RFUB5A" | "RFUB6" | "RFUB7" | "RFUB8" | "RFUB9" | "RFUBA" | "RFUBB" | "RFUBC" | "RFUBD" | "RFUBE" | "RFUBF" | "RFUC0" | "RFUC1" | "RFUC2" | "RFUC4" | "RFUC5A" | "RFUC6" | "RFUC7" | "RFUC8" | "RFUC9" | "RFUCA" | "RFUCB" | "RFUCC" | "RFUCD" | "RFUCE" | "RFUCF" | "RFUD0" | "RFUD1" | "RFUD2" | "RFUD4" | "RFUD5A" | "RFUD6" | "RFUD7" | "RFUD8" | "RFUD9" | "RFUDA" | "RFUDB" | "RFUDC" | "RFUDD" | "RFUDE" | "RFUDF" | "RFUE0" | "RFUE1" | "RFUE2" | "RFUE4" | "RFUE5A" | "RFUE6" | "RFUE7" | "RFUE8" | "RFUE9" | "RFUEA" | "RFUEB" | "RFUEC" | "RFUED" | "RFUEE" | "RFUEF" | "RFUF0" | "RFUF1" | "RFUF2" | "RFUF4" | "RFUF5A" | "RFUF6" | "RFUF7" | "RFUF8" | "RFUF9" | "RFUFA" | "RFUFB" | "RFUFC" | "EuropeanCommunity" | "RestOfEurope" | "RestOfTheWorld";
 
 export type OdometerShort = number | null;
+
+export type OperationType = "Reserved" | "Load" | "Unload" | "SimultaneousLoadAndUnload" | "Unknown";
 
 export type ParsedCardGeneration = "Gen1" | "Gen2" | "Combined";
 
