@@ -452,6 +452,8 @@ export type RecordType = "Unknown" | "ActivityChangeInfo" | "CardSlotStatus" | "
 
 export type RegionNumeric = "Unknown" | "Andalucia" | "Aragon" | "Asturias" | "Cantabria" | "Cataluna" | "CastillaLeon" | "CastillaLaMancha" | "Valencia" | "Extremadura" | "Galicia" | "Baleares" | "Canarias" | "LaRioja" | "Madrid" | "Murcia" | "Navarra" | "PaisVasco" | "Ceuta" | "Melilla";
 
+export type SerializedTachographData = { "kind": "vuGen1", "data": Gen1VUData } | { "kind": "vuGen2", "data": Gen2VUData } | { "kind": "cardGen1", "data": Gen1CardData } | { "kind": "cardGen2", "data": Gen2CardData };
+
 export type SpecificConditionRecord = { entryTime: TimeReal, specificConditionType: SpecificConditionType, };
 
 export type SpecificConditionType = "OutOfScopeBegin" | "OutOfScopeEnd" | "FerryTrainCrossing" | "FerryTrainCrossingEnd" | "Unknown";
@@ -495,8 +497,6 @@ export type VerifyStatus = "Invalid" | "Valid" | "InvalidSignatureSize" | "NotHa
 export type VuDetailedSpeedBlock = { speedBlockBeginDate: TimeReal, speedsPerSecond: Array<number>, };
 
 export type VuOverSpeedingControlData = { lastOverspeedControlTime: TimeReal, firstOverspeedSince: TimeReal, numberOfOverspeedSince: number, };
-
-export type WasmTachographData = { "kind": "vuGen1", "data": Gen1VUData } | { "kind": "vuGen2", "data": Gen2VUData } | { "kind": "cardGen1", "data": Gen1CardData } | { "kind": "cardGen2", "data": Gen2CardData };
 
 export type WorkshopCardCalibrationData<T> = { calibrationTotalNumber: number, calibrationPointerNewestRecord: number, calibrationRecords: Array<T>, };
 

@@ -4,7 +4,7 @@ use std::fmt::Write;
 
 use ts_rs::{Config, TS, TypeVisitor};
 
-use crate::WasmTachographData;
+use crate::SerializedTachographData;
 use crate::gen2::{LoadType, OperationType};
 use crate::tacho::{
     ActivityCard, ActivitySource, ActivityType, CalibrationPurpose, CardSlotNumber, CardStatus, ControlType, DrivingStatus,
@@ -66,7 +66,7 @@ pub fn wasm_boundary_declaration() -> String {
     collector.collect::<OperationType>();
     collector.collect::<RegionNumeric>();
     collector.collect::<SpecificConditionType>();
-    collector.collect::<WasmTachographData>();
+    collector.collect::<SerializedTachographData>();
     collector.collect::<VerifyResult>();
 
     let mut output = String::from(

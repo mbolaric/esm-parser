@@ -32,7 +32,7 @@ pub enum TachographData {
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[serde(tag = "kind", content = "data", rename_all = "camelCase")]
-pub enum WasmTachographData {
+pub enum SerializedTachographData {
     #[serde(rename = "vuGen1")]
     VUGen1(gen1::VUData),
     #[serde(rename = "vuGen2")]
@@ -41,7 +41,7 @@ pub enum WasmTachographData {
     CardGen2(gen2::CardData),
 }
 
-impl From<TachographData> for WasmTachographData {
+impl From<TachographData> for SerializedTachographData {
     fn from(value: TachographData) -> Self {
         match value {
             TachographData::VUGen1(data) => Self::VUGen1(data),
