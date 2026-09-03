@@ -23,8 +23,16 @@ impl GeoCoordinate {
         let sign = if (raw & 0x800000) != 0 { -1.0 } else { 1.0 }; // Check the 24th bit
         let value = raw & 0x7FFFFF; // Mask out the sign bit (keep only 23 bits)
 
-        let minutes = value as f64 / 10000.0;
-        let decimal_degrees = minutes / 60.0;
+        // Hex '7FFFFF' (all 23 magnitude bits set) marks an unknown position - not a real DDMM.M value,
+        // so it must not be decoded as one.
+        if value == 0x7FFFFF {
+            return f64::NAN;
+        }
+
+        let ddmm_tenths = value as f64 / 10.0; // = DDMM.M (or DDDMM.M)
+        let degrees = (ddmm_tenths / 100.0).floor();
+        let minutes = ddmm_tenths - degrees * 100.0;
+        let decimal_degrees = degrees + minutes / 60.0;
 
         sign * decimal_degrees
     }
@@ -38,5 +46,43 @@ impl Readable<GeoCoordinate> for GeoCoordinate {
         let longitude = GeoCoordinate::bytes_to_coordinate(longitude_bytes);
 
         Ok(Self { latitude, longitude })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use binary_data::BinMemoryBuffer;
+
+    use super::*;
+
+    #[test]
+    fn decodes_a_positive_ddmm_tenths_latitude_and_longitude() {
+        // Latitude magnitude 47508 (0x00B994) = DDMM.M 4750.8 -> 47 deg,
+        // 50.8 min -> 47.846666... N. Longitude magnitude 3334 (0x000D06) = DDMM.M 333.4 -> 3 deg, 33.4 min -> 3.556666... E.
+        let mut reader = BinMemoryBuffer::from(vec![0x00, 0xB9, 0x94, 0x00, 0x0D, 0x06]);
+        let value = GeoCoordinate::read(&mut reader).expect("geo coordinate should parse");
+
+        assert!((value.latitude - 47.846_666_666_666_67).abs() < 1e-9);
+        assert!((value.longitude - 3.556_666_666_666_67).abs() < 1e-9);
+    }
+
+    #[test]
+    fn decodes_a_negative_latitude_using_the_24th_bit_as_sign() {
+        // Same magnitude as above (47508 / 0x00B994) with the sign bit set.
+        let mut reader = BinMemoryBuffer::from(vec![0x80, 0xB9, 0x94, 0x00, 0x0D, 0x06]);
+        let value = GeoCoordinate::read(&mut reader).expect("geo coordinate should parse");
+
+        assert!((value.latitude - -47.846_666_666_666_67).abs() < 1e-9);
+    }
+
+    #[test]
+    fn decodes_the_unknown_position_sentinel_as_nan() {
+        // Hex '7FFFFF' (all 23 magnitude bits set) is the spec's explicit
+        // "unknown position" marker, not a real DDMM.M value.
+        let mut reader = BinMemoryBuffer::from(vec![0x7F, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF]);
+        let value = GeoCoordinate::read(&mut reader).expect("geo coordinate should parse");
+
+        assert!(value.latitude.is_nan());
+        assert!(value.longitude.is_nan());
     }
 }
