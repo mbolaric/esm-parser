@@ -23,7 +23,7 @@ const DATA_PATTERN: [u8; 15] = [48, 33, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 
 const SIGNATURE_PADDING: [u8; 90] = [0xFF; 90];
 
 #[derive(Debug)]
-struct RsaPublicKey {
+pub(in crate::tachograph_gen1) struct RsaPublicKey {
     modulus: BigUint,
     exponent: BigUint,
 }
@@ -42,13 +42,13 @@ impl RsaPublicKey {
 }
 
 #[derive(Debug)]
-struct ECPKCertificate {
-    holder_reference: [u8; CAR_SIZE],
-    rsa_public_key: RsaPublicKey,
+pub(in crate::tachograph_gen1) struct ECPKCertificate {
+    pub(in crate::tachograph_gen1) holder_reference: [u8; CAR_SIZE],
+    pub(in crate::tachograph_gen1) rsa_public_key: RsaPublicKey,
 }
 
 impl ECPKCertificate {
-    fn new(data: &[u8; 144]) -> Result<Self> {
+    pub(in crate::tachograph_gen1) fn new(data: &[u8; 144]) -> Result<Self> {
         let holder_reference = data[..CAR_SIZE]
             .try_into()
             .map_err(|_| Error::VerifyError("Could not get holder reference from ECPKCertificate".to_string()))?;
@@ -61,7 +61,7 @@ impl ECPKCertificate {
 }
 
 #[derive(Debug)]
-struct Certificate {
+pub(in crate::tachograph_gen1) struct Certificate {
     signature: [u8; SIG_SIZE],
     public_key_remainder: [u8; PKR_SIZE],
     certification_authority_reference: [u8; CAR_SIZE],
@@ -100,7 +100,7 @@ impl Certificate {
 }
 
 #[derive(Debug)]
-struct DecryptedCertificate {
+pub(in crate::tachograph_gen1) struct DecryptedCertificate {
     pub end_of_validity: TimeReal,
     pub holder_reference: [u8; CAR_SIZE],
     pub rsa_public_key: RsaPublicKey,
@@ -122,46 +122,35 @@ impl DecryptedCertificate {
     }
 }
 
-fn create_certificate_from(card_file_data: &CardFileData) -> Result<Certificate> {
-    let signature = card_file_data.data.as_ref().ok_or_else(|| Error::VerifyError("Missing Certificate Data.".to_string()))?;
-
-    let signature_array: &[u8; 194] = signature
-        .as_slice()
-        .try_into()
-        .map_err(|_| Error::VerifyError("Invalid signature length in Certificate.".to_string()))?;
+pub(in crate::tachograph_gen1) fn certificate_from_bytes(data: &[u8]) -> Result<Certificate> {
+    let signature_array: &[u8; 194] =
+        data.try_into().map_err(|_| Error::VerifyError("Invalid signature length in Certificate.".to_string()))?;
 
     Certificate::from_bytes(signature_array)
 }
 
-fn decrypt_ca_certificate(certificate: &Certificate, ec_pk_certificate: &ECPKCertificate) -> Result<DecryptedCertificate> {
-    if certificate.certification_authority_reference != ec_pk_certificate.holder_reference {
+fn create_certificate_from(card_file_data: &CardFileData) -> Result<Certificate> {
+    let signature = card_file_data.data.as_ref().ok_or_else(|| Error::VerifyError("Missing Certificate Data.".to_string()))?;
+    certificate_from_bytes(signature)
+}
+
+/// Decrypts `certificate` against its issuer's RSA public key and holder
+/// reference. `issuer_holder_reference`/`issuer_rsa_public_key` come from
+/// either an `ECPKCertificate` (the ERCA root) or a `DecryptedCertificate`
+/// (an already-verified link earlier in the chain) — both certify the next
+/// certificate down the same way, so this does not need to know which.
+pub(in crate::tachograph_gen1) fn decrypt_certificate(
+    certificate: &Certificate,
+    issuer_holder_reference: [u8; CAR_SIZE],
+    issuer_rsa_public_key: &RsaPublicKey,
+) -> Result<DecryptedCertificate> {
+    if certificate.certification_authority_reference != issuer_holder_reference {
         return Err(Error::VerifyError(
-            "CA Certification authority reference and ERCA holder reference are not same".to_string(),
+            "Certification authority reference and issuer holder reference are not the same.".to_string(),
         ));
     }
 
-    let perf_ret = ec_pk_certificate.rsa_public_key.perform(&certificate.signature);
-    if perf_ret.first() != Some(&RSA_SIGNATURE_START_SENTINEL) || perf_ret.last() != Some(&RSA_SIGNATURE_END_SENTINEL) {
-        return Err(Error::VerifyError(format!(
-            "CA RsaPublicKey need to start with {:2X} and end with {:2X}",
-            RSA_SIGNATURE_START_SENTINEL, RSA_SIGNATURE_END_SENTINEL
-        )));
-    }
-
-    let cr: [u8; CR_SIZE] =
-        perf_ret[1..107].try_into().map_err(|_| Error::VerifyError("Could not get CR from RsaPublicKey".to_string()))?;
-    let h: [u8; HASH_SIZE] =
-        perf_ret[107..127].try_into().map_err(|_| Error::VerifyError("Could not get HASH from RsaPublicKey".to_string()))?;
-
-    certificate.decrypt(&cr, &h)
-}
-
-fn decrypt_card_certificate(certificate: &Certificate, ca_certificate: &DecryptedCertificate) -> Result<DecryptedCertificate> {
-    if certificate.certification_authority_reference != ca_certificate.holder_reference {
-        return Err(Error::VerifyError("Certification authority reference and ERCA holder reference are not same".to_string()));
-    }
-
-    let perf_ret = ca_certificate.rsa_public_key.perform(&certificate.signature);
+    let perf_ret = issuer_rsa_public_key.perform(&certificate.signature);
     if perf_ret.first() != Some(&RSA_SIGNATURE_START_SENTINEL) || perf_ret.last() != Some(&RSA_SIGNATURE_END_SENTINEL) {
         return Err(Error::VerifyError(format!(
             "RsaPublicKey need to start with {:2X} and end with {:2X}",
@@ -236,10 +225,13 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificat
     Ok(result)
 }
 
-fn result_status(items: &[VerifyItem]) -> VerifyResultStatus {
-    if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+/// Aggregates statuses (`VerifyItem` or `VuVerifyItem`) into one overall result status.
+pub(in crate::tachograph_gen1) fn result_status<'a>(
+    statuses: impl Iterator<Item = &'a VerifyStatus> + Clone,
+) -> VerifyResultStatus {
+    if statuses.clone().all(|status| matches!(status, VerifyStatus::Valid)) {
         VerifyResultStatus::Valid
-    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+    } else if statuses.clone().any(|status| matches!(status, VerifyStatus::Valid)) {
         VerifyResultStatus::PartiallyValid
     } else {
         VerifyResultStatus::Invalid
@@ -256,9 +248,10 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     let ca_certificate = create_certificate_from(ca_cert_file)?;
     let card_certificate = create_certificate_from(card_cert_file)?;
 
-    let ca_decrypted = decrypt_ca_certificate(&ca_certificate, &ec_pk_certificate)?;
+    let ca_decrypted =
+        decrypt_certificate(&ca_certificate, ec_pk_certificate.holder_reference, &ec_pk_certificate.rsa_public_key)?;
     debug!("CA Decrypted: {:?}", ca_decrypted);
-    let card_decrypted = decrypt_card_certificate(&card_certificate, &ca_decrypted)?;
+    let card_decrypted = decrypt_certificate(&card_certificate, ca_decrypted.holder_reference, &ca_decrypted.rsa_public_key)?;
     debug!("Card Decrypted: {:?}", card_decrypted);
 
     let mut result = vec![
@@ -276,7 +269,8 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     let verifed_data = verify_data(data_files, &card_decrypted)?;
     result.extend(verifed_data);
 
-    Ok(VerifyResult { status: result_status(&result), result })
+    let status = result_status(result.iter().map(|item| &item.status));
+    Ok(VerifyResult { status, result })
 }
 
 #[cfg(test)]
@@ -328,11 +322,25 @@ mod tests {
 
     #[test]
     fn test_result_status_reflects_per_file_results() {
-        assert!(matches!(result_status(&[verify_item(VerifyStatus::Valid)]), VerifyResultStatus::Valid));
-        assert!(matches!(
-            result_status(&[verify_item(VerifyStatus::Valid), verify_item(VerifyStatus::Invalid)]),
-            VerifyResultStatus::PartiallyValid
-        ));
-        assert!(matches!(result_status(&[verify_item(VerifyStatus::Invalid)]), VerifyResultStatus::Invalid));
+        let valid = [verify_item(VerifyStatus::Valid)];
+        assert!(matches!(result_status(valid.iter().map(|item| &item.status)), VerifyResultStatus::Valid));
+
+        let mixed = [verify_item(VerifyStatus::Valid), verify_item(VerifyStatus::Invalid)];
+        assert!(matches!(result_status(mixed.iter().map(|item| &item.status)), VerifyResultStatus::PartiallyValid));
+
+        let invalid = [verify_item(VerifyStatus::Invalid)];
+        assert!(matches!(result_status(invalid.iter().map(|item| &item.status)), VerifyResultStatus::Invalid));
+    }
+
+    #[test]
+    fn decrypt_certificate_rejects_an_authority_reference_that_does_not_match_the_issuer() {
+        let mut certificate_bytes = [0u8; 194];
+        certificate_bytes[186..194].copy_from_slice(&[0x20; CAR_SIZE]);
+        let certificate = Certificate::from_bytes(&certificate_bytes).unwrap();
+        let issuer_rsa_public_key = RsaPublicKey::new([0u8; RSA_KEY_SIZE]);
+
+        let error = decrypt_certificate(&certificate, [0x99; CAR_SIZE], &issuer_rsa_public_key).unwrap_err();
+
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("issuer holder reference")));
     }
 }

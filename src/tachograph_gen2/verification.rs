@@ -1,3 +1,5 @@
+use std::fmt;
+
 use bp256::BrainpoolP256r1;
 use bp256::r1::ecdsa::Signature;
 use ecdsa::VerifyingKey;
@@ -10,7 +12,7 @@ use crate::tacho::{
 };
 use crate::{Error, Result};
 
-const GEN2_CERTIFICATE_SIZE: usize = 205;
+pub(in crate::tachograph_gen2) const GEN2_CERTIFICATE_SIZE: usize = 205;
 const CAR_SIZE: usize = 8;
 const CHR_SIZE: usize = 8;
 const CHA_SIZE: usize = 7;
@@ -198,7 +200,7 @@ impl EcdsaPublicKey {
 }
 
 #[derive(Debug, Clone)]
-struct Certificate {
+pub(in crate::tachograph_gen2) struct Certificate {
     certificate_authority_reference: [u8; CAR_SIZE],
     certificate_holder_authorisation: [u8; CHA_SIZE],
     domain_parameters: String,
@@ -310,13 +312,13 @@ impl Certificate {
 }
 
 #[derive(Debug)]
-struct ERCACertificate {
+pub(in crate::tachograph_gen2) struct ERCACertificate {
     holder_reference: [u8; CHR_SIZE],
     ecdsa_public_key: EcdsaPublicKey,
 }
 
 impl ERCACertificate {
-    fn new_at(data: &[u8; GEN2_CERTIFICATE_SIZE], validation_time: u32) -> Result<Self> {
+    pub(in crate::tachograph_gen2) fn new_at(data: &[u8; GEN2_CERTIFICATE_SIZE], validation_time: u32) -> Result<Self> {
         let certificate = Certificate::from_bytes(data)?;
         validate_certificate_validity(&certificate, validation_time)?;
         validate_certificate_role(&certificate, EquipmentType::EuropeanRootCA, "ERCA")?;
@@ -330,8 +332,8 @@ impl ERCACertificate {
 }
 
 #[derive(Debug)]
-struct VerifiedCertificate {
-    end_of_validity: TimeReal,
+pub(in crate::tachograph_gen2) struct VerifiedCertificate {
+    pub(in crate::tachograph_gen2) end_of_validity: TimeReal,
     holder_reference: [u8; CHR_SIZE],
     ecdsa_public_key: EcdsaPublicKey,
 }
@@ -346,7 +348,7 @@ impl VerifiedCertificate {
     }
 }
 
-fn current_unix_timestamp() -> Result<u32> {
+pub(in crate::tachograph_gen2) fn current_unix_timestamp() -> Result<u32> {
     u32::try_from(time::OffsetDateTime::now_utc().unix_timestamp())
         .map_err(|_| Error::VerifyError("Current system time is outside the supported tachograph range.".to_string()))
 }
@@ -374,26 +376,52 @@ fn validate_certificate_role(certificate: &Certificate, expected: EquipmentType,
     Ok(())
 }
 
-fn validate_card_sign_role(certificate: &Certificate) -> Result<()> {
+#[derive(Debug, Clone, Copy)]
+pub(in crate::tachograph_gen2) enum SigningRole {
+    CardSign,
+    VuSign,
+}
+
+impl SigningRole {
+    fn allowed_equipment_types(self) -> &'static [EquipmentType] {
+        match self {
+            Self::CardSign => &[EquipmentType::DriverCardSign, EquipmentType::WorkshopCardSign],
+            Self::VuSign => &[EquipmentType::VehicleUnitSign],
+        }
+    }
+}
+
+impl fmt::Display for SigningRole {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::CardSign => write!(f, "Card_Sign"),
+            Self::VuSign => write!(f, "VU_Sign"),
+        }
+    }
+}
+
+/// Checks that `certificate`'s CHA equipment type matches `role`.
+fn validate_sign_role(certificate: &Certificate, role: SigningRole) -> Result<()> {
     let equipment_type = certificate.certificate_holder_authorisation[CHA_SIZE - 1];
-    if equipment_type != EquipmentType::DriverCardSign as u8 && equipment_type != EquipmentType::WorkshopCardSign as u8 {
-        return Err(Error::VerifyError(format!(
-            "Card signing certificate has unsupported equipment type {equipment_type:#04X}."
-        )));
+    if !role.allowed_equipment_types().iter().any(|expected| equipment_type == expected.clone() as u8) {
+        return Err(Error::VerifyError(format!("{role} certificate has unsupported equipment type {equipment_type:#04X}.")));
     }
     Ok(())
 }
 
-fn create_certificate_from(card_file_data: &CardFileData) -> Result<Certificate> {
-    let data = card_file_data.data.as_ref().ok_or_else(|| Error::VerifyError("Missing certificate data.".to_string()))?;
+pub(in crate::tachograph_gen2) fn certificate_from_bytes(data: &[u8]) -> Result<Certificate> {
     let certificate: &[u8; GEN2_CERTIFICATE_SIZE] = data
-        .as_slice()
         .try_into()
         .map_err(|_| Error::VerifyError(format!("Invalid Gen2 certificate length: expected {GEN2_CERTIFICATE_SIZE} bytes.")))?;
     Certificate::from_bytes(certificate)
 }
 
-fn verify_ca_certificate_at(
+fn create_certificate_from(card_file_data: &CardFileData) -> Result<Certificate> {
+    let data = card_file_data.data.as_ref().ok_or_else(|| Error::VerifyError("Missing certificate data.".to_string()))?;
+    certificate_from_bytes(data)
+}
+
+pub(in crate::tachograph_gen2) fn verify_ca_certificate_at(
     certificate: &Certificate,
     erca_certificate: &ERCACertificate,
     validation_time: u32,
@@ -409,22 +437,23 @@ fn verify_ca_certificate_at(
     VerifiedCertificate::new(certificate)
 }
 
-fn verify_card_certificate_at(
+/// Verifies a leaf certificate (a card- or VU-signing certificate) against
+/// its issuing MSCA, for the given `role`.
+pub(in crate::tachograph_gen2) fn verify_leaf_certificate_at(
     certificate: &Certificate,
     ca_certificate: &VerifiedCertificate,
     validation_time: u32,
+    role: SigningRole,
 ) -> Result<VerifiedCertificate> {
     if certificate.certificate_authority_reference != ca_certificate.holder_reference {
-        return Err(Error::VerifyError("Card_Sign CAR and MSCA CHR are not the same.".to_string()));
+        return Err(Error::VerifyError(format!("{role} CAR and MSCA CHR are not the same.")));
     }
-    validate_card_sign_role(certificate)?;
+    validate_sign_role(certificate, role)?;
     validate_certificate_validity(certificate, validation_time)?;
     ca_certificate.ecdsa_public_key.verify(&Sha256::digest(&certificate.certificate_body), &certificate.certificate_signature)?;
     VerifiedCertificate::new(certificate)
 }
 
-/// These elementary files are present on a signed Gen2 card, but are not
-/// themselves protected by the card-signing key.
 fn is_non_signed_file(id: &CardFileID) -> bool {
     matches!(
         id,
@@ -471,10 +500,13 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &VerifiedCertificate
     Ok(result)
 }
 
-fn result_status(items: &[VerifyItem]) -> VerifyResultStatus {
-    if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+/// Aggregates statuses (`VerifyItem` or `VuVerifyItem`) into one overall result status.
+pub(in crate::tachograph_gen2) fn result_status<'a>(
+    statuses: impl Iterator<Item = &'a VerifyStatus> + Clone,
+) -> VerifyResultStatus {
+    if statuses.clone().all(|status| matches!(status, VerifyStatus::Valid)) {
         VerifyResultStatus::Valid
-    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+    } else if statuses.clone().any(|status| matches!(status, VerifyStatus::Valid)) {
         VerifyResultStatus::PartiallyValid
     } else {
         VerifyResultStatus::Invalid
@@ -500,7 +532,8 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) 
     let card_sign_certificate = create_certificate_from(card_certificate_file)?;
 
     let msca_verified = verify_ca_certificate_at(&msca_certificate, &erca_certificate, validation_time)?;
-    let card_verified = verify_card_certificate_at(&card_sign_certificate, &msca_verified, validation_time)?;
+    let card_verified =
+        verify_leaf_certificate_at(&card_sign_certificate, &msca_verified, validation_time, SigningRole::CardSign)?;
 
     let mut result = vec![
         VerifyItem {
@@ -516,7 +549,8 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) 
     ];
     result.extend(verify_data(data_files, &card_verified)?);
 
-    Ok(VerifyResult { status: result_status(&result), result })
+    let status = result_status(result.iter().map(|item| &item.status));
+    Ok(VerifyResult { status, result })
 }
 
 #[cfg(test)]

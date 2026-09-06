@@ -39,6 +39,7 @@ mod vu_specific_condition_data;
 mod vu_technical_data;
 mod vu_time_adjustment_data;
 mod vu_transfer_response_parameter_data;
+mod vu_verification;
 mod workshop_card;
 mod workshop_card_application_identification;
 mod workshop_card_calibration_record;
@@ -79,6 +80,11 @@ pub use vu_specific_condition_data::VuSpecificConditionData;
 pub use vu_technical_data::VuTechnicalData;
 pub use vu_time_adjustment_data::{VuTimeAdjustmentData, VuTimeAdjustmentRecord};
 pub use vu_transfer_response_parameter_data::VUTransferResponseParameterData;
+/// VU verification, namespaced the same way `gen1`/`gen2` namespace card
+/// verification: `verify` is the plain name, disambiguated by module path.
+pub mod vu {
+    pub use super::vu_verification::verify;
+}
 pub use workshop_card::WorkshopCard;
 pub use workshop_card_application_identification::WorkshopCardApplicationIdentification;
 pub use workshop_card_calibration_record::WorkshopCardCalibrationRecord;

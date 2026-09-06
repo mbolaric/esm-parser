@@ -77,6 +77,7 @@ mod vu_speed;
 mod vu_technical_data;
 mod vu_time_adjustment_record;
 mod vu_transfer_response_parameter_data;
+mod vu_verification;
 mod workshop_card;
 mod workshop_card_application_identification;
 mod workshop_card_calibration_record;
@@ -127,6 +128,11 @@ pub use vehicle_identification_number_record_array::VehicleIdentificationNumberR
 pub use vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray;
 pub use vehicle_registration_number_record_array::VehicleRegistrationNumberRecordArray;
 pub use verification::verify;
+/// VU verification, namespaced the same way `gen1`/`gen2` namespace card
+/// verification: `verify` is the plain name, disambiguated by module path.
+pub mod vu {
+    pub use super::vu_verification::verify;
+}
 pub use vu_activity::VUActivity;
 pub use vu_activity_daily_record_array::VuActivityDailyRecordArray;
 pub use vu_calibration_record::VuCalibrationRecord;

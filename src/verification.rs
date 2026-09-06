@@ -1,15 +1,15 @@
 //! Signature verification for tachograph files.
 //!
 //! This module provides functionality to verify the digital signatures of tachograph data files.
-//! It supports one Gen1 or Gen2 tachograph-card application at a time, dispatching to the
-//! appropriate verification logic after validating the corresponding European Root
-//! Certification Authority (ERCA) certificate size.
+//! It supports one Gen1 or Gen2 tachograph-card application, or one VU Overview download block,
+//! at a time, dispatching to the appropriate verification logic after validating the corresponding
+//! European Root Certification Authority (ERCA) certificate size.
 
 use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
 
-use crate::tacho::{CardFilesMap, CardGeneration, VerifyResult};
+use crate::tacho::{CardFilesMap, CardGeneration, VerifyResult, VuVerifyResult};
 use crate::{Error, Result, gen1, gen2};
 
 /// Verifies the signature of tachograph card data files.
@@ -108,6 +108,83 @@ pub fn verify_card_with_erca_path(
     let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
     file.read_to_end(&mut erca_pk)?;
     verify_card(&generation, data_files, &erca_pk)
+}
+
+/// A parsed VU Overview download block, tagged by generation.
+pub enum VuOverview<'a> {
+    Gen1(&'a gen1::VuOverview),
+    Gen2(&'a gen2::VUOverview),
+}
+
+/// Verifies a downloaded VU's own certificate chain (ERCA -> MSCA -> VU).
+///
+/// This does not verify any downloaded VU data record (Activities, Events
+/// and Faults, Speed, Technical Data) against that chain..
+///
+/// # Arguments
+///
+/// * `vu_overview` - The parsed VU Overview download block, tagged by generation.
+/// * `erca_pk` - The ERCA public key for that same generation.
+///   - For `Gen1`, this must be 144 bytes.
+///   - For `Gen2`, this must be 205 bytes.
+///
+/// # Errors
+///
+/// This function can fail if:
+/// * `erca_pk` is empty (`Error::EmptyInputData`).
+/// * The length of `erca_pk` does not match the expected length for vu_overview`'s generation.
+/// * Any certificate in the chain fails to parse.
+pub fn verify_vu(vu_overview: &VuOverview<'_>, erca_pk: &[u8]) -> Result<VuVerifyResult> {
+    if erca_pk.is_empty() {
+        return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
+    }
+    match vu_overview {
+        VuOverview::Gen1(overview) => {
+            if erca_pk.len() != 144 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen1 VU (Gen1 = 144 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            gen1::vu::verify(overview, erca_pk.try_into().unwrap())
+        }
+        VuOverview::Gen2(overview) => {
+            if erca_pk.len() != 205 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen2 VU (Gen2 = 205 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            gen2::vu::verify(overview, erca_pk.try_into().unwrap())
+        }
+    }
+}
+
+/// Verifies signatures by loading the ERCA public key from a file path.
+///
+/// This is a convenience function that reads the ERCA public key from the specified file path
+/// and then calls the main `verify_card` function to perform the signature verification.
+///
+/// # Arguments
+///
+/// * `vu_overview` - The parsed VU Overview download block, tagged by generation.
+/// * `erca_pk_file_path` - The file system path to the ERCA public key file.
+///
+/// # Returns
+///
+/// A `Result` containing a `VerifyResult` on success.
+///
+/// # Errors
+///
+/// This function can fail if:
+/// * `erca_pk` is empty (`Error::EmptyInputData`).
+/// * The length of `erca_pk` does not match the expected length for vu_overview`'s generation.
+/// * Any certificate in the chain fails to parse.
+pub fn verify_vu_with_erca_path(vu_overview: &VuOverview<'_>, erca_pk_file_path: &str) -> Result<VuVerifyResult> {
+    let mut file = BinReader::open(erca_pk_file_path)?;
+    let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
+    file.read_to_end(&mut erca_pk)?;
+    verify_vu(vu_overview, &erca_pk)
 }
 
 #[cfg(target_arch = "wasm32")]
