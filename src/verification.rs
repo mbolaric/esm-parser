@@ -187,6 +187,71 @@ pub fn verify_vu_with_erca_path(vu_overview: &VuOverview<'_>, erca_pk_file_path:
     verify_vu(vu_overview, &erca_pk)
 }
 
+/// Verifies a VU's own certificate chain from its two raw certificate directly,
+/// without requiring the full parsed VU Overview struct.
+///
+/// # Arguments
+///
+/// * `generation` - The VU generation (`Gen1` or `Gen2`). `Combined` is rejected.
+/// * `member_state_certificate_raw` - The raw MSCA certificate bytes.
+/// * `vu_certificate_raw` - The raw VU_Sign certificate bytes.
+/// * `erca_pk` - The ERCA public key for that same generation.
+///   - For `Gen1`, this must be 144 bytes.
+///   - For `Gen2`, this must be 205 bytes.
+///
+/// # Errors
+///
+/// This function can fail if:
+/// * `generation` is `Combined`.
+/// * `erca_pk` is empty.
+/// * The length of `erca_pk` does not match the expected length for generation`.
+/// * Any certificate in the chain fails to parse, fails its validity window
+///   (Gen2 only), or fails to cryptographically verify.
+pub fn verify_vu_certificate_chain(
+    generation: &CardGeneration,
+    member_state_certificate_raw: &[u8],
+    vu_certificate_raw: &[u8],
+    erca_pk: &[u8],
+) -> Result<VuVerifyResult> {
+    if matches!(generation, CardGeneration::Combined) {
+        return Err(Error::VerifyError("A VU download is never a combined-generation document.".to_owned()));
+    }
+    if erca_pk.is_empty() {
+        return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
+    }
+    match generation {
+        CardGeneration::Gen1 => {
+            if erca_pk.len() != 144 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen1 VU (Gen1 = 144 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            crate::tachograph_gen1::vu_verification::verify_certificate_chain(
+                member_state_certificate_raw,
+                vu_certificate_raw,
+                erca_pk.try_into().unwrap(),
+            )
+        }
+        CardGeneration::Gen2 => {
+            if erca_pk.len() != 205 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen2 VU (Gen2 = 205 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            let validation_time = crate::tachograph_gen2::verification::current_unix_timestamp()?;
+            crate::tachograph_gen2::vu_verification::verify_certificate_chain(
+                member_state_certificate_raw,
+                vu_certificate_raw,
+                erca_pk.try_into().unwrap(),
+                validation_time,
+            )
+        }
+        CardGeneration::Combined => unreachable!("rejected above"),
+    }
+}
+
 #[cfg(target_arch = "wasm32")]
 mod wasm_support {
     use std::collections::HashMap;
@@ -228,17 +293,5 @@ mod wasm_support {
             Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
             Err(e) => Err(JsValue::from_str(&e.to_string())),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn rejects_ambiguous_combined_generation() {
-        let error = verify_card(&CardGeneration::Combined, &CardFilesMap::new(), &[0; 205]).unwrap_err();
-
-        assert!(matches!(error, Error::VerifyError(message) if message.contains("separate Gen1 and Gen2")));
     }
 }

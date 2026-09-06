@@ -39,7 +39,7 @@ mod vu_specific_condition_data;
 mod vu_technical_data;
 mod vu_time_adjustment_data;
 mod vu_transfer_response_parameter_data;
-mod vu_verification;
+pub(crate) mod vu_verification;
 mod workshop_card;
 mod workshop_card_application_identification;
 mod workshop_card_calibration_record;

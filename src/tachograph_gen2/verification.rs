@@ -348,7 +348,7 @@ impl VerifiedCertificate {
     }
 }
 
-pub(in crate::tachograph_gen2) fn current_unix_timestamp() -> Result<u32> {
+pub(crate) fn current_unix_timestamp() -> Result<u32> {
     u32::try_from(time::OffsetDateTime::now_utc().unix_timestamp())
         .map_err(|_| Error::VerifyError("Current system time is outside the supported tachograph range.".to_string()))
 }
@@ -568,7 +568,9 @@ mod tests {
     fn from_hex(hex: &str) -> Vec<u8> {
         assert_eq!(hex.len() % 2, 0);
         hex.as_bytes()
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|pair| {
                 let value = core::str::from_utf8(pair).unwrap();
                 u8::from_str_radix(value, 16).unwrap()

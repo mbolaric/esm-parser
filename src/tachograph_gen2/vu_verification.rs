@@ -7,7 +7,7 @@ use crate::tachograph_gen2::verification::{
 };
 
 /// Verifies a VU's own certificate chain (ERCA -> MSCA -> VU_Sign).
-fn verify_certificate_chain(
+pub(crate) fn verify_certificate_chain(
     member_state_certificate_raw: &[u8],
     vu_certificate_raw: &[u8],
     erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],

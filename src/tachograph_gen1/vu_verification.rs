@@ -4,7 +4,7 @@ use crate::tacho::{VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult
 use crate::tachograph_gen1::verification::{self, certificate_from_bytes, decrypt_certificate, result_status};
 
 /// Verifies a VU's own certificate chain (ERCA -> MSCA -> VU).
-fn verify_certificate_chain(
+pub(crate) fn verify_certificate_chain(
     member_state_certificate_raw: &[u8],
     vu_certificate_raw: &[u8],
     erca_pk: &[u8; 144],
