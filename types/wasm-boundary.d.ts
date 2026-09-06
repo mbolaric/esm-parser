@@ -370,7 +370,7 @@ export type Gen2VUData = { header: TachographHeader, transferResParams: Array<VU
 
 export type Gen2VUEvents = { vuFaultRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuFaultRecord>, vuEventRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuEventRecord>, vuOverSpeedingControlDataRecordArray: Gen2DataInfoGenericRecordArray<VuOverSpeedingControlData>, VuOverSpeedingEventRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuOverSpeedingEventRecord>, vuTimeAdjustmentRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuTimeAdjustmentRecord>, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
-export type Gen2VUOverview = { trepId: VUTransferResponseParameterID, nemberStateCertificateRecordArray: Gen2MemberStateCertificateRecordArray, vuCertificateRecordArray: Gen2VuCertificateRecordArray, vehicleIdentificationNumberRecordArray: Gen2VehicleIdentificationNumberRecordArray, vehicleRegistrationNumberRecordArray: Gen2VehicleRegistrationNumberRecordArray, CurrentDateTimeRecordArray: Gen2DataInfoGenericRecordArray<TimeReal>, vuDownloadablePeriodRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadablePeriod>, cardSlotsStatusRecordArray: Gen2DataInfoGenericRecordArray<CardSlotStatus>, vuDownloadActivityDataRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadActivityData>, vuCompanyLocksRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuCompanyLocksRecord>, vuControlActivityRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuControlActivityRecord>, signatureRecordArray: Gen2SignatureRecordArray, };
+export type Gen2VUOverview = { trepId: VUTransferResponseParameterID, nemberStateCertificateRecordArray: Gen2MemberStateCertificateRecordArray, memberStateCertificateRaw: Array<number>, vuCertificateRecordArray: Gen2VuCertificateRecordArray, vuCertificateRaw: Array<number>, vehicleIdentificationNumberRecordArray: Gen2VehicleIdentificationNumberRecordArray, vehicleRegistrationNumberRecordArray: Gen2VehicleRegistrationNumberRecordArray, CurrentDateTimeRecordArray: Gen2DataInfoGenericRecordArray<TimeReal>, vuDownloadablePeriodRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadablePeriod>, cardSlotsStatusRecordArray: Gen2DataInfoGenericRecordArray<CardSlotStatus>, vuDownloadActivityDataRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadActivityData>, vuCompanyLocksRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuCompanyLocksRecord>, vuControlActivityRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuControlActivityRecord>, signatureRecordArray: Gen2SignatureRecordArray, };
 
 export type Gen2VUSpeed = { vuDetailedSpeedBlockRecordArray: Gen2DataInfoGenericRecordArray<VuDetailedSpeedBlock>, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
@@ -494,9 +494,15 @@ export type VerifyResultStatus = "Invalid" | "Valid" | "Unsigned" | "PartiallyVa
 
 export type VerifyStatus = "Invalid" | "Valid" | "InvalidSignatureSize" | "NotHaveSignature" | "NotHaveData";
 
+export type VuCertificateKind = "MemberStateCertificate" | "VuCertificate";
+
 export type VuDetailedSpeedBlock = { speedBlockBeginDate: TimeReal, speedsPerSecond: Array<number>, };
 
 export type VuOverSpeedingControlData = { lastOverspeedControlTime: TimeReal, firstOverspeedSince: TimeReal, numberOfOverspeedSince: number, };
+
+export type VuVerifyItem = { certificate: VuCertificateKind, status: VerifyStatus, end_of_validity: TimeReal | null, };
+
+export type VuVerifyResult = { status: VerifyResultStatus, result: Array<VuVerifyItem>, };
 
 export type WorkshopCardCalibrationData<T> = { calibrationTotalNumber: number, calibrationPointerNewestRecord: number, calibrationRecords: Array<T>, };
 
