@@ -55,7 +55,7 @@ pub use place_record::PlaceRecord;
 pub use previous_vehicle_info::PreviousVehicleInfo;
 pub use sensor_paired::SensorPaired;
 pub use specific_conditions::{SpecificConditions, SpecificConditionsParams};
-pub use verification::verify;
+pub use verification::{verify, verify_vu, verify_vu_with_time};
 pub use vu_activity::VUActivity;
 pub use vu_activity_daily_data::VuActivityDailyData;
 pub use vu_calibration_data::VUCalibrationData;

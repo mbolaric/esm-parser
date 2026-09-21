@@ -181,7 +181,7 @@ export type Gen1VUActivity = { dateOfDayDownloaded: TimeReal, odometerValueMidni
 
 export type Gen1VUCalibrationData = { no_of_vu_calibrations: number, calibrations: Array<Gen1VuCalibrationRecord>, };
 
-export type Gen1VUData = { header: TachographHeader, transferResParams: Array<VUTransferResponseParameterItem<Gen1VUTransferResponseParameterData>>, };
+export type Gen1VUData = { header: TachographHeader, transferResParams: Array<VUTransferResponseParameterItem<Gen1VUTransferResponseParameterData>>, dataFiles: Array<VUFileData>, };
 
 export type Gen1VUIdentification = { vuManufacturerName: Name, vuManufacturerAddress: Address, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, vuSoftwareIdentification: Gen1VuSoftwareIdentification, vuManufacturingDate: TimeReal, vuApprovalNumber: string, };
 
@@ -366,7 +366,7 @@ export type Gen2VUActivity = { dateOfDayDownloadedRecordArray: Gen2DataInfoGener
 
 export type Gen2VUCardDownload = { card: Gen2CardData, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
-export type Gen2VUData = { header: TachographHeader, transferResParams: Array<VUTransferResponseParameterItem<Gen2VUTransferResponseParameterData>>, };
+export type Gen2VUData = { header: TachographHeader, transferResParams: Array<VUTransferResponseParameterItem<Gen2VUTransferResponseParameterData>>, dataFiles: Array<VUFileData>, };
 
 export type Gen2VUEvents = { vuFaultRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuFaultRecord>, vuEventRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuEventRecord>, vuOverSpeedingControlDataRecordArray: Gen2DataInfoGenericRecordArray<VuOverSpeedingControlData>, VuOverSpeedingEventRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuOverSpeedingEventRecord>, vuTimeAdjustmentRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuTimeAdjustmentRecord>, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
@@ -478,9 +478,15 @@ cardInVuData: boolean, };
 
 export type TimeReal = string | null;
 
+export type VUFileData = { trepId: VUTransferResponseParameterID, position: number, size: number, signature: Array<number> | null, signatures: Array<Array<number>>, data: Array<number> | null, rawData: Array<number> | null, };
+
 export type VUTransferResponseParameterID = "Unknown" | "Overview" | "Activities" | "EventsAndFaults" | "Speed" | "TechnicalData" | "CardDownload" | "OddballCrashDump" | "Gen2Overview" | "Gen2Activities" | "Gen2EventsAndFaults" | "Gen2Speed" | "Gen2TechnicalData" | "Gen2CardDownload" | "Gen2v2Overview" | "Gen2v2Activities" | "Gen2v2EventsAndFaults" | "Gen2v2Speed" | "Gen2v2TechnicalData";
 
 export type VUTransferResponseParameterItem<D> = { typeId: VUTransferResponseParameterID, position: number, data: D, };
+
+export type VUVerifyItem = { trepId: VUTransferResponseParameterID, position: number, status: VerifyStatus, end_of_validity: TimeReal | null, };
+
+export type VUVerifyResult = { status: VerifyResultStatus, result: Array<VUVerifyItem>, };
 
 export type VehicleRegistrationIdentification = { vehicleRegistrationNation: NationNumeric, vehicleRegistrationNumber: VehicleRegistrationNumber, };
 
@@ -513,3 +519,7 @@ generation: CardGeneration,
 dataFilesMap: unknown,
 ercaPublicKey: Uint8Array,
 ): VerifyResult;
+export function verify_vu(
+dataFiles: Array<VUFileData>,
+ercaPublicKey: Uint8Array,
+): VUVerifyResult;

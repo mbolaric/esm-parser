@@ -145,14 +145,13 @@ pub fn verify_vu_with_time(data_files: &VUFilesList, erca_pk: &[u8], validation_
     if erca_pk.is_empty() {
         return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
     }
-    if erca_pk.len() != 205 {
-        return Err(Error::VerifyError(format!(
-            "ERCA Public Key size of: {}, are not supported (Gen2 VU = 205 bytes).",
-            erca_pk.len()
-        )));
+    match erca_pk.len() {
+        144 => gen1::verify_vu_with_time(data_files, erca_pk.try_into().unwrap(), validation_time),
+        205 => gen2::verify_vu_with_time(data_files, erca_pk.try_into().unwrap(), validation_time),
+        other => Err(Error::VerifyError(format!(
+            "ERCA Public Key size of: {other} bytes is not supported (Gen1 VU = 144 bytes, Gen2 VU = 205 bytes)."
+        ))),
     }
-
-    gen2::verify_vu_with_time(data_files, erca_pk.try_into().unwrap(), validation_time)
 }
 
 /// Verifies VU signatures by loading the ERCA public key from a file path.
@@ -172,7 +171,7 @@ mod wasm_support {
     use wasm_bindgen::prelude::*;
 
     use super::*;
-    use crate::tacho::{CardFileData, CardFileID};
+    use crate::tacho::{CardFileData, CardFileID, VUFilesList};
 
     /// A WASM-bindgen wrapper for the `verify_card` function.
     ///
@@ -200,6 +199,19 @@ mod wasm_support {
             .map_err(|err| JsValue::from_str(&format!("Invalid input: {}", err)))?;
 
         let result = verify_card(&generation, &data_files, erca_pk);
+        match result {
+            Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
+            Err(e) => Err(JsValue::from_str(&e.to_string())),
+        }
+    }
+
+    /// A WASM-bindgen wrapper for the `verify_vu` function.
+    #[wasm_bindgen(js_name = verify_vu, skip_typescript)]
+    pub fn verify_vu_wasm(data_files: JsValue, erca_pk: &[u8]) -> std::result::Result<JsValue, JsValue> {
+        let files: VUFilesList =
+            serde_wasm_bindgen::from_value(data_files).map_err(|err| JsValue::from_str(&format!("Invalid input: {}", err)))?;
+
+        let result = verify_vu(&files, erca_pk);
         match result {
             Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
             Err(e) => Err(JsValue::from_str(&e.to_string())),

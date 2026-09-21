@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::Export;
 use crate::tacho::{CardFileID, TimeReal, VUTransferResponseParameterID};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum VerifyStatus {
     Invalid,
@@ -13,7 +13,7 @@ pub enum VerifyStatus {
     NotHaveData,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VerifyItem {
     pub card_file_id: CardFileID,
@@ -21,7 +21,7 @@ pub struct VerifyItem {
     pub end_of_validity: Option<TimeReal>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VUVerifyItem {
     #[serde(rename = "trepId")]
@@ -31,7 +31,7 @@ pub struct VUVerifyItem {
     pub end_of_validity: Option<TimeReal>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum VerifyResultStatus {
     Invalid,
@@ -40,7 +40,7 @@ pub enum VerifyResultStatus {
     PartiallyValid,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VerifyResult {
     pub status: VerifyResultStatus,
@@ -49,7 +49,7 @@ pub struct VerifyResult {
 
 impl Export for VerifyResult {}
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct VUVerifyResult {
     pub status: VerifyResultStatus,

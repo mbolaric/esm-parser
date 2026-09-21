@@ -21,7 +21,7 @@ pub struct Args {
         short = 'e',
         long,
         default_value = "",
-        help = "Path to the Gen1 ERCA certificate (144 bytes). Used for Gen1 cards and the Gen1 application of combined cards."
+        help = "Path to the Gen1 ERCA certificate (144 bytes). Used for Gen1 cards, Gen1 Vehicle Units, and the Gen1 application of combined cards."
     )]
     pub erca_gen1_file: String,
 

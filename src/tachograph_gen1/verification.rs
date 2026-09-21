@@ -5,7 +5,8 @@ use sha1::{Digest, Sha1};
 
 use crate::helpers::get_sub_array;
 use crate::tacho::{
-    CardFileData, CardFileID, CardFilesMap, TimeReal, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
+    CardFileData, CardFileID, CardFilesMap, TimeReal, VUFilesList, VUTransferResponseParameterID, VUVerifyItem, VUVerifyResult,
+    VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
 };
 use crate::{Error, Readable, Result};
 
@@ -279,9 +280,150 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     Ok(VerifyResult { status: result_status(&result), result })
 }
 
+fn vu_result_status(items: &[VUVerifyItem]) -> VerifyResultStatus {
+    if items.is_empty() {
+        VerifyResultStatus::Unsigned
+    } else if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+        VerifyResultStatus::Valid
+    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+        VerifyResultStatus::PartiallyValid
+    } else {
+        VerifyResultStatus::Invalid
+    }
+}
+
+fn verify_vu_certificates_at(
+    raw_bytes: &[u8],
+    erca_pk: &[u8; 144],
+    validation_time: Option<u32>,
+) -> Result<DecryptedCertificate> {
+    if raw_bytes.len() < 194 * 2 {
+        return Err(Error::VerifyError("Overview raw data too short for certificates.".to_string()));
+    }
+    let msca_bytes: &[u8; 194] = raw_bytes[..194]
+        .try_into()
+        .map_err(|_| Error::VerifyError("Could not slice MSCA certificate from Overview.".to_string()))?;
+    let vu_bytes: &[u8; 194] = raw_bytes[194..388]
+        .try_into()
+        .map_err(|_| Error::VerifyError("Could not slice VU certificate from Overview.".to_string()))?;
+
+    let ec_pk_certificate = ECPKCertificate::new(erca_pk)?;
+    let ca_certificate = Certificate::from_bytes(msca_bytes)?;
+    let vu_certificate = Certificate::from_bytes(vu_bytes)?;
+
+    let ca_decrypted = decrypt_ca_certificate(&ca_certificate, &ec_pk_certificate)?;
+    if validation_time.is_some_and(|vt| vt > ca_decrypted.end_of_validity.get_data()) {
+        return Err(Error::VerifyError(format!(
+            "CA certificate validity expired: {}",
+            ca_decrypted.end_of_validity.get_date_time_str()
+        )));
+    }
+
+    let vu_decrypted = decrypt_card_certificate(&vu_certificate, &ca_decrypted)?;
+    if validation_time.is_some_and(|vt| vt > vu_decrypted.end_of_validity.get_data()) {
+        return Err(Error::VerifyError(format!(
+            "VU certificate validity expired: {}",
+            vu_decrypted.end_of_validity.get_date_time_str()
+        )));
+    }
+
+    Ok(vu_decrypted)
+}
+
+fn verify_vu_data(data_files: &VUFilesList, vu_certificate: &DecryptedCertificate) -> Vec<VUVerifyItem> {
+    let mut result = Vec::new();
+    for file in data_files {
+        let Some(raw_data) = file.data.as_ref() else {
+            result.push(VUVerifyItem {
+                trep_id: file.trep_id.clone(),
+                position: file.position,
+                status: VerifyStatus::NotHaveData,
+                end_of_validity: None,
+            });
+            continue;
+        };
+        let Some(signature) = file.signature.as_ref() else {
+            result.push(VUVerifyItem {
+                trep_id: file.trep_id.clone(),
+                position: file.position,
+                status: VerifyStatus::NotHaveSignature,
+                end_of_validity: None,
+            });
+            continue;
+        };
+        if signature.len() < SIG_SIZE {
+            result.push(VUVerifyItem {
+                trep_id: file.trep_id.clone(),
+                position: file.position,
+                status: VerifyStatus::InvalidSignatureSize,
+                end_of_validity: None,
+            });
+            continue;
+        }
+
+        let Ok(sig_bytes) = signature[..SIG_SIZE].try_into() else {
+            result.push(VUVerifyItem {
+                trep_id: file.trep_id.clone(),
+                position: file.position,
+                status: VerifyStatus::InvalidSignatureSize,
+                end_of_validity: None,
+            });
+            continue;
+        };
+
+        let perf_ret = vu_certificate.rsa_public_key.perform(&sig_bytes);
+        let mut hasher = Sha1::new();
+        hasher.update(raw_data);
+        let hash: [u8; HASH_SIZE] = hasher.finalize().into();
+
+        let status = if perf_ret.len() == 127
+            && hash.as_slice() == get_sub_array(&perf_ret, 107, 20)
+            && get_sub_array(&perf_ret, 92, 15) == DATA_PATTERN
+            && get_sub_array(&perf_ret, 1, 90) == SIGNATURE_PADDING
+        {
+            VerifyStatus::Valid
+        } else {
+            VerifyStatus::Invalid
+        };
+
+        let end_of_validity = if matches!(file.trep_id, VUTransferResponseParameterID::Overview) {
+            Some(vu_certificate.end_of_validity.clone())
+        } else {
+            None
+        };
+
+        result.push(VUVerifyItem { trep_id: file.trep_id.clone(), position: file.position, status, end_of_validity });
+    }
+    result
+}
+
+pub fn verify_vu_with_time(
+    data_files: &VUFilesList,
+    erca_pk: &[u8; 144],
+    validation_time: Option<u32>,
+) -> Result<VUVerifyResult> {
+    let overview = data_files
+        .iter()
+        .find(|f| matches!(f.trep_id, VUTransferResponseParameterID::Overview))
+        .ok_or_else(|| Error::VerifyError("Missing Overview TREP in VU data files.".to_string()))?;
+
+    let raw_bytes =
+        overview.raw_data.as_ref().ok_or_else(|| Error::VerifyError("Missing raw data for Overview TREP.".to_string()))?;
+
+    let vu_decrypted = verify_vu_certificates_at(raw_bytes, erca_pk, validation_time)?;
+    let result = verify_vu_data(data_files, &vu_decrypted);
+
+    Ok(VUVerifyResult { status: vu_result_status(&result), result })
+}
+
+pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; 144]) -> Result<VUVerifyResult> {
+    verify_vu_with_time(data_files, erca_pk, None)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tacho::VUFileData;
 
     fn data_file(card_file_id: CardFileID, data: Vec<u8>) -> CardFileData {
         CardFileData {
@@ -334,5 +476,45 @@ mod tests {
             VerifyResultStatus::PartiallyValid
         ));
         assert!(matches!(result_status(&[verify_item(VerifyStatus::Invalid)]), VerifyResultStatus::Invalid));
+    }
+
+    #[test]
+    fn test_verify_vu_requires_overview() {
+        let error = verify_vu(&vec![], &[0; 144]).unwrap_err();
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("Missing Overview TREP")));
+    }
+
+    #[test]
+    fn test_verify_vu_requires_certificates() {
+        let overview = VUFileData {
+            trep_id: VUTransferResponseParameterID::Overview,
+            position: 1,
+            size: 10,
+            signature: None,
+            signatures: vec![],
+            data: Some(vec![0; 10]),
+            raw_data: Some(vec![0; 50]),
+        };
+        let error = verify_vu(&vec![overview], &[0; 144]).unwrap_err();
+        assert!(matches!(error, Error::VerifyError(message) if message.contains("Overview raw data too short")));
+    }
+
+    #[test]
+    fn test_vu_result_status() {
+        let item_valid = VUVerifyItem {
+            trep_id: VUTransferResponseParameterID::Overview,
+            position: 1,
+            status: VerifyStatus::Valid,
+            end_of_validity: None,
+        };
+        let item_invalid = VUVerifyItem {
+            trep_id: VUTransferResponseParameterID::Activities,
+            position: 2,
+            status: VerifyStatus::Invalid,
+            end_of_validity: None,
+        };
+        assert!(matches!(vu_result_status(&[]), VerifyResultStatus::Unsigned));
+        assert!(matches!(vu_result_status(std::slice::from_ref(&item_valid)), VerifyResultStatus::Valid));
+        assert!(matches!(vu_result_status(&[item_valid, item_invalid]), VerifyResultStatus::PartiallyValid));
     }
 }

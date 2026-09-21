@@ -159,7 +159,7 @@ impl VerificationContext<'_> {
 
     fn verify_vu_data(&self, vu: &dyn VUDataFiles, erca_file: &str, out_verify_path: &str) {
         if erca_file.is_empty() {
-            self.pb.println("[-] Gen2 ERCA certificate was not provided; verification is skipped.".to_string());
+            self.pb.println("[-] ERCA certificate was not provided; verification is skipped.".to_string());
             return;
         }
 
@@ -220,12 +220,11 @@ fn verify(data: &TachographData, context: &VerificationContext<'_>) {
             }
             _ => context.pb.println("[-] Unsupported Gen2 Card Type verification is not possible."),
         },
+        TachographData::VUGen1(vu_gen1) => {
+            context.verify_vu_data(vu_gen1, context.erca_gen1_file, context.out_verify_path);
+        }
         TachographData::VUGen2(vu_gen2) => {
             context.verify_vu_data(vu_gen2, context.erca_gen2_file, context.out_verify_path);
-        }
-        TachographData::VUGen1(_) => {
-            context.pb.println("[-] Gen1 VU certificate verification is not supported.");
-            context.pb.println("[-] Certificate verification disabled.");
         }
     }
 }
