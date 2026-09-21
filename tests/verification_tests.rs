@@ -8,7 +8,7 @@ use common::{
     gen2_vu_overview, tamper_first_signed_gen2_file,
 };
 use esm_parser::tacho::{CardFileID, VerifyResultStatus, VerifyStatus, VuCertificateKind};
-use esm_parser::{VuOverview, gen1, gen2, parse_from_file, verify_vu_overview};
+use esm_parser::{VuOverview, gen1, gen2, parse_from_file, verify_vu};
 
 #[test]
 #[ignore = "requires local Gen1 DDD and ERCA fixtures"]
@@ -121,7 +121,7 @@ fn test_verify_real_gen1_vu_certificate_chain() {
     let parsed = parse_from_file(ddd_path_as_str).expect("The configured Gen1 VU DDD fixture must parse.");
     let overview = gen1_vu_overview(&parsed);
 
-    let verified = verify_vu_overview(&VuOverview::Gen1(overview), &erca).expect("The real Gen1 VU certificate chain must verify.");
+    let verified = verify_vu(&VuOverview::Gen1(overview), &erca).expect("The real Gen1 VU certificate chain must verify.");
     assert!(matches!(verified.status, VerifyResultStatus::Valid));
     assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
     assert!(verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::MemberStateCertificate)));
@@ -141,7 +141,7 @@ fn test_verify_real_gen2_vu_certificate_chain() {
     let parsed = parse_from_file(ddd_path_as_str).expect("The configured Gen2 VU DDD fixture must parse.");
     let overview = gen2_vu_overview(&parsed);
 
-    let verified = verify_vu_overview(&VuOverview::Gen2(overview), &erca).expect("The real Gen2 VU certificate chain must verify.");
+    let verified = verify_vu(&VuOverview::Gen2(overview), &erca).expect("The real Gen2 VU certificate chain must verify.");
     assert!(matches!(verified.status, VerifyResultStatus::Valid));
     assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
     assert!(verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::MemberStateCertificate)));

@@ -9,8 +9,22 @@ use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
 
-use crate::tacho::{CardFilesMap, CardGeneration, VUFilesList, VUVerifyResult, VerifyResult, VuVerifyResult};
-use crate::{Error, Result, gen1, gen2};
+use serde::Serialize;
+
+use crate::tacho::{CardFilesMap, CardGeneration, DataFiles, VUFilesList, VUVerifyResult, VerifyResult, VuVerifyResult};
+use crate::{Error, Export, Result, TachographData, gen1, gen2};
+
+/// Unified verification result across any tachograph document (Card or VU, Gen1 or Gen2).
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+#[serde(untagged)]
+pub enum TachographVerifyResult {
+    Card(VerifyResult),
+    CombinedCard(VerifyResult, VerifyResult),
+    Vu(VUVerifyResult),
+}
+
+impl Export for TachographVerifyResult {}
 
 /// Verifies the signature of tachograph card data files.
 ///
@@ -132,13 +146,17 @@ pub fn verify_card_with_erca_path(
     verify_card(&generation, data_files, &erca_pk)
 }
 
-/// Verifies the digital signatures of Vehicle Unit (VU) data files.
-pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8]) -> Result<VUVerifyResult> {
-    verify_vu_with_time(data_files, erca_pk, None)
+/// Verifies the digital signatures of Vehicle Unit (VU) data files across all downloaded records.
+pub fn verify_vu_full(data_files: &VUFilesList, erca_pk: &[u8]) -> Result<VUVerifyResult> {
+    verify_vu_full_with_time(data_files, erca_pk, None)
 }
 
 /// Verifies the digital signatures of Vehicle Unit (VU) data files with an optional explicit validation timestamp.
-pub fn verify_vu_with_time(data_files: &VUFilesList, erca_pk: &[u8], validation_time: Option<u32>) -> Result<VUVerifyResult> {
+pub fn verify_vu_full_with_time(
+    data_files: &VUFilesList,
+    erca_pk: &[u8],
+    validation_time: Option<u32>,
+) -> Result<VUVerifyResult> {
     if data_files.is_empty() {
         return Err(Error::EmptyInputData("Data for verification are not provided.".to_owned()));
     }
@@ -154,12 +172,126 @@ pub fn verify_vu_with_time(data_files: &VUFilesList, erca_pk: &[u8], validation_
     }
 }
 
-/// Verifies VU signatures by loading the ERCA public key from a file path.
-pub fn verify_vu_with_erca_path(data_files: &VUFilesList, erca_pk_file_path: &str) -> Result<VUVerifyResult> {
+/// Verifies full VU signatures by loading the ERCA public key from a file path.
+pub fn verify_vu_full_with_erca_path(data_files: &VUFilesList, erca_pk_file_path: &str) -> Result<VUVerifyResult> {
     let mut file = BinReader::open(erca_pk_file_path)?;
     let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
     file.read_to_end(&mut erca_pk)?;
-    verify_vu(data_files, &erca_pk)
+    verify_vu_full(data_files, &erca_pk)
+}
+
+/// Verifies the digital signatures of parsed tachograph data across any generation and document type.
+///
+/// * For Gen1 Cards and Gen1 Vehicle Units, `erca_gen1_pk` is used.
+/// * For Gen2 Cards and Gen2 Vehicle Units, `erca_gen2_pk` is used.
+/// * For Combined Cards, both keys are used.
+pub fn verify_tachograph_data(
+    data: &TachographData,
+    erca_gen1_pk: Option<&[u8]>,
+    erca_gen2_pk: Option<&[u8]>,
+) -> Result<TachographVerifyResult> {
+    match data {
+        TachographData::CardGen1(card_gen1) => {
+            let key = erca_gen1_pk.ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for CardGen1".to_string()))?;
+            let card_type: Option<&dyn DataFiles> = match &card_gen1.card_data_responses {
+                crate::gen1::CardResponseParameterData::DriverCard(b) => Some(b.as_ref()),
+                crate::gen1::CardResponseParameterData::WorkshopCard(b) => Some(b.as_ref()),
+                crate::gen1::CardResponseParameterData::ControlCard(b) => Some(b.as_ref()),
+                crate::gen1::CardResponseParameterData::CompanyCard(b) => Some(b.as_ref()),
+                _ => None,
+            };
+            let card = card_type
+                .ok_or_else(|| Error::VerifyError("Unsupported Card Type verification is not possible.".to_string()))?;
+            let res = verify_card(&CardGeneration::Gen1, card.get_data_files(), key)?;
+            Ok(TachographVerifyResult::Card(res))
+        }
+        TachographData::CardGen2(card_gen2) => {
+            match &card_gen2.card_data_responses {
+                crate::gen2::CardResponseParameterData::DriverCard(crate::gen2::ParsedCard::Gen2(card)) => {
+                    let key =
+                        erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for CardGen2".to_string()))?;
+                    let res = verify_card(&CardGeneration::Gen2, card.get_data_files(), key)?;
+                    Ok(TachographVerifyResult::Card(res))
+                }
+                crate::gen2::CardResponseParameterData::WorkshopCard(crate::gen2::ParsedCard::Gen2(card)) => {
+                    let key =
+                        erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for CardGen2".to_string()))?;
+                    let res = verify_card(&CardGeneration::Gen2, card.get_data_files(), key)?;
+                    Ok(TachographVerifyResult::Card(res))
+                }
+                crate::gen2::CardResponseParameterData::DriverCard(crate::gen2::ParsedCard::Combined(gen1_card, gen2_card)) => {
+                    let key1 = erca_gen1_pk
+                        .ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for Combined card".to_string()))?;
+                    let key2 = erca_gen2_pk
+                        .ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for Combined card".to_string()))?;
+                    let (res1, res2) =
+                        verify_combined_card(gen1_card.get_data_files(), key1, gen2_card.get_data_files(), key2)?;
+                    Ok(TachographVerifyResult::CombinedCard(res1, res2))
+                }
+                crate::gen2::CardResponseParameterData::WorkshopCard(crate::gen2::ParsedCard::Combined(gen1_card, gen2_card)) => {
+                    let key1 = erca_gen1_pk
+                        .ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for Combined card".to_string()))?;
+                    let key2 = erca_gen2_pk
+                        .ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for Combined card".to_string()))?;
+                    let (res1, res2) =
+                        verify_combined_card(gen1_card.get_data_files(), key1, gen2_card.get_data_files(), key2)?;
+                    Ok(TachographVerifyResult::CombinedCard(res1, res2))
+                }
+                crate::gen2::CardResponseParameterData::CompanyCard(_)
+                | crate::gen2::CardResponseParameterData::ControlCard(_) => {
+                    Err(Error::VerifyError("Gen2 signature verification is not applicable to Company and Control cards.".to_string()))
+                }
+                _ => Err(Error::VerifyError("Unsupported Gen2 Card Type verification is not possible.".to_string())),
+            }
+        }
+        TachographData::VUGen1(vu_gen1) => {
+            let key = erca_gen1_pk.ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for VUGen1".to_string()))?;
+            let res = verify_vu_full(vu_gen1.get_data_files(), key)?;
+            Ok(TachographVerifyResult::Vu(res))
+        }
+        TachographData::VUGen2(vu_gen2) => {
+            let key = erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for VUGen2".to_string()))?;
+            let res = verify_vu_full(vu_gen2.get_data_files(), key)?;
+            Ok(TachographVerifyResult::Vu(res))
+        }
+    }
+}
+
+/// Verifies signatures of parsed tachograph data by reading ERCA keys from file paths.
+pub fn verify_tachograph_data_with_erca_paths(
+    data: &TachographData,
+    erca_gen1_file_path: Option<&str>,
+    erca_gen2_file_path: Option<&str>,
+) -> Result<TachographVerifyResult> {
+    let mut erca_gen1_bytes = Vec::new();
+    let erca_gen1_pk = if let Some(path) = erca_gen1_file_path {
+        if !path.is_empty() {
+            let mut file = BinReader::open(path)?;
+            erca_gen1_bytes.reserve(file.len()?);
+            file.read_to_end(&mut erca_gen1_bytes)?;
+            Some(erca_gen1_bytes.as_slice())
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let mut erca_gen2_bytes = Vec::new();
+    let erca_gen2_pk = if let Some(path) = erca_gen2_file_path {
+        if !path.is_empty() {
+            let mut file = BinReader::open(path)?;
+            erca_gen2_bytes.reserve(file.len()?);
+            file.read_to_end(&mut erca_gen2_bytes)?;
+            Some(erca_gen2_bytes.as_slice())
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    verify_tachograph_data(data, erca_gen1_pk, erca_gen2_pk)
 }
 
 /// A parsed VU Overview download block, tagged by generation.
@@ -186,7 +318,7 @@ pub enum VuOverview<'a> {
 /// * `erca_pk` is empty (`Error::EmptyInputData`).
 /// * The length of `erca_pk` does not match the expected length for `vu_overview`'s generation.
 /// * Any certificate in the chain fails to parse.
-pub fn verify_vu_overview(vu_overview: &VuOverview<'_>, erca_pk: &[u8]) -> Result<VuVerifyResult> {
+pub fn verify_vu(vu_overview: &VuOverview<'_>, erca_pk: &[u8]) -> Result<VuVerifyResult> {
     if erca_pk.is_empty() {
         return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
     }
@@ -213,11 +345,11 @@ pub fn verify_vu_overview(vu_overview: &VuOverview<'_>, erca_pk: &[u8]) -> Resul
 }
 
 /// Verifies VU Overview certificates by loading the ERCA public key from a file path.
-pub fn verify_vu_overview_with_erca_path(vu_overview: &VuOverview<'_>, erca_pk_file_path: &str) -> Result<VuVerifyResult> {
+pub fn verify_vu_with_erca_path(vu_overview: &VuOverview<'_>, erca_pk_file_path: &str) -> Result<VuVerifyResult> {
     let mut file = BinReader::open(erca_pk_file_path)?;
     let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
     file.read_to_end(&mut erca_pk)?;
-    verify_vu_overview(vu_overview, &erca_pk)
+    verify_vu(vu_overview, &erca_pk)
 }
 
 /// Verifies a VU's own certificate chain from its two raw certificate directly,
@@ -327,16 +459,22 @@ mod wasm_support {
         }
     }
 
-    /// A WASM-bindgen wrapper for the `verify_vu` function.
-    #[wasm_bindgen(js_name = verify_vu, skip_typescript)]
-    pub fn verify_vu_wasm(data_files: JsValue, erca_pk: &[u8]) -> std::result::Result<JsValue, JsValue> {
+    /// A WASM-bindgen wrapper for full VU signature verification.
+    #[wasm_bindgen(js_name = verify_vu_full, skip_typescript)]
+    pub fn verify_vu_full_wasm(data_files: JsValue, erca_pk: &[u8]) -> std::result::Result<JsValue, JsValue> {
         let files: VUFilesList =
             serde_wasm_bindgen::from_value(data_files).map_err(|err| JsValue::from_str(&format!("Invalid input: {}", err)))?;
 
-        let result = verify_vu(&files, erca_pk);
+        let result = verify_vu_full(&files, erca_pk);
         match result {
             Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
             Err(e) => Err(JsValue::from_str(&e.to_string())),
         }
+    }
+
+    /// Backwards-compatible WASM-bindgen wrapper for VU signature verification.
+    #[wasm_bindgen(js_name = verify_vu, skip_typescript)]
+    pub fn verify_vu_wasm(data_files: JsValue, erca_pk: &[u8]) -> std::result::Result<JsValue, JsValue> {
+        verify_vu_full_wasm(data_files, erca_pk)
     }
 }

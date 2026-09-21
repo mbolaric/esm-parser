@@ -78,6 +78,30 @@ impl Export for TachographData {
     }
 }
 
+impl TachographData {
+    /// Verifies the digital signatures of the parsed tachograph data.
+    ///
+    /// - For Gen1 Cards and Gen1 Vehicle Units, `erca_gen1_pk` is used (144 bytes).
+    /// - For Gen2 Cards and Gen2 Vehicle Units, `erca_gen2_pk` is used (205 bytes).
+    /// - For Combined Cards, both `erca_gen1_pk` and `erca_gen2_pk` are used.
+    pub fn verify(
+        &self,
+        erca_gen1_pk: Option<&[u8]>,
+        erca_gen2_pk: Option<&[u8]>,
+    ) -> Result<crate::verification::TachographVerifyResult> {
+        crate::verification::verify_tachograph_data(self, erca_gen1_pk, erca_gen2_pk)
+    }
+
+    /// Verifies digital signatures by reading ERCA keys from the given file paths.
+    pub fn verify_with_erca_paths(
+        &self,
+        erca_gen1_path: Option<&str>,
+        erca_gen2_path: Option<&str>,
+    ) -> Result<crate::verification::TachographVerifyResult> {
+        crate::verification::verify_tachograph_data_with_erca_paths(self, erca_gen1_path, erca_gen2_path)
+    }
+}
+
 impl fmt::Display for TachographData {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Uses the debug representation for a simple display format.

@@ -476,6 +476,8 @@ dataType: TachographDataType,
  */
 cardInVuData: boolean, };
 
+export type TachographVerifyResult = VerifyResult | [VerifyResult, VerifyResult] | VUVerifyResult;
+
 export type TimeReal = string | null;
 
 export type VUFileData = { trepId: VUTransferResponseParameterID, position: number, size: number, signature: Array<number> | null, signatures: Array<Array<number>>, data: Array<number> | null, rawData: Array<number> | null, };
@@ -525,6 +527,10 @@ generation: CardGeneration,
 dataFilesMap: unknown,
 ercaPublicKey: Uint8Array,
 ): VerifyResult;
+export function verify_vu_full(
+dataFiles: Array<VUFileData>,
+ercaPublicKey: Uint8Array,
+): VUVerifyResult;
 export function verify_vu(
 dataFiles: Array<VUFileData>,
 ercaPublicKey: Uint8Array,

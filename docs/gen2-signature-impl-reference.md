@@ -83,10 +83,10 @@ pub fn verify_card(
 
 ### Vehicle Unit (VU) Verification
 
-`verify_vu`, `verify_vu_with_time`, and `verify_vu_with_erca_path` verify extracted VU transfer response parameter files:
+`verify_vu_full`, `verify_vu_full_with_time`, and `verify_vu_full_with_erca_path` verify extracted VU transfer response parameter files across all downloaded data records:
 
 ```rust
-pub fn verify_vu_with_time(
+pub fn verify_vu_full_with_time(
     data_files: &VUFilesList,
     erca_pk: &[u8],
     validation_time: Option<u32>,
@@ -97,6 +97,10 @@ pub fn verify_vu_with_time(
   - **144 bytes**: Gen1 VU verifier (`tachograph_gen1::verification::verify_vu_with_time`, RSA-1024 / SHA-1).
   - **205 bytes**: Gen2 VU verifier (`tachograph_gen2::verification::verify_vu_with_time`, ECDSA P-256 / SHA-256).
   - Other lengths: Returns `Error::VerifyError("ERCA Public Key size ... is not supported")`.
+
+For overview-only certificate chain validation, `verify_vu(&VuOverview, &erca_pk)` and `verify_vu_with_erca_path` are available.
+
+For unified verification directly from parsed `TachographData`, `verify_tachograph_data(&data, erca_gen1, erca_gen2)` and `data.verify(erca_gen1, erca_gen2)` automatically dispatch across any card or VU generation.
 
 ---
 

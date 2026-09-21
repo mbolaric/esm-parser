@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use esm_parser::gen1::CardResponseParameterData as CardResponseParameterDataGen1;
 use esm_parser::gen2::{CardResponseParameterData as CardResponseParameterDataGen2, ParsedCard};
 use esm_parser::tacho::{CardGeneration, DataFiles, VUDataFiles};
-use esm_parser::{Export, TachographData, parse_from_file, verify_card_with_erca_path, verify_vu_with_erca_path};
+use esm_parser::{Export, TachographData, parse_from_file, verify_card_with_erca_path, verify_vu_full_with_erca_path};
 use indicatif::ProgressBar;
 use serde::Serialize;
 
@@ -163,7 +163,7 @@ impl VerificationContext<'_> {
             return;
         }
 
-        match verify_vu_with_erca_path(vu.get_data_files(), erca_file) {
+        match verify_vu_full_with_erca_path(vu.get_data_files(), erca_file) {
             Ok(result) => match verify_inner(self.export_type, &result, out_verify_path, self.pb, self.pretty) {
                 Ok(_) => self.pb.println("[+] Certificate verification Done."),
                 Err(err) => self.pb.println(format!("[-] {:}", err)),
