@@ -467,26 +467,34 @@ fn extract_vu_certificates(raw_bytes: &[u8]) -> Result<(Certificate, Option<Cert
     Ok((msca_cert, link_cert, vu_sign_cert))
 }
 
+pub(in crate::tachograph_gen2) fn verify_vu_certificates_parsed_at(
+    msca_cert: &Certificate,
+    link_cert: Option<&Certificate>,
+    vu_sign_cert: &Certificate,
+    erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],
+    validation_time: u32,
+) -> Result<(VerifiedCertificate, Option<VerifiedCertificate>, VerifiedCertificate)> {
+    let erca_certificate = ERCACertificate::new_at(erca_pk, validation_time)?;
+    let (msca_verified, link_verified) =
+        verify_ca_certificate_with_link_at(msca_cert, &erca_certificate, link_cert, validation_time)?;
+    let vu_verified = verify_leaf_certificate_at(vu_sign_cert, &msca_verified, validation_time, SigningRole::VuSign)?;
+    Ok((msca_verified, link_verified, vu_verified))
+}
+
 fn verify_vu_certificates_at(
     raw_bytes: &[u8],
     erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],
     validation_time: u32,
 ) -> Result<VerifiedCertificate> {
     let (msca_certificate, link_certificate, vu_sign_certificate) = extract_vu_certificates(raw_bytes)?;
-    let erca_certificate = ERCACertificate::new_at(erca_pk, validation_time)?;
-    let (msca_verified, _link_verified) =
-        verify_ca_certificate_with_link_at(&msca_certificate, &erca_certificate, link_certificate.as_ref(), validation_time)?;
-
-    if vu_sign_certificate.certificate_authority_reference != msca_verified.holder_reference {
-        return Err(Error::VerifyError("VU_Sign CAR and MSCA CHR are not the same.".to_string()));
-    }
-    validate_certificate_role(&vu_sign_certificate, EquipmentType::VehicleUnitSign, "VU Sign")?;
-    validate_certificate_validity(&vu_sign_certificate, validation_time)?;
-    msca_verified
-        .ecdsa_public_key
-        .verify(&Sha256::digest(&vu_sign_certificate.certificate_body), &vu_sign_certificate.certificate_signature)
-        .map_err(|e| Error::VerifyError(format!("VU cert signature verification by MSCA failed: {e}")))?;
-    VerifiedCertificate::new(&vu_sign_certificate)
+    let (_msca_verified, _link_verified, vu_verified) = verify_vu_certificates_parsed_at(
+        &msca_certificate,
+        link_certificate.as_ref(),
+        &vu_sign_certificate,
+        erca_pk,
+        validation_time,
+    )?;
+    Ok(vu_verified)
 }
 
 fn verify_vu_data(data_files: &VUFilesList, vu_verified: &VerifiedCertificate) -> Vec<VUVerifyItem> {

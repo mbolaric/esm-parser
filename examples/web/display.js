@@ -243,28 +243,29 @@ export class DisplayData {
     applyData = (rootEl, data, fileName) => {
         this.clean();
         this.fileName = fileName;
-        this.currentData = data;
-        const header = data.header;
+        const payload = data && data.data && data.header === undefined ? data.data : data;
+        this.currentData = payload;
+        const header = payload.header;
         console.log(header.generation);
         console.log(header.dataType);
         switch (header.generation) {
             case Generation.FirstGeneration:
                 if (header.dataType === "Card") {
-                    this.processFirstGenerationCard(header.dataType, data.cardDataResponses);
+                    this.processFirstGenerationCard(header.dataType, payload.cardDataResponses);
                 } else {
-                    this.processAllGenerationVU(header.dataType, data.transferResParams, VUGeneration.FirstGeneration);
+                    this.processAllGenerationVU(header.dataType, payload.transferResParams, VUGeneration.FirstGeneration);
                 }
                 break;
             case Generation.SecondGeneration:
                 if (header.dataType === "Card") {
-                    this.processSecondGenerationCard(header.dataType, data.cardDataResponses);
+                    this.processSecondGenerationCard(header.dataType, payload.cardDataResponses);
                 } else {
-                    this.processAllGenerationVU(header.dataType, data.transferResParams, VUGeneration.SecondGeneration);
+                    this.processAllGenerationVU(header.dataType, payload.transferResParams, VUGeneration.SecondGeneration);
                 }
                 break;
         }
 
-        this.applyDataContent(data);
+        this.applyDataContent(payload);
     };
 
     addVUMenu = (data, title, key, gen) => {

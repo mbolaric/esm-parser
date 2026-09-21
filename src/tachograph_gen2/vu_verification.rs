@@ -1,10 +1,7 @@
 use crate::Result;
 use crate::gen2::VUOverview;
-use crate::tacho::{VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult};
-use crate::tachograph_gen2::verification::{
-    self, GEN2_CERTIFICATE_SIZE, SigningRole, certificate_from_bytes, result_status, verify_ca_certificate_at,
-    verify_leaf_certificate_at,
-};
+use crate::tacho::{EquipmentType, VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult};
+use crate::tachograph_gen2::verification::{self, GEN2_CERTIFICATE_SIZE, certificate_from_bytes, result_status};
 
 /// Verifies a VU's own certificate chain (ERCA -> MSCA -> VU_Sign).
 pub(crate) fn verify_certificate_chain(
@@ -13,18 +10,32 @@ pub(crate) fn verify_certificate_chain(
     erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],
     validation_time: u32,
 ) -> Result<VuVerifyResult> {
-    let erca_certificate = verification::ERCACertificate::new_at(erca_pk, validation_time)?;
-    let msca_certificate = certificate_from_bytes(member_state_certificate_raw)?;
+    let (msca_certificate, link_certificate) = if member_state_certificate_raw.len() >= 2 * GEN2_CERTIFICATE_SIZE {
+        let cert0 = certificate_from_bytes(&member_state_certificate_raw[..GEN2_CERTIFICATE_SIZE])?;
+        let cert1 = certificate_from_bytes(&member_state_certificate_raw[GEN2_CERTIFICATE_SIZE..2 * GEN2_CERTIFICATE_SIZE])?;
+        if cert0.certificate_holder_authorisation[verification::CHA_SIZE - 1] == EquipmentType::EuropeanRootCA as u8 {
+            (cert1, Some(cert0))
+        } else {
+            (cert0, Some(cert1))
+        }
+    } else {
+        (certificate_from_bytes(member_state_certificate_raw)?, None)
+    };
     let vu_certificate = certificate_from_bytes(vu_certificate_raw)?;
 
-    let msca_verified = verify_ca_certificate_at(&msca_certificate, &erca_certificate, validation_time)?;
-    let vu_verified = verify_leaf_certificate_at(&vu_certificate, &msca_verified, validation_time, SigningRole::VuSign)?;
+    let (msca_verified, _link_verified, vu_verified) = verification::verify_vu_certificates_parsed_at(
+        &msca_certificate,
+        link_certificate.as_ref(),
+        &vu_certificate,
+        erca_pk,
+        validation_time,
+    )?;
 
     let result = vec![
         VuVerifyItem {
             certificate: VuCertificateKind::MemberStateCertificate,
             status: VerifyStatus::Valid,
-            end_of_validity: Some(msca_verified.end_of_validity.clone()),
+            end_of_validity: Some(msca_verified.end_of_validity),
         },
         VuVerifyItem {
             certificate: VuCertificateKind::VuCertificate,

@@ -286,24 +286,15 @@ fn vu_result_status(items: &[VUVerifyItem]) -> VerifyResultStatus {
     }
 }
 
-fn verify_vu_certificates_at(
-    raw_bytes: &[u8],
+pub(in crate::tachograph_gen1) fn verify_vu_certificates_raw_at(
+    msca_raw: &[u8],
+    vu_raw: &[u8],
     erca_pk: &[u8; 144],
     validation_time: Option<u32>,
-) -> Result<DecryptedCertificate> {
-    if raw_bytes.len() < 194 * 2 {
-        return Err(Error::VerifyError("Overview raw data too short for certificates.".to_string()));
-    }
-    let msca_bytes: &[u8; 194] = raw_bytes[..194]
-        .try_into()
-        .map_err(|_| Error::VerifyError("Could not slice MSCA certificate from Overview.".to_string()))?;
-    let vu_bytes: &[u8; 194] = raw_bytes[194..388]
-        .try_into()
-        .map_err(|_| Error::VerifyError("Could not slice VU certificate from Overview.".to_string()))?;
-
+) -> Result<(DecryptedCertificate, DecryptedCertificate)> {
     let ec_pk_certificate = ECPKCertificate::new(erca_pk)?;
-    let ca_certificate = Certificate::from_bytes(msca_bytes)?;
-    let vu_certificate = Certificate::from_bytes(vu_bytes)?;
+    let ca_certificate = certificate_from_bytes(msca_raw)?;
+    let vu_certificate = certificate_from_bytes(vu_raw)?;
 
     let ca_decrypted =
         decrypt_certificate(&ca_certificate, ec_pk_certificate.holder_reference, &ec_pk_certificate.rsa_public_key)?;
@@ -322,6 +313,25 @@ fn verify_vu_certificates_at(
         )));
     }
 
+    Ok((ca_decrypted, vu_decrypted))
+}
+
+fn verify_vu_certificates_at(
+    raw_bytes: &[u8],
+    erca_pk: &[u8; 144],
+    validation_time: Option<u32>,
+) -> Result<DecryptedCertificate> {
+    if raw_bytes.len() < 194 * 2 {
+        return Err(Error::VerifyError("Overview raw data too short for certificates.".to_string()));
+    }
+    let msca_bytes: &[u8; 194] = raw_bytes[..194]
+        .try_into()
+        .map_err(|_| Error::VerifyError("Could not slice MSCA certificate from Overview.".to_string()))?;
+    let vu_bytes: &[u8; 194] = raw_bytes[194..388]
+        .try_into()
+        .map_err(|_| Error::VerifyError("Could not slice VU certificate from Overview.".to_string()))?;
+
+    let (_ca_decrypted, vu_decrypted) = verify_vu_certificates_raw_at(msca_bytes, vu_bytes, erca_pk, validation_time)?;
     Ok(vu_decrypted)
 }
 

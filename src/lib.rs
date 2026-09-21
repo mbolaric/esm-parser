@@ -108,7 +108,8 @@ pub use helpers::{LogLevel, init_console_logging};
 pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph::{
     CardFileData, CardFileID, CardFilesMap, CardGeneration, DataFiles, VUDataFiles, VUFileData, VUFilesList, VUVerifyItem,
-    VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult,
+    VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind,
+    VuOverviewCertificateVerifyItem, VuOverviewCertificateVerifyResult, VuVerifyItem, VuVerifyResult,
 };
 pub use tachograph_data::{SerializedTachographData, TachographData};
 #[cfg(feature = "typescript")]

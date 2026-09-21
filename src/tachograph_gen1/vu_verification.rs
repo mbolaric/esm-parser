@@ -1,7 +1,7 @@
 use crate::Result;
 use crate::gen1::VuOverview;
 use crate::tacho::{VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult};
-use crate::tachograph_gen1::verification::{self, certificate_from_bytes, decrypt_certificate, result_status};
+use crate::tachograph_gen1::verification::{self, result_status};
 
 /// Verifies a VU's own certificate chain (ERCA -> MSCA -> VU).
 pub(crate) fn verify_certificate_chain(
@@ -9,19 +9,14 @@ pub(crate) fn verify_certificate_chain(
     vu_certificate_raw: &[u8],
     erca_pk: &[u8; 144],
 ) -> Result<VuVerifyResult> {
-    let ec_pk_certificate = verification::ECPKCertificate::new(erca_pk)?;
-    let msca_certificate = certificate_from_bytes(member_state_certificate_raw)?;
-    let vu_certificate = certificate_from_bytes(vu_certificate_raw)?;
-
-    let msca_decrypted =
-        decrypt_certificate(&msca_certificate, ec_pk_certificate.holder_reference, &ec_pk_certificate.rsa_public_key)?;
-    let vu_decrypted = decrypt_certificate(&vu_certificate, msca_decrypted.holder_reference, &msca_decrypted.rsa_public_key)?;
+    let (msca_decrypted, vu_decrypted) =
+        verification::verify_vu_certificates_raw_at(member_state_certificate_raw, vu_certificate_raw, erca_pk, None)?;
 
     let result = vec![
         VuVerifyItem {
             certificate: VuCertificateKind::MemberStateCertificate,
             status: VerifyStatus::Valid,
-            end_of_validity: Some(msca_decrypted.end_of_validity.clone()),
+            end_of_validity: Some(msca_decrypted.end_of_validity),
         },
         VuVerifyItem {
             certificate: VuCertificateKind::VuCertificate,
