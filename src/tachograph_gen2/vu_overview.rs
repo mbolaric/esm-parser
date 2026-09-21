@@ -20,8 +20,12 @@ pub struct VUOverview {
     pub trep_id: VUTransferResponseParameterID,
     #[serde(rename = "nemberStateCertificateRecordArray")]
     pub member_state_certificate_record_array: MemberStateCertificateRecordArray,
+    #[serde(rename = "memberStateCertificateRaw")]
+    pub member_state_certificate_raw: Vec<u8>,
     #[serde(rename = "vuCertificateRecordArray")]
     pub vu_certificate_record_array: VuCertificateRecordArray,
+    #[serde(rename = "vuCertificateRaw")]
+    pub vu_certificate_raw: Vec<u8>,
     #[serde(rename = "vehicleIdentificationNumberRecordArray")]
     pub vehicle_identification_number_record_array: VehicleIdentificationNumberRecordArray,
     #[serde(rename = "vehicleRegistrationNumberRecordArray")]
@@ -45,9 +49,11 @@ pub struct VUOverview {
 impl VUOverview {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUOverview> {
         debug!("VUControl::from_data - Trep ID: {trep_id:?}");
+        let member_state_certificate_data_info = DataInfo::read(reader, trep_id.clone())?;
         let member_state_certificate_record_array: MemberStateCertificateRecordArray =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_certificate_record_array: VuCertificateRecordArray = DataInfo::read(reader, trep_id.clone())?.parse()?;
+            member_state_certificate_data_info.parse()?;
+        let vu_certificate_data_info = DataInfo::read(reader, trep_id.clone())?;
+        let vu_certificate_record_array: VuCertificateRecordArray = vu_certificate_data_info.parse()?;
         let vehicle_identification_number_record_array: VehicleIdentificationNumberRecordArray =
             DataInfo::read(reader, trep_id.clone())?.parse()?;
 
@@ -76,7 +82,9 @@ impl VUOverview {
         Ok(Self {
             trep_id,
             member_state_certificate_record_array,
+            member_state_certificate_raw: member_state_certificate_data_info.data,
             vu_certificate_record_array,
+            vu_certificate_raw: vu_certificate_data_info.data,
             vehicle_identification_number_record_array,
             vehicle_registration_number_record_array,
             current_date_time_record_array,

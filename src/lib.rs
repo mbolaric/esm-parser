@@ -110,7 +110,8 @@ pub use tachograph_data::{SerializedTachographData, TachographData};
 #[cfg(feature = "typescript")]
 pub use typescript::wasm_boundary_declaration;
 pub use verification::{
-    verify_card, verify_card_with_erca_path, verify_card_with_time, verify_combined_card, verify_vu, verify_vu_with_erca_path,
+    VuOverview, verify_card, verify_card_with_erca_path, verify_card_with_time, verify_combined_card, verify_vu,
+    verify_vu_certificate_chain, verify_vu_overview, verify_vu_overview_with_erca_path, verify_vu_with_erca_path,
     verify_vu_with_time,
 };
 

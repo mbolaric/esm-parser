@@ -57,3 +57,28 @@ pub struct VUVerifyResult {
 }
 
 impl Export for VUVerifyResult {}
+
+/// Identifies which certificate a `VuVerifyItem` reports on.
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+pub enum VuCertificateKind {
+    MemberStateCertificate,
+    VuCertificate,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+pub struct VuVerifyItem {
+    pub certificate: VuCertificateKind,
+    pub status: VerifyStatus,
+    pub end_of_validity: Option<TimeReal>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
+pub struct VuVerifyResult {
+    pub status: VerifyResultStatus,
+    pub result: Vec<VuVerifyItem>,
+}
+
+impl Export for VuVerifyResult {}

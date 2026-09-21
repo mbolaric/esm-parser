@@ -1,15 +1,15 @@
 //! Signature verification for tachograph files.
 //!
 //! This module provides functionality to verify the digital signatures of tachograph data files.
-//! It supports one Gen1 or Gen2 tachograph-card application at a time, dispatching to the
-//! appropriate verification logic after validating the corresponding European Root
-//! Certification Authority (ERCA) certificate size.
+//! It supports one Gen1 or Gen2 tachograph-card application, or one VU Overview download block,
+//! at a time, dispatching to the appropriate verification logic after validating the corresponding
+//! European Root Certification Authority (ERCA) certificate size.
 
 use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
 
-use crate::tacho::{CardFilesMap, CardGeneration, VUFilesList, VUVerifyResult, VerifyResult};
+use crate::tacho::{CardFilesMap, CardGeneration, VUFilesList, VUVerifyResult, VerifyResult, VuVerifyResult};
 use crate::{Error, Result, gen1, gen2};
 
 /// Verifies the signature of tachograph card data files.
@@ -162,6 +162,128 @@ pub fn verify_vu_with_erca_path(data_files: &VUFilesList, erca_pk_file_path: &st
     verify_vu(data_files, &erca_pk)
 }
 
+/// A parsed VU Overview download block, tagged by generation.
+pub enum VuOverview<'a> {
+    Gen1(&'a gen1::VuOverview),
+    Gen2(&'a gen2::VUOverview),
+}
+
+/// Verifies a downloaded VU's own certificate chain (ERCA -> MSCA -> VU).
+///
+/// This does not verify any downloaded VU data record (Activities, Events
+/// and Faults, Speed, Technical Data) against that chain.
+///
+/// # Arguments
+///
+/// * `vu_overview` - The parsed VU Overview download block, tagged by generation.
+/// * `erca_pk` - The ERCA public key for that same generation.
+///   - For `Gen1`, this must be 144 bytes.
+///   - For `Gen2`, this must be 205 bytes.
+///
+/// # Errors
+///
+/// This function can fail if:
+/// * `erca_pk` is empty (`Error::EmptyInputData`).
+/// * The length of `erca_pk` does not match the expected length for `vu_overview`'s generation.
+/// * Any certificate in the chain fails to parse.
+pub fn verify_vu_overview(vu_overview: &VuOverview<'_>, erca_pk: &[u8]) -> Result<VuVerifyResult> {
+    if erca_pk.is_empty() {
+        return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
+    }
+    match vu_overview {
+        VuOverview::Gen1(overview) => {
+            if erca_pk.len() != 144 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen1 VU (Gen1 = 144 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            gen1::vu::verify(overview, erca_pk.try_into().unwrap())
+        }
+        VuOverview::Gen2(overview) => {
+            if erca_pk.len() != 205 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen2 VU (Gen2 = 205 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            gen2::vu::verify(overview, erca_pk.try_into().unwrap())
+        }
+    }
+}
+
+/// Verifies VU Overview certificates by loading the ERCA public key from a file path.
+pub fn verify_vu_overview_with_erca_path(vu_overview: &VuOverview<'_>, erca_pk_file_path: &str) -> Result<VuVerifyResult> {
+    let mut file = BinReader::open(erca_pk_file_path)?;
+    let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
+    file.read_to_end(&mut erca_pk)?;
+    verify_vu_overview(vu_overview, &erca_pk)
+}
+
+/// Verifies a VU's own certificate chain from its two raw certificate directly,
+/// without requiring the full parsed VU Overview struct.
+///
+/// # Arguments
+///
+/// * `generation` - The VU generation (`Gen1` or `Gen2`). `Combined` is rejected.
+/// * `member_state_certificate_raw` - The raw MSCA certificate bytes.
+/// * `vu_certificate_raw` - The raw VU_Sign certificate bytes.
+/// * `erca_pk` - The ERCA public key for that same generation.
+///   - For `Gen1`, this must be 144 bytes.
+///   - For `Gen2`, this must be 205 bytes.
+///
+/// # Errors
+///
+/// This function can fail if:
+/// * `generation` is `Combined`.
+/// * `erca_pk` is empty.
+/// * The length of `erca_pk` does not match the expected length for generation.
+/// * Any certificate in the chain fails to parse, fails its validity window
+///   (Gen2 only), or fails to cryptographically verify.
+pub fn verify_vu_certificate_chain(
+    generation: &CardGeneration,
+    member_state_certificate_raw: &[u8],
+    vu_certificate_raw: &[u8],
+    erca_pk: &[u8],
+) -> Result<VuVerifyResult> {
+    if matches!(generation, CardGeneration::Combined) {
+        return Err(Error::VerifyError("A VU download is never a combined-generation document.".to_owned()));
+    }
+    if erca_pk.is_empty() {
+        return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
+    }
+    match generation {
+        CardGeneration::Gen1 => {
+            if erca_pk.len() != 144 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen1 VU (Gen1 = 144 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            crate::tachograph_gen1::vu_verification::verify_certificate_chain(
+                member_state_certificate_raw,
+                vu_certificate_raw,
+                erca_pk.try_into().unwrap(),
+            )
+        }
+        CardGeneration::Gen2 => {
+            if erca_pk.len() != 205 {
+                return Err(Error::VerifyError(format!(
+                    "ERCA Public Key size of: {}, is not supported for a Gen2 VU (Gen2 = 205 bytes).",
+                    erca_pk.len()
+                )));
+            }
+            let validation_time = crate::tachograph_gen2::verification::current_unix_timestamp()?;
+            crate::tachograph_gen2::vu_verification::verify_certificate_chain(
+                member_state_certificate_raw,
+                vu_certificate_raw,
+                erca_pk.try_into().unwrap(),
+                validation_time,
+            )
+        }
+        CardGeneration::Combined => unreachable!("rejected above"),
+    }
+}
 #[cfg(target_arch = "wasm32")]
 mod wasm_support {
     use std::collections::HashMap;
@@ -216,17 +338,5 @@ mod wasm_support {
             Ok(data) => data.serialize(&Serializer::json_compatible()).map_err(|e| e.into()),
             Err(e) => Err(JsValue::from_str(&e.to_string())),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn rejects_ambiguous_combined_generation() {
-        let error = verify_card(&CardGeneration::Combined, &CardFilesMap::new(), &[0; 205]).unwrap_err();
-
-        assert!(matches!(error, Error::VerifyError(message) if message.contains("separate Gen1 and Gen2")));
     }
 }

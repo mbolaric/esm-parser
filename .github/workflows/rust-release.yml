@@ -15,6 +15,7 @@ on:
         default: "v0.0.0-test"
 
 env:
+  RUSTUP_TOOLCHAIN: stable
   VERSION: ${{ github.event.inputs.version || github.ref_name }}
 
 jobs:
@@ -22,6 +23,7 @@ jobs:
     name: Build examples for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -42,11 +44,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: stable
           targets: ${{ matrix.target }}
 
       - name: Install wasm-bindgen (only for wasm)
@@ -96,7 +99,7 @@ jobs:
         shell: bash
 
       - name: Upload archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-artifacts-${{ matrix.target }}
           path: artifacts/*
@@ -113,7 +116,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
