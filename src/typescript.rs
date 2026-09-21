@@ -8,7 +8,7 @@ use crate::gen2::{LoadType, OperationType};
 use crate::tacho::{
     ActivityCard, ActivitySource, ActivityType, CalibrationPurpose, CardSlotNumber, CardStatus, ControlType, DrivingStatus,
     EntryTypeDailyWorkPeriod, EquipmentType, EventFaultRecordPurpose, EventFaultType, RegionNumeric, SpecificConditionType,
-    VUVerifyResult, VerifyResult, VuVerifyResult,
+    VerifyResult, VuVerifyResult,
 };
 use crate::{SerializedTachographData, TachographVerifyResult};
 
@@ -68,7 +68,6 @@ pub fn wasm_boundary_declaration() -> String {
     collector.collect::<SpecificConditionType>();
     collector.collect::<SerializedTachographData>();
     collector.collect::<VerifyResult>();
-    collector.collect::<VUVerifyResult>();
     collector.collect::<VuVerifyResult>();
     collector.collect::<TachographVerifyResult>();
 
@@ -93,11 +92,11 @@ pub fn wasm_boundary_declaration() -> String {
          export function verify_vu_full(\n\
              dataFiles: Array<VUFileData>,\n\
              ercaPublicKey: Uint8Array,\n\
-         ): VUVerifyResult;\n\
+         ): VuVerifyResult;\n\
          export function verify_vu(\n\
              dataFiles: Array<VUFileData>,\n\
              ercaPublicKey: Uint8Array,\n\
-         ): VUVerifyResult;\n",
+         ): VuVerifyResult;\n",
     );
 
     output

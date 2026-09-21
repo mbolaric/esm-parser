@@ -32,19 +32,15 @@ pub(crate) fn verify_certificate_chain(
     )?;
 
     let result = vec![
-        VuVerifyItem {
-            certificate: VuCertificateKind::MemberStateCertificate,
-            status: VerifyStatus::Valid,
-            end_of_validity: Some(msca_verified.end_of_validity),
-        },
-        VuVerifyItem {
-            certificate: VuCertificateKind::VuCertificate,
-            status: VerifyStatus::Valid,
-            end_of_validity: Some(vu_verified.end_of_validity),
-        },
+        VuVerifyItem::certificate(
+            VuCertificateKind::MemberStateCertificate,
+            VerifyStatus::Valid,
+            Some(msca_verified.end_of_validity),
+        ),
+        VuVerifyItem::certificate(VuCertificateKind::VuCertificate, VerifyStatus::Valid, Some(vu_verified.end_of_validity)),
     ];
 
-    let status = result_status(result.iter().map(|item| &item.status));
+    let status = result_status(result.iter().map(|item| item.status()));
     Ok(VuVerifyResult { status, result })
 }
 
@@ -131,10 +127,15 @@ mod tests {
 
         assert!(matches!(verified.status, VerifyResultStatus::Valid));
         assert_eq!(verified.result.len(), 2);
-        assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
+        assert!(verified.result.iter().all(|item| matches!(item.status(), VerifyStatus::Valid)));
         assert!(
-            verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::MemberStateCertificate))
-                && verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::VuCertificate))
+            verified.result.iter().any(|item| matches!(
+                item,
+                VuVerifyItem::Certificate { certificate: VuCertificateKind::MemberStateCertificate, .. }
+            )) && verified
+                .result
+                .iter()
+                .any(|item| matches!(item, VuVerifyItem::Certificate { certificate: VuCertificateKind::VuCertificate, .. }))
         );
     }
 

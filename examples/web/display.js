@@ -1,4 +1,4 @@
-import { verify_card, CardGeneration as EsmCardGeneration } from "../../pkg/esm_parser.js";
+import { verify_card, verify_vu_full, CardGeneration as EsmCardGeneration } from "../../pkg/esm_parser.js";
 
 export const Generation = {
     FirstGeneration: "FirstGeneration",
@@ -233,10 +233,19 @@ export class DisplayData {
     verifyCardData = (gen, data, ecPk) => {
         console.log("Call with:", gen, data, ecPk);
         try {
-            let resutl = verify_card(this.getCardGenerationFromString(gen), data, ecPk);
-            console.log("Verify: ", resutl);
+            let result = verify_card(this.getCardGenerationFromString(gen), data, ecPk);
+            console.log("Verify: ", result);
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    verifyVUData = (dataFiles, ecPk) => {
+        try {
+            let result = verify_vu_full(dataFiles, ecPk);
+            console.log("Verify VU: ", result);
+        } catch (err) {
+            console.error("VU verification error:", err);
         }
     };
 
@@ -254,6 +263,7 @@ export class DisplayData {
                     this.processFirstGenerationCard(header.dataType, payload.cardDataResponses);
                 } else {
                     this.processAllGenerationVU(header.dataType, payload.transferResParams, VUGeneration.FirstGeneration);
+                    this.verifyVUData(payload.dataFiles, ec_pk_gen1);
                 }
                 break;
             case Generation.SecondGeneration:
@@ -261,6 +271,7 @@ export class DisplayData {
                     this.processSecondGenerationCard(header.dataType, payload.cardDataResponses);
                 } else {
                     this.processAllGenerationVU(header.dataType, payload.transferResParams, VUGeneration.SecondGeneration);
+                    this.verifyVUData(payload.dataFiles, ec_pk_gen2);
                 }
                 break;
         }

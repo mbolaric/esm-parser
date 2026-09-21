@@ -5,8 +5,8 @@ use sha1::{Digest, Sha1};
 
 use crate::helpers::get_sub_array;
 use crate::tacho::{
-    CardFileData, CardFileID, CardFilesMap, TimeReal, VUFilesList, VUTransferResponseParameterID, VUVerifyItem, VUVerifyResult,
-    VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
+    CardFileData, CardFileID, CardFilesMap, TimeReal, VUFilesList, VUTransferResponseParameterID, VerifyItem, VerifyResult,
+    VerifyResultStatus, VerifyStatus, VuVerifyItem, VuVerifyResult,
 };
 use crate::{Error, Readable, Result};
 
@@ -274,12 +274,12 @@ pub fn verify(data_files: &CardFilesMap, erca_pk: &[u8; 144]) -> Result<VerifyRe
     Ok(VerifyResult { status, result })
 }
 
-fn vu_result_status(items: &[VUVerifyItem]) -> VerifyResultStatus {
+fn vu_result_status(items: &[VuVerifyItem]) -> VerifyResultStatus {
     if items.is_empty() {
         VerifyResultStatus::Unsigned
-    } else if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+    } else if items.iter().all(|item| matches!(item.status(), VerifyStatus::Valid)) {
         VerifyResultStatus::Valid
-    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+    } else if items.iter().any(|item| matches!(item.status(), VerifyStatus::Valid)) {
         VerifyResultStatus::PartiallyValid
     } else {
         VerifyResultStatus::Invalid
@@ -335,44 +335,24 @@ fn verify_vu_certificates_at(
     Ok(vu_decrypted)
 }
 
-fn verify_vu_data(data_files: &VUFilesList, vu_certificate: &DecryptedCertificate) -> Vec<VUVerifyItem> {
+fn verify_vu_data(data_files: &VUFilesList, vu_certificate: &DecryptedCertificate) -> Vec<VuVerifyItem> {
     let mut result = Vec::new();
     for file in data_files {
         let Some(raw_data) = file.data.as_ref() else {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::NotHaveData,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveData, None));
             continue;
         };
         let Some(signature) = file.signature.as_ref() else {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::NotHaveSignature,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveSignature, None));
             continue;
         };
         if signature.len() < SIG_SIZE {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::InvalidSignatureSize,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::InvalidSignatureSize, None));
             continue;
         }
 
         let Ok(sig_bytes) = signature[..SIG_SIZE].try_into() else {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::InvalidSignatureSize,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::InvalidSignatureSize, None));
             continue;
         };
 
@@ -397,7 +377,7 @@ fn verify_vu_data(data_files: &VUFilesList, vu_certificate: &DecryptedCertificat
             None
         };
 
-        result.push(VUVerifyItem { trep_id: file.trep_id.clone(), position: file.position, status, end_of_validity });
+        result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, status, end_of_validity));
     }
     result
 }
@@ -406,7 +386,7 @@ pub fn verify_vu_with_time(
     data_files: &VUFilesList,
     erca_pk: &[u8; 144],
     validation_time: Option<u32>,
-) -> Result<VUVerifyResult> {
+) -> Result<VuVerifyResult> {
     let overview = data_files
         .iter()
         .find(|f| matches!(f.trep_id, VUTransferResponseParameterID::Overview))
@@ -418,10 +398,10 @@ pub fn verify_vu_with_time(
     let vu_decrypted = verify_vu_certificates_at(raw_bytes, erca_pk, validation_time)?;
     let result = verify_vu_data(data_files, &vu_decrypted);
 
-    Ok(VUVerifyResult { status: vu_result_status(&result), result })
+    Ok(VuVerifyResult { status: vu_result_status(&result), result })
 }
 
-pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; 144]) -> Result<VUVerifyResult> {
+pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; 144]) -> Result<VuVerifyResult> {
     verify_vu_with_time(data_files, erca_pk, None)
 }
 
@@ -520,18 +500,8 @@ mod tests {
 
     #[test]
     fn test_vu_result_status() {
-        let item_valid = VUVerifyItem {
-            trep_id: VUTransferResponseParameterID::Overview,
-            position: 1,
-            status: VerifyStatus::Valid,
-            end_of_validity: None,
-        };
-        let item_invalid = VUVerifyItem {
-            trep_id: VUTransferResponseParameterID::Activities,
-            position: 2,
-            status: VerifyStatus::Invalid,
-            end_of_validity: None,
-        };
+        let item_valid = VuVerifyItem::record(VUTransferResponseParameterID::Overview, 1, VerifyStatus::Valid, None);
+        let item_invalid = VuVerifyItem::record(VUTransferResponseParameterID::Activities, 2, VerifyStatus::Invalid, None);
         assert!(matches!(vu_result_status(&[]), VerifyResultStatus::Unsigned));
         assert!(matches!(vu_result_status(std::slice::from_ref(&item_valid)), VerifyResultStatus::Valid));
         assert!(matches!(vu_result_status(&[item_valid, item_invalid]), VerifyResultStatus::PartiallyValid));

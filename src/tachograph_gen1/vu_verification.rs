@@ -13,19 +13,15 @@ pub(crate) fn verify_certificate_chain(
         verification::verify_vu_certificates_raw_at(member_state_certificate_raw, vu_certificate_raw, erca_pk, None)?;
 
     let result = vec![
-        VuVerifyItem {
-            certificate: VuCertificateKind::MemberStateCertificate,
-            status: VerifyStatus::Valid,
-            end_of_validity: Some(msca_decrypted.end_of_validity),
-        },
-        VuVerifyItem {
-            certificate: VuCertificateKind::VuCertificate,
-            status: VerifyStatus::Valid,
-            end_of_validity: Some(vu_decrypted.end_of_validity),
-        },
+        VuVerifyItem::certificate(
+            VuCertificateKind::MemberStateCertificate,
+            VerifyStatus::Valid,
+            Some(msca_decrypted.end_of_validity),
+        ),
+        VuVerifyItem::certificate(VuCertificateKind::VuCertificate, VerifyStatus::Valid, Some(vu_decrypted.end_of_validity)),
     ];
 
-    let status = result_status(result.iter().map(|item| &item.status));
+    let status = result_status(result.iter().map(|item| item.status()));
     Ok(VuVerifyResult { status, result })
 }
 

@@ -476,7 +476,7 @@ dataType: TachographDataType,
  */
 cardInVuData: boolean, };
 
-export type TachographVerifyResult = VerifyResult | [VerifyResult, VerifyResult] | VUVerifyResult;
+export type TachographVerifyResult = VerifyResult | [VerifyResult, VerifyResult] | VuVerifyResult;
 
 export type TimeReal = string | null;
 
@@ -485,10 +485,6 @@ export type VUFileData = { trepId: VUTransferResponseParameterID, position: numb
 export type VUTransferResponseParameterID = "Unknown" | "Overview" | "Activities" | "EventsAndFaults" | "Speed" | "TechnicalData" | "CardDownload" | "OddballCrashDump" | "Gen2Overview" | "Gen2Activities" | "Gen2EventsAndFaults" | "Gen2Speed" | "Gen2TechnicalData" | "Gen2CardDownload" | "Gen2v2Overview" | "Gen2v2Activities" | "Gen2v2EventsAndFaults" | "Gen2v2Speed" | "Gen2v2TechnicalData";
 
 export type VUTransferResponseParameterItem<D> = { typeId: VUTransferResponseParameterID, position: number, data: D, };
-
-export type VUVerifyItem = { trepId: VUTransferResponseParameterID, position: number, status: VerifyStatus, end_of_validity: TimeReal | null, };
-
-export type VUVerifyResult = { status: VerifyResultStatus, result: Array<VUVerifyItem>, };
 
 export type VehicleRegistrationIdentification = { vehicleRegistrationNation: NationNumeric, vehicleRegistrationNumber: VehicleRegistrationNumber, };
 
@@ -508,7 +504,7 @@ export type VuDetailedSpeedBlock = { speedBlockBeginDate: TimeReal, speedsPerSec
 
 export type VuOverSpeedingControlData = { lastOverspeedControlTime: TimeReal, firstOverspeedSince: TimeReal, numberOfOverspeedSince: number, };
 
-export type VuVerifyItem = { certificate: VuCertificateKind, status: VerifyStatus, end_of_validity: TimeReal | null, };
+export type VuVerifyItem = { certificate: VuCertificateKind, status: VerifyStatus, end_of_validity: TimeReal | null, } | { trepId: VUTransferResponseParameterID, position: number, status: VerifyStatus, end_of_validity: TimeReal | null, };
 
 export type VuVerifyResult = { status: VerifyResultStatus, result: Array<VuVerifyItem>, };
 
@@ -530,8 +526,8 @@ ercaPublicKey: Uint8Array,
 export function verify_vu_full(
 dataFiles: Array<VUFileData>,
 ercaPublicKey: Uint8Array,
-): VUVerifyResult;
+): VuVerifyResult;
 export function verify_vu(
 dataFiles: Array<VUFileData>,
 ercaPublicKey: Uint8Array,
-): VUVerifyResult;
+): VuVerifyResult;

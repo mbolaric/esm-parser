@@ -123,9 +123,9 @@ fn test_verify_real_gen1_vu_certificate_chain() {
 
     let verified = verify_vu(&VuOverview::Gen1(overview), &erca).expect("The real Gen1 VU certificate chain must verify.");
     assert!(matches!(verified.status, VerifyResultStatus::Valid));
-    assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
-    assert!(verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::MemberStateCertificate)));
-    assert!(verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::VuCertificate)));
+    assert!(verified.result.iter().all(|item| matches!(item.status(), VerifyStatus::Valid)));
+    assert!(verified.result.iter().any(|item| item.certificate_kind() == Some(&VuCertificateKind::MemberStateCertificate)));
+    assert!(verified.result.iter().any(|item| item.certificate_kind() == Some(&VuCertificateKind::VuCertificate)));
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn test_verify_real_gen2_vu_certificate_chain() {
 
     let verified = verify_vu(&VuOverview::Gen2(overview), &erca).expect("The real Gen2 VU certificate chain must verify.");
     assert!(matches!(verified.status, VerifyResultStatus::Valid));
-    assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
-    assert!(verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::MemberStateCertificate)));
-    assert!(verified.result.iter().any(|item| matches!(item.certificate, VuCertificateKind::VuCertificate)));
+    assert!(verified.result.iter().all(|item| matches!(item.status(), VerifyStatus::Valid)));
+    assert!(verified.result.iter().any(|item| item.certificate_kind() == Some(&VuCertificateKind::MemberStateCertificate)));
+    assert!(verified.result.iter().any(|item| item.certificate_kind() == Some(&VuCertificateKind::VuCertificate)));
 }

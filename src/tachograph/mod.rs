@@ -155,8 +155,7 @@ pub use time_real::TimeReal;
 pub use vehicle_registration_identification::VehicleRegistrationIdentification;
 pub use vehicle_registration_number::VehicleRegistrationNumber;
 pub use verify_result::{
-    VUVerifyItem, VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind,
-    VuOverviewCertificateVerifyItem, VuOverviewCertificateVerifyResult, VuVerifyItem, VuVerifyResult,
+    VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult,
 };
 pub use vu_data::VUData;
 pub use vu_detailed_speed_block::VuDetailedSpeedBlock;

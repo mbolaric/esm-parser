@@ -54,7 +54,7 @@ Other profiles fail closed. Larger brainpool/NIST curves (CS#2 / CS#3) are rejec
 | **Gen2 Verification Engine** | [`src/tachograph_gen2/verification.rs`](../src/tachograph_gen2/verification.rs) | CVC parsing, chain checks, Link Cert rollover, card EF and VU TREP signature validation          |
 | **Card Data Model**          | [`src/tachograph_gen2/card_data.rs`](../src/tachograph_gen2/card_data.rs)       | Gen2 / Combined card parsing and elementary file storage                                         |
 | **VU Data Model**            | [`src/tachograph_gen2/vu_data.rs`](../src/tachograph_gen2/vu_data.rs)           | Gen2 VU parsing, storing raw TREP bytes and preserving signature arrays                          |
-| **Verification Results**     | [`src/tachograph/verify_result.rs`](../src/tachograph/verify_result.rs)         | Shared result models (`VerifyResult`, `VUVerifyResult`, `VerifyItem`, `VUVerifyItem`)            |
+| **Verification Results**     | [`src/tachograph/verify_result.rs`](../src/tachograph/verify_result.rs)         | Shared result models (`VerifyResult`, `VuVerifyResult`, `VerifyItem`, `VuVerifyItem`)            |
 | **CLI & Export Handlers**    | [`examples/helpers/export.rs`](../examples/helpers/export.rs)                   | Dispatches verification for `esm2json` and `esm2xml`, isolating combined and VU outputs          |
 
 ---
@@ -90,7 +90,7 @@ pub fn verify_vu_full_with_time(
     data_files: &VUFilesList,
     erca_pk: &[u8],
     validation_time: Option<u32>,
-) -> Result<VUVerifyResult>
+) -> Result<VuVerifyResult>
 ```
 
 - Key length automatically selects the verifier:

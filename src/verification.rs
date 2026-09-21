@@ -10,7 +10,7 @@ use std::io::Read;
 use binary_data::{BinReader, BinSeek};
 use serde::Serialize;
 
-use crate::tacho::{CardFilesMap, CardGeneration, DataFiles, VUFilesList, VUVerifyResult, VerifyResult, VuVerifyResult};
+use crate::tacho::{CardFilesMap, CardGeneration, DataFiles, VUFilesList, VerifyResult, VuVerifyResult};
 use crate::{Error, Export, Result, TachographData, gen1, gen2};
 
 /// Unified verification result across any tachograph document (Card or VU, Gen1 or Gen2).
@@ -20,7 +20,7 @@ use crate::{Error, Export, Result, TachographData, gen1, gen2};
 pub enum TachographVerifyResult {
     Card(VerifyResult),
     CombinedCard(VerifyResult, VerifyResult),
-    Vu(VUVerifyResult),
+    Vu(VuVerifyResult),
 }
 
 impl Export for TachographVerifyResult {}
@@ -146,7 +146,7 @@ pub fn verify_card_with_erca_path(
 }
 
 /// Verifies the digital signatures of Vehicle Unit (VU) data files across all downloaded records.
-pub fn verify_vu_full(data_files: &VUFilesList, erca_pk: &[u8]) -> Result<VUVerifyResult> {
+pub fn verify_vu_full(data_files: &VUFilesList, erca_pk: &[u8]) -> Result<VuVerifyResult> {
     verify_vu_full_with_time(data_files, erca_pk, None)
 }
 
@@ -155,7 +155,7 @@ pub fn verify_vu_full_with_time(
     data_files: &VUFilesList,
     erca_pk: &[u8],
     validation_time: Option<u32>,
-) -> Result<VUVerifyResult> {
+) -> Result<VuVerifyResult> {
     if data_files.is_empty() {
         return Err(Error::EmptyInputData("Data for verification are not provided.".to_owned()));
     }
@@ -172,7 +172,7 @@ pub fn verify_vu_full_with_time(
 }
 
 /// Verifies full VU signatures by loading the ERCA public key from a file path.
-pub fn verify_vu_full_with_erca_path(data_files: &VUFilesList, erca_pk_file_path: &str) -> Result<VUVerifyResult> {
+pub fn verify_vu_full_with_erca_path(data_files: &VUFilesList, erca_pk_file_path: &str) -> Result<VuVerifyResult> {
     let mut file = BinReader::open(erca_pk_file_path)?;
     let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
     file.read_to_end(&mut erca_pk)?;

@@ -6,7 +6,7 @@ use time::macros::format_description;
 use crate::{Readable, Writable};
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[cfg_attr(feature = "typescript", ts(type = "string | null"))]
 pub struct TimeReal {

@@ -7,8 +7,8 @@ use sha2::{Digest, Sha256};
 use signature::hazmat::PrehashVerifier;
 
 use crate::tacho::{
-    CardFileData, CardFileID, CardFilesMap, EquipmentType, TimeReal, VUFilesList, VUTransferResponseParameterID, VUVerifyItem,
-    VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
+    CardFileData, CardFileID, CardFilesMap, EquipmentType, TimeReal, VUFilesList, VUTransferResponseParameterID, VerifyItem,
+    VerifyResult, VerifyResultStatus, VerifyStatus, VuVerifyItem, VuVerifyResult,
 };
 pub(in crate::tachograph_gen2) use crate::tachograph_gen2::card_verifiable_certificate::{
     BRAINPOOL_P256_R1_OID, CHA_SIZE, CHR_SIZE, CardVerifiableCertificate, ECDSA_P256_SIGNATURE_SIZE, GEN2_CERTIFICATE_SIZE,
@@ -388,12 +388,12 @@ pub fn verify_with_time(
     Ok(VerifyResult { status, result })
 }
 
-fn vu_result_status(items: &[VUVerifyItem]) -> VerifyResultStatus {
+fn vu_result_status(items: &[VuVerifyItem]) -> VerifyResultStatus {
     if items.is_empty() {
         VerifyResultStatus::Unsigned
-    } else if items.iter().all(|item| matches!(item.status, VerifyStatus::Valid)) {
+    } else if items.iter().all(|item| matches!(item.status(), VerifyStatus::Valid)) {
         VerifyResultStatus::Valid
-    } else if items.iter().any(|item| matches!(item.status, VerifyStatus::Valid)) {
+    } else if items.iter().any(|item| matches!(item.status(), VerifyStatus::Valid)) {
         VerifyResultStatus::PartiallyValid
     } else {
         VerifyResultStatus::Invalid
@@ -497,34 +497,19 @@ fn verify_vu_certificates_at(
     Ok(vu_verified)
 }
 
-fn verify_vu_data(data_files: &VUFilesList, vu_verified: &VerifiedCertificate) -> Vec<VUVerifyItem> {
+fn verify_vu_data(data_files: &VUFilesList, vu_verified: &VerifiedCertificate) -> Vec<VuVerifyItem> {
     let mut result = Vec::new();
     for file in data_files {
         let Some(raw_data) = file.data.as_ref() else {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::NotHaveData,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveData, None));
             continue;
         };
         let Some(signature) = file.signature.as_ref() else {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::NotHaveSignature,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveSignature, None));
             continue;
         };
         if signature.len() != ECDSA_P256_SIGNATURE_SIZE {
-            result.push(VUVerifyItem {
-                trep_id: file.trep_id.clone(),
-                position: file.position,
-                status: VerifyStatus::InvalidSignatureSize,
-                end_of_validity: None,
-            });
+            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::InvalidSignatureSize, None));
             continue;
         }
 
@@ -536,12 +521,12 @@ fn verify_vu_data(data_files: &VUFilesList, vu_verified: &VerifiedCertificate) -
 
         let end_of_validity = if is_overview_trep(&file.trep_id) { Some(vu_verified.end_of_validity.clone()) } else { None };
 
-        result.push(VUVerifyItem { trep_id: file.trep_id.clone(), position: file.position, status, end_of_validity });
+        result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, status, end_of_validity));
     }
     result
 }
 
-pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) -> Result<VUVerifyResult> {
+pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) -> Result<VuVerifyResult> {
     verify_vu_with_time(data_files, erca_pk, None)
 }
 
@@ -549,7 +534,7 @@ pub fn verify_vu_with_time(
     data_files: &VUFilesList,
     erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],
     validation_time: Option<u32>,
-) -> Result<VUVerifyResult> {
+) -> Result<VuVerifyResult> {
     let overview = data_files
         .iter()
         .find(|f| is_overview_trep(&f.trep_id))
@@ -566,7 +551,7 @@ pub fn verify_vu_with_time(
     let vu_verified = verify_vu_certificates_at(raw_bytes, erca_pk, validation_time)?;
     let result = verify_vu_data(data_files, &vu_verified);
 
-    Ok(VUVerifyResult { status: vu_result_status(&result), result })
+    Ok(VuVerifyResult { status: vu_result_status(&result), result })
 }
 
 #[cfg(test)]
@@ -936,7 +921,7 @@ mod tests {
         let verified = verify_vu_with_time(&data_files, &root, Some(1_735_689_600)).unwrap();
         assert!(matches!(verified.status, VerifyResultStatus::Valid));
         assert_eq!(verified.result.len(), 2);
-        assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
+        assert!(verified.result.iter().all(|item| matches!(item.status(), VerifyStatus::Valid)));
     }
 
     #[test]
@@ -990,10 +975,8 @@ mod tests {
         let data_files = vec![overview_file, activity_file];
         let verified = verify_vu_with_time(&data_files, &root, Some(1_735_689_600)).unwrap();
         assert!(matches!(verified.status, VerifyResultStatus::PartiallyValid));
-        assert!(
-            verified.result.iter().any(|item| item.trep_id == VUTransferResponseParameterID::Gen2Activities
-                && matches!(item.status, VerifyStatus::Invalid))
-        );
+        assert!(verified.result.iter().any(|item| item.trep_id() == Some(&VUTransferResponseParameterID::Gen2Activities)
+            && matches!(item.status(), VerifyStatus::Invalid)));
     }
 
     #[test]
