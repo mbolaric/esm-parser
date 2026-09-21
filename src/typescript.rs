@@ -4,14 +4,13 @@ use std::fmt::Write;
 
 use ts_rs::{Config, TS, TypeVisitor};
 
-use crate::SerializedTachographData;
-use crate::TachographVerifyResult;
 use crate::gen2::{LoadType, OperationType};
 use crate::tacho::{
     ActivityCard, ActivitySource, ActivityType, CalibrationPurpose, CardSlotNumber, CardStatus, ControlType, DrivingStatus,
     EntryTypeDailyWorkPeriod, EquipmentType, EventFaultRecordPurpose, EventFaultType, RegionNumeric, SpecificConditionType,
     VUVerifyResult, VerifyResult, VuVerifyResult,
 };
+use crate::{SerializedTachographData, TachographVerifyResult};
 
 struct DeclarationCollector<'a> {
     config: &'a Config,

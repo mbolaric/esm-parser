@@ -8,7 +8,6 @@
 use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
-
 use serde::Serialize;
 
 use crate::tacho::{CardFilesMap, CardGeneration, DataFiles, VUFilesList, VUVerifyResult, VerifyResult, VuVerifyResult};
@@ -200,50 +199,43 @@ pub fn verify_tachograph_data(
                 crate::gen1::CardResponseParameterData::CompanyCard(b) => Some(b.as_ref()),
                 _ => None,
             };
-            let card = card_type
-                .ok_or_else(|| Error::VerifyError("Unsupported Card Type verification is not possible.".to_string()))?;
+            let card =
+                card_type.ok_or_else(|| Error::VerifyError("Unsupported Card Type verification is not possible.".to_string()))?;
             let res = verify_card(&CardGeneration::Gen1, card.get_data_files(), key)?;
             Ok(TachographVerifyResult::Card(res))
         }
-        TachographData::CardGen2(card_gen2) => {
-            match &card_gen2.card_data_responses {
-                crate::gen2::CardResponseParameterData::DriverCard(crate::gen2::ParsedCard::Gen2(card)) => {
-                    let key =
-                        erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for CardGen2".to_string()))?;
-                    let res = verify_card(&CardGeneration::Gen2, card.get_data_files(), key)?;
-                    Ok(TachographVerifyResult::Card(res))
-                }
-                crate::gen2::CardResponseParameterData::WorkshopCard(crate::gen2::ParsedCard::Gen2(card)) => {
-                    let key =
-                        erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for CardGen2".to_string()))?;
-                    let res = verify_card(&CardGeneration::Gen2, card.get_data_files(), key)?;
-                    Ok(TachographVerifyResult::Card(res))
-                }
-                crate::gen2::CardResponseParameterData::DriverCard(crate::gen2::ParsedCard::Combined(gen1_card, gen2_card)) => {
-                    let key1 = erca_gen1_pk
-                        .ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for Combined card".to_string()))?;
-                    let key2 = erca_gen2_pk
-                        .ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for Combined card".to_string()))?;
-                    let (res1, res2) =
-                        verify_combined_card(gen1_card.get_data_files(), key1, gen2_card.get_data_files(), key2)?;
-                    Ok(TachographVerifyResult::CombinedCard(res1, res2))
-                }
-                crate::gen2::CardResponseParameterData::WorkshopCard(crate::gen2::ParsedCard::Combined(gen1_card, gen2_card)) => {
-                    let key1 = erca_gen1_pk
-                        .ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for Combined card".to_string()))?;
-                    let key2 = erca_gen2_pk
-                        .ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for Combined card".to_string()))?;
-                    let (res1, res2) =
-                        verify_combined_card(gen1_card.get_data_files(), key1, gen2_card.get_data_files(), key2)?;
-                    Ok(TachographVerifyResult::CombinedCard(res1, res2))
-                }
-                crate::gen2::CardResponseParameterData::CompanyCard(_)
-                | crate::gen2::CardResponseParameterData::ControlCard(_) => {
-                    Err(Error::VerifyError("Gen2 signature verification is not applicable to Company and Control cards.".to_string()))
-                }
-                _ => Err(Error::VerifyError("Unsupported Gen2 Card Type verification is not possible.".to_string())),
+        TachographData::CardGen2(card_gen2) => match &card_gen2.card_data_responses {
+            crate::gen2::CardResponseParameterData::DriverCard(crate::gen2::ParsedCard::Gen2(card)) => {
+                let key = erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for CardGen2".to_string()))?;
+                let res = verify_card(&CardGeneration::Gen2, card.get_data_files(), key)?;
+                Ok(TachographVerifyResult::Card(res))
             }
-        }
+            crate::gen2::CardResponseParameterData::WorkshopCard(crate::gen2::ParsedCard::Gen2(card)) => {
+                let key = erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for CardGen2".to_string()))?;
+                let res = verify_card(&CardGeneration::Gen2, card.get_data_files(), key)?;
+                Ok(TachographVerifyResult::Card(res))
+            }
+            crate::gen2::CardResponseParameterData::DriverCard(crate::gen2::ParsedCard::Combined(gen1_card, gen2_card)) => {
+                let key1 =
+                    erca_gen1_pk.ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for Combined card".to_string()))?;
+                let key2 =
+                    erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for Combined card".to_string()))?;
+                let (res1, res2) = verify_combined_card(gen1_card.get_data_files(), key1, gen2_card.get_data_files(), key2)?;
+                Ok(TachographVerifyResult::CombinedCard(res1, res2))
+            }
+            crate::gen2::CardResponseParameterData::WorkshopCard(crate::gen2::ParsedCard::Combined(gen1_card, gen2_card)) => {
+                let key1 =
+                    erca_gen1_pk.ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for Combined card".to_string()))?;
+                let key2 =
+                    erca_gen2_pk.ok_or_else(|| Error::EmptyInputData("Gen2 ERCA key required for Combined card".to_string()))?;
+                let (res1, res2) = verify_combined_card(gen1_card.get_data_files(), key1, gen2_card.get_data_files(), key2)?;
+                Ok(TachographVerifyResult::CombinedCard(res1, res2))
+            }
+            crate::gen2::CardResponseParameterData::CompanyCard(_) | crate::gen2::CardResponseParameterData::ControlCard(_) => {
+                Err(Error::VerifyError("Gen2 signature verification is not applicable to Company and Control cards.".to_string()))
+            }
+            _ => Err(Error::VerifyError("Unsupported Gen2 Card Type verification is not possible.".to_string())),
+        },
         TachographData::VUGen1(vu_gen1) => {
             let key = erca_gen1_pk.ok_or_else(|| Error::EmptyInputData("Gen1 ERCA key required for VUGen1".to_string()))?;
             let res = verify_vu_full(vu_gen1.get_data_files(), key)?;

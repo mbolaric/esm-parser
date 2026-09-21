@@ -106,19 +106,17 @@ pub mod gen2 {
 #[cfg(target_arch = "wasm32")]
 pub use helpers::{LogLevel, init_console_logging};
 pub use parser::{parse_from_file, parse_from_memory};
+pub use tachograph::{
+    CardFileData, CardFileID, CardFilesMap, CardGeneration, DataFiles, VUDataFiles, VUFileData, VUFilesList, VUVerifyItem,
+    VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult,
+};
 pub use tachograph_data::{SerializedTachographData, TachographData};
 #[cfg(feature = "typescript")]
 pub use typescript::wasm_boundary_declaration;
-pub use tachograph::{
-    CardFileData, CardFileID, CardFilesMap, CardGeneration, DataFiles, VUDataFiles, VUFileData, VUFilesList, VUVerifyItem,
-    VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind, VuVerifyItem,
-    VuVerifyResult,
-};
 pub use verification::{
-    TachographVerifyResult, VuOverview, verify_card, verify_card_with_erca_path, verify_card_with_time,
-    verify_combined_card, verify_tachograph_data, verify_tachograph_data_with_erca_paths, verify_vu,
-    verify_vu_certificate_chain, verify_vu_full, verify_vu_full_with_erca_path, verify_vu_full_with_time,
-    verify_vu_with_erca_path,
+    TachographVerifyResult, VuOverview, verify_card, verify_card_with_erca_path, verify_card_with_time, verify_combined_card,
+    verify_tachograph_data, verify_tachograph_data_with_erca_paths, verify_vu, verify_vu_certificate_chain, verify_vu_full,
+    verify_vu_full_with_erca_path, verify_vu_full_with_time, verify_vu_with_erca_path,
 };
 
 #[cfg(target_arch = "wasm32")]

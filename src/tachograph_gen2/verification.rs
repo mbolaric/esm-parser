@@ -7,8 +7,8 @@ use sha2::{Digest, Sha256};
 use signature::hazmat::PrehashVerifier;
 
 use crate::tacho::{
-    CardFileData, CardFileID, CardFilesMap, EquipmentType, TimeReal, VUFilesList,
-    VUTransferResponseParameterID, VUVerifyItem, VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
+    CardFileData, CardFileID, CardFilesMap, EquipmentType, TimeReal, VUFilesList, VUTransferResponseParameterID, VUVerifyItem,
+    VUVerifyResult, VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus,
 };
 pub(in crate::tachograph_gen2) use crate::tachograph_gen2::card_verifiable_certificate::{
     BRAINPOOL_P256_R1_OID, CHA_SIZE, CHR_SIZE, CardVerifiableCertificate, ECDSA_P256_SIGNATURE_SIZE, GEN2_CERTIFICATE_SIZE,
