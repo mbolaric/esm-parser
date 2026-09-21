@@ -1,206 +1,198 @@
 # Gen2 Signature Verification — Implementation Reference
 
-This document describes the current Gen2 card-signature verification in the
-crate.
+This document describes the Gen2 signature verification implementation in the `esm-parser` crate, covering both **Smart Card** applications and **Vehicle Unit (VU)** data downloads.
 
-## Scope
+---
 
-The implementation verifies signed Gen2 **Driver** and **Workshop** card
-applications. It validates the direct certificate chain and each signed
-application elementary file:
+## 1. Scope and Architecture
+
+The implementation verifies digital signatures and certificate chains for:
+
+1. **Gen2 Driver and Workshop Cards**: Elementary files in the Gen2 application.
+2. **Gen2 Vehicle Units (VU)**: Transfer Response Parameter (TREP) data records extracted from VU downloads.
+
+### Certificate Trust Chains
 
 ```text
-ERCA (self-signed)
-  -> MSCA card certificate
-    -> DriverCardSign or WorkshopCardSign certificate
-      -> signed card application files
+Card Verification:
+  ERCA (self-signed root CVC)
+    -> [optional LinkCertificate (ERCA rollover)]
+      -> MSCA Card Certificate
+        -> DriverCardSign or WorkshopCardSign Certificate
+          -> Signed Elementary Files (EF)
+
+Vehicle Unit (VU) Verification:
+  ERCA (self-signed root CVC)
+    -> [optional LinkCertificate (ERCA rollover)]
+      -> MSCA VU Certificate (embedded in Overview TREP 01)
+        -> VehicleUnitSign Certificate (embedded in Overview TREP 01)
+          -> Signed TREP Data Blocks (Overview, Activities, Events/Faults, Speed, Technical Data)
 ```
 
-The Gen2 CVC values handled by this implementation have a fixed 205-byte
-boundary. The accepted CS#1 profile is deliberately narrow:
+### Cryptographic Profile (CS#1)
 
-| Property | Implemented value |
-|---|---|
-| Curve | `brainpoolP256r1` (`1.3.36.3.3.2.8.1.1.7`) |
-| Hash | SHA-256 |
-| Public-key encoding | 65-byte uncompressed SEC1 point |
-| ECDSA signature encoding | 64-byte plain `r || s` |
-| Certificate format | strict DER-TLV CVC, rooted at `7F21` |
+The implementation strictly follows Cipher Suite CS#1 as specified in Annex IC, Appendix 11 of [Commission Implementing Regulation (EU) 2016/799](https://eur-lex.europa.eu/eli/reg_impl/2016/799/2016-05-26/eng) and [Commission Implementing Regulation (EU) 2021/1228](https://eur-lex.europa.eu/eli/reg_impl/2021/1228/oj/eng):
 
-Other profiles fail closed. CS#2/CS#3, larger brainpool/NIST curves,
-`LinkCertificate` rollover resolution, and VU signature-record verification are
-not implemented.
+| Property                     | Value / Specification                                                |
+| ---------------------------- | -------------------------------------------------------------------- |
+| **Curve**                    | `brainpoolP256r1` (`1.3.36.3.3.2.8.1.1.7`)                           |
+| **Hash Algorithm**           | SHA-256                                                              |
+| **Public Key Encoding**      | 65-byte uncompressed SEC1 point (`0x04                               |     | X   |     | Y`) |
+| **ECDSA Signature Encoding** | 64-byte plain `r                                                     |     | s`  |
+| **Certificate Format**       | Strict DER-TLV Card Verifiable Certificate (CVC), rooted at `0x7F21` |
+| **CVC Length**               | Fixed 205 bytes                                                      |
 
-The implementation follows the Common Security Mechanisms in Annex IC,
-Appendix 11 of [Commission Implementing Regulation (EU) 2016/799](https://eur-lex.europa.eu/eli/reg_impl/2016/799/2016-05-26/eng).
+Other profiles fail closed. Larger brainpool/NIST curves (CS#2 / CS#3) are rejected as unsupported key sizes.
 
-## Code map
+---
 
-| Area | Implementation |
-|---|---|
-| Public verification API | [`src/verification.rs`](../src/verification.rs) |
-| Gen2 CVC parsing, chain checks, and file checks | [`src/tachograph_gen2/verification.rs`](../src/tachograph_gen2/verification.rs) |
-| Gen2/combined card parsing | [`src/tachograph_gen2/card_data.rs`](../src/tachograph_gen2/card_data.rs) |
-| CLI/export handling | [`examples/helpers/export.rs`](../examples/helpers/export.rs) |
-| Deterministic and fixture-backed tests | [`tests/verification_tests.rs`](../tests/verification_tests.rs) |
+## 2. Code Map
 
-## Public verification contract
+| Area                         | Implementation File                                                             | Description                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Public Verification API**  | [`src/verification.rs`](../src/verification.rs)                                 | High-level card and VU verification entry points (`verify_card`, `verify_vu`, file path helpers) |
+| **Gen2 Verification Engine** | [`src/tachograph_gen2/verification.rs`](../src/tachograph_gen2/verification.rs) | CVC parsing, chain checks, Link Cert rollover, card EF and VU TREP signature validation          |
+| **Card Data Model**          | [`src/tachograph_gen2/card_data.rs`](../src/tachograph_gen2/card_data.rs)       | Gen2 / Combined card parsing and elementary file storage                                         |
+| **VU Data Model**            | [`src/tachograph_gen2/vu_data.rs`](../src/tachograph_gen2/vu_data.rs)           | Gen2 VU parsing, storing raw TREP bytes and preserving signature arrays                          |
+| **Verification Results**     | [`src/tachograph/verify_result.rs`](../src/tachograph/verify_result.rs)         | Shared result models (`VerifyResult`, `VUVerifyResult`, `VerifyItem`, `VUVerifyItem`)            |
+| **CLI & Export Handlers**    | [`examples/helpers/export.rs`](../examples/helpers/export.rs)                   | Dispatches verification for `esm2json` and `esm2xml`, isolating combined and VU outputs          |
 
-`verify_card` and `verify_card_with_erca_path` verify exactly one card
-application at a time.
+---
 
-- `CardGeneration::Gen1` requires a 144-byte ERCA value.
+## 3. Public Verification Contracts
+
+### Card Verification
+
+`verify_card`, `verify_card_with_time`, and `verify_card_with_erca_path` verify exactly one card application at a time:
+
+```rust
+pub fn verify_card(
+    data_files: &CardFilesMap,
+    generation: CardGeneration,
+    erca_pk: &[u8],
+) -> Result<VerifyResult>
+```
+
+- `CardGeneration::Gen1` requires a 144-byte ERCA RSA public key.
 - `CardGeneration::Gen2` requires a 205-byte ERCA CVC.
-- `CardGeneration::Combined` is rejected. A combined card contains two separate
-  application maps and may require two unrelated ERCA certificates; passing one
-  map and one certificate would be ambiguous.
+- `CardGeneration::Combined` is rejected. A combined card contains both Gen1 and Gen2 application maps, which may require two separate ERCA root certificates. Callers must dispatch each application independently:
+  ```text
+  combined Gen1 application + Gen1 ERCA (144 bytes) -> Gen1 result
+  combined Gen2 application + Gen2 ERCA (205 bytes) -> Gen2 result
+  ```
 
-Generation is an explicit contract, not something inferred from the ERCA length.
-The API validates the requested generation and certificate length before calling
-the corresponding Gen1 or Gen2 verifier.
+### Vehicle Unit (VU) Verification
 
-For a combined card, callers must split the parser result and make independent
-calls:
+`verify_vu`, `verify_vu_with_time`, and `verify_vu_with_erca_path` verify extracted VU transfer response parameter files:
 
-```text
-combined Gen1 application + Gen1 ERCA (144 bytes) -> Gen1 result
-combined Gen2 application + Gen2 ERCA (205 bytes) -> Gen2 result
+```rust
+pub fn verify_vu_with_time(
+    data_files: &VUFilesList,
+    erca_pk: &[u8],
+    validation_time: Option<u32>,
+) -> Result<VUVerifyResult>
 ```
 
-## CVC parsing and certificate validation
+- Key length automatically selects the verifier:
+  - **144 bytes**: Gen1 VU verifier (`tachograph_gen1::verification::verify_vu_with_time`, RSA-1024 / SHA-1).
+  - **205 bytes**: Gen2 VU verifier (`tachograph_gen2::verification::verify_vu_with_time`, ECDSA P-256 / SHA-256).
+  - Other lengths: Returns `Error::VerifyError("ERCA Public Key size ... is not supported")`.
 
-The Gen2 verifier parses the 205-byte CVC strictly. It requires the expected
-outer certificate and certificate-body TLVs (`7F21` and `7F4E`) and validates
-the profile, CAR, CHA, public-key OID and point, CHR, effective date, expiration
-date, and certificate signature fields.
+---
 
-At the current UTC verification time it performs these checks in order:
+## 4. Certificate Validation & Link Certificate Rollover
 
-1. Parse and verify the ERCA CVC as self-signed. Its CAR must equal its CHR and
-   its equipment type must be ERCA.
-2. Parse the `CACertificate` as the MSCA certificate. Its CAR must equal the
-   ERCA CHR, its equipment type must be MSCA, and its CVC signature must verify
-   with the ERCA public key.
-3. Read `CardSignCertificate`, falling back to `CardCertificate` for compatible
-   input. Its CAR must equal the MSCA CHR, it must be a DriverCardSign or
-   WorkshopCardSign certificate, and its CVC signature must verify with the
-   MSCA public key.
-4. Validate every certificate's effective and expiration dates at the current
-   time.
+### Strict CVC Parsing
 
-Any failed certificate or chain check returns `Error::VerifyError`; it is never
-converted into a successful partial result. A supplied root must
-cryptographically verify the embedded MSCA certificate. Matching references by
-themselves are not enough.
+The Gen2 CVC parser requires strict TLV structure rooted at tag `7F21`, with inner body `7F4E`:
 
-## Application-file verification
+- CPI must be `0x00`.
+- Profile fields checked: CAR (`0x42`), CHA (`0x5F4C`), Public Key OID and Point (`0x7F49`), CHR (`0x5F20`), Effective Date (`0x5F25`), Expiration Date (`0x5F24`), and Signature (`0x5F37`).
 
-After the certificate chain succeeds, each signed Gen2 application file is
-hashed with SHA-256 and verified with the card-signing public key. The verifier
-records one `VerifyItem` per checked file.
+### Chain Verification Sequence
 
-These elementary files are intentionally excluded from per-file card-data
-signature checks:
+1. **ERCA Root**:
+   - Must be self-signed (`CAR == CHR`).
+   - Equipment type must be ERCA (`CHA[6] == 0x06` or `0x01`).
+2. **Link Certificate (Optional ERCA Rollover)**:
+   - If MSCA `CAR` does not match ERCA `CHR`, the verifier checks for an intermediate `LinkCertificate`.
+   - The Link Certificate is verified using the current ERCA key.
+   - If valid, the Link Certificate's public key replaces the root key for verifying the MSCA certificate.
+3. **MSCA Certificate**:
+   - `CAR` must match the ERCA (or Link Certificate) `CHR`.
+   - Equipment type must be MSCA (`CHA[6] == 0x07`).
+   - CVC signature is verified with the ERCA / Link public key.
+4. **Target Signing Certificate**:
+   - **Card**: Read from `CardSignCertificate` (falling back to `CardCertificate`). Role must be `DriverCardSign` (`0x11`) or `WorkshopCardSign` (`0x12`).
+   - **VU**: Extracted from Overview TREP raw bytes (`raw_bytes[..205]` MSCA, optional Link Cert, followed by VU_Sign). Role must be `VehicleUnitSign` (`0x13`).
+   - CVC signature is verified with the MSCA public key.
+5. **Validity Periods**:
+   - Verified against `validation_time` (or current UTC wall-clock time if `None`).
 
-- `IC`
-- `ICC`
-- `CACertificate`
-- `CardCertificate`
-- `CardSignCertificate`
-- `LinkCertificate`
-- `CardDownload`
+---
 
-`CardDownload` is excluded only from the Gen2 card-data verifier. Gen1 keeps
-its own existing handling for that file. The non-signed-card-file treatment is
-aligned with DDP_035 of [Commission Implementing Regulation (EU) 2021/1228](https://eur-lex.europa.eu/eli/reg_impl/2021/1228/oj/eng).
+## 5. File & TREP Signature Verification
 
-For every other file, the result is one of:
+### Card Elementary File Verification
 
-| Condition | Result |
-|---|---|
-| valid 64-byte signature | `Valid` |
-| signature does not verify | `Invalid` |
-| missing data | `NotHaveData` |
-| missing signature | `NotHaveSignature` |
-| signature has a size other than 64 bytes | `InvalidSignatureSize` |
+After the certificate chain is established, each signed Gen2 elementary file is hashed with SHA-256 and verified using the card-signing ECDSA public key.
 
-The aggregate status is `Valid` when every recorded item is valid,
-`PartiallyValid` when at least one item is valid and another is not, and `Invalid`
-when no recorded item is valid. If `IC` or `ICC` is absent, the Gen2 card is
-reported as `Unsigned` before certificate processing.
+The following non-signed elementary files are excluded from per-file card signature checks (aligned with DDP_035 of Regulation (EU) 2021/1228):
 
-## Combined-card CLI behavior
+- `IC`, `ICC`
+- `CACertificate`, `CardCertificate`, `CardSignCertificate`, `LinkCertificate`
+- `CardDownload` (excluded in Gen2; Gen1 maintains its own handling)
 
-The example exporters detect `ParsedCard::Combined` and keep the two
-applications isolated.
+### VU TREP Data Verification
 
-| Combined card type | Verification behavior |
-|---|---|
-| Driver | Verify Gen1 with `--erca-gen1-file`, then Gen2 with `--erca-gen2-file` |
-| Workshop | Verify Gen1 with `--erca-gen1-file`, then Gen2 with `--erca-gen2-file` |
-| Company | Verify only the Gen1 application; report that Gen2 `Card_Sign` is not applicable |
-| Control | Verify only the Gen1 application; report that Gen2 `Card_Sign` is not applicable |
+Every positive response TREP has a 64-byte plain ECDSA signature appended:
 
-For a base result path such as `card_verify.json`, a combined Driver or Workshop
-run writes:
+- **TREP 01 (Overview)**: Signs data excluding the embedded certificates prefix (`skip_prefix_bytes = 410` without Link Cert, or `615` with Link Cert).
+- **TREP 02 (Activities)**: Signs the data payload preceding the signature.
+- **TREP 03 (Events and Faults)**: Signs the data payload preceding the signature.
+- **TREP 04 (Detailed Speed)**: Signs the data payload preceding the signature.
+- **TREP 05 (Technical Data)**: Signs the data payload preceding the signature.
+- **Multi-Signature Support**: Preserves both single (`signature`) and multiple (`signatures: Vec<Vec<u8>>`) signature blocks when present.
 
-```text
-card_verify_gen1.json
-card_verify_gen2.json
-```
+### Result Statuses
 
-This prevents one application's result from overwriting the other. If an ERCA
-flag is missing, only that application's verification is skipped and the CLI
-explains which certificate was not supplied.
+Each checked item yields a `VerifyStatus`:
 
-## Test coverage
+| Status                 | Meaning                                                    |
+| ---------------------- | ---------------------------------------------------------- |
+| `Valid`                | ECDSA signature is cryptographically valid                 |
+| `Invalid`              | Signature failed verification against payload SHA-256 hash |
+| `NotHaveData`          | File or TREP record has no data payload                    |
+| `NotHaveSignature`     | File or TREP record has no signature appended              |
+| `InvalidSignatureSize` | Signature is present but not exactly 64 bytes              |
 
-The implementation has three complementary test layers:
+The aggregate result status (`VerifyResultStatus`) is computed as:
 
-1. Unit tests in `src/tachograph_gen2/verification.rs` embed public CVC vectors
-   and generate a deterministic ERCA → MSCA → card-signing chain. They verify
-   a signed application file, certificate failures, and Gen2 `CardDownload`
-   exclusion.
-2. `src/verification.rs` tests that the public API rejects an ambiguous
-   `CardGeneration::Combined` request.
-3. `tests/verification_tests.rs` contains ignored real-fixture tests. They
-   verify observable aggregate and per-file results, then flip one signed byte
-   to require detection of tampering.
+- **`Valid`**: Every checked file is `Valid`.
+- **`PartiallyValid`**: At least one file is `Valid`, and at least one file is non-valid.
+- **`Invalid`**: No checked files are `Valid`.
+- **`Unsigned`**: No signed data files or signatures were present to verify.
 
-Run the reproducible suite with:
+---
+
+## 6. CLI and Export Tools Integration
+
+The `esm2json` and `esm2xml` CLI examples support both Card and VU verification:
 
 ```bash
-cargo test --all-targets
-cargo clippy --all-targets -- -D warnings
+# Verify Gen2 Vehicle Unit
+cargo run --example esm2json -- -d VU_Gen2.DDD -e EC_PK_GEN2.bin --pretty
+
+# Verify Gen1 Vehicle Unit
+cargo run --example esm2json -- -d VU_Gen1.DDD -e EC_PK.bin --pretty
+
+# Verify Gen2 Driver Card
+cargo run --example esm2json -- -d C_Gen2.ddd -E EC_PK_GEN2.bin --pretty
+
+# Verify Combined Driver Card (produces card_verify_gen1.json and card_verify_gen2.json)
+cargo run --example esm2json -- -d C_Combined.ddd -e EC_PK.bin -E EC_PK_GEN2.bin --pretty
 ```
 
-Real DDD fixtures are deliberately ignored because they may contain private card
-data. To run the combined Driver/Workshop integration test, supply matching
-fixture paths and roots:
-
-```bash
-ESM_PARSER_COMBINED_DDD=/path/to/card.ddd \
-ESM_PARSER_COMBINED_GEN1_ERCA=/path/to/gen1-erca.bin \
-ESM_PARSER_COMBINED_GEN2_ERCA=/path/to/gen2-erca.bin \
-cargo test --test verification_tests test_verify_real_combined_card_and_rejects_gen2_tampering -- --ignored --exact
-```
-
-The Gen1 ERCA must be 144 bytes and the Gen2 ERCA must be 205 bytes. Both
-certificate chains must be valid at the current time. The test then modifies a
-signed Gen2 application file and requires that exact file to become `Invalid`.
-
-For Gen1 fixture coverage, use `ESM_PARSER_GEN1_DDD` or
-`ESM_PARSER_GEN1_DDD_DIR` together with `ESM_PARSER_GEN1_ERCA`.
-
-## Operational limitations
-
-- Certificate validity is evaluated against the current system time. Historical
-  test material may fail because it has expired even when its signatures are
-  structurally correct.
-- Root rollover is not resolved through `LinkCertificate`; provide the direct
-  ERCA that verifies the embedded MSCA certificate.
-- The verifier intentionally supports only the fixed P-256 profile above. Do
-  not reinterpret different curves, point widths, or signature widths as this
-  profile.
-- Company and Control Gen2 card applications have no supported `Card_Sign`
-  verification path in this implementation.
+- Outputs generated:
+  - Cards: `<filename>_verify.json` / `<filename>_verify.xml` (or `_gen1` / `_gen2` for combined cards).
+  - Vehicle Units: `<filename>_verify.json` / `<filename>_verify.xml`.
