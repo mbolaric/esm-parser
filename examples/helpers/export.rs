@@ -159,7 +159,7 @@ impl VerificationContext<'_> {
 
     fn verify_vu_data(&self, vu: &dyn VUDataFiles, erca_file: &str, out_verify_path: &str) {
         if erca_file.is_empty() {
-            self.pb.println("[-] ERCA certificate was not provided; verification is skipped.".to_string());
+            self.pb.println("[-] ERCA certificate was not provided; verification is skipped.");
             return;
         }
 
