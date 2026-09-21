@@ -109,7 +109,10 @@ pub use parser::{parse_from_file, parse_from_memory};
 pub use tachograph_data::{SerializedTachographData, TachographData};
 #[cfg(feature = "typescript")]
 pub use typescript::wasm_boundary_declaration;
-pub use verification::{verify_card, verify_card_with_erca_path};
+pub use verification::{
+    verify_card, verify_card_with_erca_path, verify_card_with_time, verify_combined_card, verify_vu, verify_vu_with_erca_path,
+    verify_vu_with_time,
+};
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen::prelude::wasm_bindgen(typescript_custom_section)]

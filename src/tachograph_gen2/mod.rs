@@ -126,7 +126,7 @@ pub use specific_conditions::{SpecificConditions, SpecificConditionsParams};
 pub use vehicle_identification_number_record_array::VehicleIdentificationNumberRecordArray;
 pub use vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray;
 pub use vehicle_registration_number_record_array::VehicleRegistrationNumberRecordArray;
-pub use verification::verify;
+pub use verification::{verify, verify_vu, verify_vu_with_time, verify_with_time};
 pub use vu_activity::VUActivity;
 pub use vu_activity_daily_record_array::VuActivityDailyRecordArray;
 pub use vu_calibration_record::VuCalibrationRecord;

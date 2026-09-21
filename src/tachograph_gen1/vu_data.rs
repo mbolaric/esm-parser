@@ -4,7 +4,8 @@ use serde::Serialize;
 
 use crate::gen1::{VUActivity, VUTransferResponseParameterData, VuDetailedSpeed, VuEvents, VuOverview, VuTechnicalData};
 use crate::tacho::{
-    self, TachographHeader, VUTransferResponseParameterID, VUTransferResponseParameterItem, VUTransferResponseParameterReader,
+    self, TachographHeader, VUDataFiles, VUFilesList, VUTransferResponseParameterID, VUTransferResponseParameterItem,
+    VUTransferResponseParameterReader,
 };
 use crate::{Export, Readable, Result, tachograph};
 
@@ -15,16 +16,22 @@ pub struct VUData {
     header: TachographHeader,
     #[serde(rename = "transferResParams")]
     transfer_res_params: Vec<VUTransferResponseParameterItem<VUTransferResponseParameterData>>,
+    #[serde(rename = "dataFiles")]
+    pub data_files: VUFilesList,
 }
 
 impl VUData {
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<VUData> {
-        let transfer_res_params = <dyn tacho::VUData<VUTransferResponseParameterData>>::from_data(
+        let (transfer_res_params, data_files) = <dyn tacho::VUData<VUTransferResponseParameterData>>::from_data_with_files(
             reader,
             &|trep_id: VUTransferResponseParameterID, reader: &mut R| VUData::parse_trep(trep_id, reader),
         )?;
 
-        Ok(VUData { header, transfer_res_params })
+        Ok(VUData { header, transfer_res_params, data_files })
+    }
+
+    pub fn get_data_files(&self) -> &VUFilesList {
+        &self.data_files
     }
 
     fn parse_trep<R: ReadBytes + BinSeek>(
@@ -67,6 +74,12 @@ impl tachograph::VUData<VUTransferResponseParameterData> for VUData {
 
     fn get_data(&self) -> &Vec<VUTransferResponseParameterItem<VUTransferResponseParameterData>> {
         &self.transfer_res_params
+    }
+}
+
+impl VUDataFiles for VUData {
+    fn get_data_files(&self) -> &VUFilesList {
+        &self.data_files
     }
 }
 

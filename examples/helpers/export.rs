@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 
 use esm_parser::gen1::CardResponseParameterData as CardResponseParameterDataGen1;
 use esm_parser::gen2::{CardResponseParameterData as CardResponseParameterDataGen2, ParsedCard};
-use esm_parser::tacho::{CardGeneration, DataFiles};
-use esm_parser::{Export, TachographData, parse_from_file, verify_card_with_erca_path};
+use esm_parser::tacho::{CardGeneration, DataFiles, VUDataFiles};
+use esm_parser::{Export, TachographData, parse_from_file, verify_card_with_erca_path, verify_vu_with_erca_path};
 use indicatif::ProgressBar;
 use serde::Serialize;
 
@@ -156,6 +156,24 @@ impl VerificationContext<'_> {
             self.pb.println("[i] Gen2 signature verification is not applicable to Company and Control cards.");
         }
     }
+
+    fn verify_vu_data(&self, vu: &dyn VUDataFiles, erca_file: &str, out_verify_path: &str) {
+        if erca_file.is_empty() {
+            self.pb.println("[-] Gen2 ERCA certificate was not provided; verification is skipped.".to_string());
+            return;
+        }
+
+        match verify_vu_with_erca_path(vu.get_data_files(), erca_file) {
+            Ok(result) => match verify_inner(self.export_type, &result, out_verify_path, self.pb, self.pretty) {
+                Ok(_) => self.pb.println("[+] Certificate verification Done."),
+                Err(err) => self.pb.println(format!("[-] {:}", err)),
+            },
+            Err(err) => {
+                self.pb.println(format!("[-] Certificate verification error: {}.", err));
+                self.pb.println("[+] Certificate verification Done.")
+            }
+        }
+    }
 }
 
 fn verify(data: &TachographData, context: &VerificationContext<'_>) {
@@ -202,8 +220,11 @@ fn verify(data: &TachographData, context: &VerificationContext<'_>) {
             }
             _ => context.pb.println("[-] Unsupported Gen2 Card Type verification is not possible."),
         },
-        _ => {
-            context.pb.println("[-] Certificate Verification not supported");
+        TachographData::VUGen2(vu_gen2) => {
+            context.verify_vu_data(vu_gen2, context.erca_gen2_file, context.out_verify_path);
+        }
+        TachographData::VUGen1(_) => {
+            context.pb.println("[-] Gen1 VU certificate verification is not supported.");
             context.pb.println("[-] Certificate verification disabled.");
         }
     }

@@ -9,7 +9,7 @@ use std::io::Read;
 
 use binary_data::{BinReader, BinSeek};
 
-use crate::tacho::{CardFilesMap, CardGeneration, VerifyResult};
+use crate::tacho::{CardFilesMap, CardGeneration, VUFilesList, VUVerifyResult, VerifyResult};
 use crate::{Error, Result, gen1, gen2};
 
 /// Verifies the signature of tachograph card data files.
@@ -42,6 +42,16 @@ use crate::{Error, Result, gen1, gen2};
 /// * The length of `erca_pk` does not match the expected length for the specified `generation` (`Error::VerifyError`).
 /// * The length of `erca_pk` is not a supported size (144 for Gen1, 205 for Gen2) (`Error::VerifyError`).
 pub fn verify_card(generation: &CardGeneration, data_files: &CardFilesMap, erca_pk: &[u8]) -> Result<VerifyResult> {
+    verify_card_with_time(generation, data_files, erca_pk, None)
+}
+
+/// Verifies the signature of tachograph card data files with an optional explicit validation timestamp.
+pub fn verify_card_with_time(
+    generation: &CardGeneration,
+    data_files: &CardFilesMap,
+    erca_pk: &[u8],
+    validation_time: Option<u32>,
+) -> Result<VerifyResult> {
     if matches!(generation, CardGeneration::Combined) {
         return Err(Error::VerifyError(
             "Combined card verification requires separate Gen1 and Gen2 application data maps.".to_owned(),
@@ -76,7 +86,19 @@ pub fn verify_card(generation: &CardGeneration, data_files: &CardFilesMap, erca_
     if matches!(generation, CardGeneration::Gen1) {
         return gen1::verify(data_files, erca_pk.try_into().unwrap());
     }
-    gen2::verify(data_files, erca_pk.try_into().unwrap())
+    gen2::verify_with_time(data_files, erca_pk.try_into().unwrap(), validation_time)
+}
+
+/// Verifies both Gen1 and Gen2 applications of a Combined card.
+pub fn verify_combined_card(
+    gen1_data_files: &CardFilesMap,
+    gen1_erca_pk: &[u8],
+    gen2_data_files: &CardFilesMap,
+    gen2_erca_pk: &[u8],
+) -> Result<(VerifyResult, VerifyResult)> {
+    let gen1_res = verify_card(&CardGeneration::Gen1, gen1_data_files, gen1_erca_pk)?;
+    let gen2_res = verify_card(&CardGeneration::Gen2, gen2_data_files, gen2_erca_pk)?;
+    Ok((gen1_res, gen2_res))
 }
 
 /// Verifies signatures by loading the ERCA public key from a file path.
@@ -108,6 +130,37 @@ pub fn verify_card_with_erca_path(
     let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
     file.read_to_end(&mut erca_pk)?;
     verify_card(&generation, data_files, &erca_pk)
+}
+
+/// Verifies the digital signatures of Vehicle Unit (VU) data files.
+pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8]) -> Result<VUVerifyResult> {
+    verify_vu_with_time(data_files, erca_pk, None)
+}
+
+/// Verifies the digital signatures of Vehicle Unit (VU) data files with an optional explicit validation timestamp.
+pub fn verify_vu_with_time(data_files: &VUFilesList, erca_pk: &[u8], validation_time: Option<u32>) -> Result<VUVerifyResult> {
+    if data_files.is_empty() {
+        return Err(Error::EmptyInputData("Data for verification are not provided.".to_owned()));
+    }
+    if erca_pk.is_empty() {
+        return Err(Error::EmptyInputData("ERCA Public Key are not provided.".to_owned()));
+    }
+    if erca_pk.len() != 205 {
+        return Err(Error::VerifyError(format!(
+            "ERCA Public Key size of: {}, are not supported (Gen2 VU = 205 bytes).",
+            erca_pk.len()
+        )));
+    }
+
+    gen2::verify_vu_with_time(data_files, erca_pk.try_into().unwrap(), validation_time)
+}
+
+/// Verifies VU signatures by loading the ERCA public key from a file path.
+pub fn verify_vu_with_erca_path(data_files: &VUFilesList, erca_pk_file_path: &str) -> Result<VUVerifyResult> {
+    let mut file = BinReader::open(erca_pk_file_path)?;
+    let mut erca_pk = Vec::<u8>::with_capacity(file.len()?);
+    file.read_to_end(&mut erca_pk)?;
+    verify_vu(data_files, &erca_pk)
 }
 
 #[cfg(target_arch = "wasm32")]
