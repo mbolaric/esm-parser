@@ -18,7 +18,7 @@ use crate::tachograph_gen2::vehicle_registration_identification_record_array::Ve
 pub struct VUOverview {
     #[serde(rename = "trepId")]
     pub trep_id: VUTransferResponseParameterID,
-    #[serde(rename = "nemberStateCertificateRecordArray")]
+    #[serde(rename = "numberStateCertificateRecordArray")]
     pub member_state_certificate_record_array: MemberStateCertificateRecordArray,
     #[serde(rename = "memberStateCertificateRaw")]
     pub member_state_certificate_raw: Vec<u8>,
