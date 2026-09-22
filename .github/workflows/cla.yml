@@ -22,6 +22,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: "signatures/version1/cla.json"
-          path-to-document: "https://github.com/mbolaric/esm-parser/tree/master/.github/workflows/cla.md"
+          path-to-document: "https://github.com/mbolaric/esm-parser/tree/master/cla.md"
           # branch should not be protected
           branch: "master"
