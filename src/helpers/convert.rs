@@ -11,7 +11,7 @@
 pub(crate) fn time_u16_to_string(time_min: u16) -> String {
     let hours: u16 = time_min / 60;
     let mins: u16 = time_min % 60;
-    format!("{hours:2}:{mins:2}")
+    format!("{hours:02}:{mins:02}")
 }
 
 #[cfg(test)]
@@ -20,11 +20,11 @@ mod tests {
 
     #[test]
     fn test_time_u16_to_string() {
-        assert_eq!(time_u16_to_string(0), " 0: 0");
-        assert_eq!(time_u16_to_string(59), " 0:59");
-        assert_eq!(time_u16_to_string(60), " 1: 0");
-        assert_eq!(time_u16_to_string(61), " 1: 1");
+        assert_eq!(time_u16_to_string(0), "00:00");
+        assert_eq!(time_u16_to_string(59), "00:59");
+        assert_eq!(time_u16_to_string(60), "01:00");
+        assert_eq!(time_u16_to_string(61), "01:01");
         assert_eq!(time_u16_to_string(1439), "23:59"); // 23 * 60 + 59
-        assert_eq!(time_u16_to_string(1440), "24: 0");
+        assert_eq!(time_u16_to_string(1440), "24:00");
     }
 }

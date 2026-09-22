@@ -45,7 +45,7 @@ impl<'a> HexHelper<'a> {
 impl fmt::Display for HexHelper<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in self.0 {
-            write!(f, "{byte:2X}")?;
+            write!(f, "{byte:02X}")?;
         }
         Ok(())
     }

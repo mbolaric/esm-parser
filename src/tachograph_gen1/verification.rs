@@ -152,7 +152,10 @@ pub(in crate::tachograph_gen1) fn decrypt_certificate(
     }
 
     let perf_ret = issuer_rsa_public_key.perform(&certificate.signature);
-    if perf_ret.first() != Some(&RSA_SIGNATURE_START_SENTINEL) || perf_ret.last() != Some(&RSA_SIGNATURE_END_SENTINEL) {
+    if perf_ret.len() < 127
+        || perf_ret.first() != Some(&RSA_SIGNATURE_START_SENTINEL)
+        || perf_ret.last() != Some(&RSA_SIGNATURE_END_SENTINEL)
+    {
         return Err(Error::VerifyError(format!(
             "RsaPublicKey need to start with {:2X} and end with {:2X}",
             RSA_SIGNATURE_START_SENTINEL, RSA_SIGNATURE_END_SENTINEL
@@ -194,33 +197,33 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificat
         }
 
         let raw_data = data.data.as_ref().unwrap();
-        match data.signature.as_ref().unwrap()[0..SIG_SIZE].try_into() {
-            Ok(signature) => {
-                let perf_ret = card_certificate.rsa_public_key.perform(&signature);
-
-                let mut hasher = Sha1::new();
-                hasher.update(raw_data);
-                let hash: [u8; HASH_SIZE] = hasher.finalize().into();
-
-                if perf_ret.len() == 127
-                    && hash.as_slice() == get_sub_array(&perf_ret, 107, 20)
-                    && get_sub_array(&perf_ret, 92, 15) == DATA_PATTERN
-                    && get_sub_array(&perf_ret, 1, 90) == SIGNATURE_PADDING
-                {
-                    result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Valid, end_of_validity: None });
-                    continue;
-                }
-
-                result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Invalid, end_of_validity: None });
-            }
-            Err(_) => {
-                result.push(VerifyItem {
-                    card_file_id: id.clone(),
-                    status: VerifyStatus::InvalidSignatureSize,
-                    end_of_validity: None,
-                });
-            }
+        let signature_data = data.signature.as_ref().unwrap();
+        if signature_data.len() < SIG_SIZE {
+            result.push(VerifyItem {
+                card_file_id: id.clone(),
+                status: VerifyStatus::InvalidSignatureSize,
+                end_of_validity: None,
+            });
+            continue;
         }
+
+        let signature: [u8; SIG_SIZE] = signature_data[0..SIG_SIZE].try_into().expect("length checked above");
+        let perf_ret = card_certificate.rsa_public_key.perform(&signature);
+
+        let mut hasher = Sha1::new();
+        hasher.update(raw_data);
+        let hash: [u8; HASH_SIZE] = hasher.finalize().into();
+
+        if perf_ret.len() == 127
+            && hash.as_slice() == get_sub_array(&perf_ret, 107, 20)
+            && get_sub_array(&perf_ret, 92, 15) == DATA_PATTERN
+            && get_sub_array(&perf_ret, 1, 90) == SIGNATURE_PADDING
+        {
+            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Valid, end_of_validity: None });
+            continue;
+        }
+
+        result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Invalid, end_of_validity: None });
     }
 
     Ok(result)

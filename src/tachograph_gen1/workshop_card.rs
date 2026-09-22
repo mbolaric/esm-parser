@@ -12,7 +12,7 @@ use crate::tacho::{
     Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification,
     CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
-    IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
+    IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -104,7 +104,7 @@ impl CardParser<WorkshopCard> for WorkshopCard {
             (*card_data_files).clone(),
         );
 
-        for card_item in card_data_files.iter() {
+        for card_item in sorted_card_files(card_data_files) {
             debug!("WorkshopCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;

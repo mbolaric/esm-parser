@@ -15,6 +15,13 @@ pub trait DataFiles {
     fn get_data_files(&self) -> &CardFilesMap;
 }
 
+/// Returns a card's files sorted by `CardFileID`, so parsing does not depend on `HashMap`'s iteration order.
+pub fn sorted_card_files(card_data_files: &CardFilesMap) -> Vec<(&CardFileID, &CardFileData)> {
+    let mut items: Vec<_> = card_data_files.iter().collect();
+    items.sort_by(|a, b| a.0.cmp(b.0));
+    items
+}
+
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]

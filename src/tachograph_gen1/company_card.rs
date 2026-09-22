@@ -8,7 +8,7 @@ use crate::gen1::{CardResponseParameterData, Certificate};
 use crate::tacho::{
     Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
     CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, DataFiles,
-    Identification, IdentificationParams,
+    Identification, IdentificationParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -77,7 +77,7 @@ impl CardParser<CompanyCard> for CompanyCard {
             (*card_data_files).clone(),
         );
 
-        for card_item in card_data_files.iter() {
+        for card_item in sorted_card_files(card_data_files) {
             debug!("CompanyCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;

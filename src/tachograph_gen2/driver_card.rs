@@ -15,7 +15,7 @@ use crate::tacho::{
     Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
     CardFileID, CardGeneration, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
-    CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal, VehiclesUsedParams,
+    CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal, VehiclesUsedParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -142,7 +142,7 @@ impl CardParser<DriverCard> for DriverCard {
 
         driver_card.application_identification_v2 = application_identification_v2.clone();
 
-        for card_item in card_data_files.iter() {
+        for card_item in sorted_card_files(card_data_files) {
             debug!("DriverCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;

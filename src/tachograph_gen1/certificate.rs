@@ -43,7 +43,7 @@ impl Certificate {
     fn parse_certification_authority_reference(ca_reference: &[u8]) -> ParsedCertificationAuthorityReference {
         let nation_numeric_code = ca_reference[0];
         let nation_numeric: NationNumeric = nation_numeric_code.into();
-        let nation_alpha = bytes_to_string(&ca_reference[1..3], &CodePage::IsoIec8859_1).trim().to_owned();
+        let nation_alpha = bytes_to_string(&ca_reference[1..4], &CodePage::IsoIec8859_1).trim().to_owned();
         let key_serial_number = ca_reference[4];
         let additional_info = ca_reference[5..7].to_hex_string_with_sep(" ");
         let ca_identifier = ca_reference[7];

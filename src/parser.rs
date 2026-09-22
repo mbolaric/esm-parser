@@ -25,7 +25,7 @@ fn read_by_data_type<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &
         TachographDataType::Card => {
             if header.card_in_vu_data {
                 // We skip 2 bytes
-                let _ = reader.read_bytes::<2>();
+                let _ = reader.read_bytes::<2>()?;
             }
             match header.generation {
                 TachographDataGeneration::FirstGeneration => {

@@ -33,7 +33,7 @@ impl ReadableWithParams<Certificate> for Certificate {
             let certificate_profile = CertificateProfile::read(reader, &CertificateProfileParams::new(size))?;
             let data = if !reader.is_eof() {
                 let mut buff: Vec<u8> = Vec::new();
-                let _ = reader.read_to_end(&mut buff);
+                reader.read_to_end(&mut buff)?;
                 buff
             } else {
                 Vec::new()

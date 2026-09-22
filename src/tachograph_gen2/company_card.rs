@@ -8,7 +8,7 @@ use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, Com
 use crate::tacho::{
     Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
     CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification, DataFiles,
-    Identification, IdentificationParams,
+    Identification, IdentificationParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -83,7 +83,7 @@ impl CardParser<CompanyCard> for CompanyCard {
             (*card_data_files).clone(),
         );
 
-        for card_item in card_data_files.iter() {
+        for card_item in sorted_card_files(card_data_files) {
             debug!("CompanyCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
@@ -107,11 +107,11 @@ impl CardParser<CompanyCard> for CompanyCard {
                 }
                 CardFileID::CardCertificate => {
                     let params = CertificateParams::new(None);
-                    company_card.ca_certificate = Some(Certificate::read(&mut reader, &params)?);
+                    company_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::CACertificate => {
                     let params = CertificateParams::new(None);
-                    company_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
+                    company_card.ca_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::LinkCertificate => {
                     let params = CertificateParams::new(None);
