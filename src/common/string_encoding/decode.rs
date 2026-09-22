@@ -77,7 +77,7 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 /// ```
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     let dec_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
-    let ret_str = dec_str.trim_end_matches('\0').trim().to_owned();
+    let ret_str = dec_str.trim_end_matches(|c: char| c == '\0' || c.is_whitespace()).trim_start().to_owned();
     trace!("Bytes: {bytes:?}, Decoded: {dec_str:?}, Final: {ret_str:?}");
     ret_str
 }
@@ -106,7 +106,7 @@ pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
     }
 
     match String::from_utf8(input.to_vec()) {
-        Ok(s) => Ok(s.trim_end_matches('\0').trim().to_string()),
+        Ok(s) => Ok(s.trim_end_matches(|c: char| c == '\0' || c.is_whitespace()).trim_start().to_string()),
         Err(_) => Err(Error::InvalidIA5CharacterNotASCII),
     }
 }
@@ -114,6 +114,19 @@ pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_bytes_to_string_trims_trailing_nul_and_whitespace() {
+        assert_eq!(bytes_to_string(b"ABC\0\0\0 ", &CodePage::IsoIec8859_1), "ABC");
+        assert_eq!(bytes_to_string(b"ABC  \0\0", &CodePage::IsoIec8859_1), "ABC");
+        assert_eq!(bytes_to_string(b" A B\0 \0", &CodePage::IsoIec8859_1), "A B");
+    }
+
+    #[test]
+    fn test_bytes_to_ia5_fix_string_trims_trailing_nul_and_whitespace() {
+        assert_eq!(bytes_to_ia5_fix_string(b"ABC\0\0\0 ").unwrap(), "ABC");
+        assert_eq!(bytes_to_ia5_fix_string(b"ABC  \0\0").unwrap(), "ABC");
+    }
 
     #[test]
     fn test_iso_8859_1() {
