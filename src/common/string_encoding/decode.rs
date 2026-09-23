@@ -77,7 +77,7 @@ fn decode_byte(byte: u8, enc: &CodePage) -> char {
 /// ```
 pub fn bytes_to_string(bytes: &[u8], enc: &CodePage) -> String {
     let dec_str: String = bytes.iter().map(|&b| decode_byte(b, enc)).collect();
-    let ret_str = dec_str.trim_end_matches('\0').trim().to_owned();
+    let ret_str = dec_str.replace('\0', "").trim().to_owned();
     trace!("Bytes: {bytes:?}, Decoded: {dec_str:?}, Final: {ret_str:?}");
     ret_str
 }
@@ -106,7 +106,7 @@ pub fn bytes_to_ia5_fix_string(input: &[u8]) -> Result<String, Error> {
     }
 
     match String::from_utf8(input.to_vec()) {
-        Ok(s) => Ok(s.trim_end_matches('\0').trim().to_string()),
+        Ok(s) => Ok(s.replace('\0', "").trim().to_string()),
         Err(_) => Err(Error::InvalidIA5CharacterNotASCII),
     }
 }
@@ -200,5 +200,20 @@ mod tests {
         assert_eq!(decode_koi8_u(0xA1), '\u{2551}');
         assert_eq!(decode_koi8_u(0xA2), '\u{2552}');
         assert_eq!(decode_koi8_u(0xA3), '\u{0451}');
+    }
+
+    #[test]
+    fn test_bytes_to_string_with_null_and_trailing_space() {
+        let mut bytes = b"Automotive AG\0\0\0\0\0\0\0\0\0 ".to_vec();
+        assert_eq!(bytes_to_string(&bytes, &CodePage::IsoIec8859_1), "Automotive AG");
+
+        bytes = b"Test Unternehmen 0019\0\0\0\0\0\0\0\0\0\0\0\0\0 ".to_vec();
+        assert_eq!(bytes_to_string(&bytes, &CodePage::IsoIec8859_1), "Test Unternehmen 0019");
+    }
+
+    #[test]
+    fn test_bytes_to_ia5_fix_string_with_null_and_trailing_space() {
+        let bytes = b"TEST1234\0\0\0 ";
+        assert_eq!(bytes_to_ia5_fix_string(bytes).unwrap(), "TEST1234");
     }
 }
