@@ -38,5 +38,10 @@ pub struct Args {
 fn main() {
     init_logging();
     let args = Args::parse();
-    export(&ExportType::Json, &args.ddd_file, &args.json_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty);
+    if let Err(error) =
+        export(&ExportType::Json, &args.ddd_file, &args.json_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty)
+    {
+        eprintln!("[-] {error}");
+        std::process::exit(1);
+    }
 }

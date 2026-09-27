@@ -65,7 +65,6 @@ impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
                 ));
             }
         }
-
         Ok(Self {
             activity_previous_record_length,
             activity_record_length,
@@ -130,7 +129,86 @@ impl ReadableWithParams<CardDriverActivity> for CardDriverActivity {
                 break;
             }
         }
+        identify_card_withdrawals(&mut daily_records);
 
         Ok(Self { activity_pointer_oldest_day_record, activity_pointer_newest_record, activity_daily_records: daily_records })
+    }
+}
+
+fn identify_card_withdrawals(daily_records: &mut [CardActivityDailyRecord]) {
+    const SECONDS_PER_DAY: u32 = 86_400;
+
+    let mut previous_date: Option<u32> = None;
+    let mut previous_card_inserted: Option<bool> = None;
+    for daily_record in daily_records {
+        let current_date = daily_record.activity_record_date.get_data();
+        let initial_card_inserted = match previous_date {
+            Some(date) if date.checked_add(SECONDS_PER_DAY) == Some(current_date) => previous_card_inserted,
+            _ => None,
+        };
+        previous_card_inserted =
+            ActivityChangeInfo::identify_card_withdrawals(&mut daily_record.activity_change_info, initial_card_inserted);
+        previous_date = Some(current_date);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use binary_data::BinRingMemoryBuffer;
+
+    use super::*;
+    use crate::tacho::{ActivityType, CardSlotNumber};
+
+    fn activity_word(slot: u16, status: u16, card_status: u16, activity: u16, minutes: u16) -> u16 {
+        (slot << 15) | (status << 14) | (card_status << 13) | (activity << 11) | minutes
+    }
+
+    #[test]
+    fn identifies_a_withdrawal_while_reading_a_complete_card_day() {
+        let mut data = Vec::new();
+        data.extend_from_slice(&0_u16.to_be_bytes());
+        data.extend_from_slice(&16_u16.to_be_bytes());
+        data.extend_from_slice(&1_u32.to_be_bytes());
+        data.extend_from_slice(&[0x00, 0x01]);
+        data.extend_from_slice(&0_u16.to_be_bytes());
+        data.extend_from_slice(&activity_word(1, 0, 0, 2, 480).to_be_bytes());
+        data.extend_from_slice(&activity_word(1, 0, 1, 3, 600).to_be_bytes());
+        let mut reader = BinRingMemoryBuffer::new_with_offset(data, 0);
+
+        let record = CardActivityDailyRecord::read(&mut reader).expect("the card day must parse");
+        let mut records = vec![record];
+        identify_card_withdrawals(&mut records);
+
+        let withdrawal = &records[0].activity_change_info[1];
+        assert!(withdrawal.is_card_withdrawal);
+        assert_eq!(withdrawal.card_slot, CardSlotNumber::CoDriver);
+        assert_eq!(withdrawal.encoded_activity_type, ActivityType::Driving);
+        assert_eq!(withdrawal.activity_type, ActivityType::Unknown);
+    }
+
+    #[test]
+    fn identifies_a_withdrawal_at_midnight_from_the_previous_day_state() {
+        let first_day = CardActivityDailyRecord {
+            activity_previous_record_length: 0,
+            activity_record_length: 0,
+            activity_record_date: TimeReal::new(86_400),
+            activity_daily_presence_counter: "0001".to_owned(),
+            activity_day_distance: 0,
+            activity_change_info: vec![ActivityChangeInfo::new(ActivityCard::Card, activity_word(0, 0, 0, 2, 480))],
+        };
+        let second_day = CardActivityDailyRecord {
+            activity_previous_record_length: 0,
+            activity_record_length: 0,
+            activity_record_date: TimeReal::new(172_800),
+            activity_daily_presence_counter: "0002".to_owned(),
+            activity_day_distance: 0,
+            activity_change_info: vec![ActivityChangeInfo::new(ActivityCard::Card, activity_word(0, 0, 1, 2, 0))],
+        };
+        let mut records = vec![first_day, second_day];
+
+        identify_card_withdrawals(&mut records);
+
+        assert!(records[1].activity_change_info[0].is_card_withdrawal);
+        assert_eq!(records[1].activity_change_info[0].card_slot, CardSlotNumber::Driver);
     }
 }

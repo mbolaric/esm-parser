@@ -13,17 +13,21 @@ activityCard: ActivityCard,
  */
 activityInfo: number,
 /**
- * The status of the card (inserted or removed).
+ * Whether a valid driver or workshop card is inserted in the relevant slot.
  */
 cardStatus: CardStatus,
 /**
- * The driving status (single driver or crew).
+ * Bit 14: single/crew while the card is inserted, or unknown/known following activity otherwise.
  */
 drivingStatus: DrivingStatus,
 /**
- * The card slot number (driver or co-driver).
+ * The meaningful slot for this change, or unknown when the encoded slot is not relevant.
  */
 cardSlot: CardSlotNumber,
+/**
+ * The literal slot encoded in bit 15, including records where that bit is not semantically relevant.
+ */
+encodedCardSlot: CardSlotNumber,
 /**
  * The source of the activity (automatic or manual).
  */
@@ -32,6 +36,14 @@ activitySource: ActivitySource,
  * The type of activity (e.g., driving, working, available, break).
  */
 activityType: ActivityType,
+/**
+ * The literal activity encoded in bits 12-11, including records where those bits are not semantically relevant.
+ */
+encodedActivityType: ActivityType,
+/**
+ * Whether sequence context identifies this card record as the inserted-to-not-inserted withdrawal transition.
+ */
+isCardWithdrawal: boolean,
 /**
  * The time of the activity change in minutes since midnight.
  */
@@ -91,7 +103,7 @@ export type CardSlotStatus = { data: number, driverSlot: CardSlotStatusType, coD
 
 export type CardSlotStatusType = "Unknown" | "DriverCard" | "WorkshopCard" | "ControlCard" | "CompanyCard";
 
-export type CardStatus = "Inserted" | "Removed" | "Unknown";
+export type CardStatus = "Inserted" | "NotInserted" | "Unknown";
 
 export type CardStructureVersion = { structureVersion: number, dataElementUseVersion: number, };
 
@@ -133,7 +145,7 @@ export type DriverCardHolderIdentification = { cardHolderName: HolderName, cardH
 
 export type DriverCardIdentification = { cardIdentification: CardIdentification, driverCardHolderIdentification: DriverCardHolderIdentification, };
 
-export type DrivingStatus = "Unknown" | "SingleOrUnknown" | "CrowOrKnown";
+export type DrivingStatus = "Unknown" | "SingleOrUnknown" | "CrewOrKnown";
 
 export type EmbedderIcAssemblerId = { countryCode: string, moduleEmbedder: string, manufacturerInformation: Array<number>, };
 

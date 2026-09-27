@@ -42,7 +42,12 @@ fn output_format() -> ExportType {
 fn main() {
     init_logging();
     let args = Args::parse();
-    export(&output_format(), &args.ddd_file, &args.xml_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty);
+    if let Err(error) =
+        export(&output_format(), &args.ddd_file, &args.xml_file, &args.erca_gen1_file, &args.erca_gen2_file, args.pretty)
+    {
+        eprintln!("[-] {error}");
+        std::process::exit(1);
+    }
 }
 
 #[cfg(test)]

@@ -67,11 +67,16 @@ fn parse_inner(
     Ok(())
 }
 
-fn parse(export_type: &ExportType, data: &(impl Export + Serialize), out_path: &str, pb: &ProgressBar, pretty: bool) {
-    match parse_inner(export_type, data, out_path, pb, pretty) {
-        Ok(_) => pb.println("[+] Parsing Done"),
-        Err(err) => pb.println(format!("[-] {:}", err)),
-    }
+fn parse(
+    export_type: &ExportType,
+    data: &(impl Export + Serialize),
+    out_path: &str,
+    pb: &ProgressBar,
+    pretty: bool,
+) -> Result<(), Error> {
+    parse_inner(export_type, data, out_path, pb, pretty)?;
+    pb.println("[+] Parsing Done");
+    Ok(())
 }
 
 fn verify_inner(
@@ -237,7 +242,7 @@ pub fn export(
     erca_gen1_file: &str,
     erca_gen2_file: &str,
     pretty: bool,
-) {
+) -> Result<(), Error> {
     #[cfg(debug_assertions)]
     let pb = ProgressBar::hidden();
     #[cfg(not(debug_assertions))]
@@ -247,33 +252,25 @@ pub fn export(
 
     let path = Path::new(ddd_file);
     if !path.exists() || !path.is_file() {
-        pb.println(format!("[-] File not Exists: {:}", ddd_file));
-        pb.println("[+] Parsing Done");
-        return;
+        return Err(Error::File(std::io::Error::new(std::io::ErrorKind::NotFound, "DDD input file does not exist")));
     }
 
     let (out_path, out_verify_path) = prepare_out_path(ddd_file, out_file, export_type);
     pb.println(format!("[+] Prepared output path: {}, {}.", out_path, out_verify_path));
-    match parse_from_file(ddd_file) {
-        Ok(data) => {
-            parse(export_type, &data, &out_path, &pb, pretty);
-            if !erca_gen1_file.is_empty() || !erca_gen2_file.is_empty() {
-                let verification = VerificationContext {
-                    export_type,
-                    erca_gen1_file,
-                    erca_gen2_file,
-                    out_verify_path: &out_verify_path,
-                    pb: &pb,
-                    pretty,
-                };
-                verify(&data, &verification);
-            }
-        }
-        Err(err) => {
-            pb.println(format!("[-] {:}", err));
-            pb.println("[+] Parsing Done");
-        }
+    let data = parse_from_file(ddd_file)?;
+    parse(export_type, &data, &out_path, &pb, pretty)?;
+    if !erca_gen1_file.is_empty() || !erca_gen2_file.is_empty() {
+        let verification = VerificationContext {
+            export_type,
+            erca_gen1_file,
+            erca_gen2_file,
+            out_verify_path: &out_verify_path,
+            pb: &pb,
+            pretty,
+        };
+        verify(&data, &verification);
     }
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -318,5 +315,11 @@ mod tests {
         assert_eq!(Path::new(&gen1_path).file_name().unwrap(), "card_verify_gen1.json");
         assert_eq!(Path::new(&gen2_path).file_name().unwrap(), "card_verify_gen2.json");
         assert_ne!(gen1_path, gen2_path);
+    }
+
+    #[test]
+    fn reports_a_missing_input_file_to_the_caller() {
+        let result = export(&ExportType::Json, "/missing/input.DDD", "/tmp/output.json", "", "", false);
+        assert!(matches!(result, Err(Error::File(error)) if error.kind() == std::io::ErrorKind::NotFound));
     }
 }
