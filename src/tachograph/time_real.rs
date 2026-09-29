@@ -5,6 +5,8 @@ use time::macros::format_description;
 
 use crate::{Readable, Writable};
 
+const TIME_REAL_NOT_SET: u32 = u32::MAX;
+
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -21,25 +23,38 @@ impl TimeReal {
         Self { data, date_time: OffsetDateTime::from_unix_timestamp(data as i64).ok() }
     }
 
+    /// Whether the field holds a value the unit recorded, as opposed to the value it leaves behind when it has
+    /// nothing to record (`TIME_REAL_NOT_SET`). A zero timestamp counts as recorded here: a file that means "not
+    /// set" by zero decides that for itself.
+    #[inline]
+    pub fn is_set(&self) -> bool {
+        self.data != TIME_REAL_NOT_SET && self.date_time.is_some()
+    }
+
+    /// The decoded value, or `None` when the field is unfilled or the value cannot be represented.
+    fn recorded_date_time(&self) -> Option<OffsetDateTime> {
+        self.is_set().then_some(self.date_time).flatten()
+    }
+
     /// Returns the date part of the timestamp as a string in "YYYY-MM-DD" format.
     /// This is useful for extracting the date of an event from the tachograph data.
     pub fn get_date_str(&self) -> String {
         let fmt = format_description!("[year]-[month]-[day]");
-        self.date_time.map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
+        self.recorded_date_time().map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
     }
 
     /// Returns the date and time part of the timestamp as a string in "YYYY-MM-DD HH:MM:SS" format.
     /// This provides a full timestamp for an event from the tachograph data.
     pub fn get_date_time_str(&self) -> String {
         let fmt = format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
-        self.date_time.map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
+        self.recorded_date_time().map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
     }
 
     /// Returns the time part of the timestamp as a string in "HH:MM:SS" format.
     /// This is useful for extracting the time of an event from the tachograph data.
     pub fn get_time_str(&self) -> String {
         let fmt = format_description!("[hour]:[minute]:[second]");
-        self.date_time.map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
+        self.recorded_date_time().map_or(String::new(), |data| data.format(&fmt).unwrap_or_default())
     }
 
     /// Returns the raw u32 timestamp value.
@@ -76,7 +91,7 @@ impl Serialize for TimeReal {
     where
         S: serde::Serializer,
     {
-        if let Some(val) = self.date_time {
+        if let Some(val) = self.recorded_date_time() {
             let fmt = format_description!("[year]-[month]-[day] [hour]:[minute]:[second] UTC");
             let s = val.format(&fmt).unwrap_or_default();
             serializer.serialize_str(&s)
@@ -156,5 +171,16 @@ mod tests {
         let mut reader = BinMemoryBuffer::from(timestamp.to_be_bytes().to_vec());
         let time_real = TimeReal::read(&mut reader).unwrap();
         assert_eq!(from_obj_to_string(&time_real), "\"2022-12-31 23:59:59 UTC\"");
+    }
+
+    #[test]
+    fn test_time_real_not_set_is_serialized_as_no_value() {
+        // A card still inserted at download has no withdrawal time; the unit leaves the maximum value there.
+        let not_set = TimeReal::new(TIME_REAL_NOT_SET);
+
+        assert!(!not_set.is_set());
+        assert_eq!(not_set.get_data(), TIME_REAL_NOT_SET);
+        assert_eq!(not_set.get_date_time_str(), "");
+        assert_eq!(from_obj_to_string(&not_set), "null");
     }
 }
