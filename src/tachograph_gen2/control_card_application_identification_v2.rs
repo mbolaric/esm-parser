@@ -15,7 +15,7 @@ pub struct ControlCardApplicationIdentificationV2 {
     pub vu_configuration_length_range: u16,
 }
 
-impl Readable<ControlCardApplicationIdentificationV2> for ControlCardApplicationIdentificationV2 {
+impl Readable for ControlCardApplicationIdentificationV2 {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<ControlCardApplicationIdentificationV2> {

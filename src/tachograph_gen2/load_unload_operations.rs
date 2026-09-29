@@ -23,7 +23,7 @@ pub struct LoadUnloadRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl Readable<LoadUnloadRecord> for LoadUnloadRecord {
+impl Readable for LoadUnloadRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<LoadUnloadRecord> {
         let operation_type: OperationType = reader.read_u8()?.into();
         let time_stamp = TimeReal::read(reader)?;
@@ -57,7 +57,7 @@ pub struct LoadUnloadOperations {
     pub card_load_unload_records: Vec<LoadUnloadRecord>,
 }
 
-impl ReadableWithParams<LoadUnloadOperations> for LoadUnloadOperations {
+impl ReadableWithParams for LoadUnloadOperations {
     type P = LoadUnloadOperationsParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<LoadUnloadOperations> {

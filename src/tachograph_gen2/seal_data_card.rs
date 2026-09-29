@@ -17,7 +17,7 @@ pub struct SealDataCard {
     pub seal_records: Vec<SealRecord>,
 }
 
-impl Readable<SealDataCard> for SealDataCard {
+impl Readable for SealDataCard {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SealDataCard> {
         let no_of_seal_records = reader.read_u8()?;
         let mut records: Vec<SealRecord> = Vec::new();

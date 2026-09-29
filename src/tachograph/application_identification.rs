@@ -13,7 +13,7 @@ pub struct ApplicationIdentification {
     pub card_structure_version: CardStructureVersion,
 }
 
-impl Readable<ApplicationIdentification> for ApplicationIdentification {
+impl Readable for ApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<ApplicationIdentification> {
         let type_of_tachograph_card_id = reader.read_u8()?.into();
         let card_structure_version = CardStructureVersion::read(reader)?;

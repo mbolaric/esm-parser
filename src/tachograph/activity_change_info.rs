@@ -175,7 +175,7 @@ impl ActivityChangeInfo {
     }
 }
 
-impl ReadableWithParams<ActivityChangeInfo> for ActivityChangeInfo {
+impl ReadableWithParams for ActivityChangeInfo {
     type P = ActivityChangeInfoParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<ActivityChangeInfo> {

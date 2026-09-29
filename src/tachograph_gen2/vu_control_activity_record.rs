@@ -23,7 +23,7 @@ pub struct VuControlActivityRecord {
     pub download_period_end_time: TimeReal,
 }
 
-impl Readable<VuControlActivityRecord> for VuControlActivityRecord {
+impl Readable for VuControlActivityRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuControlActivityRecord> {
         let control_type: ControlType = reader.read_u8()?.into();
         let control_time = TimeReal::read(reader)?;

@@ -25,7 +25,7 @@ pub struct Certificate {
     pub data: Vec<u8>,
 }
 
-impl ReadableWithParams<Certificate> for Certificate {
+impl ReadableWithParams for Certificate {
     type P = CertificateParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<Certificate> {

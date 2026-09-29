@@ -20,7 +20,7 @@ pub struct SignatureRecordArray {
     pub records: Vec<Vec<u8>>,
 }
 
-impl DataInfoReadable<SignatureRecordArray> for SignatureRecordArray {
+impl DataInfoReadable for SignatureRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<SignatureRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;

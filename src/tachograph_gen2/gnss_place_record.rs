@@ -19,7 +19,7 @@ pub struct GnssPlaceRecord {
     pub geo_coordinates: GeoCoordinate,
 }
 
-impl Readable<GnssPlaceRecord> for GnssPlaceRecord {
+impl Readable for GnssPlaceRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<GnssPlaceRecord> {
         let time_stamp = TimeReal::read(reader)?;
         let gnss_accuracy = reader.read_u8()?;

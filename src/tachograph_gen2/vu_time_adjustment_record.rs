@@ -24,7 +24,7 @@ pub struct VuTimeAdjustmentRecord {
     pub workshop_card_number_and_generation: FullCardNumberAndGeneration,
 }
 
-impl Readable<VuTimeAdjustmentRecord> for VuTimeAdjustmentRecord {
+impl Readable for VuTimeAdjustmentRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuTimeAdjustmentRecord> {
         let old_time_value = TimeReal::read(reader)?;
         let new_time_value = TimeReal::read(reader)?;

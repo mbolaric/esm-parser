@@ -25,7 +25,7 @@ pub struct SpecificConditions {
     pub specific_condition_records: Vec<SpecificConditionRecord>,
 }
 
-impl ReadableWithParams<SpecificConditions> for SpecificConditions {
+impl ReadableWithParams for SpecificConditions {
     type P = SpecificConditionsParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<SpecificConditions> {

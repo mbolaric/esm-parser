@@ -38,7 +38,7 @@ impl GeoCoordinate {
     }
 }
 
-impl Readable<GeoCoordinate> for GeoCoordinate {
+impl Readable for GeoCoordinate {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<GeoCoordinate> {
         let latitude_bytes = reader.read_bytes::<3>()?;
         let longitude_bytes = reader.read_bytes::<3>()?;

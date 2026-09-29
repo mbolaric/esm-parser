@@ -21,7 +21,7 @@ pub struct PlaceRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl Readable<PlaceRecord> for PlaceRecord {
+impl Readable for PlaceRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<PlaceRecord> {
         let entry_time = TimeReal::read(reader)?;
         let entry_type_daily_work_period: EntryTypeDailyWorkPeriod = reader.read_u8()?.into();

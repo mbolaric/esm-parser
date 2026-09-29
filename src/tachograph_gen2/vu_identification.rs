@@ -36,7 +36,7 @@ pub struct VuIdentification {
     pub vu_ability: u8,
 }
 
-impl ReadableWithParams<VuIdentification> for VuIdentification {
+impl ReadableWithParams for VuIdentification {
     type P = VUTransferResponseParameterID;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VuIdentification> {

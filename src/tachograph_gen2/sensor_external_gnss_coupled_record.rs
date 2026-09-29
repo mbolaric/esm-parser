@@ -18,7 +18,7 @@ pub struct SensorExternalGNSSCoupledRecord {
     pub sensor_coupling_date: TimeReal,
 }
 
-impl Readable<SensorExternalGNSSCoupledRecord> for SensorExternalGNSSCoupledRecord {
+impl Readable for SensorExternalGNSSCoupledRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SensorExternalGNSSCoupledRecord> {
         let sensor_serial_number = ExtendedSerialNumber::read(reader)?;
         let sensor_approval_number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?;

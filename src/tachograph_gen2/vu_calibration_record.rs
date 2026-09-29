@@ -57,7 +57,7 @@ pub struct VuCalibrationRecord {
 const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
 const TYRE_SIZE_LENGTH: u32 = 15;
 
-impl ReadableWithParams<VuCalibrationRecord> for VuCalibrationRecord {
+impl ReadableWithParams for VuCalibrationRecord {
     type P = VUTransferResponseParameterID;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VuCalibrationRecord> {

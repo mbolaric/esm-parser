@@ -42,7 +42,7 @@ impl Serialize for Identification {
     }
 }
 
-impl ReadableWithParams<Identification> for Identification {
+impl ReadableWithParams for Identification {
     type P = IdentificationParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<Identification> {

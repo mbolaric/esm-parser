@@ -18,7 +18,7 @@ pub struct ExtendedSealIdentifier {
     pub seal_identifier: Vec<u8>,
 }
 
-impl Readable<ExtendedSealIdentifier> for ExtendedSealIdentifier {
+impl Readable for ExtendedSealIdentifier {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<ExtendedSealIdentifier> {
         let manufacturer_code = reader.read_into_vec(MANUFACTURES_CODE_LENGTH)?;
         let seal_identifier = reader.read_into_vec(SEAL_IDENTIFIER_LENGTH)?;

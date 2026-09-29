@@ -27,7 +27,7 @@ pub struct WorkshopCardCalibrationData<T> {
     pub calibration_records: Vec<T>,
 }
 
-impl<T: Readable<T>> ReadableWithParams<WorkshopCardCalibrationData<T>> for WorkshopCardCalibrationData<T> {
+impl<T: Readable> ReadableWithParams for WorkshopCardCalibrationData<T> {
     type P = WorkshopCardCalibrationDataParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<WorkshopCardCalibrationData<T>> {

@@ -19,7 +19,7 @@ pub struct VuDownloadActivityData {
     pub company_or_workshop_name: Name,
 }
 
-impl Readable<VuDownloadActivityData> for VuDownloadActivityData {
+impl Readable for VuDownloadActivityData {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuDownloadActivityData> {
         let downloading_time = TimeReal::read(reader)?;
         let full_card_number_and_generation = FullCardNumberAndGeneration::read(reader)?;

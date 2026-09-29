@@ -20,7 +20,7 @@ pub struct ExtendedSerialNumber {
     pub manufacturer_code: u8,
 }
 
-impl Readable<ExtendedSerialNumber> for ExtendedSerialNumber {
+impl Readable for ExtendedSerialNumber {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<ExtendedSerialNumber> {
         let serial_number = reader.read_u32::<BigEndian>()?;
         let month_year = BCDString::decode(&reader.read_bytes::<MONTH_YEAR_LENGTH>()?)?;

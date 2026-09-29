@@ -17,7 +17,7 @@ pub struct FullCardNumber {
     pub card_number: String,
 }
 
-impl Readable<FullCardNumber> for FullCardNumber {
+impl Readable for FullCardNumber {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<FullCardNumber> {
         let card_type: EquipmentType = reader.read_u8()?.into();
         let mut card_issuing_member_state: NationNumeric = reader.read_u8()?.into();

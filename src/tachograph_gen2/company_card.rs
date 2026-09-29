@@ -67,7 +67,7 @@ impl CompanyCard {
     }
 }
 
-impl CardParser<CompanyCard> for CompanyCard {
+impl CardParser for CompanyCard {
     fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<CompanyCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;

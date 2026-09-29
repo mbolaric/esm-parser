@@ -27,7 +27,7 @@ pub struct VUActivity {
     pub signature: Option<Vec<u8>>,
 }
 
-impl VUTransferResponseParameterReader<VUActivity> for VUActivity {
+impl VUTransferResponseParameterReader for VUActivity {
     fn from_data<R: ReadBytes + BinSeek>(_trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUActivity> {
         let date_of_day_downloaded = TimeReal::read(reader)?;
         let odometer_value_midnight = OdometerShort::read(reader)?;

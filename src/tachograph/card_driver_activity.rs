@@ -24,7 +24,7 @@ pub struct CardActivityDailyRecord {
     pub activity_change_info: Vec<ActivityChangeInfo>,
 }
 
-impl Readable<CardActivityDailyRecord> for CardActivityDailyRecord {
+impl Readable for CardActivityDailyRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardActivityDailyRecord> {
         let position = reader.pos()?;
         let reader_length = reader.len()?;
@@ -100,7 +100,7 @@ pub struct CardDriverActivity {
     pub activity_daily_records: Vec<CardActivityDailyRecord>,
 }
 
-impl ReadableWithParams<CardDriverActivity> for CardDriverActivity {
+impl ReadableWithParams for CardDriverActivity {
     type P = CardDriverActivityParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardDriverActivity> {

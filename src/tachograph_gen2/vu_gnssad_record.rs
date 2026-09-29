@@ -26,7 +26,7 @@ pub struct VuGnssadRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl ReadableWithParams<VuGnssadRecord> for VuGnssadRecord {
+impl ReadableWithParams for VuGnssadRecord {
     type P = VUTransferResponseParameterID;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VuGnssadRecord> {

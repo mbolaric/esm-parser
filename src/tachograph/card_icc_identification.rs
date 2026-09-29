@@ -25,7 +25,7 @@ pub struct CardIccIdentification {
     pub ic_identifier: Vec<u8>,
 }
 
-impl Readable<CardIccIdentification> for CardIccIdentification {
+impl Readable for CardIccIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardIccIdentification> {
         let clock_stop = reader.read_u8()?;
         let card_extended_serial_number = ExtendedSerialNumber::read(reader)?;

@@ -30,7 +30,7 @@ impl CardData {
         Ok(Self { header, card_data_responses })
     }
 
-    fn get_card_by_equipment_type<TGen1: CardParser<TGen1>, TGen2: CardParser<TGen2>>(
+    fn get_card_by_equipment_type<TGen1: CardParser, TGen2: CardParser>(
         generation: CardGeneration,
         card_files_data_gen1: &CardFilesDataByCardGenerationItem,
         card_files_data_gen2: &CardFilesDataByCardGenerationItem,

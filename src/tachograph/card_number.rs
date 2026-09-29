@@ -88,7 +88,7 @@ impl CardNumber {
     }
 }
 
-impl ReadableWithParams<CardNumber> for CardNumber {
+impl ReadableWithParams for CardNumber {
     type P = CardNumberParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardNumber> {

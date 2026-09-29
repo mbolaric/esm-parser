@@ -15,7 +15,7 @@ pub struct VuItsConsentRecord {
     pub consent: bool,
 }
 
-impl Readable<VuItsConsentRecord> for VuItsConsentRecord {
+impl Readable for VuItsConsentRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuItsConsentRecord> {
         let card_number_and_generation = FullCardNumberAndGeneration::read(reader)?;
         let consent: bool = reader.read_u8()? == 1;

@@ -17,7 +17,7 @@ pub struct CertificateProfileIdentifier {
     pub data: Vec<u8>,
 }
 
-impl Readable<CertificateProfileIdentifier> for CertificateProfileIdentifier {
+impl Readable for CertificateProfileIdentifier {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CertificateProfileIdentifier> {
         let record_type: CertificateContentType = reader.read_u16::<BigEndian>()?.into();
         let record_size = reader.read_u8()? as u16;

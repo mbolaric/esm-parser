@@ -20,7 +20,7 @@ pub struct WorkshopCardHolderIdentification {
     pub card_holder_preferred_language: String,
 }
 
-impl Readable<WorkshopCardHolderIdentification> for WorkshopCardHolderIdentification {
+impl Readable for WorkshopCardHolderIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<WorkshopCardHolderIdentification> {
         let workshop_name = Name::read(reader)?;
         let workshop_address = Address::read(reader)?;

@@ -15,7 +15,7 @@ pub struct Name {
     pub name: String,
 }
 
-impl Readable<Name> for Name {
+impl Readable for Name {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<Name> {
         let code_page: CodePage = reader.read_u8()?.into();
         let name = bytes_to_string(&reader.read_into_vec(NAME_LENGTH)?, &code_page).trim().to_string();

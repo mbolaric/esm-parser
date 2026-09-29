@@ -32,7 +32,7 @@ pub struct DriverCardApplicationIdentification {
     pub no_card_vehicle_units_records: u32,
 }
 
-impl Readable<DriverCardApplicationIdentification> for DriverCardApplicationIdentification {
+impl Readable for DriverCardApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<DriverCardApplicationIdentification> {

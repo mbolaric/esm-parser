@@ -14,7 +14,7 @@ pub struct DriverCardIdentification {
     pub driver_card_holder_identification: DriverCardHolderIdentification,
 }
 
-impl Readable<DriverCardIdentification> for DriverCardIdentification {
+impl Readable for DriverCardIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<DriverCardIdentification> {
         let card_identification_params = CardNumberParams::new(EquipmentType::DriverCard);
         let card_identification = CardIdentification::read(reader, &card_identification_params)?;

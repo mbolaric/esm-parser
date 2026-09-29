@@ -22,7 +22,7 @@ pub struct VuActivityDailyRecordArray {
     pub records: Vec<ActivityChangeInfo>,
 }
 
-impl DataInfoReadable<VuActivityDailyRecordArray> for VuActivityDailyRecordArray {
+impl DataInfoReadable for VuActivityDailyRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuActivityDailyRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;

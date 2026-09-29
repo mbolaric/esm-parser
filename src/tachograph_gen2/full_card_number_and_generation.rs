@@ -14,7 +14,7 @@ pub struct FullCardNumberAndGeneration {
     pub generation: u8,
 }
 
-impl Readable<FullCardNumberAndGeneration> for FullCardNumberAndGeneration {
+impl Readable for FullCardNumberAndGeneration {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<FullCardNumberAndGeneration> {
         let full_card_number = FullCardNumber::read(reader)?;
         let generation = reader.read_u8()?;

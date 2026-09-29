@@ -19,7 +19,7 @@ pub struct CardFaultRecord {
     pub fault_vehicle_registration: VehicleRegistrationIdentification,
 }
 
-impl Readable<CardFaultRecord> for CardFaultRecord {
+impl Readable for CardFaultRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardFaultRecord> {
         let fault_type = reader.read_u8()?.into();
         let fault_begin_time = TimeReal::read(reader)?;
@@ -52,7 +52,7 @@ pub struct CardFaultData {
     pub card_fault_records: Vec<Vec<CardFaultRecord>>,
 }
 
-impl ReadableWithParams<CardFaultData> for CardFaultData {
+impl ReadableWithParams for CardFaultData {
     type P = CardFaultDataParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardFaultData> {

@@ -29,7 +29,7 @@ pub struct VuEventRecord {
     pub similar_events_number: u8,
 }
 
-impl Readable<VuEventRecord> for VuEventRecord {
+impl Readable for VuEventRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuEventRecord> {
         let event_type: EventFaultType = reader.read_u8()?.into();
         let event_record_purpose: EventFaultRecordPurpose = reader.read_u8()?.into();
@@ -67,7 +67,7 @@ pub struct VuEventData {
     pub vu_event_records: Vec<VuEventRecord>,
 }
 
-impl Readable<VuEventData> for VuEventData {
+impl Readable for VuEventData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuEventData> {
         let no_of_vu_events = reader.read_u8()?;
         let mut vu_event_records: Vec<VuEventRecord> = Vec::new();

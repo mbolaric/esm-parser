@@ -20,7 +20,7 @@ pub struct ControlCardHolderIdentification {
     pub card_holder_preferred_language: String,
 }
 
-impl Readable<ControlCardHolderIdentification> for ControlCardHolderIdentification {
+impl Readable for ControlCardHolderIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<ControlCardHolderIdentification> {
         let control_body_name = Name::read(reader)?;
         let control_body_address = Address::read(reader)?;

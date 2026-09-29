@@ -14,7 +14,7 @@ pub struct CompanyCardIdentification {
     pub company_card_holder_identification: CompanyCardHolderIdentification,
 }
 
-impl Readable<CompanyCardIdentification> for CompanyCardIdentification {
+impl Readable for CompanyCardIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CompanyCardIdentification> {
         let card_identification_params = CardNumberParams::new(EquipmentType::ControlCard);
         let card_identification = CardIdentification::read(reader, &card_identification_params)?;

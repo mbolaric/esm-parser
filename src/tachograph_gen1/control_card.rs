@@ -61,7 +61,7 @@ impl ControlCard {
     }
 }
 
-impl CardParser<ControlCard> for ControlCard {
+impl CardParser for ControlCard {
     fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<ControlCard>> {
         let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
         let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;

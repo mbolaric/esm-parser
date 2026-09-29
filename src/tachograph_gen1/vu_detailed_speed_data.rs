@@ -15,7 +15,7 @@ pub struct VuDetailedSpeedData {
     pub vu_detailed_speed_blocks: Vec<VuDetailedSpeedBlock>,
 }
 
-impl Readable<VuDetailedSpeedData> for VuDetailedSpeedData {
+impl Readable for VuDetailedSpeedData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuDetailedSpeedData> {
         let no_of_speed_blocks = reader.read_u16::<BigEndian>()?;
         let mut vu_detailed_speed_blocks: Vec<VuDetailedSpeedBlock> = Vec::new();

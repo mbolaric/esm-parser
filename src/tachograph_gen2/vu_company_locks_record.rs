@@ -23,7 +23,7 @@ pub struct VuCompanyLocksRecord {
     pub company_card_number_and_generation: FullCardNumberAndGeneration,
 }
 
-impl Readable<VuCompanyLocksRecord> for VuCompanyLocksRecord {
+impl Readable for VuCompanyLocksRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuCompanyLocksRecord> {
         let lock_in_time = TimeReal::read(reader)?;
         let lock_out_time = TimeReal::read(reader)?;

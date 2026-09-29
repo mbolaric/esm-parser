@@ -25,7 +25,7 @@ pub struct CardVehicleRecord {
     pub vu_data_block_counter: String,
 }
 
-impl Readable<CardVehicleRecord> for CardVehicleRecord {
+impl Readable for CardVehicleRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardVehicleRecord> {
         let vehicle_odometer_begin = OdometerShort::read(reader)?;
         let vehicle_odometer_end = OdometerShort::read(reader)?;

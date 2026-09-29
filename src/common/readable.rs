@@ -22,7 +22,7 @@ use crate::Result;
 ///     field2: u16,
 /// }
 ///
-/// impl Readable<Self> for MyData {
+/// impl Readable for MyData {
 ///     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<Self> {
 ///         let field1 = reader.read_u8()?;
 ///         let field2 = reader.read_u16::<BigEndian>()?;
@@ -37,7 +37,7 @@ use crate::Result;
 /// assert_eq!(my_data.field1, 0x01);
 /// assert_eq!(my_data.field2, 0x0203);
 /// ```
-pub trait Readable<T> {
+pub trait Readable: Sized {
     /// Reads an instance of the type from the given reader.
     ///
     /// # Arguments
@@ -46,8 +46,8 @@ pub trait Readable<T> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the deserialized type `T` or an `Error` if reading fails.
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<T>;
+    /// A `Result` containing the deserialized value or an `Error` if reading fails.
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<Self>;
 }
 
 /// A trait for types that can be deserialized from a binary stream using additional parameters.
@@ -57,7 +57,7 @@ pub trait Readable<T> {
 /// This trait is an extension of `Readable` for data structures whose deserialization depends
 /// on external context or parameters. The `P` associated type defines the structure of these
 /// parameters.
-pub trait ReadableWithParams<T> {
+pub trait ReadableWithParams: Sized {
     /// The type of the parameters required for deserialization.
     type P;
 
@@ -70,6 +70,6 @@ pub trait ReadableWithParams<T> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the deserialized type `T` or an `Error` if reading fails.
-    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<T>;
+    /// A `Result` containing the deserialized value or an `Error` if reading fails.
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<Self>;
 }

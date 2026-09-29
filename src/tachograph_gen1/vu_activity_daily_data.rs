@@ -18,7 +18,7 @@ pub struct VuActivityDailyData {
     pub activity_change_infos: Vec<ActivityChangeInfo>,
 }
 
-impl Readable<VuActivityDailyData> for VuActivityDailyData {
+impl Readable for VuActivityDailyData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuActivityDailyData> {
         let no_of_activity_changes = reader.read_u16::<BigEndian>()?;
         let mut activity_change_infos: Vec<ActivityChangeInfo> = Vec::with_capacity(no_of_activity_changes as usize);

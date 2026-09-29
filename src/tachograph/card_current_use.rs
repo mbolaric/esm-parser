@@ -14,7 +14,7 @@ pub struct CardCurrentUse {
     pub session_open_vehicle: VehicleRegistrationIdentification,
 }
 
-impl Readable<CardCurrentUse> for CardCurrentUse {
+impl Readable for CardCurrentUse {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardCurrentUse> {
         let session_open_time = TimeReal::read(reader)?;
         let session_open_vehicle = VehicleRegistrationIdentification::read(reader)?;

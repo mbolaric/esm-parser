@@ -55,7 +55,7 @@ pub struct WorkshopCardCalibrationRecord {
     pub seal_data_card: SealDataCard,
 }
 
-impl Readable<WorkshopCardCalibrationRecord> for WorkshopCardCalibrationRecord {
+impl Readable for WorkshopCardCalibrationRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<WorkshopCardCalibrationRecord> {
         let calibration_purpose: CalibrationPurpose = reader.read_u8()?.into();
         let vehicle_identification_number =

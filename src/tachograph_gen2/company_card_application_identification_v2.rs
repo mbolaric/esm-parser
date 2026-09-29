@@ -15,7 +15,7 @@ pub struct CompanyCardApplicationIdentificationV2 {
     pub vu_configuration_length_range: u16,
 }
 
-impl Readable<CompanyCardApplicationIdentificationV2> for CompanyCardApplicationIdentificationV2 {
+impl Readable for CompanyCardApplicationIdentificationV2 {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<CompanyCardApplicationIdentificationV2> {

@@ -15,7 +15,7 @@ pub struct CertificateDate {
     pub date: TimeReal,
 }
 
-impl Readable<CertificateDate> for CertificateDate {
+impl Readable for CertificateDate {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CertificateDate> {
         let record_type: CertificateContentType = reader.read_u16::<BigEndian>()?.into();
         let record_size = reader.read_u8()? as u16;

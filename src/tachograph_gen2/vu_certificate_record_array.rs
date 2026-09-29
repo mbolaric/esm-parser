@@ -20,7 +20,7 @@ pub struct VuCertificateRecordArray {
     pub records: Vec<Certificate>,
 }
 
-impl DataInfoReadable<VuCertificateRecordArray> for VuCertificateRecordArray {
+impl DataInfoReadable for VuCertificateRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuCertificateRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;

@@ -17,7 +17,7 @@ pub struct SealRecord {
     pub extended_seal_identitfier: ExtendedSealIdentifier,
 }
 
-impl Readable<SealRecord> for SealRecord {
+impl Readable for SealRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SealRecord> {
         let equipment_type: EquipmentType = reader.read_u8()?.into();
         let extended_seal_identitfier = ExtendedSealIdentifier::read(reader)?;

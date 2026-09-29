@@ -22,7 +22,7 @@ pub struct CardVehicleUnitRecord {
     pub vu_software_version: String,
 }
 
-impl Readable<CardVehicleUnitRecord> for CardVehicleUnitRecord {
+impl Readable for CardVehicleUnitRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CardVehicleUnitRecord> {
         let time_stamp = TimeReal::read(reader)?;
         let manufacturer_code = reader.read_u8()?;
@@ -55,7 +55,7 @@ pub struct CardVehicleUnitsUsed {
     pub card_vehicle_unit_records: Vec<CardVehicleUnitRecord>,
 }
 
-impl ReadableWithParams<CardVehicleUnitsUsed> for CardVehicleUnitsUsed {
+impl ReadableWithParams for CardVehicleUnitsUsed {
     type P = CardVehicleUnitsUsedParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardVehicleUnitsUsed> {

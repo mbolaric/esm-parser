@@ -29,7 +29,7 @@ pub struct VUIdentification {
     pub vu_approval_number: String,
 }
 
-impl Readable<VUIdentification> for VUIdentification {
+impl Readable for VUIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VUIdentification> {
         let vu_manufacturer_name = Name::read(reader)?;
         let vu_manufacturer_address = Address::read(reader)?;

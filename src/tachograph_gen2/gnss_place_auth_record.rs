@@ -21,7 +21,7 @@ pub struct GnssPlaceAuthRecord {
     pub authentication_status: u8,
 }
 
-impl Readable<GnssPlaceAuthRecord> for GnssPlaceAuthRecord {
+impl Readable for GnssPlaceAuthRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<GnssPlaceAuthRecord> {
         let time_stamp = TimeReal::read(reader)?;
         let gnss_accuracy = reader.read_u8()?;

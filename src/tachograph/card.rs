@@ -100,7 +100,7 @@ impl CardFileData {
     }
 }
 
-impl Readable<CardFileData> for CardFileData {
+impl Readable for CardFileData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardFileData> {
         let card_file_id: CardFileID = reader.read_u16::<BigEndian>()?.into();
         let appendix = reader.read_u8()?;
@@ -198,7 +198,7 @@ impl<D> dyn Card<D> {
         Ok(card_icc_identification)
     }
 
-    pub fn parse_card_application_identification<T: Readable<T>>(card_data_files: &CardFilesMap) -> Result<T> {
+    pub fn parse_card_application_identification<T: Readable>(card_data_files: &CardFilesMap) -> Result<T> {
         let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
         let application_identification = T::read(&mut reader)?;
         Ok(application_identification)
@@ -210,13 +210,13 @@ impl<D> dyn Card<D> {
         Ok(application_identification)
     }
 
-    pub fn parse_by_card_file_id<T: Readable<T>>(card_file_id: &CardFileID, card_data_files: &CardFilesMap) -> Result<T> {
+    pub fn parse_by_card_file_id<T: Readable>(card_file_id: &CardFileID, card_data_files: &CardFilesMap) -> Result<T> {
         let mut reader = <dyn Card<D>>::get_mem_reader(card_file_id, card_data_files)?;
         let result = T::read(&mut reader)?;
         Ok(result)
     }
 
-    pub fn parse_optional_by_card_file_id<T: Readable<T>>(
+    pub fn parse_optional_by_card_file_id<T: Readable>(
         card_file_id: &CardFileID,
         card_data_files: &CardFilesMap,
     ) -> Result<Option<T>> {
@@ -287,8 +287,8 @@ impl<D> dyn Card<D> {
     }
 }
 
-pub trait CardParser<T> {
-    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<T>>;
+pub trait CardParser: Sized {
+    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<Self>>;
 }
 
 #[cfg(test)]

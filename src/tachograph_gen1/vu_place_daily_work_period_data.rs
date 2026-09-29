@@ -17,7 +17,7 @@ pub struct VuPlaceDailyWorkPeriodRecord {
     pub place_record: PlaceRecord,
 }
 
-impl Readable<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriodRecord {
+impl Readable for VuPlaceDailyWorkPeriodRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuPlaceDailyWorkPeriodRecord> {
         let full_card_number = FullCardNumber::read(reader)?;
         let place_record = PlaceRecord::read(reader)?;
@@ -38,7 +38,7 @@ pub struct VuPlaceDailyWorkPeriodData {
     pub vu_place_daily_work_period_records: Vec<VuPlaceDailyWorkPeriodRecord>,
 }
 
-impl Readable<VuPlaceDailyWorkPeriodData> for VuPlaceDailyWorkPeriodData {
+impl Readable for VuPlaceDailyWorkPeriodData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuPlaceDailyWorkPeriodData> {
         let no_of_place_records = reader.read_u8()?;
         let mut vu_place_daily_work_period_records: Vec<VuPlaceDailyWorkPeriodRecord> =

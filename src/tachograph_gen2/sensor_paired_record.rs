@@ -18,7 +18,7 @@ pub struct SensorPairedRecord {
     pub sensor_pairing_date: TimeReal,
 }
 
-impl Readable<SensorPairedRecord> for SensorPairedRecord {
+impl Readable for SensorPairedRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SensorPairedRecord> {
         let sensor_serial_number = ExtendedSerialNumber::read(reader)?;
         let sensor_approval_number = bytes_to_ia5_fix_string(&reader.read_into_vec(16)?)?;

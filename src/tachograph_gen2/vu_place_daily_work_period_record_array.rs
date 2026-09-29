@@ -25,7 +25,7 @@ pub struct VuPlaceDailyWorkPeriodRecord {
     pub place_auth_record: Option<PlaceAuthRecord>,
 }
 
-impl ReadableWithParams<VuPlaceDailyWorkPeriodRecord> for VuPlaceDailyWorkPeriodRecord {
+impl ReadableWithParams for VuPlaceDailyWorkPeriodRecord {
     type P = VuPlaceDailyWorkPeriodRecordParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VuPlaceDailyWorkPeriodRecord> {
@@ -59,7 +59,7 @@ pub struct VuPlaceDailyWorkPeriodRecordArray {
     pub records: Vec<VuPlaceDailyWorkPeriodRecord>,
 }
 
-impl DataInfoReadable<VuPlaceDailyWorkPeriodRecordArray> for VuPlaceDailyWorkPeriodRecordArray {
+impl DataInfoReadable for VuPlaceDailyWorkPeriodRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuPlaceDailyWorkPeriodRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;

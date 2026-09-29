@@ -19,7 +19,7 @@ pub struct PreviousVehicleInfo {
     pub vu_generation: u8,
 }
 
-impl Readable<PreviousVehicleInfo> for PreviousVehicleInfo {
+impl Readable for PreviousVehicleInfo {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<PreviousVehicleInfo> {
         let vehicle_registration_identification = VehicleRegistrationIdentification::read(reader)?;
         let card_withdrawal_time = TimeReal::read(reader)?;

@@ -20,7 +20,7 @@ pub struct GnssAccumulatedDrivingRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl Readable<GnssAccumulatedDrivingRecord> for GnssAccumulatedDrivingRecord {
+impl Readable for GnssAccumulatedDrivingRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<GnssAccumulatedDrivingRecord> {
         let time_stamp = TimeReal::read(reader)?;
         let gnss_place_record = GnssPlaceRecord::read(reader)?;
@@ -53,7 +53,7 @@ pub struct GnssAccumulatedDriving {
     pub gnss_accumulated_driving_records: Vec<GnssAccumulatedDrivingRecord>,
 }
 
-impl ReadableWithParams<GnssAccumulatedDriving> for GnssAccumulatedDriving {
+impl ReadableWithParams for GnssAccumulatedDriving {
     type P = GnssAccumulatedDrivingParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<GnssAccumulatedDriving> {

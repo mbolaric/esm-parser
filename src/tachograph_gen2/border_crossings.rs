@@ -23,7 +23,7 @@ pub struct BorderCrossingRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl Readable<BorderCrossingRecord> for BorderCrossingRecord {
+impl Readable for BorderCrossingRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<BorderCrossingRecord> {
         let time_stamp = TimeReal::read(reader)?;
         let country_left: NationNumeric = reader.read_u8()?.into();
@@ -58,7 +58,7 @@ pub struct BorderCrossings {
     pub card_border_crossing_records: Vec<BorderCrossingRecord>,
 }
 
-impl ReadableWithParams<BorderCrossings> for BorderCrossings {
+impl ReadableWithParams for BorderCrossings {
     type P = BorderCrossingsParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<BorderCrossings> {

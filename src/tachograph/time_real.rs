@@ -69,7 +69,7 @@ impl TimeReal {
     }
 }
 
-impl Readable<TimeReal> for TimeReal {
+impl Readable for TimeReal {
     /// Reads a `TimeReal` from a binary stream of a DDD file.
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<TimeReal> {
         let data = reader.read_u32::<BigEndian>()?;

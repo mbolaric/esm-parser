@@ -44,7 +44,7 @@ pub struct VuOverview {
     pub signature: Option<Vec<u8>>,
 }
 
-impl VUTransferResponseParameterReader<VuOverview> for VuOverview {
+impl VUTransferResponseParameterReader for VuOverview {
     fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuOverview> {
         debug!("VuOverview::from_data - Trep ID: {trep_id:?}");
         let member_state_certificate = reader.read_into_vec(MEMBER_STATE_CERTIFICATE_LENGTH)?;

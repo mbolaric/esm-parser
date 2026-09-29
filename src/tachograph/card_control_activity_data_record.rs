@@ -25,7 +25,7 @@ pub struct CardControlActivityDataRecord {
     pub control_download_period_end: TimeReal,
 }
 
-impl Readable<CardControlActivityDataRecord> for CardControlActivityDataRecord {
+impl Readable for CardControlActivityDataRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardControlActivityDataRecord> {
         let control_type: ControlType = reader.read_u8()?.into();
         let control_time = TimeReal::read(reader)?;

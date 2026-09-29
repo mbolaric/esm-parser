@@ -34,7 +34,7 @@ pub struct VuCardIWRecord {
     pub manual_input_flag: ManualInputFlag,
 }
 
-impl Readable<VuCardIWRecord> for VuCardIWRecord {
+impl Readable for VuCardIWRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuCardIWRecord> {
         let card_holder_name = HolderName::read(reader)?;
         let full_card_number_and_generation = FullCardNumberAndGeneration::read(reader)?;

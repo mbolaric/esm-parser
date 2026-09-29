@@ -16,7 +16,7 @@ pub struct EccCertificate {
     pub data: Vec<u8>,
 }
 
-impl ReadableWithParams<EccCertificate> for EccCertificate {
+impl ReadableWithParams for EccCertificate {
     type P = CertificateParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<EccCertificate> {

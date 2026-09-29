@@ -19,7 +19,7 @@ pub struct CertificateAuthorityReference {
     pub certification_authority_kid: CertificationAuthorityKid,
 }
 
-impl Readable<CertificateAuthorityReference> for CertificateAuthorityReference {
+impl Readable for CertificateAuthorityReference {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CertificateAuthorityReference> {
         let record_type: CertificateContentType = (reader.read_u8()? as u16).into();
         let record_size = reader.read_u8()? as u16;

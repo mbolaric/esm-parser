@@ -35,8 +35,8 @@ pub enum ParsedCard<TGen1, TGen2> {
 
 impl<TGen1, TGen2> Serialize for ParsedCard<TGen1, TGen2>
 where
-    TGen1: CardParser<TGen1> + Serialize,
-    TGen2: CardParser<TGen2> + Serialize,
+    TGen1: CardParser + Serialize,
+    TGen2: CardParser + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

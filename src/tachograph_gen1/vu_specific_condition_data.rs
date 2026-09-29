@@ -15,7 +15,7 @@ pub struct VuSpecificConditionData {
     pub specific_condition_records: Vec<SpecificConditionRecord>,
 }
 
-impl Readable<VuSpecificConditionData> for VuSpecificConditionData {
+impl Readable for VuSpecificConditionData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuSpecificConditionData> {
         let no_of_specific_condition_records = reader.read_u16::<BigEndian>()?;
         let mut specific_condition_records: Vec<SpecificConditionRecord> =

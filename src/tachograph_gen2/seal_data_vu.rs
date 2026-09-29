@@ -14,7 +14,7 @@ pub struct SealDataVu {
     pub seal_records: Vec<SealRecord>,
 }
 
-impl Readable<SealDataVu> for SealDataVu {
+impl Readable for SealDataVu {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SealDataVu> {
         let mut seal_records: Vec<SealRecord> = Vec::with_capacity(5);
         for _ in 0..5 {

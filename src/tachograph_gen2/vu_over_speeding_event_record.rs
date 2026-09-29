@@ -29,7 +29,7 @@ pub struct VuOverSpeedingEventRecord {
     pub similar_events_number: u8,
 }
 
-impl Readable<VuOverSpeedingEventRecord> for VuOverSpeedingEventRecord {
+impl Readable for VuOverSpeedingEventRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuOverSpeedingEventRecord> {
         let event_type: EventFaultType = reader.read_u8()?.into();
         let event_record_purpose: EventFaultRecordPurpose = reader.read_u8()?.into();

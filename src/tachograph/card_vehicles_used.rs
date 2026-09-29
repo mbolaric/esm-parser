@@ -31,7 +31,7 @@ pub struct CardVehiclesUsed<T> {
     pub vehicle_records: Vec<T>,
 }
 
-impl<T: Readable<T> + VehicleUse> ReadableWithParams<CardVehiclesUsed<T>> for CardVehiclesUsed<T> {
+impl<T: Readable + VehicleUse> ReadableWithParams for CardVehiclesUsed<T> {
     type P = VehiclesUsedParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardVehiclesUsed<T>> {

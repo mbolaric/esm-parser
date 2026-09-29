@@ -24,7 +24,7 @@ impl Display for Datef {
     }
 }
 
-impl Readable<Datef> for Datef {
+impl Readable for Datef {
     /// Reads a BCD-encoded date from a binary reader.
     /// The date is expected to be in a 4-byte format:
     /// - 2 bytes for the year

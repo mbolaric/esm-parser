@@ -26,7 +26,7 @@ pub struct VuEvents {
     pub signature: Option<Vec<u8>>,
 }
 
-impl VUTransferResponseParameterReader<VuEvents> for VuEvents {
+impl VUTransferResponseParameterReader for VuEvents {
     fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuEvents> {
         debug!("VuEvents::from_data - Trep ID: {trep_id:?}");
         let vu_fault_data = VuFaultData::read(reader)?;

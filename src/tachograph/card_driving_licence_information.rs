@@ -18,7 +18,7 @@ pub struct CardDrivingLicenceInformation {
     pub driving_licence_number: String,
 }
 
-impl Readable<CardDrivingLicenceInformation> for CardDrivingLicenceInformation {
+impl Readable for CardDrivingLicenceInformation {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardDrivingLicenceInformation> {
         let driving_licence_issuing_authority = Name::read(reader)?;
         let driving_licence_issuing_nation: NationNumeric = reader.read_u8()?.into();

@@ -17,7 +17,7 @@ pub struct VuSoftwareIdentification {
     pub vu_soft_installation_date: TimeReal,
 }
 
-impl Readable<VuSoftwareIdentification> for VuSoftwareIdentification {
+impl Readable for VuSoftwareIdentification {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuSoftwareIdentification> {
         let vu_software_version = bytes_to_string(&reader.read_into_vec(VU_SOFTWARE_VERSION_LENGTH)?, &CodePage::IsoIec8859_1);
         let vu_soft_installation_date = TimeReal::read(reader)?;

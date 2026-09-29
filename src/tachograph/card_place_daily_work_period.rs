@@ -32,7 +32,7 @@ pub struct CardPlaceDailyWorkPeriod<T> {
     pub place_records: Vec<T>,
 }
 
-impl<T: Readable<T> + CardPlace> ReadableWithParams<CardPlaceDailyWorkPeriod<T>> for CardPlaceDailyWorkPeriod<T> {
+impl<T: Readable + CardPlace> ReadableWithParams for CardPlaceDailyWorkPeriod<T> {
     type P = CardPlaceDailyWorkPeriodParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardPlaceDailyWorkPeriod<T>> {

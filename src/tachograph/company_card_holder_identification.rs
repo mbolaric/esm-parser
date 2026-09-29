@@ -18,7 +18,7 @@ pub struct CompanyCardHolderIdentification {
     pub card_holder_preferred_language: String,
 }
 
-impl Readable<CompanyCardHolderIdentification> for CompanyCardHolderIdentification {
+impl Readable for CompanyCardHolderIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CompanyCardHolderIdentification> {
         let company_name = Name::read(reader)?;
         let company_address = Address::read(reader)?;

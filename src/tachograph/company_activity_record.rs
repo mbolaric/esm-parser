@@ -22,7 +22,7 @@ pub struct CompanyActivityRecord {
     pub download_period_end: TimeReal,
 }
 
-impl Readable<CompanyActivityRecord> for CompanyActivityRecord {
+impl Readable for CompanyActivityRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CompanyActivityRecord> {
         let company_activity_type: CompanyActivityType = reader.read_u8()?.into();
         let company_activity_time = TimeReal::read(reader)?;

@@ -17,7 +17,7 @@ pub struct ControlCardApplicationIdentification {
     pub no_of_control_activity_records: u32,
 }
 
-impl Readable<ControlCardApplicationIdentification> for ControlCardApplicationIdentification {
+impl Readable for ControlCardApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<ControlCardApplicationIdentification> {

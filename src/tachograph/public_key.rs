@@ -34,7 +34,7 @@ pub struct PublicKey {
     pub rsa_key_modulus: Vec<u8>,
 }
 
-impl ReadableWithParams<PublicKey> for PublicKey {
+impl ReadableWithParams for PublicKey {
     type P = PublicKeyParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<PublicKey> {

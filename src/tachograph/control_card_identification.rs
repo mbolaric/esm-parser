@@ -14,7 +14,7 @@ pub struct ControlCardIdentification {
     pub control_card_holder_identification: ControlCardHolderIdentification,
 }
 
-impl Readable<ControlCardIdentification> for ControlCardIdentification {
+impl Readable for ControlCardIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<ControlCardIdentification> {
         let card_identification_params = CardNumberParams::new(EquipmentType::ControlCard);
         let card_identification = CardIdentification::read(reader, &card_identification_params)?;

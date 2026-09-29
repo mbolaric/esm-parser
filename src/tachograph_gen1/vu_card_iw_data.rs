@@ -34,7 +34,7 @@ pub struct VuCardIWRecord {
     pub manual_input_flag: ManualInputFlag,
 }
 
-impl Readable<VuCardIWRecord> for VuCardIWRecord {
+impl Readable for VuCardIWRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCardIWRecord> {
         let card_holder_name = HolderName::read(reader)?;
         let full_card_number = FullCardNumber::read(reader)?;
@@ -69,7 +69,7 @@ pub struct VuCardIWData {
     pub vu_card_iw_records: Vec<VuCardIWRecord>,
 }
 
-impl Readable<VuCardIWData> for VuCardIWData {
+impl Readable for VuCardIWData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCardIWData> {
         let no_of_iw_records = reader.read_u16::<BigEndian>()?;
         let mut vu_card_iw_records: Vec<VuCardIWRecord> = Vec::new();

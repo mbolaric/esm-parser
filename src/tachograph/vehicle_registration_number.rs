@@ -14,7 +14,7 @@ pub struct VehicleRegistrationNumber {
     pub vehicle_reg_number: String,
 }
 
-impl Readable<VehicleRegistrationNumber> for VehicleRegistrationNumber {
+impl Readable for VehicleRegistrationNumber {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VehicleRegistrationNumber> {
         let code_page: CodePage = reader.read_u8()?.into();
         let mut vehicle_reg_number = bytes_to_string(&reader.read_into_vec(VEHICLE_REG_NUMBER_LENGTH)?, &code_page);

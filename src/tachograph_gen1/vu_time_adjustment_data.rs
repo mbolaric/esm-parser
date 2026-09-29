@@ -22,7 +22,7 @@ pub struct VuTimeAdjustmentRecord {
     pub workshop_card_number: FullCardNumber,
 }
 
-impl Readable<VuTimeAdjustmentRecord> for VuTimeAdjustmentRecord {
+impl Readable for VuTimeAdjustmentRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuTimeAdjustmentRecord> {
         let old_time_value = TimeReal::read(reader)?;
         let mew_time_value = TimeReal::read(reader)?;
@@ -46,7 +46,7 @@ pub struct VuTimeAdjustmentData {
     pub vu_time_adjustment_records: Vec<VuTimeAdjustmentRecord>,
 }
 
-impl Readable<VuTimeAdjustmentData> for VuTimeAdjustmentData {
+impl Readable for VuTimeAdjustmentData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuTimeAdjustmentData> {
         let no_of_vu_time_adj_records = reader.read_u8()?;
         let mut vu_time_adjustment_records: Vec<VuTimeAdjustmentRecord> = Vec::new();

@@ -28,7 +28,7 @@ pub struct WorkshopCardApplicationIdentification {
     pub no_off_calibration_records: u8,
 }
 
-impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplicationIdentification {
+impl Readable for WorkshopCardApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<WorkshopCardApplicationIdentification> {

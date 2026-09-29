@@ -59,7 +59,7 @@ impl Certificate {
     }
 }
 
-impl Readable<Certificate> for Certificate {
+impl Readable for Certificate {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<Certificate> {
         // Size = 194
         let signature = reader.read_into_vec(SIGNATURE_LENGTH)?;

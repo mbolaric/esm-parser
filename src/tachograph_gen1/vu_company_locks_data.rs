@@ -21,7 +21,7 @@ pub struct VuCompanyLocksRecord {
     pub company_card_number: FullCardNumber,
 }
 
-impl Readable<VuCompanyLocksRecord> for VuCompanyLocksRecord {
+impl Readable for VuCompanyLocksRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCompanyLocksRecord> {
         let lock_in_time = TimeReal::read(reader)?;
         let lock_out_time = TimeReal::read(reader)?;
@@ -41,7 +41,7 @@ pub struct VuCompanyLocksData {
     pub company_locks: Vec<VuCompanyLocksRecord>,
 }
 
-impl Readable<VuCompanyLocksData> for VuCompanyLocksData {
+impl Readable for VuCompanyLocksData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCompanyLocksData> {
         let no_of_locks = reader.read_u8()?;
         let mut company_locks: Vec<VuCompanyLocksRecord> = Vec::new();

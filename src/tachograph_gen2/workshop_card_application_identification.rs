@@ -34,7 +34,7 @@ pub struct WorkshopCardApplicationIdentification {
     pub no_of_card_vehicle_unit_records: u32,
 }
 
-impl Readable<WorkshopCardApplicationIdentification> for WorkshopCardApplicationIdentification {
+impl Readable for WorkshopCardApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<WorkshopCardApplicationIdentification> {

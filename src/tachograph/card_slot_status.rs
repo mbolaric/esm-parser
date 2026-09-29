@@ -13,7 +13,7 @@ pub struct CardSlotStatus {
     pub co_driver_slot: CardSlotStatusType,
 }
 
-impl Readable<CardSlotStatus> for CardSlotStatus {
+impl Readable for CardSlotStatus {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardSlotStatus> {
         let data = reader.read_u8()?;
         let co_driver_slot: CardSlotStatusType = ((data >> 4) & 0xF).into();

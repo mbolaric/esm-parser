@@ -27,7 +27,7 @@ pub struct VuOverSpeedingEventRecord {
     pub similar_events_number: u8,
 }
 
-impl Readable<VuOverSpeedingEventRecord> for VuOverSpeedingEventRecord {
+impl Readable for VuOverSpeedingEventRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuOverSpeedingEventRecord> {
         let event_type: EventFaultType = reader.read_u8()?.into();
         let event_record_purpose: EventFaultRecordPurpose = reader.read_u8()?.into();
@@ -63,7 +63,7 @@ pub struct VuOverSpeedingEventData {
     pub vu_over_speeding_event_records: Vec<VuOverSpeedingEventRecord>,
 }
 
-impl Readable<VuOverSpeedingEventData> for VuOverSpeedingEventData {
+impl Readable for VuOverSpeedingEventData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuOverSpeedingEventData> {
         let no_of_vu_over_speeding_events = reader.read_u8()?;
         let mut vu_over_speeding_event_records: Vec<VuOverSpeedingEventRecord> = Vec::new();

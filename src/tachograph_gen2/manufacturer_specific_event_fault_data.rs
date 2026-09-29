@@ -17,7 +17,7 @@ pub struct ManufacturerSpecificEventFaultData {
     pub manufacturer_specific_error_code: Vec<u8>,
 }
 
-impl Readable<ManufacturerSpecificEventFaultData> for ManufacturerSpecificEventFaultData {
+impl Readable for ManufacturerSpecificEventFaultData {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<ManufacturerSpecificEventFaultData> {
         let manufacturer_code = reader.read_u8()?;
         let manufacturer_specific_error_code = reader.read_into_vec(MANUFACTURES_SPECIFIC_ERROR_CODE_LENGTH)?;

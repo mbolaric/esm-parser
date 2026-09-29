@@ -20,7 +20,7 @@ pub struct VehicleIdentificationNumberRecordArray {
     pub records: Vec<String>,
 }
 
-impl DataInfoReadable<VehicleIdentificationNumberRecordArray> for VehicleIdentificationNumberRecordArray {
+impl DataInfoReadable for VehicleIdentificationNumberRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VehicleIdentificationNumberRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;

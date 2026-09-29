@@ -21,7 +21,7 @@ pub struct DriverCardApplicationIdentificationV2 {
     pub vu_configuration_length_range: u16,
 }
 
-impl Readable<DriverCardApplicationIdentificationV2> for DriverCardApplicationIdentificationV2 {
+impl Readable for DriverCardApplicationIdentificationV2 {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<DriverCardApplicationIdentificationV2> {

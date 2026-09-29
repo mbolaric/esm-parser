@@ -25,7 +25,7 @@ pub struct CompanyActivityData<T> {
     pub company_activity_records: Vec<T>,
 }
 
-impl<T: Readable<T>> ReadableWithParams<CompanyActivityData<T>> for CompanyActivityData<T> {
+impl<T: Readable> ReadableWithParams for CompanyActivityData<T> {
     type P = CompanyActivityDataParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CompanyActivityData<T>> {

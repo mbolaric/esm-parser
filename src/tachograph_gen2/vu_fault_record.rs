@@ -31,7 +31,7 @@ pub struct VuFaultRecord {
     pub manufacturer_specific_event_fault_data: ManufacturerSpecificEventFaultData,
 }
 
-impl Readable<VuFaultRecord> for VuFaultRecord {
+impl Readable for VuFaultRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuFaultRecord> {
         let fault_type: EventFaultType = reader.read_u8()?.into();
         let fault_record_purpose: EventFaultRecordPurpose = reader.read_u8()?.into();

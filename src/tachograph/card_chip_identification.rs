@@ -19,7 +19,7 @@ pub struct CardChipIdentification {
     pub ic_manufacturing_references_hex: String,
 }
 
-impl Readable<CardChipIdentification> for CardChipIdentification {
+impl Readable for CardChipIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardChipIdentification> {
         let ic_serial_number = reader.read_into_vec(4)?;
         let ic_manufacturing_references = reader.read_into_vec(4)?;

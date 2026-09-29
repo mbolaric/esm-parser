@@ -16,7 +16,7 @@ pub struct VuDownloadablePeriod {
     pub max_downloadable_time: TimeReal,
 }
 
-impl Readable<VuDownloadablePeriod> for VuDownloadablePeriod {
+impl Readable for VuDownloadablePeriod {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuDownloadablePeriod> {
         let min_downloadable_time = TimeReal::read(reader)?;
         let max_downloadable_time = TimeReal::read(reader)?;

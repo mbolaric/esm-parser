@@ -25,7 +25,7 @@ pub struct ControlCardControlActivityData<T> {
     pub control_activity_records: Vec<T>,
 }
 
-impl<T: Readable<T>> ReadableWithParams<ControlCardControlActivityData<T>> for ControlCardControlActivityData<T> {
+impl<T: Readable> ReadableWithParams for ControlCardControlActivityData<T> {
     type P = ControlCardControlActivityDataParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<ControlCardControlActivityData<T>> {

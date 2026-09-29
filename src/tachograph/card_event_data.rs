@@ -31,7 +31,7 @@ pub struct CardEventRecord {
     pub event_vehicle_registration: VehicleRegistrationIdentification,
 }
 
-impl Readable<CardEventRecord> for CardEventRecord {
+impl Readable for CardEventRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardEventRecord> {
         let event_type = reader.read_u8()?.into();
         let event_begin_time = TimeReal::read(reader)?;
@@ -54,7 +54,7 @@ pub struct CardEventData {
     pub card_event_records: Vec<Vec<CardEventRecord>>,
 }
 
-impl ReadableWithParams<CardEventData> for CardEventData {
+impl ReadableWithParams for CardEventData {
     type P = CardEventDataParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardEventData> {

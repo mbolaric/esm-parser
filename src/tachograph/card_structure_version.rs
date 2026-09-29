@@ -12,7 +12,7 @@ pub struct CardStructureVersion {
     pub data_element_use_version: u8,
 }
 
-impl Readable<CardStructureVersion> for CardStructureVersion {
+impl Readable for CardStructureVersion {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardStructureVersion> {
         let structure_version = reader.read_u8()?;
         let data_element_use_version = reader.read_u8()?;

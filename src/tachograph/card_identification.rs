@@ -24,7 +24,7 @@ pub struct CardIdentification {
     pub card_expiry_date: TimeReal,
 }
 
-impl ReadableWithParams<CardIdentification> for CardIdentification {
+impl ReadableWithParams for CardIdentification {
     type P = CardNumberParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardIdentification> {

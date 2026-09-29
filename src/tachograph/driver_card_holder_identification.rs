@@ -18,7 +18,7 @@ pub struct DriverCardHolderIdentification {
     pub card_holder_preferred_language: String,
 }
 
-impl Readable<DriverCardHolderIdentification> for DriverCardHolderIdentification {
+impl Readable for DriverCardHolderIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<DriverCardHolderIdentification> {
         let card_holder_name = HolderName::read(reader)?;
         let card_holder_birth_date = Datef::read(reader)?;

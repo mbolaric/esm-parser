@@ -13,7 +13,7 @@ pub struct HolderName {
     pub holder_first_names: Name,
 }
 
-impl Readable<HolderName> for HolderName {
+impl Readable for HolderName {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<HolderName> {
         let holder_surname = Name::read(reader)?;
         let holder_first_names = Name::read(reader)?;

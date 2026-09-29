@@ -31,7 +31,7 @@ pub struct VuPowerSupplyInterruptionRecord {
     pub similar_events_number: u8,
 }
 
-impl Readable<VuPowerSupplyInterruptionRecord> for VuPowerSupplyInterruptionRecord {
+impl Readable for VuPowerSupplyInterruptionRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuPowerSupplyInterruptionRecord> {
         let event_type: EventFaultType = reader.read_u8()?.into();
         let event_record_purpose: EventFaultRecordPurpose = reader.read_u8()?.into();

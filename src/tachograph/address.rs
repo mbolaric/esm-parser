@@ -16,7 +16,7 @@ pub struct Address {
     pub name: String,
 }
 
-impl Readable<Address> for Address {
+impl Readable for Address {
     /// Reads an `Address` from a binary stream, as specified by the DDD file format.
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<Address> {
         let code_page: CodePage = reader.read_u8()?.into();

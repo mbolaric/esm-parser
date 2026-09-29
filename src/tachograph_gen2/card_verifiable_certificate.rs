@@ -277,7 +277,7 @@ impl CardVerifiableCertificate {
     }
 }
 
-impl Readable<CardVerifiableCertificate> for CardVerifiableCertificate {
+impl Readable for CardVerifiableCertificate {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CardVerifiableCertificate> {
         let start_pos = reader.pos()?;
         let first_tag_byte = reader.read_u8()?;

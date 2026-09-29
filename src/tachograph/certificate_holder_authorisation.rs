@@ -20,7 +20,7 @@ pub struct CertificateHolderAuthorisation {
     pub equipment_type: EquipmentType,
 }
 
-impl Readable<CertificateHolderAuthorisation> for CertificateHolderAuthorisation {
+impl Readable for CertificateHolderAuthorisation {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CertificateHolderAuthorisation> {
         let record_type: CertificateContentType = (reader.read_u16::<BigEndian>()?).into();
         let record_size = reader.read_u8()? as u16;

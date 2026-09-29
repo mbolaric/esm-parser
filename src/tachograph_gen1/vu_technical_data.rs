@@ -21,7 +21,7 @@ pub struct VuTechnicalData {
     pub signature: Option<Vec<u8>>,
 }
 
-impl VUTransferResponseParameterReader<VuTechnicalData> for VuTechnicalData {
+impl VUTransferResponseParameterReader for VuTechnicalData {
     fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VuTechnicalData> {
         let vu_identification = VUIdentification::read(reader)?;
         let sensor_paired = SensorPaired::read(reader)?;

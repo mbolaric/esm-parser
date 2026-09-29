@@ -43,7 +43,7 @@ pub struct CertificateProfile {
     pub certificate_expiration_date: CertificateDate,
 }
 
-impl ReadableWithParams<CertificateProfile> for CertificateProfile {
+impl ReadableWithParams for CertificateProfile {
     type P = CertificateProfileParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CertificateProfile> {

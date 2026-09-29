@@ -13,7 +13,7 @@ pub struct VehicleRegistrationIdentification {
     pub vehicle_registration_number: VehicleRegistrationNumber,
 }
 
-impl Readable<VehicleRegistrationIdentification> for VehicleRegistrationIdentification {
+impl Readable for VehicleRegistrationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<VehicleRegistrationIdentification> {

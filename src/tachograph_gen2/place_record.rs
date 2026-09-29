@@ -25,7 +25,7 @@ pub struct PlaceRecord {
     pub entry_gnns_place_record: GnssPlaceRecord,
 }
 
-impl Readable<PlaceRecord> for PlaceRecord {
+impl Readable for PlaceRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<PlaceRecord> {
         let entry_time = TimeReal::read(reader)?;
         let entry_type_daily_work_period: EntryTypeDailyWorkPeriod = reader.read_u8()?.into();

@@ -21,7 +21,7 @@ pub struct VuControlActivityRecord {
     pub download_period_end_time: TimeReal,
 }
 
-impl Readable<VuControlActivityRecord> for VuControlActivityRecord {
+impl Readable for VuControlActivityRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuControlActivityRecord> {
         let ct = reader.read_u8()?;
         let control_type: ControlType = ct.into();
@@ -53,7 +53,7 @@ pub struct VuControlActivity {
     pub vu_control_activities: Vec<VuControlActivityRecord>,
 }
 
-impl Readable<VuControlActivity> for VuControlActivity {
+impl Readable for VuControlActivity {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuControlActivity> {
         let no_of_controls = reader.read_u8()?;
         let mut vu_control_activities: Vec<VuControlActivityRecord> = Vec::new();

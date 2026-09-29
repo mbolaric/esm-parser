@@ -27,7 +27,7 @@ pub struct VuFaultRecord {
     pub card_number_codriver_slot_end: FullCardNumber,
 }
 
-impl Readable<VuFaultRecord> for VuFaultRecord {
+impl Readable for VuFaultRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuFaultRecord> {
         let fault_type: EventFaultType = reader.read_u8()?.into();
         let fault_record_purpose: EventFaultRecordPurpose = reader.read_u8()?.into();
@@ -62,7 +62,7 @@ pub struct VuFaultData {
     pub vu_fault_records: Vec<VuFaultRecord>,
 }
 
-impl Readable<VuFaultData> for VuFaultData {
+impl Readable for VuFaultData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuFaultData> {
         let no_of_vu_faults = reader.read_u8()?;
         let mut vu_fault_records: Vec<VuFaultRecord> = Vec::new();

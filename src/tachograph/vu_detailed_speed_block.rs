@@ -15,7 +15,7 @@ pub struct VuDetailedSpeedBlock {
     pub speeds_per_second: Vec<u8>,
 }
 
-impl Readable<VuDetailedSpeedBlock> for VuDetailedSpeedBlock {
+impl Readable for VuDetailedSpeedBlock {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuDetailedSpeedBlock> {
         let speed_block_begin_date = TimeReal::read(reader)?;
         let mut speeds_per_second: Vec<u8> = Vec::new();

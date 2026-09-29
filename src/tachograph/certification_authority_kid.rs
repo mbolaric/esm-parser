@@ -23,7 +23,7 @@ pub struct CertificationAuthorityKid {
     pub ca_identifier: u8,
 }
 
-impl Readable<CertificationAuthorityKid> for CertificationAuthorityKid {
+impl Readable for CertificationAuthorityKid {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CertificationAuthorityKid> {
         let nation_numeric: NationNumeric = reader.read_u8()?.into();
         let nation_alpha = bytes_to_ia5_fix_string(&reader.read_into_vec(NATION_ALPHA_LENGTH)?)?;

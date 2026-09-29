@@ -17,7 +17,7 @@ pub struct CompanyCardApplicationIdentification {
     pub no_of_company_activity_records: u32,
 }
 
-impl Readable<CompanyCardApplicationIdentification> for CompanyCardApplicationIdentification {
+impl Readable for CompanyCardApplicationIdentification {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
         reader: &mut R,
     ) -> crate::Result<CompanyCardApplicationIdentification> {

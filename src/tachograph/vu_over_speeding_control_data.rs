@@ -17,7 +17,7 @@ pub struct VuOverSpeedingControlData {
     pub number_of_overspeed_since: u8,
 }
 
-impl Readable<VuOverSpeedingControlData> for VuOverSpeedingControlData {
+impl Readable for VuOverSpeedingControlData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuOverSpeedingControlData> {
         let last_overspeed_control_time = TimeReal::read(reader)?;
         let first_overspeed_since = TimeReal::read(reader)?;

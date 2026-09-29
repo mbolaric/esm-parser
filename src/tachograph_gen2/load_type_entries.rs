@@ -17,7 +17,7 @@ pub struct LoadTypeEntryRecord {
     pub load_type_entered: LoadType,
 }
 
-impl Readable<LoadTypeEntryRecord> for LoadTypeEntryRecord {
+impl Readable for LoadTypeEntryRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<LoadTypeEntryRecord> {
         let time_stamp = TimeReal::read(reader)?;
         let load_type_entered: LoadType = reader.read_u8()?.into();
@@ -47,7 +47,7 @@ pub struct LoadTypeEntries {
     pub card_load_type_entry_records: Vec<LoadTypeEntryRecord>,
 }
 
-impl ReadableWithParams<LoadTypeEntries> for LoadTypeEntries {
+impl ReadableWithParams for LoadTypeEntries {
     type P = LoadTypeEntriesParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<LoadTypeEntries> {

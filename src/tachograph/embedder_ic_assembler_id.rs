@@ -18,7 +18,7 @@ pub struct EmbedderIcAssemblerId {
     pub manufacturer_information: Vec<u8>,
 }
 
-impl Readable<EmbedderIcAssemblerId> for EmbedderIcAssemblerId {
+impl Readable for EmbedderIcAssemblerId {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<EmbedderIcAssemblerId> {
         let country_code = bytes_to_ia5_fix_string(&reader.read_into_vec(COUNTRY_CODE_LENGTH)?)?;
         let module_embedder = BCDString::decode(&reader.read_bytes::<MODULE_EMBEDDER_LENGTH>()?)?;

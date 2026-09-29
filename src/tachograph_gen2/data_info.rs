@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::error::Result;
 use crate::tacho::{RecordType, VUTransferResponseParameterID};
-use crate::{Error, Readable, ReadableWithParams};
+use crate::{Readable, ReadableWithParams};
 
 #[derive(Debug)]
 pub struct DataConfig {
@@ -52,29 +52,25 @@ impl DataInfo {
         Ok(DataInfo { trep_id, record_type, record_size: data_size, no_of_records, data })
     }
 
-    pub fn parse<T: DataInfoReadable<T>>(&self) -> Result<T> {
+    pub fn parse<T: DataInfoReadable>(&self) -> Result<T> {
         let config = self.create_data_config();
         let mut reader = BinMemoryBuffer::from(self.data.clone());
         T::read(&mut reader, &config)
     }
 
-    pub fn parse_with_params<T: DataInfoReadableWithParams<T>>(&self) -> Result<T> {
+    pub fn parse_with_params<T: DataInfoReadableWithParams>(&self) -> Result<T> {
         let config = self.create_data_config();
         let mut reader = BinMemoryBuffer::from(self.data.clone());
         T::read(&mut reader, &config)
     }
 }
 
-pub trait DataInfoReadable<T> {
-    fn read<R: ReadBytes + BinSeek>(_reader: &mut R, _config: &DataConfig) -> Result<T> {
-        Err(Error::NotImplemented)
-    }
+pub trait DataInfoReadable: Sized {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<Self>;
 }
 
-pub trait DataInfoReadableWithParams<T> {
-    fn read<R: ReadBytes + BinSeek>(_reader: &mut R, _config: &DataConfig) -> Result<T> {
-        Err(Error::NotImplemented)
-    }
+pub trait DataInfoReadableWithParams: Sized {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<Self>;
 }
 
 #[derive(Debug, Serialize)]
@@ -90,7 +86,7 @@ pub struct DataInfoGenericRecordArray<T> {
     pub records: Vec<T>,
 }
 
-impl<T: Readable<T>> DataInfoReadable<DataInfoGenericRecordArray<T>> for DataInfoGenericRecordArray<T> {
+impl<T: Readable> DataInfoReadable for DataInfoGenericRecordArray<T> {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecordArray<T>> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
@@ -105,9 +101,7 @@ impl<T: Readable<T>> DataInfoReadable<DataInfoGenericRecordArray<T>> for DataInf
     }
 }
 
-impl<T: ReadableWithParams<T, P = VUTransferResponseParameterID>> DataInfoReadableWithParams<DataInfoGenericRecordArray<T>>
-    for DataInfoGenericRecordArray<T>
-{
+impl<T: ReadableWithParams<P = VUTransferResponseParameterID>> DataInfoReadableWithParams for DataInfoGenericRecordArray<T> {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecordArray<T>> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;

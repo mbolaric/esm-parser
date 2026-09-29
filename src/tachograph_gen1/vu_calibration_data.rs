@@ -51,7 +51,7 @@ pub struct VuCalibrationRecord {
     pub next_calibration_date: TimeReal,
 }
 
-impl Readable<VuCalibrationRecord> for VuCalibrationRecord {
+impl Readable for VuCalibrationRecord {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCalibrationRecord> {
         let calibration_purpose = reader.read_u8()?.into();
         let workshop_name = Name::read(reader)?;
@@ -102,7 +102,7 @@ pub struct VUCalibrationData {
     pub calibrations: Vec<VuCalibrationRecord>,
 }
 
-impl Readable<VUCalibrationData> for VUCalibrationData {
+impl Readable for VUCalibrationData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VUCalibrationData> {
         let no_of_vu_calibrations = reader.read_u8()?;
         let mut vu_calibrations: Vec<VuCalibrationRecord> = Vec::new();
