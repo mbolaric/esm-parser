@@ -4,7 +4,7 @@ use crate::impl_enum_from_u8;
 
 /// Code indicating the activities carried out during a control. This data type
 /// is related to Annex 1C requirements 126, 274, 299, 327, and 350.
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum ControlType {

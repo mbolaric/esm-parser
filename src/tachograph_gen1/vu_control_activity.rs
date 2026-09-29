@@ -1,7 +1,7 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{ControlType, FullCardNumber, TimeReal};
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to a control performed using
 /// this VU (Annex 1B requirement 102 and Annex 1C requirement 126).
@@ -56,10 +56,8 @@ pub struct VuControlActivity {
 impl Readable for VuControlActivity {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuControlActivity> {
         let no_of_controls = reader.read_u8()?;
-        let mut vu_control_activities: Vec<VuControlActivityRecord> = Vec::new();
-        for _ in 0..no_of_controls {
-            vu_control_activities.push(VuControlActivityRecord::read(reader)?);
-        }
+        let vu_control_activities =
+            read_records(reader, no_of_controls as usize, |reader| VuControlActivityRecord::read(reader))?;
 
         Ok(Self { no_of_controls, vu_control_activities })
     }

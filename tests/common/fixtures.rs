@@ -94,7 +94,7 @@ pub fn tamper_first_signed_gen2_file(data_files: &mut CardFilesMap) -> CardFileI
         }
         if let Some(first_byte) = data_file.data.as_mut().and_then(|data| data.first_mut()) {
             *first_byte ^= 0x01;
-            return id.clone();
+            return *id;
         }
     }
 

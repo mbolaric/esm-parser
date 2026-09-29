@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::{Certificate, CertificateParams, DataInfoReadable};
 use crate::tacho::RecordType;
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{ReadableWithParams, Result};
+use crate::{ReadableWithParams, Result, read_records};
 
 /// The member state certificate plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
@@ -24,14 +24,10 @@ impl DataInfoReadable for MemberStateCertificateRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<MemberStateCertificateRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.record_type.clone();
+        let record_type = config.record_type;
 
-        let mut records: Vec<Certificate> = Vec::with_capacity(no_of_records as usize);
         let params = CertificateParams::new(Some(record_size));
-        for _ in 0..no_of_records {
-            let record = Certificate::read(reader, &params)?;
-            records.push(record);
-        }
+        let records = read_records(reader, no_of_records as usize, |reader| Certificate::read(reader, &params))?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

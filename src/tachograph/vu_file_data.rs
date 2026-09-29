@@ -5,7 +5,7 @@ use crate::tacho::VUTransferResponseParameterID;
 pub type VUFilesList = Vec<VUFileData>;
 
 pub trait VUDataFiles {
-    fn get_data_files(&self) -> &VUFilesList;
+    fn get_data_files(&self) -> &[VUFileData];
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

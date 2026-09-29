@@ -92,7 +92,7 @@ impl ReadableWithParams for CardNumber {
     type P = CardNumberParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardNumber> {
-        let equipment_type = params.equipment_type.clone();
+        let equipment_type = params.equipment_type;
         let number = bytes_to_ia5_fix_string(&reader.read_into_vec(CARD_NUMBER_LENGTH)?)?;
         let identification = CardNumber::get_identification(&number, &equipment_type).to_string();
         let card_replacement_index = CardNumber::get_replacement_index(&number).to_string();

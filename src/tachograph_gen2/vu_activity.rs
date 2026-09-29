@@ -36,25 +36,24 @@ impl VUActivity {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUActivity> {
         debug!("VUControlActivity::from_data - Trep ID: {trep_id:?}");
         let date_of_day_downloaded_record_array: DataInfoGenericRecordArray<TimeReal> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let odometer_value_midnight_record_array: DataInfoGenericRecordArray<OdometerShort> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_card_iw_record_array: DataInfoGenericRecordArray<VuCardIWRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_activity_daily_record_array: VuActivityDailyRecordArray = DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
+        let vu_card_iw_record_array: DataInfoGenericRecordArray<VuCardIWRecord> = DataInfo::read(reader, trep_id)?.parse()?;
+        let vu_activity_daily_record_array: VuActivityDailyRecordArray = DataInfo::read(reader, trep_id)?.parse()?;
         let vu_place_daily_work_period_record_array: VuPlaceDailyWorkPeriodRecordArray =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_gnssad_record_array: DataInfoGenericRecordArray<VuGnssadRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
+            DataInfo::read(reader, trep_id)?.parse_with_params()?;
         let vu_specific_condition_record_array: DataInfoGenericRecordArray<SpecificConditionRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
 
         if trep_id == VUTransferResponseParameterID::Gen2v2Activities {
             // Two record are not in use
-            DataInfo::read(reader, trep_id.clone())?;
-            DataInfo::read(reader, trep_id.clone())?;
+            DataInfo::read(reader, trep_id)?;
+            DataInfo::read(reader, trep_id)?;
         }
-        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
+        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id)?.parse()?);
 
         Ok(Self {
             date_of_day_downloaded_record_array,

@@ -5,14 +5,15 @@ use log::{debug, trace};
 use serde::Serialize;
 
 use crate::gen1::{
-    CardResponseParameterData, CardVehicleRecord, Certificate, PlaceRecord, SpecificConditions, SpecificConditionsParams,
+    CardVehicleRecord, Certificate, PlaceRecord, SpecificConditions, SpecificConditionsParams,
     WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
 };
 use crate::tacho::{
-    Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
-    CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID, CardIccIdentification,
-    CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification,
-    IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, sorted_card_files,
+    CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
+    CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID,
+    CardFilesDataByCardGenerationItem, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod,
+    CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, VehiclesUsedParams,
+    WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -88,23 +89,22 @@ impl WorkshopCard {
 }
 
 impl CardParser for WorkshopCard {
-    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<WorkshopCard>> {
-        let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
-        let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
-        let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
-            WorkshopCardApplicationIdentification,
-        >(card_data_files)?;
+    fn parse(card_files: CardFilesDataByCardGenerationItem) -> Result<Box<WorkshopCard>> {
+        let card_chip_identification = card_files.parse_required(&CardFileID::IC)?;
+        let card_icc_identification = card_files.parse_required(&CardFileID::ICC)?;
+        let application_identification =
+            card_files.parse_required::<WorkshopCardApplicationIdentification>(&CardFileID::ApplicationIdentification)?;
         trace!("WorkshopCard::parse - Application Identification: {application_identification:?}");
 
         let mut workshop_card = WorkshopCard::new(
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
-            card_notes.to_owned(),
-            (*card_data_files).clone(),
+            card_files.card_notes,
+            card_files.card_files_data,
         );
 
-        for card_item in sorted_card_files(card_data_files) {
+        for card_item in sorted_card_files(&workshop_card.data_files) {
             debug!("WorkshopCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
@@ -154,7 +154,7 @@ impl CardParser for WorkshopCard {
                     workshop_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
                 }
                 CardFileID::Identification => {
-                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
+                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id);
                     workshop_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::CardCertificate => {

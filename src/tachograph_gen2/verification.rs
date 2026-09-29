@@ -7,7 +7,7 @@ use sha2::{Digest, Sha256};
 use signature::hazmat::PrehashVerifier;
 
 use crate::tacho::{
-    CardFileData, CardFileID, CardFilesMap, EquipmentType, TimeReal, VUFilesList, VUTransferResponseParameterID, VerifyItem,
+    CardFileData, CardFileID, CardFilesMap, EquipmentType, TimeReal, VUFileData, VUTransferResponseParameterID, VerifyItem,
     VerifyResult, VerifyResultStatus, VerifyStatus, VuVerifyItem, VuVerifyResult,
 };
 pub(in crate::tachograph_gen2) use crate::tachograph_gen2::card_verifiable_certificate::{
@@ -165,7 +165,7 @@ impl fmt::Display for SigningRole {
 /// Checks that `certificate`'s CHA equipment type matches `role`.
 fn validate_sign_role(certificate: &Certificate, role: SigningRole) -> Result<()> {
     let equipment_type = certificate.certificate_holder_authorisation[CHA_SIZE - 1];
-    if !role.allowed_equipment_types().iter().any(|expected| equipment_type == expected.clone() as u8) {
+    if !role.allowed_equipment_types().iter().any(|expected| equipment_type == *expected as u8) {
         return Err(Error::VerifyError(format!("{role} certificate has unsupported equipment type {equipment_type:#04X}.")));
     }
     Ok(())
@@ -279,19 +279,15 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &VerifiedCertificate
             continue;
         }
         let Some(raw_data) = data_file.data.as_ref() else {
-            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveData, end_of_validity: None });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::NotHaveData, end_of_validity: None });
             continue;
         };
         let Some(signature) = data_file.signature.as_ref() else {
-            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveSignature, end_of_validity: None });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::NotHaveSignature, end_of_validity: None });
             continue;
         };
         if signature.len() != ECDSA_P256_SIGNATURE_SIZE {
-            result.push(VerifyItem {
-                card_file_id: id.clone(),
-                status: VerifyStatus::InvalidSignatureSize,
-                end_of_validity: None,
-            });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::InvalidSignatureSize, end_of_validity: None });
             continue;
         }
 
@@ -300,7 +296,7 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &VerifiedCertificate
         } else {
             VerifyStatus::Invalid
         };
-        result.push(VerifyItem { card_file_id: id.clone(), status, end_of_validity: None });
+        result.push(VerifyItem { card_file_id: *id, status, end_of_validity: None });
     }
     Ok(result)
 }
@@ -378,7 +374,7 @@ pub fn verify_with_time(
         end_of_validity: Some(msca_verified.end_of_validity.clone()),
     });
     result.push(VerifyItem {
-        card_file_id: card_certificate_id.clone(),
+        card_file_id: *card_certificate_id,
         status: VerifyStatus::Valid,
         end_of_validity: Some(card_verified.end_of_validity.clone()),
     });
@@ -497,19 +493,19 @@ fn verify_vu_certificates_at(
     Ok(vu_verified)
 }
 
-fn verify_vu_data(data_files: &VUFilesList, vu_verified: &VerifiedCertificate) -> Vec<VuVerifyItem> {
+fn verify_vu_data(data_files: &[VUFileData], vu_verified: &VerifiedCertificate) -> Vec<VuVerifyItem> {
     let mut result = Vec::new();
     for file in data_files {
         let Some(raw_data) = file.data.as_ref() else {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveData, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::NotHaveData, None));
             continue;
         };
         let Some(signature) = file.signature.as_ref() else {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveSignature, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::NotHaveSignature, None));
             continue;
         };
         if signature.len() != ECDSA_P256_SIGNATURE_SIZE {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::InvalidSignatureSize, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::InvalidSignatureSize, None));
             continue;
         }
 
@@ -521,17 +517,17 @@ fn verify_vu_data(data_files: &VUFilesList, vu_verified: &VerifiedCertificate) -
 
         let end_of_validity = if is_overview_trep(&file.trep_id) { Some(vu_verified.end_of_validity.clone()) } else { None };
 
-        result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, status, end_of_validity));
+        result.push(VuVerifyItem::record(file.trep_id, file.position, status, end_of_validity));
     }
     result
 }
 
-pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) -> Result<VuVerifyResult> {
+pub fn verify_vu(data_files: &[VUFileData], erca_pk: &[u8; GEN2_CERTIFICATE_SIZE]) -> Result<VuVerifyResult> {
     verify_vu_with_time(data_files, erca_pk, None)
 }
 
 pub fn verify_vu_with_time(
-    data_files: &VUFilesList,
+    data_files: &[VUFileData],
     erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],
     validation_time: Option<u32>,
 ) -> Result<VuVerifyResult> {

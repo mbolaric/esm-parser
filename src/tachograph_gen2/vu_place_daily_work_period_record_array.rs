@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::{DataInfoReadable, FullCardNumberAndGeneration, PlaceAuthRecord, PlaceRecord};
 use crate::tacho::{RecordType, VUTransferResponseParameterID};
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, read_records};
 
 pub struct VuPlaceDailyWorkPeriodRecordParams {
     pub is_gen2_v2: bool,
@@ -63,14 +63,12 @@ impl DataInfoReadable for VuPlaceDailyWorkPeriodRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<VuPlaceDailyWorkPeriodRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.record_type.clone();
+        let record_type = config.record_type;
 
-        let mut records: Vec<VuPlaceDailyWorkPeriodRecord> = Vec::with_capacity(no_of_records as usize);
         let is_gen2_v2: bool = config.trep_id == VUTransferResponseParameterID::Gen2v2Activities;
-        for _ in 0..no_of_records {
-            let record = VuPlaceDailyWorkPeriodRecord::read(reader, &VuPlaceDailyWorkPeriodRecordParams { is_gen2_v2 })?;
-            records.push(record);
-        }
+        let records = read_records(reader, no_of_records as usize, |reader| {
+            VuPlaceDailyWorkPeriodRecord::read(reader, &VuPlaceDailyWorkPeriodRecordParams { is_gen2_v2 })
+        })?;
         Ok(Self { is_gen2_v2, no_of_records, record_size, record_type, records })
     }
 }

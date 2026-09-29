@@ -1,7 +1,7 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{Address, FullCardNumber, Name, TimeReal};
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to one company lock
 /// (Annex 1B requirement 104 and Annex 1C requirement 128).
@@ -44,10 +44,7 @@ pub struct VuCompanyLocksData {
 impl Readable for VuCompanyLocksData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCompanyLocksData> {
         let no_of_locks = reader.read_u8()?;
-        let mut company_locks: Vec<VuCompanyLocksRecord> = Vec::new();
-        for _ in 0..no_of_locks {
-            company_locks.push(VuCompanyLocksRecord::read(reader)?);
-        }
+        let company_locks = read_records(reader, no_of_locks as usize, |reader| VuCompanyLocksRecord::read(reader))?;
 
         Ok(Self { no_of_locks, company_locks })
     }

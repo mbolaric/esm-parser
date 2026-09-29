@@ -5,7 +5,7 @@ use crate::impl_enum_from_u8;
 /// Code identifying whether a cardholder has manually entered driver
 /// activities at card insertion or not (Annex 1B requirement 081 and
 /// Annex 1C requirement 102).
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum ManualInputFlag {

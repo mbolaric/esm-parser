@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::error::Result;
 use crate::tacho::{RecordType, VUTransferResponseParameterID};
-use crate::{Readable, ReadableWithParams};
+use crate::{Readable, ReadableWithParams, read_records};
 
 #[derive(Debug)]
 pub struct DataConfig {
@@ -31,8 +31,8 @@ pub struct DataInfo {
 impl DataInfo {
     fn create_data_config(&self) -> DataConfig {
         DataConfig {
-            trep_id: self.trep_id.clone(),
-            record_type: self.record_type.clone(),
+            trep_id: self.trep_id,
+            record_type: self.record_type,
             record_size: self.record_size,
             no_of_records: self.no_of_records,
         }
@@ -90,13 +90,9 @@ impl<T: Readable> DataInfoReadable for DataInfoGenericRecordArray<T> {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecordArray<T>> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.record_type.clone();
+        let record_type = config.record_type;
 
-        let mut records: Vec<T> = Vec::with_capacity(no_of_records as usize);
-        for _ in 0..no_of_records {
-            let record = T::read(reader)?;
-            records.push(record);
-        }
+        let records = read_records(reader, no_of_records as usize, |reader| T::read(reader))?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }
@@ -105,13 +101,9 @@ impl<T: ReadableWithParams<P = VUTransferResponseParameterID>> DataInfoReadableW
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<DataInfoGenericRecordArray<T>> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.record_type.clone();
+        let record_type = config.record_type;
 
-        let mut records: Vec<T> = Vec::with_capacity(no_of_records as usize);
-        for _ in 0..no_of_records {
-            let record = T::read(reader, &config.trep_id)?;
-            records.push(record);
-        }
+        let records = read_records(reader, no_of_records as usize, |reader| T::read(reader, &config.trep_id))?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

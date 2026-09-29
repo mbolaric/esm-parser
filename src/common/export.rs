@@ -8,16 +8,13 @@ use serde::Serialize;
 use crate::Result;
 
 /// Export data to JSON or XML.
-pub trait Export {
+pub trait Export: Serialize {
     /// Serializes the data structure to a JSON string.
     ///
     /// # Returns
     ///
     /// A `Result` containing the JSON string or an `Error` if serialization fails.
-    fn to_json(&self) -> Result<String>
-    where
-        Self: Serialize,
-    {
+    fn to_json(&self) -> Result<String> {
         Ok(serde_json::to_string(self)?)
     }
 
@@ -26,10 +23,7 @@ pub trait Export {
     /// # Returns
     ///
     /// A `Result` containing the 'pretty' JSON string or an `Error` if serialization fails.
-    fn to_json_pretty(&self) -> Result<String>
-    where
-        Self: Serialize,
-    {
+    fn to_json_pretty(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(self)?)
     }
 
@@ -38,10 +32,7 @@ pub trait Export {
     /// # Returns
     ///
     /// A `Result` containing the XML string or an `Error` if serialization fails.
-    fn to_xml(&self) -> Result<String>
-    where
-        Self: Serialize,
-    {
+    fn to_xml(&self) -> Result<String> {
         Ok(quick_xml::se::to_string(self)?)
     }
 
@@ -50,15 +41,14 @@ pub trait Export {
     /// # Returns
     ///
     /// A `Result` containing the 'pretty' XML string or an `Error` if serialization fails.
-    fn to_xml_pretty(&self) -> Result<String>
-    where
-        Self: Serialize,
-    {
+    fn to_xml_pretty(&self) -> Result<String> {
         let ugly_xml = quick_xml::se::to_string(self)?;
         let pretty_xml = pretty_print_xml(&ugly_xml)?;
         Ok(pretty_xml)
     }
 }
+
+impl<T: Serialize + ?Sized> Export for T {}
 
 /// Formats an XML string with indentation.
 ///

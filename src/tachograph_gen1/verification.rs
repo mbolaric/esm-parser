@@ -5,7 +5,7 @@ use sha1::{Digest, Sha1};
 
 use crate::helpers::get_sub_array;
 use crate::tacho::{
-    CardFileData, CardFileID, CardFilesMap, TimeReal, VUFilesList, VUTransferResponseParameterID, VerifyItem, VerifyResult,
+    CardFileData, CardFileID, CardFilesMap, TimeReal, VUFileData, VUTransferResponseParameterID, VerifyItem, VerifyResult,
     VerifyResultStatus, VerifyStatus, VuVerifyItem, VuVerifyResult,
 };
 use crate::{Error, Readable, Result};
@@ -187,23 +187,19 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificat
         let data = data_file.1;
 
         if data.data.is_none() {
-            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveData, end_of_validity: None });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::NotHaveData, end_of_validity: None });
             continue;
         }
 
         if data.signature.is_none() {
-            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::NotHaveSignature, end_of_validity: None });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::NotHaveSignature, end_of_validity: None });
             continue;
         }
 
         let raw_data = data.data.as_ref().unwrap();
         let signature_data = data.signature.as_ref().unwrap();
         if signature_data.len() < SIG_SIZE {
-            result.push(VerifyItem {
-                card_file_id: id.clone(),
-                status: VerifyStatus::InvalidSignatureSize,
-                end_of_validity: None,
-            });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::InvalidSignatureSize, end_of_validity: None });
             continue;
         }
 
@@ -219,11 +215,11 @@ fn verify_data(data_files: &CardFilesMap, card_certificate: &DecryptedCertificat
             && get_sub_array(&perf_ret, 92, 15) == DATA_PATTERN
             && get_sub_array(&perf_ret, 1, 90) == SIGNATURE_PADDING
         {
-            result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Valid, end_of_validity: None });
+            result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::Valid, end_of_validity: None });
             continue;
         }
 
-        result.push(VerifyItem { card_file_id: id.clone(), status: VerifyStatus::Invalid, end_of_validity: None });
+        result.push(VerifyItem { card_file_id: *id, status: VerifyStatus::Invalid, end_of_validity: None });
     }
 
     Ok(result)
@@ -338,24 +334,24 @@ fn verify_vu_certificates_at(
     Ok(vu_decrypted)
 }
 
-fn verify_vu_data(data_files: &VUFilesList, vu_certificate: &DecryptedCertificate) -> Vec<VuVerifyItem> {
+fn verify_vu_data(data_files: &[VUFileData], vu_certificate: &DecryptedCertificate) -> Vec<VuVerifyItem> {
     let mut result = Vec::new();
     for file in data_files {
         let Some(raw_data) = file.data.as_ref() else {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveData, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::NotHaveData, None));
             continue;
         };
         let Some(signature) = file.signature.as_ref() else {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::NotHaveSignature, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::NotHaveSignature, None));
             continue;
         };
         if signature.len() < SIG_SIZE {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::InvalidSignatureSize, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::InvalidSignatureSize, None));
             continue;
         }
 
         let Ok(sig_bytes) = signature[..SIG_SIZE].try_into() else {
-            result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, VerifyStatus::InvalidSignatureSize, None));
+            result.push(VuVerifyItem::record(file.trep_id, file.position, VerifyStatus::InvalidSignatureSize, None));
             continue;
         };
 
@@ -380,13 +376,13 @@ fn verify_vu_data(data_files: &VUFilesList, vu_certificate: &DecryptedCertificat
             None
         };
 
-        result.push(VuVerifyItem::record(file.trep_id.clone(), file.position, status, end_of_validity));
+        result.push(VuVerifyItem::record(file.trep_id, file.position, status, end_of_validity));
     }
     result
 }
 
 pub fn verify_vu_with_time(
-    data_files: &VUFilesList,
+    data_files: &[VUFileData],
     erca_pk: &[u8; 144],
     validation_time: Option<u32>,
 ) -> Result<VuVerifyResult> {
@@ -404,7 +400,7 @@ pub fn verify_vu_with_time(
     Ok(VuVerifyResult { status: vu_result_status(&result), result })
 }
 
-pub fn verify_vu(data_files: &VUFilesList, erca_pk: &[u8; 144]) -> Result<VuVerifyResult> {
+pub fn verify_vu(data_files: &[VUFileData], erca_pk: &[u8; 144]) -> Result<VuVerifyResult> {
     verify_vu_with_time(data_files, erca_pk, None)
 }
 
@@ -482,7 +478,7 @@ mod tests {
 
     #[test]
     fn test_verify_vu_requires_overview() {
-        let error = verify_vu(&vec![], &[0; 144]).unwrap_err();
+        let error = verify_vu(&[], &[0; 144]).unwrap_err();
         assert!(matches!(error, Error::VerifyError(message) if message.contains("Missing Overview TREP")));
     }
 
@@ -497,7 +493,7 @@ mod tests {
             data: Some(vec![0; 10]),
             raw_data: Some(vec![0; 50]),
         };
-        let error = verify_vu(&vec![overview], &[0; 144]).unwrap_err();
+        let error = verify_vu(&[overview], &[0; 144]).unwrap_err();
         assert!(matches!(error, Error::VerifyError(message) if message.contains("Overview raw data too short")));
     }
 

@@ -1,9 +1,9 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::Readable;
 use crate::gen1::PreviousVehicleInfo;
 use crate::tacho::{CardSlotNumber, FullCardNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal};
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to an insertion and withdrawal
 /// cycle of a driver card or of a workshop card in the vehicle unit
@@ -72,11 +72,7 @@ pub struct VuCardIWData {
 impl Readable for VuCardIWData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuCardIWData> {
         let no_of_iw_records = reader.read_u16::<BigEndian>()?;
-        let mut vu_card_iw_records: Vec<VuCardIWRecord> = Vec::new();
-        for _ in 0..no_of_iw_records {
-            let record = VuCardIWRecord::read(reader)?;
-            vu_card_iw_records.push(record);
-        }
+        let vu_card_iw_records = read_records(reader, no_of_iw_records as usize, |reader| VuCardIWRecord::read(reader))?;
         Ok(Self { no_of_iw_records, vu_card_iw_records })
     }
 }

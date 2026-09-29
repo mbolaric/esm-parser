@@ -6,9 +6,10 @@ use crate::gen2::{
     DataInfo, VUActivity, VUCardDownload, VUEvents, VUOverview, VUSpeed, VUTechnicalData, VUTransferResponseParameterData,
 };
 use crate::tacho::{
-    self, TachographHeader, VUDataFiles, VUFilesList, VUTransferResponseParameterID, VUTransferResponseParameterItem,
+    TachographHeader, VUDataFiles, VUFileData, VUFilesList, VUTransferResponseParameterID, VUTransferResponseParameterItem,
+    VuReader,
 };
-use crate::{Export, Result, tachograph};
+use crate::{Result, tachograph};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -23,15 +24,15 @@ pub struct VUData {
 
 impl VUData {
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<VUData> {
-        let (transfer_res_params, data_files) = <dyn tacho::VUData<VUTransferResponseParameterData>>::from_data_with_files(
-            reader,
-            &|trep_id: VUTransferResponseParameterID, reader: &mut R| VUData::parse_trep(header.clone(), trep_id, reader),
-        )?;
+        let (transfer_res_params, data_files) =
+            VuReader::from_data_with_files(reader, |trep_id: VUTransferResponseParameterID, reader: &mut R| {
+                VUData::parse_trep(header.clone(), trep_id, reader)
+            })?;
 
         Ok(VUData { header, transfer_res_params, data_files })
     }
 
-    pub fn get_data_files(&self) -> &VUFilesList {
+    pub fn get_data_files(&self) -> &[VUFileData] {
         &self.data_files
     }
 
@@ -128,15 +129,13 @@ impl tachograph::VUData<VUTransferResponseParameterData> for VUData {
         &self.header
     }
 
-    fn get_data(&self) -> &Vec<VUTransferResponseParameterItem<VUTransferResponseParameterData>> {
+    fn get_data(&self) -> &[VUTransferResponseParameterItem<VUTransferResponseParameterData>] {
         &self.transfer_res_params
     }
 }
 
 impl VUDataFiles for VUData {
-    fn get_data_files(&self) -> &VUFilesList {
+    fn get_data_files(&self) -> &[VUFileData] {
         &self.data_files
     }
 }
-
-impl Export for VUData {}

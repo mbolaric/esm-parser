@@ -37,20 +37,20 @@ impl VUTechnicalData {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUTechnicalData> {
         debug!("VUTechnicalData::from_data - Trep ID: {trep_id:?}");
         let vu_identification_record_array: DataInfoGenericRecordArray<VuIdentification> =
-            DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
+            DataInfo::read(reader, trep_id)?.parse_with_params()?;
         let vu_sensor_paired_record_array: DataInfoGenericRecordArray<SensorPairedRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_sensor_external_gnss_coupled_record_array: DataInfoGenericRecordArray<SensorExternalGNSSCoupledRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_calibration_record_array: DataInfoGenericRecordArray<VuCalibrationRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse_with_params()?;
-        let vu_card_record_array: DataInfoGenericRecordArray<VuCardRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse_with_params()?;
+        let vu_card_record_array: DataInfoGenericRecordArray<VuCardRecord> = DataInfo::read(reader, trep_id)?.parse()?;
         let vu_its_consent_record_array: DataInfoGenericRecordArray<VuItsConsentRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_power_supply_interruption_record_array: DataInfoGenericRecordArray<VuPowerSupplyInterruptionRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
 
-        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
+        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id)?.parse()?);
 
         Ok(Self {
             vu_identification_record_array,

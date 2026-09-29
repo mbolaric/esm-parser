@@ -1,7 +1,7 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal};
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to a fault (Annex 1B
 /// requirement 096 and Annex 1C requirement 118).
@@ -65,11 +65,7 @@ pub struct VuFaultData {
 impl Readable for VuFaultData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuFaultData> {
         let no_of_vu_faults = reader.read_u8()?;
-        let mut vu_fault_records: Vec<VuFaultRecord> = Vec::new();
-        for _ in 0..no_of_vu_faults {
-            let record = VuFaultRecord::read(reader)?;
-            vu_fault_records.push(record);
-        }
+        let vu_fault_records = read_records(reader, no_of_vu_faults as usize, |reader| VuFaultRecord::read(reader))?;
 
         Ok(Self { no_of_vu_faults, vu_fault_records })
     }

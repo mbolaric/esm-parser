@@ -5,7 +5,7 @@ use serde::Serialize;
 use crate::impl_enum_from_u8;
 
 /// Numerical reference to a country.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum NationNumeric {
@@ -682,7 +682,7 @@ mod tests {
         for code in u8::MIN..=u8::MAX {
             let nation = NationNumeric::from(code);
             if nation.get_nation_alpha() != "UNK" {
-                assert_eq!(serde_json::to_value(&nation).unwrap(), format!("{nation:?}"));
+                assert_eq!(serde_json::to_value(nation).unwrap(), format!("{nation:?}"));
             }
         }
     }

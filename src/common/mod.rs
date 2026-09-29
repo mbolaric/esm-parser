@@ -8,6 +8,7 @@ mod writable;
 pub use bcd_string::BCDString;
 pub use export::Export;
 pub use hex::{HexDisplay, HexHelper};
+pub(crate) use readable::read_records;
 pub use readable::{Readable, ReadableWithParams};
 pub use string_encoding::*;
 pub use writable::Writable;

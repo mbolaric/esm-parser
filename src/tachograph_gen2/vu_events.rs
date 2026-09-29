@@ -31,15 +31,15 @@ pub struct VUEvents {
 impl VUEvents {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUEvents> {
         debug!("VUEvents::from_data - Trep ID: {trep_id:?}");
-        let vu_fault_records: DataInfoGenericRecordArray<VuFaultRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let vu_event_records: DataInfoGenericRecordArray<VuEventRecord> = DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let vu_fault_records: DataInfoGenericRecordArray<VuFaultRecord> = DataInfo::read(reader, trep_id)?.parse()?;
+        let vu_event_records: DataInfoGenericRecordArray<VuEventRecord> = DataInfo::read(reader, trep_id)?.parse()?;
         let vu_over_speeding_control_data_record_array: DataInfoGenericRecordArray<VuOverSpeedingControlData> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_over_speeding_event_record_array: DataInfoGenericRecordArray<VuOverSpeedingEventRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_time_adjustment_record_array: DataInfoGenericRecordArray<VuTimeAdjustmentRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
+            DataInfo::read(reader, trep_id)?.parse()?;
+        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id)?.parse()?);
 
         Ok(Self {
             vu_fault_record_array: vu_fault_records,

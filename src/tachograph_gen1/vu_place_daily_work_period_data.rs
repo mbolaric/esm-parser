@@ -1,8 +1,8 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::gen1::PlaceRecord;
 use crate::tacho::FullCardNumber;
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to a place where a driver
 /// begins or ends a daily work period (Annex 1B requirement 087 and
@@ -41,12 +41,8 @@ pub struct VuPlaceDailyWorkPeriodData {
 impl Readable for VuPlaceDailyWorkPeriodData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuPlaceDailyWorkPeriodData> {
         let no_of_place_records = reader.read_u8()?;
-        let mut vu_place_daily_work_period_records: Vec<VuPlaceDailyWorkPeriodRecord> =
-            Vec::with_capacity(no_of_place_records as usize);
-        for _ in 0..no_of_place_records {
-            let item = VuPlaceDailyWorkPeriodRecord::read(reader)?;
-            vu_place_daily_work_period_records.push(item);
-        }
+        let vu_place_daily_work_period_records =
+            read_records(reader, no_of_place_records as usize, |reader| VuPlaceDailyWorkPeriodRecord::read(reader))?;
         Ok(Self { no_of_place_records, vu_place_daily_work_period_records })
     }
 }

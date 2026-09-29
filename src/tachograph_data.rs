@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::Serialize;
 
-use crate::{Export, Result, gen1, gen2};
+use crate::{Result, gen1, gen2};
 
 /// # Top-Level Tachograph Data Container
 /// Represents the parsed data from a tachograph file.
@@ -52,32 +52,6 @@ impl From<TachographData> for SerializedTachographData {
     }
 }
 
-impl Export for TachographData {
-    fn to_json(&self) -> Result<String>
-    where
-        Self: Serialize,
-    {
-        match self {
-            TachographData::CardGen1(data) => data.to_json(),
-            TachographData::CardGen2(data) => data.to_json(),
-            TachographData::VUGen1(data) => data.to_json(),
-            TachographData::VUGen2(data) => data.to_json(),
-        }
-    }
-
-    fn to_xml(&self) -> Result<String>
-    where
-        Self: Serialize,
-    {
-        match self {
-            TachographData::CardGen1(data) => data.to_xml(),
-            TachographData::CardGen2(data) => data.to_xml(),
-            TachographData::VUGen1(data) => data.to_xml(),
-            TachographData::VUGen2(data) => data.to_xml(),
-        }
-    }
-}
-
 impl TachographData {
     /// Verifies the digital signatures of the parsed tachograph data.
     ///
@@ -106,5 +80,32 @@ impl fmt::Display for TachographData {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Uses the debug representation for a simple display format.
         write!(f, "{self:?}")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Export;
+    use crate::tacho::{TachographDataGeneration, TachographDataType, TachographHeader};
+
+    #[test]
+    fn blanket_export_preserves_untagged_tachograph_data() {
+        let data = TachographData::CardGen1(gen1::CardData {
+            header: TachographHeader {
+                generation: TachographDataGeneration::FirstGeneration,
+                data_type: TachographDataType::Card,
+                card_in_vu_data: false,
+            },
+            card_data_responses: gen1::CardResponseParameterData::Unsupported,
+        });
+
+        let (expected_json, expected_xml) = match &data {
+            TachographData::CardGen1(card) => (serde_json::to_string(card).unwrap(), quick_xml::se::to_string(card).unwrap()),
+            _ => unreachable!(),
+        };
+
+        assert_eq!(data.to_json().unwrap(), expected_json);
+        assert_eq!(data.to_xml().unwrap(), expected_xml);
     }
 }

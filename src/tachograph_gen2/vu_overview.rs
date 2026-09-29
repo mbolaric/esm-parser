@@ -49,35 +49,34 @@ pub struct VUOverview {
 impl VUOverview {
     pub fn from_data<R: ReadBytes + BinSeek>(trep_id: VUTransferResponseParameterID, reader: &mut R) -> Result<VUOverview> {
         debug!("VUControl::from_data - Trep ID: {trep_id:?}");
-        let member_state_certificate_data_info = DataInfo::read(reader, trep_id.clone())?;
+        let member_state_certificate_data_info = DataInfo::read(reader, trep_id)?;
         let member_state_certificate_record_array: MemberStateCertificateRecordArray =
             member_state_certificate_data_info.parse()?;
-        let vu_certificate_data_info = DataInfo::read(reader, trep_id.clone())?;
+        let vu_certificate_data_info = DataInfo::read(reader, trep_id)?;
         let vu_certificate_record_array: VuCertificateRecordArray = vu_certificate_data_info.parse()?;
         let vehicle_identification_number_record_array: VehicleIdentificationNumberRecordArray =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
 
         let vehicle_registration_number_record_array: VehicleRegistrationNumberRecordArray =
             if trep_id == VUTransferResponseParameterID::Gen2v2Overview {
-                let records: VehicleRegistrationIdentificationRecordArray = DataInfo::read(reader, trep_id.clone())?.parse()?;
+                let records: VehicleRegistrationIdentificationRecordArray = DataInfo::read(reader, trep_id)?.parse()?;
                 VehicleRegistrationNumberRecordArray::from(records)
             } else {
-                DataInfo::read(reader, trep_id.clone())?.parse()?
+                DataInfo::read(reader, trep_id)?.parse()?
             };
 
-        let current_date_time_record_array: DataInfoGenericRecordArray<TimeReal> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+        let current_date_time_record_array: DataInfoGenericRecordArray<TimeReal> = DataInfo::read(reader, trep_id)?.parse()?;
         let vu_downloadale_period_record_array: DataInfoGenericRecordArray<VuDownloadablePeriod> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let card_slot_status_record_array: DataInfoGenericRecordArray<CardSlotStatus> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_download_activity_data_record_array: DataInfoGenericRecordArray<VuDownloadActivityData> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_company_locks_record_array: DataInfoGenericRecordArray<VuCompanyLocksRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
         let vu_control_activity_record_array: DataInfoGenericRecordArray<VuControlActivityRecord> =
-            DataInfo::read(reader, trep_id.clone())?.parse()?;
-        let signature_record_array: SignatureRecordArray = DataInfo::read(reader, trep_id.clone())?.parse()?;
+            DataInfo::read(reader, trep_id)?.parse()?;
+        let signature_record_array: SignatureRecordArray = DataInfo::read(reader, trep_id)?.parse()?;
 
         Ok(Self {
             trep_id,

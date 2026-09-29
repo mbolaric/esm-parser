@@ -1,7 +1,7 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{Address, FullCardNumber, Name, TimeReal};
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related a time adjustment
 /// performed outside the frame of a regular calibration (Annex 1B
@@ -49,11 +49,8 @@ pub struct VuTimeAdjustmentData {
 impl Readable for VuTimeAdjustmentData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuTimeAdjustmentData> {
         let no_of_vu_time_adj_records = reader.read_u8()?;
-        let mut vu_time_adjustment_records: Vec<VuTimeAdjustmentRecord> = Vec::new();
-        for _ in 0..no_of_vu_time_adj_records {
-            let record = VuTimeAdjustmentRecord::read(reader)?;
-            vu_time_adjustment_records.push(record);
-        }
+        let vu_time_adjustment_records =
+            read_records(reader, no_of_vu_time_adj_records as usize, |reader| VuTimeAdjustmentRecord::read(reader))?;
         Ok(Self { no_of_vu_time_adj_records, vu_time_adjustment_records })
     }
 }

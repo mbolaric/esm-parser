@@ -1,6 +1,5 @@
 use serde::Serialize;
 
-use crate::Export;
 use crate::tacho::{CardFileID, TimeReal, VUTransferResponseParameterID};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -36,8 +35,6 @@ pub struct VerifyResult {
     pub status: VerifyResultStatus,
     pub result: Vec<VerifyItem>,
 }
-
-impl Export for VerifyResult {}
 
 /// Identifies which certificate a `VuVerifyItem::Certificate` reports on.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -121,5 +118,3 @@ pub struct VuVerifyResult {
     pub status: VerifyResultStatus,
     pub result: Vec<VuVerifyItem>,
 }
-
-impl Export for VuVerifyResult {}

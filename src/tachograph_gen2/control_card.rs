@@ -4,10 +4,10 @@ use binary_data::BinSeek;
 use log::{debug, trace};
 use serde::Serialize;
 
-use crate::gen2::{CardResponseParameterData, Certificate, CertificateParams, ControlCardApplicationIdentificationV2};
+use crate::gen2::{Certificate, CertificateParams, ControlCardApplicationIdentificationV2};
 use crate::tacho::{
-    Card, CardChipIdentification, CardFileData, CardFileID, CardGeneration, CardIccIdentification, CardParser,
-    ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
+    CardChipIdentification, CardFileData, CardFileID, CardFilesDataByCardGenerationItem, CardGeneration, CardIccIdentification,
+    CardParser, ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
     ControlCardControlActivityDataParams, DataFiles, Identification, IdentificationParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
@@ -68,22 +68,21 @@ impl ControlCard {
 }
 
 impl CardParser for ControlCard {
-    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<ControlCard>> {
-        let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
-        let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
-        let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
-            ControlCardApplicationIdentification,
-        >(card_data_files)?;
+    fn parse(card_files: CardFilesDataByCardGenerationItem) -> Result<Box<ControlCard>> {
+        let card_chip_identification = card_files.parse_required(&CardFileID::IC)?;
+        let card_icc_identification = card_files.parse_required(&CardFileID::ICC)?;
+        let application_identification =
+            card_files.parse_required::<ControlCardApplicationIdentification>(&CardFileID::ApplicationIdentification)?;
 
         let mut control_card = ControlCard::new(
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
-            card_notes.to_owned(),
-            (*card_data_files).clone(),
+            card_files.card_notes,
+            card_files.card_files_data,
         );
 
-        for card_item in sorted_card_files(card_data_files) {
+        for card_item in sorted_card_files(&control_card.data_files) {
             debug!("ControlCard::parse - ID: {:?}", card_item.0,);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
@@ -98,7 +97,7 @@ impl CardParser for ControlCard {
                     control_card.application_identification_v2 = Some(ControlCardApplicationIdentificationV2::read(&mut reader)?);
                 }
                 CardFileID::Identification => {
-                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
+                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id);
                     control_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::ControllerActivityData => {

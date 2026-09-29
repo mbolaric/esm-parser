@@ -1,8 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::SpecificConditionRecord;
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to specific conditions.
 #[derive(Debug, Serialize)]
@@ -18,12 +18,8 @@ pub struct VuSpecificConditionData {
 impl Readable for VuSpecificConditionData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuSpecificConditionData> {
         let no_of_specific_condition_records = reader.read_u16::<BigEndian>()?;
-        let mut specific_condition_records: Vec<SpecificConditionRecord> =
-            Vec::with_capacity(no_of_specific_condition_records as usize);
-        for _ in 0..no_of_specific_condition_records {
-            let record = SpecificConditionRecord::read(reader)?;
-            specific_condition_records.push(record);
-        }
+        let specific_condition_records =
+            read_records(reader, no_of_specific_condition_records as usize, |reader| SpecificConditionRecord::read(reader))?;
         Ok(Self { no_of_specific_condition_records, specific_condition_records })
     }
 }

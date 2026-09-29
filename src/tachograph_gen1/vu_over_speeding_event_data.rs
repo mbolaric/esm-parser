@@ -1,7 +1,7 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{EventFaultRecordPurpose, EventFaultType, FullCardNumber, TimeReal};
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to over speeding events
 /// (Annex 1B requirement 094 and Annex 1C requirement 117).
@@ -66,11 +66,8 @@ pub struct VuOverSpeedingEventData {
 impl Readable for VuOverSpeedingEventData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuOverSpeedingEventData> {
         let no_of_vu_over_speeding_events = reader.read_u8()?;
-        let mut vu_over_speeding_event_records: Vec<VuOverSpeedingEventRecord> = Vec::new();
-        for _ in 0..no_of_vu_over_speeding_events {
-            let record = VuOverSpeedingEventRecord::read(reader)?;
-            vu_over_speeding_event_records.push(record);
-        }
+        let vu_over_speeding_event_records =
+            read_records(reader, no_of_vu_over_speeding_events as usize, |reader| VuOverSpeedingEventRecord::read(reader))?;
         Ok(Self { no_of_vu_over_speeding_events, vu_over_speeding_event_records })
     }
 }

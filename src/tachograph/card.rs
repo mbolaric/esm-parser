@@ -5,10 +5,9 @@ use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::tacho::{ApplicationIdentification, CardChipIdentification, CardFileID, CardIccIdentification, TachographHeader};
+use crate::tacho::CardFileID;
 use crate::{Error, Readable, Result};
 
-pub type CardParseFunc<D> = dyn Fn(&CardFilesDataByCardGeneration) -> Result<D>;
 pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
 pub trait DataFiles {
@@ -23,7 +22,7 @@ pub fn sorted_card_files(card_data_files: &CardFilesMap) -> Vec<(&CardFileID, &C
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[cfg_attr(feature = "typescript", ts(rename = "ParsedCardGeneration"))]
 pub enum CardGeneration {
@@ -132,6 +131,25 @@ impl CardFilesDataByCardGenerationItem {
     pub fn is_empty(&self) -> bool {
         self.card_files_data.is_empty()
     }
+
+    pub(crate) fn data_into_reader(&self, card_file_id: &CardFileID) -> Result<BinMemoryBuffer> {
+        self.card_files_data.get(card_file_id).ok_or_else(|| Error::MissingCardFile(card_file_id.to_string()))?.data_into_reader()
+    }
+
+    pub(crate) fn parse_required<T: Readable>(&self, card_file_id: &CardFileID) -> Result<T> {
+        let mut reader = self.data_into_reader(card_file_id)?;
+        T::read(&mut reader)
+    }
+
+    pub(crate) fn parse_optional<T: Readable>(&self, card_file_id: &CardFileID) -> Result<Option<T>> {
+        self.card_files_data
+            .get(card_file_id)
+            .map(|card_file| {
+                let mut reader = card_file.data_into_reader()?;
+                T::read(&mut reader)
+            })
+            .transpose()
+    }
 }
 
 impl Default for CardFilesDataByCardGenerationItem {
@@ -170,79 +188,23 @@ impl Default for CardFilesDataByCardGeneration {
     }
 }
 
-pub trait Card<D> {
-    fn get_header(&self) -> &TachographHeader;
-    fn get_data(&self) -> &Vec<D>;
-}
+pub(crate) struct CardReader;
 
-impl<D> dyn Card<D> {
-    pub fn get_mem_reader(card_file_id: &CardFileID, data: &CardFilesMap) -> Result<BinMemoryBuffer> {
-        let reader: Option<BinMemoryBuffer> = data
-            .get(card_file_id)
-            .and_then(|card_item: &CardFileData| card_item.data.as_ref().map(|bin_data| BinMemoryBuffer::from(bin_data.clone())));
-        if let Some(mem_reader) = reader {
-            return Ok(mem_reader);
-        }
-        Err(Error::MissingCardFile(card_file_id.to_string()))
-    }
-
-    pub fn parse_ic(card_data_files: &CardFilesMap) -> Result<CardChipIdentification> {
-        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::IC, card_data_files)?;
-        let card_chip_identification = CardChipIdentification::read(&mut reader)?;
-        Ok(card_chip_identification)
-    }
-
-    pub fn parse_icc(card_data_files: &CardFilesMap) -> Result<CardIccIdentification> {
-        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ICC, card_data_files)?;
-        let card_icc_identification = CardIccIdentification::read(&mut reader)?;
-        Ok(card_icc_identification)
-    }
-
-    pub fn parse_card_application_identification<T: Readable>(card_data_files: &CardFilesMap) -> Result<T> {
-        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
-        let application_identification = T::read(&mut reader)?;
-        Ok(application_identification)
-    }
-
-    pub fn parse_application_identification(card_data_files: &CardFilesMap) -> Result<ApplicationIdentification> {
-        let mut reader = <dyn Card<D>>::get_mem_reader(&CardFileID::ApplicationIdentification, card_data_files)?;
-        let application_identification = ApplicationIdentification::read(&mut reader)?;
-        Ok(application_identification)
-    }
-
-    pub fn parse_by_card_file_id<T: Readable>(card_file_id: &CardFileID, card_data_files: &CardFilesMap) -> Result<T> {
-        let mut reader = <dyn Card<D>>::get_mem_reader(card_file_id, card_data_files)?;
-        let result = T::read(&mut reader)?;
-        Ok(result)
-    }
-
-    pub fn parse_optional_by_card_file_id<T: Readable>(
-        card_file_id: &CardFileID,
-        card_data_files: &CardFilesMap,
-    ) -> Result<Option<T>> {
-        card_data_files
-            .get(card_file_id)
-            .map(|card_file| {
-                let mut reader = card_file.data_into_reader()?;
-                T::read(&mut reader)
-            })
-            .transpose()
-    }
-
+impl CardReader {
     fn process_card_data_file(data_file: CardFileData, card_items: &mut CardFilesDataByCardGeneration) -> Result<()> {
         if data_file.card_file_id == CardFileID::Unknown {
-            debug!("Card::process_card_data_file - CardDataFile: {data_file:?}");
+            debug!("CardReader::process_card_data_file - CardDataFile: {data_file:?}");
             return Err(Error::UnknownCardType);
         }
 
         let section = CardFileSection::try_from(data_file.appendix)?;
-        debug!("Card::process_card_data_file - CardFileID: {:?}, Section: {:?}", data_file.card_file_id, section);
+        debug!("CardReader::process_card_data_file - CardFileID: {:?}, Section: {:?}", data_file.card_file_id, section);
 
         let generation_files = match section {
             CardFileSection::Gen1Data | CardFileSection::Gen1Signature => &mut card_items.card_files_data_gen1,
             CardFileSection::Gen2Data | CardFileSection::Gen2Signature => &mut card_items.card_files_data_gen2,
         };
-        let card_file_id = data_file.card_file_id.clone();
+        let card_file_id = data_file.card_file_id;
 
         match section {
             CardFileSection::Gen1Data | CardFileSection::Gen2Data => {
@@ -268,13 +230,17 @@ impl<D> dyn Card<D> {
         Ok(())
     }
 
-    pub fn from_data<R: ReadBytes + BinSeek>(reader: &mut R, parse_card: &CardParseFunc<D>) -> Result<D> {
+    pub(crate) fn from_data<R, D, F>(reader: &mut R, parse_card: F) -> Result<D>
+    where
+        R: ReadBytes + BinSeek,
+        F: FnOnce(CardFilesDataByCardGeneration) -> Result<D>,
+    {
         let mut card_data_files = CardFilesDataByCardGeneration::new();
 
         while reader.pos()? < reader.len()? {
             let current_data_file = CardFileData::read(reader)?;
-            debug!("Card::from_data - {:?}, Length : {:?}", current_data_file.card_file_id.clone(), current_data_file.data_len());
-            <dyn Card<D>>::process_card_data_file(current_data_file, &mut card_data_files)?;
+            debug!("CardReader::from_data - {:?}, Length : {:?}", current_data_file.card_file_id, current_data_file.data_len());
+            Self::process_card_data_file(current_data_file, &mut card_data_files)?;
         }
 
         // Card Data is Partial
@@ -282,13 +248,12 @@ impl<D> dyn Card<D> {
             return Err(Error::PartialCardFile);
         }
 
-        let data = parse_card(&card_data_files)?;
-        Ok(data)
+        parse_card(card_data_files)
     }
 }
 
 pub trait CardParser: Sized {
-    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<Self>>;
+    fn parse(card_files: CardFilesDataByCardGenerationItem) -> Result<Box<Self>>;
 }
 
 #[cfg(test)]
@@ -309,30 +274,31 @@ mod tests {
 
     #[test]
     fn optional_card_file_returns_none_when_absent() {
-        let card_files = CardFilesMap::new();
+        let card_files = CardFilesDataByCardGenerationItem::new();
 
-        let value = <dyn Card<()>>::parse_optional_by_card_file_id::<TimeReal>(&CardFileID::CardDownload, &card_files)
-            .expect("an absent optional file should not fail");
+        let value =
+            card_files.parse_optional::<TimeReal>(&CardFileID::CardDownload).expect("an absent optional file should not fail");
 
         assert!(value.is_none());
     }
 
     #[test]
     fn optional_card_file_propagates_malformed_data() {
-        let mut card_files = CardFilesMap::new();
-        card_files.insert(CardFileID::CardDownload, card_file(vec![0; 3]));
+        let mut card_files = CardFilesDataByCardGenerationItem::new();
+        card_files.card_files_data.insert(CardFileID::CardDownload, card_file(vec![0; 3]));
 
-        let result = <dyn Card<()>>::parse_optional_by_card_file_id::<TimeReal>(&CardFileID::CardDownload, &card_files);
+        let result = card_files.parse_optional::<TimeReal>(&CardFileID::CardDownload);
 
         assert!(result.is_err());
     }
 
     #[test]
     fn optional_card_file_parses_present_data() {
-        let mut card_files = CardFilesMap::new();
-        card_files.insert(CardFileID::CardDownload, card_file(42_u32.to_be_bytes().to_vec()));
+        let mut card_files = CardFilesDataByCardGenerationItem::new();
+        card_files.card_files_data.insert(CardFileID::CardDownload, card_file(42_u32.to_be_bytes().to_vec()));
 
-        let value = <dyn Card<()>>::parse_optional_by_card_file_id::<TimeReal>(&CardFileID::CardDownload, &card_files)
+        let value = card_files
+            .parse_optional::<TimeReal>(&CardFileID::CardDownload)
             .expect("valid optional data should parse")
             .expect("the optional file is present");
 
@@ -345,7 +311,7 @@ mod tests {
         let mut file = card_file(Vec::new());
         file.appendix = 4;
 
-        let error = <dyn Card<()>>::process_card_data_file(file, &mut card_files).unwrap_err();
+        let error = CardReader::process_card_data_file(file, &mut card_files).unwrap_err();
 
         assert!(matches!(error, Error::InvalidCardFileAppendix(4)));
     }
@@ -363,10 +329,10 @@ mod tests {
         let mut gen2_signature = card_file(vec![4]);
         gen2_signature.appendix = 3;
 
-        <dyn Card<()>>::process_card_data_file(gen1_data, &mut card_files).unwrap();
-        <dyn Card<()>>::process_card_data_file(gen1_signature, &mut card_files).unwrap();
-        <dyn Card<()>>::process_card_data_file(gen2_data, &mut card_files).unwrap();
-        <dyn Card<()>>::process_card_data_file(gen2_signature, &mut card_files).unwrap();
+        CardReader::process_card_data_file(gen1_data, &mut card_files).unwrap();
+        CardReader::process_card_data_file(gen1_signature, &mut card_files).unwrap();
+        CardReader::process_card_data_file(gen2_data, &mut card_files).unwrap();
+        CardReader::process_card_data_file(gen2_signature, &mut card_files).unwrap();
 
         assert_eq!(card_files.card_files_data_gen1.card_files_data[&CardFileID::CardDownload].signature, Some(vec![2]));
         assert_eq!(card_files.card_files_data_gen2.card_files_data[&CardFileID::CardDownload].signature, Some(vec![4]));

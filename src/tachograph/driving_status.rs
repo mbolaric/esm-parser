@@ -3,7 +3,7 @@ use serde::Serialize;
 /// Bit 14 (`c`) of an `ActivityChangeInfo` word. While a card is inserted, and in every vehicle unit record, it is the
 /// driving status (single or crew); in a driver card record whose card is not inserted it is the following-activity
 /// status (unknown or known, i.e. manually entered). Read it together with the record's card status.
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[repr(u8)]
 pub enum DrivingStatus {

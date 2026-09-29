@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::tacho::{
     Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VehicleRegistrationIdentification,
 };
-use crate::{Readable, bytes_to_ia5_fix_string};
+use crate::{Readable, bytes_to_ia5_fix_string, read_records};
 
 const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
 const TYRE_SIZE_LENGTH: u32 = 15;
@@ -105,10 +105,7 @@ pub struct VUCalibrationData {
 impl Readable for VUCalibrationData {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VUCalibrationData> {
         let no_of_vu_calibrations = reader.read_u8()?;
-        let mut vu_calibrations: Vec<VuCalibrationRecord> = Vec::new();
-        for _ in 0..no_of_vu_calibrations {
-            vu_calibrations.push(VuCalibrationRecord::read(reader)?);
-        }
+        let vu_calibrations = read_records(reader, no_of_vu_calibrations as usize, |reader| VuCalibrationRecord::read(reader))?;
 
         Ok(Self { no_of_vu_calibrations, calibrations: vu_calibrations })
     }

@@ -5,14 +5,15 @@ use log::{debug, trace};
 use serde::Serialize;
 
 use crate::gen1::{
-    CardResponseParameterData, CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord,
-    SpecificConditions, SpecificConditionsParams,
+    CardVehicleRecord, Certificate, DriverCardApplicationIdentification, PlaceRecord, SpecificConditions,
+    SpecificConditionsParams,
 };
 use crate::tacho::{
-    Card, CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
+    CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardDrivingLicenceInformation, CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData,
-    CardFileID, CardGeneration, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod, CardPlaceDailyWorkPeriodParams,
-    CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal, VehiclesUsedParams, sorted_card_files,
+    CardFileID, CardFilesDataByCardGenerationItem, CardGeneration, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod,
+    CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal,
+    VehiclesUsedParams, sorted_card_files,
 };
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -92,23 +93,22 @@ impl DriverCard {
 }
 
 impl CardParser for DriverCard {
-    fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<DriverCard>> {
-        let card_chip_identification = <dyn Card<CardResponseParameterData>>::parse_ic(card_data_files)?;
-        let card_icc_identification = <dyn Card<CardResponseParameterData>>::parse_icc(card_data_files)?;
-        let application_identification = <dyn Card<CardResponseParameterData>>::parse_card_application_identification::<
-            DriverCardApplicationIdentification,
-        >(card_data_files)?;
+    fn parse(card_files: CardFilesDataByCardGenerationItem) -> Result<Box<DriverCard>> {
+        let card_chip_identification = card_files.parse_required(&CardFileID::IC)?;
+        let card_icc_identification = card_files.parse_required(&CardFileID::ICC)?;
+        let application_identification =
+            card_files.parse_required::<DriverCardApplicationIdentification>(&CardFileID::ApplicationIdentification)?;
         trace!("DriverCard::parse - Application Identification: {application_identification:?}");
 
         let mut driver_card = DriverCard::new(
             card_chip_identification,
             card_icc_identification,
             application_identification.clone(),
-            card_notes.to_owned(),
-            (*card_data_files).clone(),
+            card_files.card_notes,
+            card_files.card_files_data,
         );
 
-        for card_item in sorted_card_files(card_data_files) {
+        for card_item in sorted_card_files(&driver_card.data_files) {
             debug!("DriverCard::parse - ID: {:?}", card_item.0);
             let card_file = card_item.1;
             let mut reader = card_file.data_into_reader()?;
@@ -169,7 +169,7 @@ impl CardParser for DriverCard {
                     driver_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);
                 }
                 CardFileID::Identification => {
-                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id.clone());
+                    let params = IdentificationParams::new(application_identification.type_of_tachograph_card_id);
                     driver_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::DrivingLicenseInfo => {

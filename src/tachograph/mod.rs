@@ -158,6 +158,7 @@ pub use verify_result::{
     VerifyItem, VerifyResult, VerifyResultStatus, VerifyStatus, VuCertificateKind, VuVerifyItem, VuVerifyResult,
 };
 pub use vu_data::VUData;
+pub(crate) use vu_data::VuReader;
 pub use vu_detailed_speed_block::VuDetailedSpeedBlock;
 pub use vu_file_data::{VUDataFiles, VUFileData, VUFilesList};
 pub use vu_over_speeding_control_data::VuOverSpeedingControlData;

@@ -2,6 +2,19 @@ use binary_data::{BinSeek, ReadBytes};
 
 use crate::Result;
 
+/// Reads exactly `count` records using the supplied record parser.
+pub(crate) fn read_records<R, T, F>(reader: &mut R, count: usize, mut read_record: F) -> Result<Vec<T>>
+where
+    R: ReadBytes + BinSeek,
+    F: FnMut(&mut R) -> Result<T>,
+{
+    let mut records = Vec::with_capacity(count);
+    for _ in 0..count {
+        records.push(read_record(reader)?);
+    }
+    Ok(records)
+}
+
 /// A trait for types that can be deserialized from a binary stream.
 /// The trait are designed to work with any reader that implements `binary_data::ReadBytes`
 /// and `binary_data::BinSeek`.

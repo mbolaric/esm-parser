@@ -37,7 +37,7 @@ impl Serialize for Address {
 impl Writable for Address {
     /// Writes an `Address` to a binary stream, conforming to the DDD file format.
     fn write<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> crate::Result<()> {
-        writer.write_u8(self.code_page.clone() as u8)?;
+        writer.write_u8(self.code_page as u8)?;
         let mut name_bytes = string_to_bytes(&self.name, &self.code_page);
         name_bytes.resize(ADDRESS_LENGTH as usize, 0);
         writer.write_all(&name_bytes)?;

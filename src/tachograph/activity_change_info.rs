@@ -15,7 +15,7 @@ impl ActivityChangeInfoParams {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub enum ActivityCard {
     Vu,
@@ -179,7 +179,7 @@ impl ReadableWithParams for ActivityChangeInfo {
     type P = ActivityChangeInfoParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<ActivityChangeInfo> {
-        let activity_card = params.activity_card.clone();
+        let activity_card = params.activity_card;
         let activity_info = reader.read_u16::<BigEndian>()?;
         Ok(ActivityChangeInfo::new(activity_card, activity_info))
     }

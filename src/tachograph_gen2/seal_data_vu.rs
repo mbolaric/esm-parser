@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::SealRecord;
-use crate::{Readable, Result};
+use crate::{Readable, Result, read_records};
 
 /// This data type stores information about the seals that are attached to the
 /// different components of a vehicle and is intended for storage in a Vehicle Unit.
@@ -16,11 +16,7 @@ pub struct SealDataVu {
 
 impl Readable for SealDataVu {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SealDataVu> {
-        let mut seal_records: Vec<SealRecord> = Vec::with_capacity(5);
-        for _ in 0..5 {
-            let record = SealRecord::read(reader)?;
-            seal_records.push(record);
-        }
+        let seal_records = read_records(reader, 5, |reader| SealRecord::read(reader))?;
         Ok(Self { seal_records })
     }
 }

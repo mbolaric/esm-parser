@@ -8,7 +8,6 @@ use esm_parser::gen2::{CardResponseParameterData as CardResponseParameterDataGen
 use esm_parser::tacho::{CardGeneration, DataFiles, VUDataFiles};
 use esm_parser::{Export, TachographData, parse_from_file, verify_card_with_erca_path, verify_vu_full_with_erca_path};
 use indicatif::ProgressBar;
-use serde::Serialize;
 
 #[allow(dead_code)]
 pub enum ExportType {
@@ -48,7 +47,7 @@ fn prepare_out_path(ddd_file: &str, out_file: &str, export_type: &ExportType) ->
 
 fn parse_inner(
     export_type: &ExportType,
-    data: &(impl Export + Serialize),
+    data: &impl Export,
     out_path: &str,
     pb: &ProgressBar,
     pretty: bool,
@@ -67,13 +66,7 @@ fn parse_inner(
     Ok(())
 }
 
-fn parse(
-    export_type: &ExportType,
-    data: &(impl Export + Serialize),
-    out_path: &str,
-    pb: &ProgressBar,
-    pretty: bool,
-) -> Result<(), Error> {
+fn parse(export_type: &ExportType, data: &impl Export, out_path: &str, pb: &ProgressBar, pretty: bool) -> Result<(), Error> {
     parse_inner(export_type, data, out_path, pb, pretty)?;
     pb.println("[+] Parsing Done");
     Ok(())
@@ -81,7 +74,7 @@ fn parse(
 
 fn verify_inner(
     export_type: &ExportType,
-    data: &(impl Export + Serialize),
+    data: &impl Export,
     out_path: &str,
     pb: &ProgressBar,
     pretty: bool,

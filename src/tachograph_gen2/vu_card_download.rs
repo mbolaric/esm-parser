@@ -22,9 +22,9 @@ impl VUCardDownload {
         reader: &mut R,
     ) -> Result<VUCardDownload> {
         debug!("VUCardDownload::from_data - Trep ID: {trep_id:?}");
-        let data_info = DataInfo::read(reader, trep_id.clone())?;
+        let data_info = DataInfo::read(reader, trep_id)?;
         let card: CardData = CardData::from_data(header, &mut data_info.data_into_mem_reader()?)?;
-        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id.clone())?.parse()?);
+        let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id)?.parse()?);
 
         Ok(Self { card, signature_record_array })
     }

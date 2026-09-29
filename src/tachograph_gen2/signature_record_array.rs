@@ -1,10 +1,10 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::Result;
 use crate::gen2::DataInfoReadable;
 use crate::tacho::RecordType;
 use crate::tachograph_gen2::data_info::DataConfig;
+use crate::{Result, read_records};
 
 /// A set of signatures plus metadata used in the download protocol.
 #[derive(Debug, Serialize)]
@@ -24,13 +24,9 @@ impl DataInfoReadable for SignatureRecordArray {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, config: &DataConfig) -> Result<SignatureRecordArray> {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
-        let record_type = config.record_type.clone();
+        let record_type = config.record_type;
 
-        let mut records: Vec<Vec<u8>> = Vec::with_capacity(no_of_records as usize);
-        for _ in 0..no_of_records {
-            let record = reader.read_into_vec(record_size as u32)?;
-            records.push(record);
-        }
+        let records = read_records(reader, no_of_records as usize, |reader| Ok(reader.read_into_vec(record_size as u32)?))?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

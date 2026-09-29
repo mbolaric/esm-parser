@@ -4,10 +4,10 @@ use serde::Serialize;
 
 use crate::gen2::{self, CardResponseParameterData, ParsedCard};
 use crate::tacho::{
-    self, CardFilesDataByCardGeneration, CardFilesDataByCardGenerationItem, CardGeneration, CardParser, EquipmentType,
-    TachographHeader,
+    ApplicationIdentification, CardFileID, CardFilesDataByCardGeneration, CardFilesDataByCardGenerationItem, CardGeneration,
+    CardParser, CardReader, EquipmentType, TachographHeader,
 };
-use crate::{Error, Export, Result, gen1};
+use crate::{Error, Result, gen1};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -20,10 +20,7 @@ pub struct CardData {
 
 impl CardData {
     pub fn from_data<R: ReadBytes + BinSeek>(header: TachographHeader, reader: &mut R) -> Result<CardData> {
-        let card_data_responses = <dyn tacho::Card<CardResponseParameterData>>::from_data(
-            reader,
-            &|card_data_files: &CardFilesDataByCardGeneration| CardData::parse_card(card_data_files),
-        )?;
+        let card_data_responses = CardReader::from_data(reader, CardData::parse_card)?;
 
         trace!("CardData::from_data - Header: {header:?}, Note: {card_data_responses:?}");
 
@@ -32,29 +29,25 @@ impl CardData {
 
     fn get_card_by_equipment_type<TGen1: CardParser, TGen2: CardParser>(
         generation: CardGeneration,
-        card_files_data_gen1: &CardFilesDataByCardGenerationItem,
-        card_files_data_gen2: &CardFilesDataByCardGenerationItem,
+        card_files_data_gen1: CardFilesDataByCardGenerationItem,
+        card_files_data_gen2: CardFilesDataByCardGenerationItem,
     ) -> Result<ParsedCard<TGen1, TGen2>> {
-        if generation == CardGeneration::Combined {
-            return Ok(ParsedCard::Combined(
-                TGen1::parse(&card_files_data_gen1.card_files_data, &card_files_data_gen1.card_notes)?,
-                TGen2::parse(&card_files_data_gen2.card_files_data, &card_files_data_gen2.card_notes)?,
-            ));
+        match generation {
+            CardGeneration::Combined => {
+                Ok(ParsedCard::Combined(TGen1::parse(card_files_data_gen1)?, TGen2::parse(card_files_data_gen2)?))
+            }
+            CardGeneration::Gen1 => Ok(ParsedCard::Gen1(TGen1::parse(card_files_data_gen1)?)),
+            CardGeneration::Gen2 => Ok(ParsedCard::Gen2(TGen2::parse(card_files_data_gen2)?)),
         }
-        if generation == CardGeneration::Gen1 {
-            return Ok(ParsedCard::Gen1(TGen1::parse(&card_files_data_gen1.card_files_data, &card_files_data_gen1.card_notes)?));
-        }
-        Ok(ParsedCard::Gen2(TGen2::parse(&card_files_data_gen2.card_files_data, &card_files_data_gen2.card_notes)?))
     }
 
-    fn parse_card(card_data_files_by_gen: &CardFilesDataByCardGeneration) -> Result<CardResponseParameterData> {
+    fn parse_card(card_data_files_by_gen: CardFilesDataByCardGeneration) -> Result<CardResponseParameterData> {
         let generation = card_data_files_by_gen.get_card_generation()?;
         if generation == CardGeneration::Gen1 {
             return Err(Error::InvalidDataGeneration);
         }
 
-        let card_files_data_gen1 = &card_data_files_by_gen.card_files_data_gen1;
-        let card_files_data_gen2 = &card_data_files_by_gen.card_files_data_gen2;
+        let CardFilesDataByCardGeneration { card_files_data_gen1, card_files_data_gen2 } = card_data_files_by_gen;
 
         debug!(
             "CardData::parse_card - Gen1 - Data Files Count: {:?}, Note: {:?}",
@@ -66,9 +59,8 @@ impl CardData {
             card_files_data_gen2.card_files_data.len(),
             card_files_data_gen2.card_notes
         );
-        let application_identification = <dyn tacho::Card<CardResponseParameterData>>::parse_application_identification(
-            &card_files_data_gen1.card_files_data,
-        )?;
+        let application_identification: ApplicationIdentification =
+            card_files_data_gen1.parse_required(&CardFileID::ApplicationIdentification)?;
         trace!("CardData::parse_card - Application identification: {application_identification:?}");
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
@@ -107,5 +99,3 @@ impl CardData {
         }
     }
 }
-
-impl Export for CardData {}

@@ -1,7 +1,7 @@
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::TimeReal;
+use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to the vehicle's detailed
 /// speed for a minute during which the vehicle has been moving
@@ -18,10 +18,7 @@ pub struct VuDetailedSpeedBlock {
 impl Readable for VuDetailedSpeedBlock {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<VuDetailedSpeedBlock> {
         let speed_block_begin_date = TimeReal::read(reader)?;
-        let mut speeds_per_second: Vec<u8> = Vec::new();
-        for _ in 0..60 {
-            speeds_per_second.push(reader.read_u8()?);
-        }
+        let speeds_per_second = read_records(reader, 60, |reader| Ok(reader.read_u8()?))?;
         Ok(Self { speed_block_begin_date, speeds_per_second })
     }
 }
