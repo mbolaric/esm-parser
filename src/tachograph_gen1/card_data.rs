@@ -28,7 +28,7 @@ impl CardData {
     }
 
     fn parse_card(card_data_files_by_gen: &CardFilesDataByCardGeneration) -> Result<CardResponseParameterData> {
-        let generation = card_data_files_by_gen.get_card_generation();
+        let generation = card_data_files_by_gen.get_card_generation()?;
         if generation == CardGeneration::Gen2 {
             return Err(Error::InvalidDataGeneration);
         }

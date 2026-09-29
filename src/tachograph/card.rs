@@ -32,6 +32,28 @@ pub enum CardGeneration {
     Combined,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CardFileSection {
+    Gen1Data,
+    Gen1Signature,
+    Gen2Data,
+    Gen2Signature,
+}
+
+impl TryFrom<u8> for CardFileSection {
+    type Error = Error;
+
+    fn try_from(value: u8) -> Result<Self> {
+        match value {
+            0 => Ok(Self::Gen1Data),
+            1 => Ok(Self::Gen1Signature),
+            2 => Ok(Self::Gen2Data),
+            3 => Ok(Self::Gen2Signature),
+            _ => Err(Error::InvalidCardFileAppendix(value)),
+        }
+    }
+}
+
 impl fmt::Display for CardGeneration {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {
@@ -132,14 +154,13 @@ impl CardFilesDataByCardGeneration {
         }
     }
 
-    pub fn get_card_generation(&self) -> CardGeneration {
-        if !self.card_files_data_gen1.is_empty() && !self.card_files_data_gen2.is_empty() {
-            return CardGeneration::Combined;
+    pub fn get_card_generation(&self) -> Result<CardGeneration> {
+        match (self.card_files_data_gen1.is_empty(), self.card_files_data_gen2.is_empty()) {
+            (false, false) => Ok(CardGeneration::Combined),
+            (false, true) => Ok(CardGeneration::Gen1),
+            (true, false) => Ok(CardGeneration::Gen2),
+            (true, true) => Err(Error::EmptyCardFiles),
         }
-        if !self.card_files_data_gen1.is_empty() {
-            return CardGeneration::Gen1;
-        }
-        CardGeneration::Gen2
     }
 }
 
@@ -195,55 +216,52 @@ impl<D> dyn Card<D> {
         Ok(result)
     }
 
-    fn procces_card_data_file(data_file: CardFileData, card_items: &mut CardFilesDataByCardGeneration) -> Result<()> {
-        match data_file.card_file_id {
-            CardFileID::Unknown => {
-                debug!("Card::procces_card_data_file - CardDataFile: {data_file:?}");
-                return Err(Error::UnknownCardType);
-            }
-            _ => {
-                debug!(
-                    "Card::procces_card_data_file - CardFileID: {:?}, Appendix: {:?}",
-                    data_file.card_file_id, data_file.appendix
-                );
+    pub fn parse_optional_by_card_file_id<T: Readable<T>>(
+        card_file_id: &CardFileID,
+        card_data_files: &CardFilesMap,
+    ) -> Result<Option<T>> {
+        card_data_files
+            .get(card_file_id)
+            .map(|card_file| {
+                let mut reader = card_file.data_into_reader()?;
+                T::read(&mut reader)
+            })
+            .transpose()
+    }
 
-                // 0, 1 - Gen1 - 2, 3 - Gen2
-                let (card_file_temp, card_file_notes) = if data_file.appendix == 0 || data_file.appendix == 1 {
-                    (
-                        card_items.card_files_data_gen1.card_files_data.get_mut(&data_file.card_file_id),
-                        &mut card_items.card_files_data_gen1.card_notes,
-                    )
-                } else {
-                    (
-                        card_items.card_files_data_gen2.card_files_data.get_mut(&data_file.card_file_id),
-                        &mut card_items.card_files_data_gen2.card_notes,
-                    )
-                };
+    fn process_card_data_file(data_file: CardFileData, card_items: &mut CardFilesDataByCardGeneration) -> Result<()> {
+        if data_file.card_file_id == CardFileID::Unknown {
+            debug!("Card::process_card_data_file - CardDataFile: {data_file:?}");
+            return Err(Error::UnknownCardType);
+        }
 
-                // 0, 1 - Gen1 - 2, 3 - Gen2
-                if data_file.appendix == 0 || data_file.appendix == 2 {
-                    if card_file_temp.is_some() {
-                        return Err(Error::DuplicateCardFile);
-                    }
-                    if !data_file.card_file_notes.is_empty() {
-                        card_file_notes.push_str(&format!("[{}] {}", data_file.card_file_id, data_file.card_file_notes));
-                    }
-                    if data_file.appendix == 0 {
-                        card_items.card_files_data_gen1.card_files_data.insert(data_file.card_file_id.clone(), data_file);
-                    } else {
-                        card_items.card_files_data_gen2.card_files_data.insert(data_file.card_file_id.clone(), data_file);
-                    }
-                } else {
-                    // Signature
-                    if card_file_temp.is_none() {
-                        return Err(Error::SignatureBeforeCardFile);
-                    }
-                    if !data_file.card_file_notes.is_empty() {
-                        card_file_notes
-                            .push_str(&format!("[{} (signature)] {}", data_file.card_file_id, data_file.card_file_notes));
-                    }
-                    card_file_temp.unwrap().signature = data_file.data.clone()
+        let section = CardFileSection::try_from(data_file.appendix)?;
+        debug!("Card::process_card_data_file - CardFileID: {:?}, Section: {:?}", data_file.card_file_id, section);
+
+        let generation_files = match section {
+            CardFileSection::Gen1Data | CardFileSection::Gen1Signature => &mut card_items.card_files_data_gen1,
+            CardFileSection::Gen2Data | CardFileSection::Gen2Signature => &mut card_items.card_files_data_gen2,
+        };
+        let card_file_id = data_file.card_file_id.clone();
+
+        match section {
+            CardFileSection::Gen1Data | CardFileSection::Gen2Data => {
+                if generation_files.card_files_data.contains_key(&card_file_id) {
+                    return Err(Error::DuplicateCardFile);
                 }
+                if !data_file.card_file_notes.is_empty() {
+                    generation_files.card_notes.push_str(&format!("[{}] {}", data_file.card_file_id, data_file.card_file_notes));
+                }
+                generation_files.card_files_data.insert(card_file_id, data_file);
+            }
+            CardFileSection::Gen1Signature | CardFileSection::Gen2Signature => {
+                let card_file = generation_files.card_files_data.get_mut(&card_file_id).ok_or(Error::SignatureBeforeCardFile)?;
+                if !data_file.card_file_notes.is_empty() {
+                    generation_files
+                        .card_notes
+                        .push_str(&format!("[{} (signature)] {}", data_file.card_file_id, data_file.card_file_notes));
+                }
+                card_file.signature = data_file.data;
             }
         }
 
@@ -256,7 +274,7 @@ impl<D> dyn Card<D> {
         while reader.pos()? < reader.len()? {
             let current_data_file = CardFileData::read(reader)?;
             debug!("Card::from_data - {:?}, Length : {:?}", current_data_file.card_file_id.clone(), current_data_file.data_len());
-            <dyn Card<D>>::procces_card_data_file(current_data_file, &mut card_data_files)?;
+            <dyn Card<D>>::process_card_data_file(current_data_file, &mut card_data_files)?;
         }
 
         // Card Data is Partial
@@ -271,4 +289,107 @@ impl<D> dyn Card<D> {
 
 pub trait CardParser<T> {
     fn parse(card_data_files: &HashMap<CardFileID, CardFileData>, card_notes: &str) -> Result<Box<T>>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tacho::TimeReal;
+
+    fn card_file(data: Vec<u8>) -> CardFileData {
+        CardFileData {
+            card_file_id: CardFileID::CardDownload,
+            appendix: 0,
+            card_file_notes: String::new(),
+            size: data.len() as u32,
+            signature: None,
+            data: Some(data),
+        }
+    }
+
+    #[test]
+    fn optional_card_file_returns_none_when_absent() {
+        let card_files = CardFilesMap::new();
+
+        let value = <dyn Card<()>>::parse_optional_by_card_file_id::<TimeReal>(&CardFileID::CardDownload, &card_files)
+            .expect("an absent optional file should not fail");
+
+        assert!(value.is_none());
+    }
+
+    #[test]
+    fn optional_card_file_propagates_malformed_data() {
+        let mut card_files = CardFilesMap::new();
+        card_files.insert(CardFileID::CardDownload, card_file(vec![0; 3]));
+
+        let result = <dyn Card<()>>::parse_optional_by_card_file_id::<TimeReal>(&CardFileID::CardDownload, &card_files);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn optional_card_file_parses_present_data() {
+        let mut card_files = CardFilesMap::new();
+        card_files.insert(CardFileID::CardDownload, card_file(42_u32.to_be_bytes().to_vec()));
+
+        let value = <dyn Card<()>>::parse_optional_by_card_file_id::<TimeReal>(&CardFileID::CardDownload, &card_files)
+            .expect("valid optional data should parse")
+            .expect("the optional file is present");
+
+        assert_eq!(value.get_data(), 42);
+    }
+
+    #[test]
+    fn rejects_unknown_card_file_appendix() {
+        let mut card_files = CardFilesDataByCardGeneration::new();
+        let mut file = card_file(Vec::new());
+        file.appendix = 4;
+
+        let error = <dyn Card<()>>::process_card_data_file(file, &mut card_files).unwrap_err();
+
+        assert!(matches!(error, Error::InvalidCardFileAppendix(4)));
+    }
+
+    #[test]
+    fn routes_card_data_and_signatures_by_appendix() {
+        let mut card_files = CardFilesDataByCardGeneration::new();
+
+        let mut gen1_data = card_file(vec![1]);
+        gen1_data.appendix = 0;
+        let mut gen1_signature = card_file(vec![2]);
+        gen1_signature.appendix = 1;
+        let mut gen2_data = card_file(vec![3]);
+        gen2_data.appendix = 2;
+        let mut gen2_signature = card_file(vec![4]);
+        gen2_signature.appendix = 3;
+
+        <dyn Card<()>>::process_card_data_file(gen1_data, &mut card_files).unwrap();
+        <dyn Card<()>>::process_card_data_file(gen1_signature, &mut card_files).unwrap();
+        <dyn Card<()>>::process_card_data_file(gen2_data, &mut card_files).unwrap();
+        <dyn Card<()>>::process_card_data_file(gen2_signature, &mut card_files).unwrap();
+
+        assert_eq!(card_files.card_files_data_gen1.card_files_data[&CardFileID::CardDownload].signature, Some(vec![2]));
+        assert_eq!(card_files.card_files_data_gen2.card_files_data[&CardFileID::CardDownload].signature, Some(vec![4]));
+    }
+
+    #[test]
+    fn card_generation_requires_at_least_one_file() {
+        let card_files = CardFilesDataByCardGeneration::new();
+
+        assert!(matches!(card_files.get_card_generation(), Err(Error::EmptyCardFiles)));
+    }
+
+    #[test]
+    fn card_generation_matches_available_file_sets() {
+        let mut gen1_only = CardFilesDataByCardGeneration::new();
+        gen1_only.card_files_data_gen1.card_files_data.insert(CardFileID::CardDownload, card_file(Vec::new()));
+        assert_eq!(gen1_only.get_card_generation().unwrap(), CardGeneration::Gen1);
+
+        let mut gen2_only = CardFilesDataByCardGeneration::new();
+        gen2_only.card_files_data_gen2.card_files_data.insert(CardFileID::CardDownload, card_file(Vec::new()));
+        assert_eq!(gen2_only.get_card_generation().unwrap(), CardGeneration::Gen2);
+
+        gen1_only.card_files_data_gen2.card_files_data.insert(CardFileID::CardDownload, card_file(Vec::new()));
+        assert_eq!(gen1_only.get_card_generation().unwrap(), CardGeneration::Combined);
+    }
 }

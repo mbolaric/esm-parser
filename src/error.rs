@@ -25,6 +25,10 @@ pub enum Error {
     SignatureBeforeCardFile,
     /// A partial card file was detected.
     PartialCardFile,
+    /// A card file appendix value is not defined by the protocol.
+    InvalidCardFileAppendix(u8),
+    /// No Gen1 or Gen2 card files were found.
+    EmptyCardFiles,
     /// The card type is not supported.
     UnsupportedCardType,
     /// The card type is unknown.
