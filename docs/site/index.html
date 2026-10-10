@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light" />
+        <title>ESM Parser | Digital tachograph data, ready for your code.</title>
+        <meta name="description" content="Parse Gen1 and Gen2 digital tachograph DDD files in Rust. Export JSON or XML, verify supported signatures, and build for WebAssembly." />
+        <link rel="canonical" href="https://mbolaric.github.io/esm-parser/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="ESM Parser | Digital tachograph data, ready for your code." />
+        <meta property="og:description" content="An open-source Rust library and command-line examples for parsing and verifying digital tachograph downloads." />
+        <meta property="og:url" content="https://mbolaric.github.io/esm-parser/" />
+        <meta name="twitter:card" content="summary" />
+        <link rel="icon" type="image/svg+xml" href="./assets/icon.svg" />
+        <link rel="stylesheet" href="./assets/site.css" />
+        <script src="./assets/site.js" defer></script>
+    </head>
+    <body>
+        <!--
+        THESIS: Make the parser's typed-data workflow visible, not a desktop-app promise.
+        OWN-WORLD: ESM Viewer's pale canvas, blue actions, dark ink and rounded controls.
+        STORY: Understand supported parsing, inspect real API usage, then build or download.
+        FIRST VIEWPORT: Two-column introduction and Rust example, with Get started on the left.
+        FORM: User-pinned sibling-site structure; code replaces Viewer screenshots.
+        -->
+        <a class="site-skip" href="#main">Skip to content</a>
+        <header class="site-header">
+            <div class="site-container header-inner">
+                <a class="site-brand" href="#top"><img src="./assets/icon.svg" width="34" height="34" alt="" />ESM Parser</a>
+                <button class="mobile-menu" id="menu-toggle" aria-expanded="false" aria-controls="site-navigation" hidden>Menu</button>
+                <nav id="site-navigation" aria-label="Main navigation">
+                    <a href="#features">Features</a>
+                    <a href="#usage">Usage</a>
+                    <a href="#privacy">Privacy</a>
+                    <a href="#installation">Installation</a>
+                    <a href="https://github.com/mbolaric/esm-parser">GitHub</a>
+                    <a class="site-button small-button" href="#download">Downloads</a>
+                </nav>
+            </div>
+        </header>
+        <main id="main" tabindex="-1">
+            <section class="hero" id="top" aria-labelledby="hero-title">
+                <div class="site-container hero-grid">
+                    <div>
+                        <h1 id="hero-title">Your tachograph files.<br /><span>Ready for your code.</span></h1>
+                        <p class="hero-description">Turn a digital tachograph download into strongly typed Rust data. Parse cards and vehicle units, export records and verify supported signatures in your own application.</p>
+                        <div class="hero-actions">
+                            <a class="site-button" href="#installation">Get started</a>
+                            <a class="site-text-link" href="#usage">Explore the examples &rarr;</a>
+                        </div>
+                        <p class="hero-platforms">Rust library &middot; Command-line tools &middot; WebAssembly</p>
+                    </div>
+                    <figure class="code-preview">
+                        <div class="code-heading"><span>From a file to typed data</span><span>Rust</span></div>
+                        <pre><code>use esm_parser::parse_from_file;
+
+fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let data = parse_from_file("card.ddd")?;
+    println!("{data:#?}");
+    Ok(())
+}</code></pre>
+                        <figcaption>Actual public API. Supply your own local DDD file.</figcaption>
+                    </figure>
+                </div>
+            </section>
+            <div class="format-strip">
+                <div class="site-container format-inner">
+                    <strong>Digital tachograph downloads</strong>
+                    <p><code>.DDD</code> &rarr; Rust types &middot; JSON &middot; XML</p>
+                    <span>Gen1 &middot; Gen2 &middot; Cards &middot; Vehicle units</span>
+                </div>
+            </div>
+            <section class="site-section" id="features" aria-labelledby="features-title">
+                <div class="site-container">
+                    <div class="section-heading">
+                        <h2 id="features-title">From binary records<br />to useful building blocks.</h2>
+                        <p>Keep parsing in one library. Use the decoded records in your own tools, services or browser-based application.</p>
+                    </div>
+                    <div class="feature-grid">
+                        <article><h3>Detect and parse</h3><p>Automatically identify Gen1 or Gen2 and card or vehicle-unit data. Read from a file path or an in-memory byte slice.</p></article>
+                        <article><h3>Work with typed records</h3><p>Access activities, events, faults, vehicle usage and calibration data through structured Rust types and generation-specific modules.</p></article>
+                        <article><h3>Export JSON and XML</h3><p>Use the included esm2json and esm2xml command-line examples. Choose an output path and optional pretty formatting.</p></article>
+                        <article><h3>Verify supported signatures</h3><p>Check Gen1 and Gen2 card and vehicle-unit signatures with the corresponding ERCA certificate material. Verification scope stays explicit.</p></article>
+                        <article><h3>Build for the browser</h3><p>Compile with wasm-pack. The WebAssembly boundary includes a generated TypeScript contract and a discriminated kind/data envelope.</p></article>
+                        <article><h3>Build on open source</h3><p>Read the implementation, extend the parser and integrate it under the project license. ESM Viewer is a separate desktop application for inspecting downloads.</p></article>
+                    </div>
+                    <p class="qualification">Parsing and signature verification do not calculate driving-time compliance or provide a certified legal assessment.</p>
+                </div>
+            </section>
+            <section class="site-section soft-section" id="usage" aria-labelledby="usage-title">
+                <div class="site-container">
+                    <div class="section-heading">
+                        <h2 id="usage-title">Choose your entry point.</h2>
+                        <p>A library for integration, examples for conversion, and a WebAssembly build for browser projects.</p>
+                    </div>
+                    <div class="example-grid">
+                        <article>
+                            <h3>Export from the command line</h3>
+                            <p>Run the JSON example from a source checkout. Use esm2xml and --xml-file for XML output.</p>
+                            <pre><code>cargo run --example esm2json -- \
+  --ddd-file card.ddd \
+  --json-file card.json \
+  --pretty</code></pre>
+                            <a href="https://github.com/mbolaric/esm-parser#export-with-the-example-clis">CLI options and examples &rarr;</a>
+                        </article>
+                        <article>
+                            <h3>Verify after parsing</h3>
+                            <p>Load the ERCA certificates for the generations you need, then verify the parsed data.</p>
+                            <pre><code>let data = parse_from_file("vehicle_unit.ddd")?;
+let gen1 = std::fs::read("gen1-erca.bin")?;
+let gen2 = std::fs::read("gen2-erca.bin")?;
+let result = data.verify(
+    Some(&amp;gen1), Some(&amp;gen2),
+)?;</code></pre>
+                            <a href="https://github.com/mbolaric/esm-parser/blob/master/docs/gen2-signature-impl-reference.md">Verification contract and limitations &rarr;</a>
+                        </article>
+                    </div>
+                </div>
+            </section>
+            <section class="site-section privacy-section" id="privacy" aria-labelledby="privacy-title">
+                <div class="site-container privacy-grid">
+                    <div>
+                        <h2 id="privacy-title">Your files.<br />Your environment.</h2>
+                        <p>The library parses data in the application that calls it. The command-line examples work with local files; no hosted upload service is needed.</p>
+                        <p>DDD downloads can contain personal driver and vehicle information. Keep production files and certificate material out of public repositories, screenshots and support reports.</p>
+                    </div>
+                    <div class="privacy-flow" aria-label="Parser workflow">
+                        <p><strong>Local DDD download</strong><br />Your input file or byte slice</p>
+                        <span aria-hidden="true">&darr;</span>
+                        <p><strong>ESM Parser</strong><br />Decode and optionally verify</p>
+                        <span aria-hidden="true">&darr;</span>
+                        <p><strong>Your application</strong><br />Typed records or exported data</p>
+                    </div>
+                </div>
+            </section>
+            <section class="site-section" id="download" aria-labelledby="download-title">
+                <div class="site-container">
+                    <div class="section-heading">
+                        <h2 id="download-title">Download a release.</h2>
+                        <p>Prebuilt command-line examples and a WebAssembly package. For the Rust library, build from source below.</p>
+                    </div>
+                    <p id="release-status">Source preview: download links open GitHub Releases. Published pages link to the latest stable release archives.</p>
+                    <div class="download-grid">
+                        <article><h3>Windows</h3><p>x86-64 command-line examples</p><a class="site-button" data-release-asset="windows" href="https://github.com/mbolaric/esm-parser/releases/latest">Windows archive <span>ZIP &darr;</span></a></article>
+                        <article><h3>macOS</h3><p>Choose your processor architecture</p><a class="site-button" data-release-asset="macos-arm64" href="https://github.com/mbolaric/esm-parser/releases/latest">Apple silicon <span>TAR.GZ &darr;</span></a><a class="site-text-link" data-release-asset="macos-x86_64" href="https://github.com/mbolaric/esm-parser/releases/latest">Intel Mac archive &darr;</a></article>
+                        <article><h3>Linux</h3><p>x86-64 command-line examples</p><a class="site-button" data-release-asset="linux" href="https://github.com/mbolaric/esm-parser/releases/latest">Linux archive <span>TAR.GZ &darr;</span></a></article>
+                        <article><h3>WebAssembly</h3><p>Package for browser integration</p><a class="site-button" data-release-asset="wasm" href="https://github.com/mbolaric/esm-parser/releases/latest">WASM package <span>TAR.GZ &darr;</span></a></article>
+                    </div>
+                    <p class="qualification">These are developer tools, not desktop installers. Release contents can differ from the current source; read the linked release notes.</p>
+                </div>
+            </section>
+            <section class="site-section soft-section" id="installation" aria-labelledby="installation-title">
+                <div class="site-container narrow">
+                    <h2 id="installation-title">Build and run locally.</h2>
+                    <p>Use a current stable Rust toolchain. There is no published minimum supported Rust version policy.</p>
+                    <pre><code>git clone https://github.com/mbolaric/esm-parser.git
+cd esm-parser
+cargo build</code></pre>
+                    <details><summary>Use the prebuilt command-line examples</summary><p>Extract the archive for your platform. Open a terminal in the extracted directory and run <code>./esm2json --help</code> or <code>./esm2xml --help</code>. On Windows, use <code>.\esm2json.exe --help</code>. If an extracted Unix executable lacks permission, run <code>chmod +x esm2json esm2xml</code>. Only run binaries from a source you trust.</p></details>
+                    <details><summary>Compile the WebAssembly demo</summary><p>From the repository root, install wasm-pack and run the build script. It regenerates the TypeScript contract before building the browser package.</p><pre><code>cargo install wasm-pack
+./scripts/build-wasm.sh --release
+python3 -m http.server 8090</code></pre><p>Open <a href="http://127.0.0.1:8090/examples/web/">http://127.0.0.1:8090/examples/web/</a>. Serve the repository root, not examples/web: the demo loads the generated pkg directory. This hosted product page does not load or parse your files.</p></details>
+                    <details><summary>Supply certificates for verification</summary><p>A Gen1 ERCA value must be exactly 144 bytes; a Gen2 ERCA CVC must be exactly 205 bytes. Pass the corresponding <code>--erca-gen1-file</code> and <code>--erca-gen2-file</code> options to an exporter. Parsing alone does not verify signatures.</p><p>Company and Control Gen2 applications do not have a signed elementary-file verification path. Combined Driver and Workshop cards are verified separately by generation. See the <a href="https://github.com/mbolaric/esm-parser/blob/master/docs/gen2-signature-impl-reference.md">full verification reference</a> for certificate chains, rollover and supported scopes.</p></details>
+                </div>
+            </section>
+            <section class="site-section" aria-labelledby="faq-title">
+                <div class="site-container narrow">
+                    <h2 id="faq-title">Practical questions.</h2>
+                    <details><summary>Is this the same as ESM Viewer?</summary><p>No. ESM Parser is a Rust parsing library with CLI examples and WebAssembly support. <a href="https://mbolaric.github.io/esm-viewer/">ESM Viewer</a> is the separate desktop application for exploring tachograph records through a graphical interface.</p></details>
+                    <details><summary>Can I parse data already in memory?</summary><p>Yes. Use <code>parse_from_memory</code> with a byte slice. Both it and <code>parse_from_file</code> return <code>TachographData</code>, distinguishing Gen1/Gen2 and card/vehicle-unit results.</p></details>
+                    <details><summary>How is the project licensed?</summary><p>ESM Parser is open source. Review the <a href="https://github.com/mbolaric/esm-parser/blob/master/LICENSE">project license</a> before integrating or distributing it.</p></details>
+                    <details><summary>How should I report a parsing problem?</summary><p><a href="https://github.com/mbolaric/esm-parser/issues">Open a GitHub issue</a> with the version, command or API call, and a redacted error. Do not attach personal DDD downloads or certificate material. The fixture-backed integration tests are ignored by default so private files can stay local.</p></details>
+                </div>
+            </section>
+        </main>
+        <footer class="site-footer">
+            <div class="site-container">
+                <div class="footer-main">
+                    <div class="footer-about">
+                        <a class="site-brand" href="#top"><img src="./assets/icon.svg" width="28" height="28" alt="" /><span>ESM Parser</span></a>
+                        <p>Digital tachograph data, ready for your code.</p>
+                        <a class="footer-viewer-link" href="https://mbolaric.github.io/esm-viewer/">Looking for the desktop app? ESM Viewer &rarr;</a>
+                    </div>
+                    <nav class="footer-links" aria-label="Footer navigation">
+                        <div>
+                            <h2>Product</h2>
+                            <ul>
+                                <li><a href="#features">Features</a></li>
+                                <li><a href="#usage">Usage examples</a></li>
+                                <li><a href="#privacy">Privacy</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h2>Get started</h2>
+                            <ul>
+                                <li><a href="#download">Downloads</a></li>
+                                <li><a href="#installation">Installation</a></li>
+                                <li><a href="https://github.com/mbolaric/esm-parser/releases">All releases</a></li>
+                                <li><a href="https://github.com/mbolaric/esm-parser/blob/master/README.md">Documentation</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h2>Project</h2>
+                            <ul>
+                                <li><a href="https://github.com/mbolaric/esm-parser">Source code</a></li>
+                                <li><a href="https://github.com/mbolaric/esm-parser/issues">Report an issue</a></li>
+                                <li><a href="https://github.com/mbolaric/esm-parser/blob/master/LICENSE">GPL v3 license</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+                <div class="footer-bottom">
+                    <p>Free and open source under the GNU GPL v3.</p>
+                    <a href="#top">Back to top <span aria-hidden="true">&uarr;</span></a>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

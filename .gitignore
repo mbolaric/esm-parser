@@ -1,4 +1,5 @@
 /target
+/dist/
 /.idea/
 /examples/data/
 /examples/cert.rs

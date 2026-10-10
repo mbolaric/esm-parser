@@ -6,6 +6,9 @@
 tachograph `.DDD` exports. It automatically identifies the tachograph
 generation and data type, then returns strongly typed Rust data structures.
 
+[Project website](https://mbolaric.github.io/esm-parser/) |
+[Website preview and publishing instructions](docs/site/README.md)
+
 ## What it supports
 
 - Gen1 and Gen2 tachograph data.
