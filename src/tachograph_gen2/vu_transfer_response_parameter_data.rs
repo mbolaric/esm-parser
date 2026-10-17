@@ -1,9 +1,10 @@
 use serde::Serialize;
+use serde::ser::{SerializeStruct, Serializer};
 
 use crate::gen2::{DataInfo, SignatureRecordArray, VUActivity, VUCardDownload, VUEvents, VUOverview, VUSpeed, VUTechnicalData};
 use crate::tacho::{VUFileData, VUTransferResponseParameter, VUTransferResponseParameterID};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[cfg_attr(feature = "typescript", ts(rename = "Gen2VUTransferResponseParameterData"))]
 pub enum VUTransferResponseParameterData {
@@ -15,6 +16,34 @@ pub enum VUTransferResponseParameterData {
     Calibration(VUTechnicalData),
     CardDownload(VUCardDownload),
     OddballCrashDump,
+}
+
+impl Serialize for VUTransferResponseParameterData {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        fn serialize_variant<S: Serializer, T: Serialize>(
+            serializer: S,
+            name: &'static str,
+            value: &T,
+        ) -> Result<S::Ok, S::Error> {
+            let mut state = serializer.serialize_struct("VUTransferResponseParameterData", 1)?;
+            state.serialize_field(name, value)?;
+            state.end()
+        }
+
+        match self {
+            Self::Unknown(v) => serialize_variant(serializer, "Unknown", v),
+            Self::Control(v) => serialize_variant(serializer, "Control", v),
+            Self::Activity(v) => serialize_variant(serializer, "Activity", v),
+            Self::Events(v) => serialize_variant(serializer, "Events", v),
+            Self::Speed(v) => serialize_variant(serializer, "Speed", v),
+            Self::Calibration(v) => serialize_variant(serializer, "Calibration", v),
+            Self::CardDownload(v) => serialize_variant(serializer, "CardDownload", v),
+            Self::OddballCrashDump => serializer.serialize_str("OddballCrashDump"),
+        }
+    }
 }
 
 impl VUTransferResponseParameterData {
@@ -100,5 +129,32 @@ impl VUTransferResponseParameter for VUTransferResponseParameterData {
                 .and_then(|sig| extract_from_signature_record_array(sig, trep_id, position, raw_bytes, 0)),
             VUTransferResponseParameterData::OddballCrashDump | VUTransferResponseParameterData::Unknown(_) => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Export;
+    use crate::tacho::{RecordType, VUTransferResponseParameterItem};
+
+    #[test]
+    fn test_gen2_vu_transfer_response_parameter_data_json_and_xml() {
+        let item = VUTransferResponseParameterItem {
+            type_id: VUTransferResponseParameterID::Gen2Speed,
+            position: 0,
+            data: VUTransferResponseParameterData::Unknown(DataInfo {
+                trep_id: VUTransferResponseParameterID::Gen2Speed,
+                record_type: RecordType::Unknown,
+                record_size: 4,
+                no_of_records: 1,
+                data: vec![1, 2, 3, 4],
+            }),
+        };
+
+        let json = item.to_json().unwrap();
+        assert!(json.contains("\"Unknown\":"));
+        let xml = item.to_xml().unwrap();
+        assert!(xml.contains("<Unknown>"));
     }
 }

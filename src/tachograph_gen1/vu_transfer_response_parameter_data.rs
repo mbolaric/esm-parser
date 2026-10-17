@@ -1,9 +1,10 @@
 use serde::Serialize;
+use serde::ser::{SerializeStruct, Serializer};
 
 use crate::gen1::{VUActivity, VuDetailedSpeed, VuEvents, VuOverview, VuTechnicalData};
 use crate::tacho::{VUFileData, VUTransferResponseParameter, VUTransferResponseParameterID};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[cfg_attr(feature = "typescript", ts(rename = "Gen1VUTransferResponseParameterData"))]
 pub enum VUTransferResponseParameterData {
@@ -15,6 +16,34 @@ pub enum VUTransferResponseParameterData {
     Calibration(VuTechnicalData),
     CardDownload,
     OddballCrashDump,
+}
+
+impl Serialize for VUTransferResponseParameterData {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        fn serialize_variant<S: Serializer, T: Serialize>(
+            serializer: S,
+            name: &'static str,
+            value: &T,
+        ) -> Result<S::Ok, S::Error> {
+            let mut state = serializer.serialize_struct("VUTransferResponseParameterData", 1)?;
+            state.serialize_field(name, value)?;
+            state.end()
+        }
+
+        match self {
+            Self::Unknown => serializer.serialize_str("Unknown"),
+            Self::Control(v) => serialize_variant(serializer, "Control", v),
+            Self::Activity(v) => serialize_variant(serializer, "Activity", v),
+            Self::Events(v) => serialize_variant(serializer, "Events", v),
+            Self::Speed(v) => serialize_variant(serializer, "Speed", v),
+            Self::Calibration(v) => serialize_variant(serializer, "Calibration", v),
+            Self::CardDownload => serializer.serialize_str("CardDownload"),
+            Self::OddballCrashDump => serializer.serialize_str("OddballCrashDump"),
+        }
+    }
 }
 
 fn extract_from_gen1_signature(
@@ -70,5 +99,30 @@ impl VUTransferResponseParameter for VUTransferResponseParameterData {
             | VUTransferResponseParameterData::OddballCrashDump
             | VUTransferResponseParameterData::Unknown => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Export;
+    use crate::gen1::VuDetailedSpeedData;
+    use crate::tacho::VUTransferResponseParameterItem;
+
+    #[test]
+    fn test_gen1_vu_transfer_response_parameter_data_json_and_xml() {
+        let item = VUTransferResponseParameterItem {
+            type_id: VUTransferResponseParameterID::Speed,
+            position: 0,
+            data: VUTransferResponseParameterData::Speed(VuDetailedSpeed {
+                vu_detailed_speed_data: VuDetailedSpeedData { no_of_speed_blocks: 0, vu_detailed_speed_blocks: vec![] },
+                signature: None,
+            }),
+        };
+
+        let json = item.to_json().unwrap();
+        assert!(json.contains("\"Speed\":"));
+        let xml = item.to_xml().unwrap();
+        assert!(xml.contains("<Speed>"));
     }
 }
