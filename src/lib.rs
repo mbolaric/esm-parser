@@ -1,65 +1,90 @@
 //! # esm-parser
 //!
-//! A Rust library for parsing digital tachograph data from DDD files.
+//! A Rust library for parsing and cryptographically verifying digital tachograph
+//! data from `.DDD` (ESM) files.
 //!
-//! This crate provides functionality to read and parse the binary data from
-//! driver cards and vehicle units (VU), supporting both Gen1 and Gen2
-//! specifications of the tachograph system.
+//! This crate reads, parses, and verifies binary exports from **Driver Cards**,
+//! **Workshop Cards**, **Company Cards**, **Control Cards**, and **Vehicle Units (VU)**,
+//! supporting both **First Generation (Gen1)** and **Second Generation (Gen2 / Gen2v2)**
+//! EU tachograph specifications.
 //!
 //! ## Features
 //!
-//! - Parses Gen1 and Gen2 DDD files.
-//! - Automatically detects data type (Card or VU) and generation (Gen1 or Gen2).
-//! - Extracts a wide range of data including driver activities, events, faults,
-//!   vehicle usage, and calibration data.
-//! - Provides structured Rust types for all parsed data for easy access.
+//! - **Automatic Format Detection**: Detects whether an input `.DDD` file or byte slice
+//!   contains Card or Vehicle Unit (VU) data and identifies its generation (Gen1, Gen2, or Combined).
+//! - **Comprehensive Data Extraction**: Parses driver activities, places, vehicles used,
+//!   events, faults, detailed speed, calibration records, GNSS records, border crossings,
+//!   and load/unload operations into strongly typed Rust structures.
+//! - **Digital Signature & Certificate Verification**:
+//!   - **Gen1**: RSA-1024 signature recovery and SHA-1 digest verification against the Gen1 ERCA root public key (`144` bytes).
+//!   - **Gen2**: Card Verifiable Certificate (CVC) chain validation (`ERCA -> MSCA -> Card/VU`),
+//!     ERCA Link Certificate rollover resolution, and ECDSA (`brainpoolP256r1` / SHA-256) signature
+//!     verification against the Gen2 ERCA root certificate (`205` bytes).
+//! - **Serialization & WebAssembly**: All parsed data structures implement [`serde::Serialize`]
+//!   for JSON/XML export, with first-class `wasm32` support and TypeScript type generation.
 //!
 //! ## Usage
 //!
-//! To parse a DDD file from the filesystem:
+//! ### Parse from a File
 //!
 //! ```rust,no_run
 //! use esm_parser::{TachographData, parse_from_file};
 //!
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let path_to_ddd = "path/to/your_file.ddd";
-//!     match parse_from_file(path_to_ddd) {
-//!         Ok(tachograph_data) => {
-//!             println!("Successfully parsed DDD file.");
-//!             // Now you can work with the parsed data
-//!             match tachograph_data {
-//!                 TachographData::CardGen1(data) => println!("Parsed Gen1 Card Data."),
-//!                 TachographData::CardGen2(data) => println!("Parsed Gen2 Card Data."),
-//!                 TachographData::VUGen1(data) => println!("Parsed Gen1 VU Data."),
-//!                 TachographData::VUGen2(data) => println!("Parsed Gen2 VU Data."),
-//!             }
-//!         }
-//!         Err(e) => {
-//!             eprintln!("Failed to parse DDD file: {:?}", e);
-//!         }
+//!     let tachograph_data = parse_from_file("path/to/your_file.ddd")?;
+//!     match tachograph_data {
+//!         TachographData::CardGen1(data) => println!("Parsed Gen1 Card Data: {data:?}"),
+//!         TachographData::CardGen2(data) => println!("Parsed Gen2 Card Data: {data:?}"),
+//!         TachographData::VUGen1(data) => println!("Parsed Gen1 VU Data: {data:?}"),
+//!         TachographData::VUGen2(data) => println!("Parsed Gen2 VU Data: {data:?}"),
 //!     }
 //!     Ok(())
 //! }
 //! ```
 //!
-//! To parse from an in-memory byte slice:
+//! ### Parse from an In-Memory Byte Slice
 //!
 //! ```rust,no_run
 //! use esm_parser::parse_from_memory;
 //!
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let ddd_byte_data: &[u8] = &[0x00, 0x02, 0x01, 0x02, 0x03]; // Example data
-//!     match parse_from_memory(ddd_byte_data) {
-//!         Ok(tachograph_data) => {
-//!             println!("Successfully parsed in-memory DDD data.");
-//!         }
-//!         Err(e) => {
-//!             eprintln!("Failed to parse in-memory data: {:?}", e);
-//!         }
-//!     }
+//!     let ddd_bytes: &[u8] = &[0x00, 0x02, 0x01, 0x02, 0x03];
+//!     let tachograph_data = parse_from_memory(ddd_bytes)?;
+//!     println!("{tachograph_data:#?}");
 //!     Ok(())
 //! }
 //! ```
+//!
+//! ### Verify Digital Signatures and Certificates
+//!
+//! Use [`TachographData::verify`] (or [`TachographData::verify_with_erca_paths`]) to verify
+//! any parsed Card or Vehicle Unit against the European Root Certification Authority (ERCA) keys:
+//!
+//! ```rust,no_run
+//! use esm_parser::parse_from_file;
+//!
+//! fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     let tachograph_data = parse_from_file("card_or_vu.ddd")?;
+//!     let erca_gen1_pk = std::fs::read("gen1-erca.bin")?; // 144-byte Gen1 ERCA key
+//!     let erca_gen2_pk = std::fs::read("gen2-erca.bin")?; // 205-byte Gen2 ERCA CVC
+//!
+//!     let verify_result = tachograph_data.verify(Some(&erca_gen1_pk), Some(&erca_gen2_pk))?;
+//!     println!("{verify_result:#?}");
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ## Crate Organization
+//!
+//! - [`tacho`]: Data structures, enums, and verification types shared between Gen1 and Gen2.
+//! - [`gen1`]: First-generation (Gen1) Card and Vehicle Unit data structures and verification logic.
+//! - [`gen2`]: Second-generation (Gen2 and Gen2v2) Card and Vehicle Unit data structures, GNSS/Smart Tachograph records, and ECC verification logic.
+//!
+//! ## Cargo Features
+//!
+//! - `logging`: Enables diagnostic logging during binary parsing via `log` and `binary-data/logging`.
+//! - `typescript`: Enables TypeScript declaration generation via `ts-rs` and exposes [`wasm_boundary_declaration`].
+//! - `wasm-console-panic-hook`: Installs a browser console panic hook when targeting `wasm32`.
 
 mod common;
 mod consts;

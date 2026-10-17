@@ -90,8 +90,9 @@ checksum = "fd307490d624467aa6f74b0eabb77633d1f758a7b25f12bceb0b22e08d9726f6"
 
 [[package]]
 name = "binary-data"
-version = "0.1.0"
-source = "git+https://github.com/mbolaric/binary-data.git#d7518ffd602719e298d6050183625ec280c87aed"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "689b46a8be27e5d3e8f8fd2806cb909c6eb9be827200a18e7d8dc110e53c4efd"
 dependencies = [
  "log",
 ]
@@ -386,7 +387,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "esm-parser"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "binary-data",
  "bp256",

@@ -1,22 +1,24 @@
 [package]
 name = "esm-parser"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Milan Bolaric"]
 edition = "2024"
 readme = "README.md"
-license-file = "LICENSE"
+license = "GPL-3.0-or-later"
 repository = "https://github.com/mbolaric/esm-parser"
 description = "Library for parsing ESM files (.DDD). *.DDD files are digital exports of tachograph data and contain all mandatory information required by EU regulations."
 keywords = ["tachograph", "tacho", "DDD", "parsing"]
 include = [
-    "src/**/*",
-    "types/**/*",
-    "scripts/**/*",
-    "examples/**/*",
-    "tests/**",
-    "Cargo.toml",
-    "README.md",
-    "LICENSE",
+    "/src/**/*",
+    "/types/**/*",
+    "/scripts/**/*",
+    "/examples/*.rs",
+    "/examples/helpers/**/*",
+    "/examples/web/**/*",
+    "/tests/**/*",
+    "/Cargo.toml",
+    "/README.md",
+    "/LICENSE",
 ]
 
 categories = ["parser-implementations"]
@@ -51,7 +53,7 @@ wasm-console-panic-hook = []
 [dependencies]
 log = { version = "0.4.34", default-features = false }
 
-binary-data = { git = "https://github.com/mbolaric/binary-data.git", default-features = false }
+binary-data = { version = "0.2.1", default-features = false }
 time = { version = "0.3.55", features = ["macros", "formatting"] }
 
 serde = { version = "1.0.229", features = ["derive"] }
