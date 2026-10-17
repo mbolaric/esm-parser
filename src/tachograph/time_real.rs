@@ -3,7 +3,7 @@ use serde::Serialize;
 use time::OffsetDateTime;
 use time::macros::format_description;
 
-use crate::{Readable, Writable};
+use crate::{Readable, Validatable, Writable};
 
 const TIME_REAL_NOT_SET: u32 = u32::MAX;
 
@@ -18,8 +18,19 @@ pub struct TimeReal {
     date_time: Option<OffsetDateTime>,
 }
 
+impl Validatable for TimeReal {
+    /// Validates that the raw timestamp is either the unset sentinel (`0xFFFFFFFF`)
+    /// or a valid Unix timestamp representable as an `OffsetDateTime`.
+    fn validate(&self) -> crate::Result<()> {
+        if self.data != TIME_REAL_NOT_SET && OffsetDateTime::from_unix_timestamp(self.data as i64).is_err() {
+            return Err(crate::Error::ValidationError(format!("Invalid TimeReal timestamp: {}", self.data)));
+        }
+        Ok(())
+    }
+}
+
 impl TimeReal {
-    pub(crate) fn new(data: u32) -> Self {
+    pub fn new(data: u32) -> Self {
         Self { data, date_time: OffsetDateTime::from_unix_timestamp(data as i64).ok() }
     }
 
@@ -80,7 +91,7 @@ impl Readable for TimeReal {
 
 impl Writable for TimeReal {
     /// Writes a `TimeReal` to a binary stream, for creating or modifying DDD files.
-    fn write<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> crate::Result<()> {
+    fn write_raw<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> crate::Result<()> {
         writer.write_u32::<BigEndian>(self.data)?;
         Ok(())
     }

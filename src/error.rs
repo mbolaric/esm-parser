@@ -53,6 +53,8 @@ pub enum Error {
     EmptyInputData(String),
     /// Errors in process of verification
     VerifyError(String),
+    /// A validation error occurred.
+    ValidationError(String),
 }
 
 impl fmt::Display for Error {
