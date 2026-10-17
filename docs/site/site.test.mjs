@@ -81,3 +81,19 @@ test('Viewer-style footer retains grouped navigation and parser project links', 
     assert.ok(footer.includes('https://github.com/mbolaric/esm-parser/issues'));
     assert.ok(footer.includes('https://mbolaric.github.io/esm-viewer/'));
 });
+
+test('demo is a separate linked page with resolvable assets and navigation', async () => {
+    const demo = await readFile(new URL('demo.html', import.meta.url), 'utf8');
+    assert.ok(html.includes('href="./demo.html"'));
+    assert.ok(!html.includes('id="demo-file"'));
+    assert.ok(!html.includes('src="./assets/demo.js"'));
+    assert.ok(demo.includes('href="./index.html"'));
+    assert.ok(demo.includes('id="demo-file"'));
+    assert.ok(demo.includes('id="demo-output-panel"'));
+    const ids = [...demo.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(ids.length, new Set(ids).size);
+    for (const [, id] of demo.matchAll(/href="#([^"]+)"/g)) assert.ok(ids.includes(id));
+    for (const [, path] of demo.matchAll(/(?:href|src)="(\.\/[^"]+)"/g)) {
+        await readFile(new URL(path, import.meta.url));
+    }
+});

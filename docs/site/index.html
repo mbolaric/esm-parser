@@ -34,6 +34,7 @@
                     <a href="#usage">Usage</a>
                     <a href="#privacy">Privacy</a>
                     <a href="#installation">Installation</a>
+                    <a href="./demo.html">Live demo</a>
                     <a href="https://github.com/mbolaric/esm-parser">GitHub</a>
                     <a class="site-button small-button" href="#download">Downloads</a>
                 </nav>
@@ -47,7 +48,7 @@
                         <p class="hero-description">Turn a digital tachograph download into strongly typed Rust data. Parse cards and vehicle units, export records and verify supported signatures in your own application.</p>
                         <div class="hero-actions">
                             <a class="site-button" href="#installation">Get started</a>
-                            <a class="site-text-link" href="#usage">Explore the examples &rarr;</a>
+                            <a class="site-text-link" href="./demo.html">Try it in your browser &rarr;</a>
                         </div>
                         <p class="hero-platforms">Rust library &middot; Command-line tools &middot; WebAssembly</p>
                     </div>
@@ -118,6 +119,16 @@ let result = data.verify(
                     </div>
                 </div>
             </section>
+            <section class="site-section" id="demo" aria-labelledby="demo-title">
+                <div class="site-container">
+                    <div class="section-heading">
+                        <h2 id="demo-title">Your file. Parsed here.</h2>
+                        <p>Try the actual Rust parser compiled to WebAssembly. Your file is processed in this browser, not uploaded to a server.</p>
+                    </div>
+                    <a class="site-button" href="./demo.html">Open the full-page demo &rarr;</a>
+                    <p class="qualification">A dedicated workspace with drag-and-drop, JSON preview and download. No upload needed. Parsing does not verify digital signatures.</p>
+                </div>
+            </section>
             <section class="site-section privacy-section" id="privacy" aria-labelledby="privacy-title">
                 <div class="site-container privacy-grid">
                     <div>
@@ -158,9 +169,9 @@ let result = data.verify(
 cd esm-parser
 cargo build</code></pre>
                     <details><summary>Use the prebuilt command-line examples</summary><p>Extract the archive for your platform. Open a terminal in the extracted directory and run <code>./esm2json --help</code> or <code>./esm2xml --help</code>. On Windows, use <code>.\esm2json.exe --help</code>. If an extracted Unix executable lacks permission, run <code>chmod +x esm2json esm2xml</code>. Only run binaries from a source you trust.</p></details>
-                    <details><summary>Compile the WebAssembly demo</summary><p>From the repository root, install wasm-pack and run the build script. It regenerates the TypeScript contract before building the browser package.</p><pre><code>cargo install wasm-pack
+                    <details><summary>Compile the WebAssembly demo</summary><p>Try the <a href="./demo.html">full-page demo</a>, or build the standalone example locally. From the repository root, install wasm-pack and run the build script. It regenerates the TypeScript contract before building the browser package.</p><pre><code>cargo install wasm-pack
 ./scripts/build-wasm.sh --release
-python3 -m http.server 8090</code></pre><p>Open <a href="http://127.0.0.1:8090/examples/web/">http://127.0.0.1:8090/examples/web/</a>. Serve the repository root, not examples/web: the demo loads the generated pkg directory. This hosted product page does not load or parse your files.</p></details>
+python3 -m http.server 8090</code></pre><p>Open <a href="http://127.0.0.1:8090/examples/web/">http://127.0.0.1:8090/examples/web/</a>. Serve the repository root, not examples/web: the standalone example loads the generated pkg directory. The full-page demo loads the parser only after you select a file.</p></details>
                     <details><summary>Supply certificates for verification</summary><p>A Gen1 ERCA value must be exactly 144 bytes; a Gen2 ERCA CVC must be exactly 205 bytes. Pass the corresponding <code>--erca-gen1-file</code> and <code>--erca-gen2-file</code> options to an exporter. Parsing alone does not verify signatures.</p><p>Company and Control Gen2 applications do not have a signed elementary-file verification path. Combined Driver and Workshop cards are verified separately by generation. See the <a href="https://github.com/mbolaric/esm-parser/blob/master/docs/gen2-signature-impl-reference.md">full verification reference</a> for certificate chains, rollover and supported scopes.</p></details>
                 </div>
             </section>
@@ -188,6 +199,7 @@ python3 -m http.server 8090</code></pre><p>Open <a href="http://127.0.0.1:8090/e
                             <ul>
                                 <li><a href="#features">Features</a></li>
                                 <li><a href="#usage">Usage examples</a></li>
+                                <li><a href="./demo.html">Live demo</a></li>
                                 <li><a href="#privacy">Privacy</a></li>
                             </ul>
                         </div>

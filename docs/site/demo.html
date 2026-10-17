@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light" />
+        <title>Live WASM demo | ESM Parser</title>
+        <meta name="description" content="Parse a local tachograph download in your browser with ESM Parser WebAssembly. Inspect and download decoded JSON without uploading your file." />
+        <link rel="icon" type="image/svg+xml" href="./assets/icon.svg" />
+        <link rel="stylesheet" href="./assets/site.css" />
+        <link rel="stylesheet" href="./assets/demo-page.css" />
+        <script type="module" src="./assets/demo.js"></script>
+    </head>
+    <body class="demo-page">
+        <a class="site-skip" href="#demo-output-panel">Skip to results</a>
+        <header class="demo-header">
+            <a class="site-brand" href="./index.html"><img src="./assets/icon.svg" width="28" height="28" alt="" /><span>ESM Parser</span></a>
+            <a href="./index.html">Back to website &rarr;</a>
+        </header>
+        <main class="demo-layout" id="demo-workspace" aria-busy="false">
+            <aside class="demo-sidebar" aria-labelledby="demo-title">
+                <h1 id="demo-title">Live WASM demo</h1>
+                <p class="demo-intro">Your file. Parsed in your browser. Never uploaded.</p>
+                <div class="demo-controls" id="demo-dropzone">
+                    <label for="demo-file">Drop a tachograph file here, or choose a file</label>
+                    <p id="demo-help">One local .DDD download at a time.</p>
+                    <input type="file" id="demo-file" accept=".ddd,.tgd,.v1b,.c1b,.esm" aria-describedby="demo-help demo-status" disabled />
+                    <button class="demo-clear" id="demo-clear" type="button" disabled>Clear / cancel</button>
+                </div>
+                <p class="demo-status" id="demo-status" role="status" aria-live="polite">The demo requires JavaScript, WebAssembly and an HTTP server. Build the site to include the parser package.</p>
+                <p class="demo-error" id="demo-error" role="alert" hidden></p>
+                <details class="demo-privacy">
+                    <summary>Privacy and limitations</summary>
+                    <p>Parsing does not verify signatures. Results can contain personal driver and vehicle data. Nothing is saved to browser storage; clear the demo to release the result. Keep downloaded JSON private.</p>
+                    <p>Large files depend on available browser memory. Cancel at any time, or use the native CLI.</p>
+                </details>
+            </aside>
+            <section class="demo-output-panel" id="demo-output-panel" aria-label="Parser results" tabindex="-1">
+                <div id="demo-result" hidden>
+                    <div class="demo-result-heading">
+                        <div><h2>Decoded JSON</h2><p id="demo-summary"></p></div>
+                        <a class="site-button" id="demo-download">Download JSON &darr;</a>
+                    </div>
+                    <div class="demo-search">
+                        <label for="demo-search">Search JSON</label>
+                        <input id="demo-search" type="search" placeholder="Search keys and values..." aria-describedby="demo-preview-note" disabled />
+                    </div>
+                    <div class="demo-output json-tree" id="demo-output" tabindex="0" role="region" aria-label="Parsed JSON tree"></div>
+                    <p class="demo-note" id="demo-preview-note" role="status" aria-live="polite"></p>
+                </div>
+                <div class="demo-empty">
+                    <h2>Make room for the records.</h2>
+                    <p>Choose or drop a file to inspect its decoded JSON here. Scroll within the result while the file controls stay in place.</p>
+                    <p>No file selected. Signatures are not verified by this demo.</p>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>

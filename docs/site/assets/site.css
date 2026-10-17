@@ -62,6 +62,21 @@ article p { margin-top: 0.75rem; color: var(--site-muted); }
 .soft-section { background: var(--site-soft); }
 .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem; }
 .example-grid article { min-width: 0; }
+.demo-controls { border: 2px dashed var(--site-line); border-radius: 0.625rem; padding: 1rem; margin-bottom: 1rem; }
+.demo-controls[data-dragging="true"] { border-color: var(--site-blue); background: #e9f2ff; }
+.demo-controls label { display: block; font-weight: 650; }
+.demo-controls p { max-width: 65ch; color: var(--site-muted); margin-block: 0.5rem 1.25rem; }
+.demo-controls input { max-width: 100%; font: inherit; color: var(--site-ink); }
+.demo-controls input::file-selector-button, .demo-clear { font: inherit; min-height: 2.75rem; padding: 0.5rem 1rem; border: 1px solid var(--site-line); border-radius: 0.5rem; background: var(--site-soft); color: var(--site-ink); cursor: pointer; }
+.demo-controls input::file-selector-button { margin-right: 1rem; }
+.demo-clear { margin-block: 1rem; }
+.demo-controls input:disabled, .demo-clear:disabled { opacity: 0.65; cursor: not-allowed; }
+.demo-clear:not(:disabled):hover, .demo-controls input:not(:disabled)::file-selector-button:hover { background: var(--site-line); }
+.demo-status, .demo-note { color: var(--site-muted); font-size: 0.875rem; }
+.demo-error { color: #922b21; background: #fff0ed; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; overflow-wrap: anywhere; }
+.demo-result-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-top: 1px solid var(--site-line); margin-top: 1.5rem; padding-top: 1.5rem; }
+.demo-result-heading p { color: var(--site-muted); font-size: 0.875rem; margin-top: 0.5rem; overflow-wrap: anywhere; }
+.demo-output { max-height: 32rem; white-space: pre; background: var(--site-canvas); }
 .privacy-section { background: var(--site-dark); color: white; }
 .privacy-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3.5rem; align-items: center; }
 .privacy-grid p { max-width: 65ch; margin-top: 1.5rem; color: var(--site-dark-muted); }

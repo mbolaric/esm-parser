@@ -5,11 +5,23 @@ on:
     branches: ["master"]
     paths:
       - "docs/site/**"
+      - "src/**"
+      - "types/**"
+      - "scripts/build-wasm.sh"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
       - ".github/workflows/pages.yml"
   pull_request:
     branches: ["master"]
     paths:
       - "docs/site/**"
+      - "src/**"
+      - "types/**"
+      - "scripts/build-wasm.sh"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   release:
@@ -27,7 +39,7 @@ jobs:
     name: Build product website
     if: github.event_name != 'release' || github.event.release.prerelease == false
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -37,8 +49,15 @@ jobs:
         with:
           node-version: "24"
           package-manager-cache: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Install wasm-pack
+        run: cargo install wasm-pack --locked --version 0.13.1
       - name: Test static website
-        run: node --test docs/site/site.test.mjs
+        run: node --test docs/site/*.test.mjs
+      - name: Build browser parser
+        run: ./scripts/build-wasm.sh --release
       - name: Build static website
         env:
           GITHUB_TOKEN: ${{ github.token }}

@@ -1,5 +1,6 @@
 /target
 /dist/
+/pkg/
 /.idea/
 /examples/data/
 /examples/cert.rs

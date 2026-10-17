@@ -154,6 +154,11 @@ Open <http://127.0.0.1:8090/examples/web/> after starting the server from the
 **repository root**. Do not serve `examples/web/` as the server root: the demo
 loads the generated package from `pkg/` at the repository root.
 
+The [project demo](https://mbolaric.github.io/esm-parser/demo.html) provides
+a local-file WebAssembly demo with JSON preview and download. Files are parsed
+in the browser without uploading them; the demo does not verify signatures.
+See [website build instructions](docs/site/README.md) to run it locally.
+
 ## Privacy and test fixtures
 
 DDD files can contain personal driver and vehicle data. Do not commit real
