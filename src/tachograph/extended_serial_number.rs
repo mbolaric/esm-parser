@@ -85,24 +85,15 @@ mod tests {
     #[test]
     fn test_extended_serial_number_validation_and_zero_byte_emission() {
         // Invalid month 13
-        let invalid_month = ExtendedSerialNumber {
-            serial_number: 123,
-            month_year: "1324".into(),
-            serial_type: 1,
-            manufacturer_code: 2,
-        };
+        let invalid_month =
+            ExtendedSerialNumber { serial_number: 123, month_year: "1324".into(), serial_type: 1, manufacturer_code: 2 };
         assert!(invalid_month.validate().is_err());
         let mut writer = BinMemoryBuffer::new();
         assert!(invalid_month.write(&mut writer).is_err());
         assert_eq!(writer.as_slice().len(), 0);
 
         // Sentinel "0000" is valid
-        let sentinel = ExtendedSerialNumber {
-            serial_number: 0,
-            month_year: "0000".into(),
-            serial_type: 0,
-            manufacturer_code: 0,
-        };
+        let sentinel = ExtendedSerialNumber { serial_number: 0, month_year: "0000".into(), serial_type: 0, manufacturer_code: 0 };
         assert!(sentinel.validate().is_ok());
     }
 }

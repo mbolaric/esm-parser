@@ -18,9 +18,7 @@ impl Validatable for SpecificConditionRecord {
     fn validate(&self) -> crate::Result<()> {
         self.entry_time.validate()?;
         if self.specific_condition_type == SpecificConditionType::Unknown {
-            return Err(crate::Error::ValidationError(
-                "SpecificConditionRecord has unknown specific_condition_type".into(),
-            ));
+            return Err(crate::Error::ValidationError("SpecificConditionRecord has unknown specific_condition_type".into()));
         }
         Ok(())
     }
@@ -63,10 +61,8 @@ mod tests {
 
     #[test]
     fn test_specific_condition_record_validation_and_zero_byte_emission() {
-        let invalid = SpecificConditionRecord {
-            entry_time: TimeReal::new(256),
-            specific_condition_type: SpecificConditionType::Unknown,
-        };
+        let invalid =
+            SpecificConditionRecord { entry_time: TimeReal::new(256), specific_condition_type: SpecificConditionType::Unknown };
         assert!(invalid.validate().is_err());
 
         let mut writer = BinMemoryBuffer::new();

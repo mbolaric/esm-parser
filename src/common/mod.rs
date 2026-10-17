@@ -12,10 +12,8 @@ pub use hex::{HexDisplay, HexHelper};
 pub(crate) use readable::read_records;
 pub use readable::{Readable, ReadableWithParams};
 pub use string_encoding::*;
-pub use validatable::{
-    Validatable, validate_bcd, validate_code_page_string, validate_fixed_bytes, validate_ia5_string,
-};
+pub use validatable::{Validatable, validate_bcd, validate_code_page_string, validate_fixed_bytes, validate_ia5_string};
 pub use writable::{
-    SignaturePolicy, SignatureSigner, Writable, WritableWithParams, WriteOptions, write_code_page_string,
-    write_ia5_string, write_records,
+    SignaturePolicy, SignatureSigner, Writable, WritableWithParams, WriteOptions, write_code_page_string, write_ia5_string,
+    write_records,
 };

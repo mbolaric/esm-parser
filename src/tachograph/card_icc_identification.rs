@@ -2,8 +2,7 @@ use serde::Serialize;
 
 use crate::tacho::{EmbedderIcAssemblerId, ExtendedSerialNumber};
 use crate::{
-    CodePage, Readable, Validatable, Writable, bytes_to_string, validate_fixed_bytes, validate_ia5_string,
-    write_ia5_string,
+    CodePage, Readable, Validatable, Writable, bytes_to_string, validate_fixed_bytes, validate_ia5_string, write_ia5_string,
 };
 
 const CARD_APPROVAL_NUMBER_LENGTH: u32 = 8;

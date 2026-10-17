@@ -22,10 +22,7 @@ pub struct CardChipIdentification {
 impl Validatable for CardChipIdentification {
     fn validate(&self) -> crate::Result<()> {
         validate_fixed_bytes::<4>("CardChipIdentification.ic_serial_number", &self.ic_serial_number)?;
-        validate_fixed_bytes::<4>(
-            "CardChipIdentification.ic_manufacturing_references",
-            &self.ic_manufacturing_references,
-        )
+        validate_fixed_bytes::<4>("CardChipIdentification.ic_manufacturing_references", &self.ic_manufacturing_references)
     }
 }
 

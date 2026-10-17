@@ -123,10 +123,7 @@ pub fn encode_ia5_padded<const N: usize>(field: &str, s: &str) -> crate::Result<
         return Err(crate::Error::ValidationError(format!("{field} contains non-ASCII (invalid IA5) characters")));
     }
     if s.len() > N {
-        return Err(crate::Error::ValidationError(format!(
-            "{field} length ({} bytes) exceeds maximum of {N} bytes",
-            s.len()
-        )));
+        return Err(crate::Error::ValidationError(format!("{field} length ({} bytes) exceeds maximum of {N} bytes", s.len())));
     }
     let mut buf = [b' '; N];
     buf[..s.len()].copy_from_slice(s.as_bytes());

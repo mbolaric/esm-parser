@@ -37,9 +37,8 @@ pub fn validate_fixed_bytes<const N: usize>(field: &str, bytes: &[u8]) -> Result
 
 /// Validates that a string is a valid fixed-length BCD string of `2 * BYTES` ASCII decimal digits.
 pub fn validate_bcd<const BYTES: usize>(field: &str, s: &str) -> Result<[u8; BYTES]> {
-    BCDString::encode_strict::<BYTES>(s).map_err(|_| {
-        Error::ValidationError(format!("{field} must be {} ASCII decimal digits, got '{s}'", BYTES * 2))
-    })
+    BCDString::encode_strict::<BYTES>(s)
+        .map_err(|_| Error::ValidationError(format!("{field} must be {} ASCII decimal digits, got '{s}'", BYTES * 2)))
 }
 
 /// Blanket implementation of `Validatable` for slices of validatable elements.

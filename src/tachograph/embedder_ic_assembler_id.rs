@@ -1,8 +1,8 @@
 use serde::Serialize;
 
 use crate::{
-    BCDString, Readable, Validatable, Writable, bytes_to_ia5_fix_string, validate_bcd, validate_fixed_bytes,
-    validate_ia5_string, write_ia5_string,
+    BCDString, Readable, Validatable, Writable, bytes_to_ia5_fix_string, validate_bcd, validate_fixed_bytes, validate_ia5_string,
+    write_ia5_string,
 };
 
 const MANUFACTURER_INFORMATION_LENGTH: u32 = 2;
@@ -54,10 +54,8 @@ impl Writable for EmbedderIcAssemblerId {
             "EmbedderIcAssemblerId.country_code",
             &self.country_code,
         )?;
-        let embedder_bytes = validate_bcd::<MODULE_EMBEDDER_LENGTH>(
-            "EmbedderIcAssemblerId.module_embedder",
-            &self.module_embedder,
-        )?;
+        let embedder_bytes =
+            validate_bcd::<MODULE_EMBEDDER_LENGTH>("EmbedderIcAssemblerId.module_embedder", &self.module_embedder)?;
         writer.write_all(&embedder_bytes)?;
         writer.write_all(&self.manufacturer_information)?;
         Ok(())
