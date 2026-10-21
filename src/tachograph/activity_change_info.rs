@@ -1,8 +1,8 @@
-use binary_data::{BigEndian, BinSeek, ReadBytes, WriteBytes};
+use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::tacho::{ActivitySource, ActivityType, CardSlotNumber, CardStatus, DrivingStatus};
-use crate::{ReadableWithParams, Result, Validatable, Writable};
+use crate::{ReadableWithParams, Result};
 
 #[derive(Debug)]
 pub struct ActivityChangeInfoParams {
@@ -63,13 +63,6 @@ pub struct ActivityChangeInfo {
     pub time_in_min: u16,
 }
 
-// Bit layout of the word, 'scpaattttttttttt'B (Annex IB / Annex IC, Appendix 1, ActivityChangeInfo).
-const SLOT_BIT: u16 = 1 << 15;
-const STATUS_BIT: u16 = 1 << 14;
-const CARD_STATUS_SHIFT: u16 = 13;
-const ACTIVITY_SHIFT: u16 = 11;
-const TIME_MASK: u16 = 0x7FF;
-
 impl ActivityChangeInfo {
     /// Creates a new `ActivityChangeInfo` by decoding the word `'scpaattttttttttt'B`:
     ///     - bit 15 `s`: card slot, 0 = driver, 1 = co-driver.
@@ -79,11 +72,14 @@ impl ActivityChangeInfo {
     ///     - bits 12-11 `aa`: activity; not relevant in a card record with `p` = 1 and `c` = 0.
     ///     - bits 10-0: time of the change in minutes since 00:00.
     pub fn new(activity_card: ActivityCard, activity_info: u16) -> Self {
-        let time_in_min = activity_info & TIME_MASK;
-        let card_status = (((activity_info >> CARD_STATUS_SHIFT) & 1) as u8).into();
+        let time_in_min = activity_info & ActivityChangeInfo::TIME_MASK;
+        let card_status = (((activity_info >> ActivityChangeInfo::CARD_STATUS_SHIFT) & 1) as u8).into();
         // The variants name both meanings of bit 14; read `driving_status` together with `card_status`.
-        let driving_status =
-            if activity_info & STATUS_BIT == 0 { DrivingStatus::SingleOrUnknown } else { DrivingStatus::CrewOrKnown };
+        let driving_status = if activity_info & ActivityChangeInfo::STATUS_BIT == 0 {
+            DrivingStatus::SingleOrUnknown
+        } else {
+            DrivingStatus::CrewOrKnown
+        };
         let encoded_card_slot = ActivityChangeInfo::decode_card_slot(activity_info);
         let card_slot_valid = ActivityChangeInfo::get_slot_valid(&activity_card, &card_status);
         let card_slot = ActivityChangeInfo::get_card_slot(card_slot_valid, activity_info);
@@ -129,7 +125,7 @@ impl ActivityChangeInfo {
     }
 
     fn decode_activity_type(activity_info: u16) -> ActivityType {
-        ((activity_info >> ACTIVITY_SHIFT) & 0b11).into()
+        ((activity_info >> ActivityChangeInfo::ACTIVITY_SHIFT) & 0b11).into()
     }
 
     /// Determines the card slot number.
@@ -141,7 +137,7 @@ impl ActivityChangeInfo {
     }
 
     fn decode_card_slot(activity_info: u16) -> CardSlotNumber {
-        if activity_info & SLOT_BIT == 0 { CardSlotNumber::Driver } else { CardSlotNumber::CoDriver }
+        if activity_info & ActivityChangeInfo::SLOT_BIT == 0 { CardSlotNumber::Driver } else { CardSlotNumber::CoDriver }
     }
 
     /// Checks if the card slot information is valid.
@@ -175,25 +171,13 @@ impl ActivityChangeInfo {
     }
 }
 
-impl Validatable for ActivityChangeInfo {
-    /// Validates that the time in minutes since midnight is in `0..1440` (`0..=1439`)
-    /// and matches the bits encoded in `activity_info`.
-    fn validate(&self) -> Result<()> {
-        let encoded_minutes = self.activity_info & TIME_MASK;
-        if self.time_in_min >= 1440 || encoded_minutes >= 1440 {
-            return Err(crate::Error::ValidationError(format!(
-                "ActivityChangeInfo time_in_min ({}) out of range 0..1440",
-                self.time_in_min.max(encoded_minutes)
-            )));
-        }
-        if self.time_in_min != encoded_minutes {
-            return Err(crate::Error::ValidationError(format!(
-                "ActivityChangeInfo time_in_min ({}) does not match activity_info bits ({})",
-                self.time_in_min, encoded_minutes
-            )));
-        }
-        Ok(())
-    }
+// Bit layout of the word, 'scpaattttttttttt'B (Annex IB / Annex IC, Appendix 1, ActivityChangeInfo).
+impl ActivityChangeInfo {
+    pub(crate) const SLOT_BIT: u16 = 1 << 15;
+    pub(crate) const STATUS_BIT: u16 = 1 << 14;
+    pub(crate) const CARD_STATUS_SHIFT: u16 = 13;
+    pub(crate) const ACTIVITY_SHIFT: u16 = 11;
+    pub(crate) const TIME_MASK: u16 = 0x7FF;
 }
 
 impl ReadableWithParams for ActivityChangeInfo {
@@ -203,13 +187,6 @@ impl ReadableWithParams for ActivityChangeInfo {
         let activity_card = params.activity_card;
         let activity_info = reader.read_u16::<BigEndian>()?;
         Ok(ActivityChangeInfo::new(activity_card, activity_info))
-    }
-}
-
-impl Writable for ActivityChangeInfo {
-    fn write_raw<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> Result<()> {
-        writer.write_u16::<BigEndian>(self.activity_info)?;
-        Ok(())
     }
 }
 
@@ -309,37 +286,11 @@ mod tests {
     fn decodes_the_last_minute_of_the_day() {
         let info = decoded(ActivityCard::Card, word(0, 0, 0, REST, 1439));
         assert_eq!(info.time_in_min, 1439);
-        assert!(info.validate().is_ok());
     }
 
     #[test]
     fn preserves_an_out_of_range_minute_for_caller_validation() {
-        use binary_data::BinMemoryBuffer;
-
         let info = ActivityChangeInfo::new(ActivityCard::Card, word(0, 0, 0, REST, 1440));
         assert_eq!(info.time_in_min, 1440);
-        assert!(info.validate().is_err());
-
-        let mut writer = BinMemoryBuffer::new();
-        assert!(info.write(&mut writer).is_err());
-        assert_eq!(writer.as_slice().len(), 0);
-    }
-
-    #[test]
-    fn test_activity_change_info_roundtrip() {
-        use binary_data::BinMemoryBuffer;
-
-        let original_word = word(1, 1, 0, DRIVING, 480);
-        let info = ActivityChangeInfo::new(ActivityCard::Card, original_word);
-        let mut writer = BinMemoryBuffer::new();
-        info.write(&mut writer).unwrap();
-
-        assert_eq!(writer.as_slice(), &original_word.to_be_bytes());
-
-        let mut reader = BinMemoryBuffer::from(writer.as_slice().to_vec());
-        let params = ActivityChangeInfoParams::new(ActivityCard::Card);
-        let read_back = ActivityChangeInfo::read(&mut reader, &params).unwrap();
-        assert_eq!(read_back.activity_info, original_word);
-        assert_eq!(read_back.time_in_min, 480);
     }
 }

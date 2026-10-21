@@ -1,16 +1,16 @@
+use super::iso_8859_1::encode_iso_8859_1;
+use super::iso_8859_2::encode_iso_8859_2;
+use super::iso_8859_3::encode_iso_8859_3;
+use super::iso_8859_5::encode_iso_8859_5;
+use super::iso_8859_7::encode_iso_8859_7;
+use super::iso_8859_9::encode_iso_8859_9;
+use super::iso_8859_13::encode_iso_8859_13;
+use super::iso_8859_15::encode_iso_8859_15;
+use super::iso_8859_16::encode_iso_8859_16;
+use super::koi8_r::encode_koi8_r;
+use super::koi8_u::encode_koi8_u;
 use crate::CodePage;
-use crate::common::Error;
-use crate::string_encoding::iso_8859_1::encode_iso_8859_1;
-use crate::string_encoding::iso_8859_2::encode_iso_8859_2;
-use crate::string_encoding::iso_8859_3::encode_iso_8859_3;
-use crate::string_encoding::iso_8859_5::encode_iso_8859_5;
-use crate::string_encoding::iso_8859_7::encode_iso_8859_7;
-use crate::string_encoding::iso_8859_9::encode_iso_8859_9;
-use crate::string_encoding::iso_8859_13::encode_iso_8859_13;
-use crate::string_encoding::iso_8859_15::encode_iso_8859_15;
-use crate::string_encoding::iso_8859_16::encode_iso_8859_16;
-use crate::string_encoding::koi8_r::encode_koi8_r;
-use crate::string_encoding::koi8_u::encode_koi8_u;
+use crate::common::string_encoding::Error;
 
 /// Converts a `&str` to a `Vec<u8>` using the specified code page.
 ///

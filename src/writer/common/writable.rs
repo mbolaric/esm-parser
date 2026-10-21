@@ -2,7 +2,9 @@ use std::sync::Arc;
 
 use binary_data::{BinMemoryBuffer, BinSeek, WriteBytes};
 
-use crate::{CodePage, Result, Validatable, encode_code_page_padded, encode_ia5_padded};
+use super::string_encoding::{encode_code_page_padded, encode_ia5_padded};
+use super::validatable::Validatable;
+use crate::{CodePage, Result};
 
 /// A closure that generates a digital signature for an arbitrary byte payload.
 pub type SignatureSigner = Arc<dyn Fn(&[u8]) -> Result<Vec<u8>> + Send + Sync>;
@@ -84,12 +86,13 @@ pub fn write_ia5_string<const N: usize, W: WriteBytes + BinSeek>(writer: &mut W,
     writer.write_all(&padded)?;
     Ok(())
 }
-
 /// A trait for types that can be validated and serialized to a binary stream.
 ///
 /// Every `Writable` type must also implement [`Validatable`]. Calling [`Writable::write`],
 /// [`Writable::write_with_options`], or [`Writable::to_bytes`] automatically validates the
 /// entire value tree upfront before emitting any bytes.
+/// The zero-byte guarantee covers upfront validation failure only. Raw methods
+/// bypass validation; I/O or later serialization failures may leave partial output.
 ///
 /// Implementors define [`Writable::write_raw`] (and optionally [`Writable::write_raw_with_options`]),
 /// and should call `write_raw` on nested child structs to avoid redundant re-validation.
@@ -98,7 +101,8 @@ pub fn write_ia5_string<const N: usize, W: WriteBytes + BinSeek>(writer: &mut W,
 ///
 /// ```
 /// use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, WriteBytes};
-/// use esm_parser::{Result, Validatable, Writable};
+/// use esm_parser::Result;
+/// use esm_parser::writer::{Validatable, Writable};
 ///
 /// struct MyData {
 ///     field1: u8,

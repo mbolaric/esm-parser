@@ -31,6 +31,13 @@ cargo build
 
 ## Parse and verify a DDD file from Rust
 
+The default build provides the reader API:
+
+```toml
+[dependencies]
+esm-parser = "0.5.0"
+```
+
 Parse directly from a file:
 
 ```rust,no_run

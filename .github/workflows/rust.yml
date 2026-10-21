@@ -25,13 +25,16 @@ jobs:
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["", "--features write", "--all-features"]
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
       - name: Lint with Clippy
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all-targets ${{ matrix.features }} -- -D warnings
 
   audit:
     name: Security Audit
@@ -47,10 +50,34 @@ jobs:
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["", "--features write", "--all-features"]
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Build
-        run: cargo build --verbose
+        run: cargo check --all-targets ${{ matrix.features }}
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --all-targets ${{ matrix.features }}
+      - name: Run documentation tests
+        run: cargo test --doc ${{ matrix.features }}
+
+  wasm:
+    name: WASM reader and writer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Install wasm-pack
+        run: cargo install wasm-pack --locked
+      - name: Build standard reader package and check TypeScript contract
+        run: |
+          ./scripts/build-wasm.sh --release
+          git diff --exit-code -- types/wasm-boundary.d.ts
+      - name: Check Rust writer on WASM
+        run: |
+          cargo check --target wasm32-unknown-unknown --no-default-features --features write
+          cargo check --target wasm32-unknown-unknown --no-default-features --features "typescript,write"

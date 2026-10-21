@@ -1,6 +1,6 @@
 [package]
 name = "esm-parser"
-version = "0.4.1"
+version = "0.5.0"
 authors = ["Milan Bolaric"]
 edition = "2024"
 readme = "README.md"
@@ -46,6 +46,7 @@ required-features = ["typescript"]
 
 [features]
 default = []
+write = []
 logging = ["binary-data/logging"]
 typescript = ["dep:ts-rs"]
 wasm-console-panic-hook = []

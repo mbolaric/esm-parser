@@ -1,4 +1,5 @@
-use crate::{BCDString, CodePage, Error, Result, encode_code_page_padded, encode_ia5_padded};
+use super::string_encoding::{encode_code_page_padded, encode_ia5_padded};
+use crate::{BCDString, CodePage, Error, Result};
 
 /// A trait for types that can validate their internal consistency and specification compliance
 /// before serialization or storage.

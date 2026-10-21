@@ -1,0 +1,82 @@
+use binary_data::{BinSeek, WriteBytes};
+
+use crate::Result;
+use crate::tacho::CardNumber;
+use crate::writer::{Validatable, Writable, validate_ia5_string, write_ia5_string};
+
+impl Validatable for CardNumber {
+    fn validate(&self) -> Result<()> {
+        validate_ia5_string::<{ CardNumber::CARD_NUMBER_LENGTH as usize }>("CardNumber", &self.effective_number())
+    }
+}
+
+impl Writable for CardNumber {
+    fn write_raw<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> Result<()> {
+        write_ia5_string::<{ CardNumber::CARD_NUMBER_LENGTH as usize }, _>(writer, "CardNumber", &self.effective_number())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use binary_data::{BinMemoryBuffer, BinSeek};
+
+    use crate::ReadableWithParams;
+    use crate::tacho::*;
+    use crate::writer::{Validatable, Writable};
+
+    #[test]
+    fn test_card_number_roundtrip() {
+        let original_bytes = b"ABC1234567890123";
+        let mut reader = BinMemoryBuffer::from(original_bytes.to_vec());
+        let params = CardNumberParams::new(EquipmentType::DriverCard);
+        let card_number = CardNumber::read(&mut reader, &params).unwrap();
+
+        let mut writer = BinMemoryBuffer::new();
+        card_number.write(&mut writer).unwrap();
+        assert_eq!(writer.as_slice(), original_bytes);
+
+        // Also test short padding
+        let short_card = CardNumber {
+            equipment_type: EquipmentType::DriverCard,
+            number: "ABC1234".to_string(),
+            identification: "ABC1234".to_string(),
+            card_replacement_index: "".to_string(),
+            card_consecutive_index: "".to_string(),
+            card_renewal_index: "".to_string(),
+        };
+        let mut writer_short = BinMemoryBuffer::new();
+        short_card.write(&mut writer_short).unwrap();
+        assert_eq!(writer_short.len().unwrap(), 16);
+        assert_eq!(&writer_short.as_slice()[0..7], b"ABC1234");
+        assert_eq!(&writer_short.as_slice()[7..16], b"         ");
+    }
+
+    #[test]
+    fn test_card_number_validation_and_zero_byte_emission() {
+        let overlong = CardNumber {
+            equipment_type: EquipmentType::DriverCard,
+            number: "A".repeat(17),
+            identification: String::new(),
+            card_replacement_index: String::new(),
+            card_consecutive_index: String::new(),
+            card_renewal_index: String::new(),
+        };
+        assert!(overlong.validate().is_err());
+        let mut writer = BinMemoryBuffer::new();
+        assert!(overlong.write(&mut writer).is_err());
+        assert_eq!(writer.as_slice().len(), 0);
+
+        let non_ascii = CardNumber {
+            equipment_type: EquipmentType::DriverCard,
+            number: "ABC123456789012Ä".to_string(),
+            identification: String::new(),
+            card_replacement_index: String::new(),
+            card_consecutive_index: String::new(),
+            card_renewal_index: String::new(),
+        };
+        assert!(non_ascii.validate().is_err());
+        let mut writer2 = BinMemoryBuffer::new();
+        assert!(non_ascii.write(&mut writer2).is_err());
+        assert_eq!(writer2.as_slice().len(), 0);
+    }
+}

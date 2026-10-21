@@ -1,11 +1,9 @@
-use binary_data::{BigEndian, BinSeek, WriteBytes};
+use binary_data::BigEndian;
 use serde::Serialize;
 use time::OffsetDateTime;
 use time::macros::format_description;
 
-use crate::{Readable, Validatable, Writable};
-
-const TIME_REAL_NOT_SET: u32 = u32::MAX;
+use crate::Readable;
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,15 +16,8 @@ pub struct TimeReal {
     date_time: Option<OffsetDateTime>,
 }
 
-impl Validatable for TimeReal {
-    /// Validates that the raw timestamp is either the unset sentinel (`0xFFFFFFFF`)
-    /// or a valid Unix timestamp representable as an `OffsetDateTime`.
-    fn validate(&self) -> crate::Result<()> {
-        if self.data != TIME_REAL_NOT_SET && OffsetDateTime::from_unix_timestamp(self.data as i64).is_err() {
-            return Err(crate::Error::ValidationError(format!("Invalid TimeReal timestamp: {}", self.data)));
-        }
-        Ok(())
-    }
+impl TimeReal {
+    pub(crate) const TIME_REAL_NOT_SET: u32 = u32::MAX;
 }
 
 impl TimeReal {
@@ -35,11 +26,11 @@ impl TimeReal {
     }
 
     /// Whether the field holds a value the unit recorded, as opposed to the value it leaves behind when it has
-    /// nothing to record (`TIME_REAL_NOT_SET`). A zero timestamp counts as recorded here: a file that means "not
+    /// nothing to record (`TimeReal::TIME_REAL_NOT_SET`). A zero timestamp counts as recorded here: a file that means "not
     /// set" by zero decides that for itself.
     #[inline]
     pub fn is_set(&self) -> bool {
-        self.data != TIME_REAL_NOT_SET && self.date_time.is_some()
+        self.data != TimeReal::TIME_REAL_NOT_SET && self.date_time.is_some()
     }
 
     /// The decoded value, or `None` when the field is unfilled or the value cannot be represented.
@@ -89,14 +80,6 @@ impl Readable for TimeReal {
     }
 }
 
-impl Writable for TimeReal {
-    /// Writes a `TimeReal` to a binary stream, for creating or modifying DDD files.
-    fn write_raw<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> crate::Result<()> {
-        writer.write_u32::<BigEndian>(self.data)?;
-        Ok(())
-    }
-}
-
 impl Serialize for TimeReal {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -128,26 +111,11 @@ mod tests {
     }
 
     #[test]
-    fn test_write_time_real() {
-        let timestamp: u32 = 1672531199;
-        let time_real = TimeReal { data: timestamp, date_time: OffsetDateTime::from_unix_timestamp(timestamp as i64).ok() };
-        let mut writer = BinMemoryBuffer::new();
-        time_real.write(&mut writer).unwrap();
-        let _ = writer.seek(0);
-        assert_eq!(writer.remaining_slice(), &timestamp.to_be_bytes());
-    }
-
-    #[test]
-    fn test_read_and_write_time_real() {
+    fn test_read_time_real_raw_value() {
         let timestamp: u32 = 1672531199; // 2022-12-31 23:59:59
         let mut reader = BinMemoryBuffer::from(timestamp.to_be_bytes().to_vec());
         let time_real = TimeReal::read(&mut reader).unwrap();
         assert_eq!(time_real.get_data(), timestamp);
-
-        let mut writer = BinMemoryBuffer::new();
-        time_real.write(&mut writer).unwrap();
-        let _ = writer.seek(0);
-        assert_eq!(writer.remaining_slice(), &timestamp.to_be_bytes());
     }
 
     #[test]
@@ -187,10 +155,10 @@ mod tests {
     #[test]
     fn test_time_real_not_set_is_serialized_as_no_value() {
         // A card still inserted at download has no withdrawal time; the unit leaves the maximum value there.
-        let not_set = TimeReal::new(TIME_REAL_NOT_SET);
+        let not_set = TimeReal::new(TimeReal::TIME_REAL_NOT_SET);
 
         assert!(!not_set.is_set());
-        assert_eq!(not_set.get_data(), TIME_REAL_NOT_SET);
+        assert_eq!(not_set.get_data(), TimeReal::TIME_REAL_NOT_SET);
         assert_eq!(not_set.get_date_time_str(), "");
         assert_eq!(from_obj_to_string(&not_set), "null");
     }

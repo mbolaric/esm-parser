@@ -82,6 +82,7 @@
 //!
 //! ## Cargo Features
 //!
+//! - `write`: Enables low-level binary serialization through `esm_parser::writer` (not a complete `.DDD` writer).
 //! - `logging`: Enables diagnostic logging during binary parsing via `log` and `binary-data/logging`.
 //! - `typescript`: Enables TypeScript declaration generation via `ts-rs` and exposes [`wasm_boundary_declaration`].
 //! - `wasm-console-panic-hook`: Installs a browser console panic hook when targeting `wasm32`.
@@ -98,6 +99,9 @@ mod tachograph_gen2;
 #[cfg(feature = "typescript")]
 mod typescript;
 mod verification;
+
+#[cfg(feature = "write")]
+pub mod writer;
 
 pub use common::*;
 pub(crate) use consts::*;

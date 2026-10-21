@@ -1,6 +1,5 @@
 mod code_page;
 mod decode;
-mod encode;
 mod error;
 mod iso_8859_1;
 mod iso_8859_13;
@@ -16,7 +15,4 @@ mod koi8_u;
 
 pub use code_page::CodePage;
 pub use decode::{bytes_to_ia5_fix_string, bytes_to_string};
-pub use encode::{
-    encode_code_page_padded, encode_ia5_padded, ia5_fix_string_to_bytes, string_to_bytes, try_encode_byte, try_string_to_bytes,
-};
 pub use error::Error;
