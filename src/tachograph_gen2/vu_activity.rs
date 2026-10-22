@@ -66,12 +66,10 @@ impl VUActivity {
 
         let (vu_border_crossing_record_array, vu_load_unload_record_array) =
             if trep_id == VUTransferResponseParameterID::Gen2v2Activities {
-                let borders = DataInfo::read(reader, trep_id)?.parse_record_array::<VuBorderCrossingRecord>(
-                    RecordType::VuBorderCrossingRecord,
-                    VuBorderCrossingRecord::RECORD_SIZE,
-                )?;
+                let borders = DataInfo::read(reader, trep_id)?
+                    .parse_record_array(RecordType::VuBorderCrossingRecord, VuBorderCrossingRecord::RECORD_SIZE)?;
                 let operations = DataInfo::read(reader, trep_id)?
-                    .parse_record_array::<VuLoadUnloadRecord>(RecordType::VuLoadUnloadRecord, VuLoadUnloadRecord::RECORD_SIZE)?;
+                    .parse_record_array(RecordType::VuLoadUnloadRecord, VuLoadUnloadRecord::RECORD_SIZE)?;
                 (Some(borders), Some(operations))
             } else {
                 (None, None)

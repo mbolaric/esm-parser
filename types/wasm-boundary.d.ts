@@ -394,7 +394,15 @@ export type Gen2VUData = { header: TachographHeader, transferResParams: Array<VU
 
 export type Gen2VUEvents = { vuFaultRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuFaultRecord>, vuEventRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuEventRecord>, vuOverSpeedingControlDataRecordArray: Gen2DataInfoGenericRecordArray<VuOverSpeedingControlData>, VuOverSpeedingEventRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuOverSpeedingEventRecord>, vuTimeAdjustmentRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuTimeAdjustmentRecord>, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
-export type Gen2VUOverview = { trepId: VUTransferResponseParameterID, memberStateCertificateRecordArray: Gen2MemberStateCertificateRecordArray, memberStateCertificateRaw: Array<number>, vuCertificateRecordArray: Gen2VuCertificateRecordArray, vuCertificateRaw: Array<number>, vehicleIdentificationNumberRecordArray: Gen2VehicleIdentificationNumberRecordArray, vehicleRegistrationNumberRecordArray: Gen2VehicleRegistrationNumberRecordArray, CurrentDateTimeRecordArray: Gen2DataInfoGenericRecordArray<TimeReal>, vuDownloadablePeriodRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadablePeriod>, cardSlotsStatusRecordArray: Gen2DataInfoGenericRecordArray<CardSlotStatus>, vuDownloadActivityDataRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadActivityData>, vuCompanyLocksRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuCompanyLocksRecord>, vuControlActivityRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuControlActivityRecord>, signatureRecordArray: Gen2SignatureRecordArray, };
+export type Gen2VUOverview = { trepId: VUTransferResponseParameterID, memberStateCertificateRecordArray: Gen2MemberStateCertificateRecordArray, memberStateCertificateRaw: Array<number>, vuCertificateRecordArray: Gen2VuCertificateRecordArray, vuCertificateRaw: Array<number>, vehicleIdentificationNumberRecordArray: Gen2VehicleIdentificationNumberRecordArray,
+/**
+ * Generation 2, version 1 (TREP 21 Hex).
+ */
+vehicleRegistrationNumberRecordArray: Gen2VehicleRegistrationNumberRecordArray | null,
+/**
+ * Generation 2, version 2 (TREP 31 Hex).
+ */
+vehicleRegistrationIdentificationRecordArray: Gen2VehicleRegistrationIdentificationRecordArray | null, CurrentDateTimeRecordArray: Gen2DataInfoGenericRecordArray<TimeReal>, vuDownloadablePeriodRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadablePeriod>, cardSlotsStatusRecordArray: Gen2DataInfoGenericRecordArray<CardSlotStatus>, vuDownloadActivityDataRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuDownloadActivityData>, vuCompanyLocksRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuCompanyLocksRecord>, vuControlActivityRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuControlActivityRecord>, signatureRecordArray: Gen2SignatureRecordArray, };
 
 export type Gen2VUSpeed = { vuDetailedSpeedBlockRecordArray: Gen2DataInfoGenericRecordArray<VuDetailedSpeedBlock>, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
@@ -403,6 +411,8 @@ export type Gen2VUTechnicalData = { vuIdentificationRecordArray: Gen2DataInfoGen
 export type Gen2VUTransferResponseParameterData = { "Unknown": Gen2DataInfo } | { "Control": Gen2VUOverview } | { "Activity": Gen2VUActivity } | { "Events": Gen2VUEvents } | { "Speed": Gen2VUSpeed } | { "Calibration": Gen2VUTechnicalData } | { "CardDownload": Gen2VUCardDownload } | "OddballCrashDump";
 
 export type Gen2VehicleIdentificationNumberRecordArray = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<string>, };
+
+export type Gen2VehicleRegistrationIdentificationRecordArray = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<VehicleRegistrationIdentification>, };
 
 export type Gen2VehicleRegistrationNumberRecordArray = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<VehicleRegistrationNumber>, };
 

@@ -57,11 +57,7 @@ impl DataInfo {
         T::read(&mut reader, &config)
     }
 
-    pub(crate) fn parse_record_array<T: Readable>(
-        &self,
-        record_type: RecordType,
-        record_size: u16,
-    ) -> Result<DataInfoGenericRecordArray<T>> {
+    pub(crate) fn parse_record_array<T: DataInfoReadable>(&self, record_type: RecordType, record_size: u16) -> Result<T> {
         if self.record_type != record_type || self.record_size != record_size {
             return Err(Error::InvalidDataParse(format!(
                 "Record array layout: expected {record_type:?} with {record_size} bytes, got {:?} with {} bytes",
@@ -142,11 +138,14 @@ mod tests {
             no_of_records: 1,
             data: vec![0; 55],
         };
-        assert!(info.parse_record_array::<VuBorderCrossingRecord>(RecordType::VuBorderCrossingRecord, 55).is_ok());
+        assert!(
+            info.parse_record_array::<DataInfoGenericRecordArray<VuBorderCrossingRecord>>(RecordType::VuBorderCrossingRecord, 55)
+                .is_ok()
+        );
         for length in [0, 54, 56] {
             info.data.resize(length, 0);
             assert!(matches!(
-                info.parse_record_array::<VuBorderCrossingRecord>(RecordType::VuBorderCrossingRecord, 55),
+                info.parse_record_array::<DataInfoGenericRecordArray<VuBorderCrossingRecord>>(RecordType::VuBorderCrossingRecord, 55),
                 Err(Error::InvalidDataParse(message)) if message.contains("payload")
             ));
         }

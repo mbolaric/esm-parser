@@ -5,12 +5,12 @@ use serde::Serialize;
 use crate::Result;
 use crate::gen2::{
     DataInfo, DataInfoGenericRecordArray, MemberStateCertificateRecordArray, SignatureRecordArray,
-    VehicleIdentificationNumberRecordArray, VehicleRegistrationNumberRecordArray, VuCertificateRecordArray, VuCompanyLocksRecord,
-    VuControlActivityRecord, VuDownloadActivityData, VuDownloadablePeriod,
+    VehicleIdentificationNumberRecordArray, VehicleRegistrationIdentificationRecordArray, VehicleRegistrationNumberRecordArray,
+    VuCertificateRecordArray, VuCompanyLocksRecord, VuControlActivityRecord, VuDownloadActivityData, VuDownloadablePeriod,
 };
-use crate::tacho::{CardSlotStatus, TimeReal, VUTransferResponseParameterID};
-use crate::tachograph_gen2::vehicle_registration_identification_record_array::VehicleRegistrationIdentificationRecordArray;
+use crate::tacho::{CardSlotStatus, RecordType, TimeReal, VUTransferResponseParameterID};
 
+/// Data structure generation 2, version 1 (TREP 21 Hex)
 /// Data structure generation 2, version 2 (TREP 31 Hex)
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -28,8 +28,12 @@ pub struct VUOverview {
     pub vu_certificate_raw: Vec<u8>,
     #[serde(rename = "vehicleIdentificationNumberRecordArray")]
     pub vehicle_identification_number_record_array: VehicleIdentificationNumberRecordArray,
+    /// Generation 2, version 1 (TREP 21 Hex).
     #[serde(rename = "vehicleRegistrationNumberRecordArray")]
-    pub vehicle_registration_number_record_array: VehicleRegistrationNumberRecordArray,
+    pub vehicle_registration_number_record_array: Option<VehicleRegistrationNumberRecordArray>,
+    /// Generation 2, version 2 (TREP 31 Hex).
+    #[serde(rename = "vehicleRegistrationIdentificationRecordArray")]
+    pub vehicle_registration_identification_record_array: Option<VehicleRegistrationIdentificationRecordArray>,
     #[serde(rename = "CurrentDateTimeRecordArray")]
     pub current_date_time_record_array: DataInfoGenericRecordArray<TimeReal>,
     #[serde(rename = "vuDownloadablePeriodRecordArray")]
@@ -57,12 +61,12 @@ impl VUOverview {
         let vehicle_identification_number_record_array: VehicleIdentificationNumberRecordArray =
             DataInfo::read(reader, trep_id)?.parse()?;
 
-        let vehicle_registration_number_record_array: VehicleRegistrationNumberRecordArray =
+        let registration = DataInfo::read(reader, trep_id)?;
+        let (vehicle_registration_number_record_array, vehicle_registration_identification_record_array) =
             if trep_id == VUTransferResponseParameterID::Gen2v2Overview {
-                let records: VehicleRegistrationIdentificationRecordArray = DataInfo::read(reader, trep_id)?.parse()?;
-                VehicleRegistrationNumberRecordArray::from(records)
+                (None, Some(registration.parse_record_array(RecordType::VehicleRegistrationIdentification, 15)?))
             } else {
-                DataInfo::read(reader, trep_id)?.parse()?
+                (Some(registration.parse_record_array(RecordType::VehicleRegistrationNumber, 14)?), None)
             };
 
         let current_date_time_record_array: DataInfoGenericRecordArray<TimeReal> = DataInfo::read(reader, trep_id)?.parse()?;
@@ -86,6 +90,7 @@ impl VUOverview {
             vu_certificate_raw: vu_certificate_data_info.data,
             vehicle_identification_number_record_array,
             vehicle_registration_number_record_array,
+            vehicle_registration_identification_record_array,
             current_date_time_record_array,
             vu_downloadale_period_record_array,
             card_slot_status_record_array,
