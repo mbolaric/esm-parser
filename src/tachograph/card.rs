@@ -222,6 +222,9 @@ impl CardReader {
             }
             CardFileSection::Gen1Signature | CardFileSection::Gen2Signature => {
                 let card_file = generation_files.card_files_data.get_mut(&card_file_id).ok_or(Error::SignatureBeforeCardFile)?;
+                if card_file.signature.is_some() {
+                    return Err(Error::DuplicateCardFile);
+                }
                 if !data_file.card_file_notes.is_empty() {
                     generation_files
                         .card_notes
@@ -340,6 +343,26 @@ mod tests {
 
         assert_eq!(card_files.card_files_data_gen1.card_files_data[&CardFileID::CardDownload].signature, Some(vec![2]));
         assert_eq!(card_files.card_files_data_gen2.card_files_data[&CardFileID::CardDownload].signature, Some(vec![4]));
+    }
+
+    #[test]
+    fn duplicate_signature_preserves_the_first_signature_and_notes() {
+        for appendix in [0, 2] {
+            let mut card_files = CardFilesDataByCardGeneration::new();
+            let mut data = card_file(vec![1]);
+            data.appendix = appendix;
+            CardReader::process_card_data_file(data, &mut card_files).unwrap();
+            let mut signature = card_file(vec![0x11; 64]);
+            signature.appendix = appendix + 1;
+            CardReader::process_card_data_file(signature, &mut card_files).unwrap();
+            let mut duplicate = card_file(vec![0x22; 64]);
+            duplicate.appendix = appendix + 1;
+            duplicate.card_file_notes = "must not be appended on rejection".to_owned();
+            assert!(matches!(CardReader::process_card_data_file(duplicate, &mut card_files), Err(Error::DuplicateCardFile)));
+            let generation = if appendix == 0 { &card_files.card_files_data_gen1 } else { &card_files.card_files_data_gen2 };
+            assert_eq!(generation.card_files_data[&CardFileID::CardDownload].signature, Some(vec![0x11; 64]));
+            assert!(generation.card_notes.is_empty());
+        }
     }
 
     #[test]
