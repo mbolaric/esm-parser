@@ -2,14 +2,15 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 use serde::Serialize;
 
-use crate::Result;
 use crate::gen2::{
     DataInfo, DataInfoGenericRecordArray, SignatureRecordArray, VuActivityDailyRecordArray, VuCardIWRecord, VuGnssadRecord,
     VuPlaceDailyWorkPeriodRecordArray,
 };
 use crate::tacho::{OdometerShort, SpecificConditionRecord, TimeReal, VUTransferResponseParameterID};
+use crate::{Error, Result};
 
 /// Data structure generation 2, version 1 (TREP 22 Hex)
+/// Data structure generation 2, version 2 (TREP 32 Hex)
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 #[cfg_attr(feature = "typescript", ts(rename = "Gen2VUActivity"))]
@@ -43,8 +44,19 @@ impl VUActivity {
         let vu_activity_daily_record_array: VuActivityDailyRecordArray = DataInfo::read(reader, trep_id)?.parse()?;
         let vu_place_daily_work_period_record_array: VuPlaceDailyWorkPeriodRecordArray =
             DataInfo::read(reader, trep_id)?.parse()?;
-        let vu_gnssad_record_array: DataInfoGenericRecordArray<VuGnssadRecord> =
-            DataInfo::read(reader, trep_id)?.parse_with_params()?;
+        let gnss_data = DataInfo::read(reader, trep_id)?;
+        let expected_size = if trep_id == VUTransferResponseParameterID::Gen2v2Activities {
+            VuGnssadRecord::RECORD_SIZE_V2
+        } else {
+            VuGnssadRecord::RECORD_SIZE_V1
+        };
+        if gnss_data.record_size != expected_size {
+            return Err(Error::InvalidDataParse(format!(
+                "VU GNSS accumulated-driving record size: expected {expected_size} bytes, got {}",
+                gnss_data.record_size
+            )));
+        }
+        let vu_gnssad_record_array: DataInfoGenericRecordArray<VuGnssadRecord> = gnss_data.parse_with_params()?;
         let vu_specific_condition_record_array: DataInfoGenericRecordArray<SpecificConditionRecord> =
             DataInfo::read(reader, trep_id)?.parse()?;
 

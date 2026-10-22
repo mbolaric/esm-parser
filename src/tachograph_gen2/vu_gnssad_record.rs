@@ -1,7 +1,7 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::gen2::{FullCardNumberAndGeneration, GnssPlaceRecord};
+use crate::gen2::{FullCardNumberAndGeneration, GnssPlaceAuthRecord, GnssPlaceRecord};
 use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID};
 use crate::{Readable, ReadableWithParams, Result};
 
@@ -21,9 +21,16 @@ pub struct VuGnssadRecord {
     #[serde(rename = "cardNumberAndGenCodriverSlot")]
     pub card_number_and_gen_co_driver_slot: FullCardNumberAndGeneration,
     #[serde(rename = "gnssPlaceRecord")]
-    pub gnss_place_record: GnssPlaceRecord,
+    pub gnss_place_record: Option<GnssPlaceRecord>,
+    #[serde(rename = "gnssPlaceAuthRecord")]
+    pub gnss_place_auth_record: Option<GnssPlaceAuthRecord>,
     #[serde(rename = "vehicleOdometerValue")]
     pub vehicle_odometer_value: OdometerShort,
+}
+
+impl VuGnssadRecord {
+    pub(crate) const RECORD_SIZE_V1: u16 = 56;
+    pub(crate) const RECORD_SIZE_V2: u16 = 57;
 }
 
 impl ReadableWithParams for VuGnssadRecord {
@@ -33,13 +40,10 @@ impl ReadableWithParams for VuGnssadRecord {
         let time_stamp = TimeReal::read(reader)?;
         let card_number_and_gen_driver_slot = FullCardNumberAndGeneration::read(reader)?;
         let card_number_and_gen_co_driver_slot = FullCardNumberAndGeneration::read(reader)?;
-        let gnss_place_record = GnssPlaceRecord::read(reader)?;
-        let vehicle_odometer_value = OdometerShort::read(reader)?;
-
         let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2Activities;
-        if is_gen2_v2 {
-            let _ = reader.read_u8()?;
-        }
+        let gnss_place_record = if !is_gen2_v2 { Some(GnssPlaceRecord::read(reader)?) } else { None };
+        let gnss_place_auth_record = if is_gen2_v2 { Some(GnssPlaceAuthRecord::read(reader)?) } else { None };
+        let vehicle_odometer_value = OdometerShort::read(reader)?;
 
         Ok(Self {
             is_gen2_v2,
@@ -47,6 +51,7 @@ impl ReadableWithParams for VuGnssadRecord {
             card_number_and_gen_driver_slot,
             card_number_and_gen_co_driver_slot,
             gnss_place_record,
+            gnss_place_auth_record,
             vehicle_odometer_value,
         })
     }

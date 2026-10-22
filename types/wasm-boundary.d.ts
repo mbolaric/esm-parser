@@ -428,7 +428,7 @@ export type Gen2VuEventRecord = { eventType: EventFaultType, eventRecordPurpose:
 
 export type Gen2VuFaultRecord = { faultType: EventFaultType, faultRecordPurpose: EventFaultRecordPurpose, faultBeginTime: TimeReal, faultEndTime: TimeReal, cardNumberAndGenDriverSlotBegin: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlotBegin: Gen2FullCardNumberAndGeneration, cardNumberAndGenDriverSlotEnd: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlotEnd: Gen2FullCardNumberAndGeneration, manufacturerSpecificEventFaultData: Gen2ManufacturerSpecificEventFaultData, };
 
-export type Gen2VuGnssadRecord = { isGen2V2: boolean, timeStamp: TimeReal, cardNumberAndGenDriverSlot: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlot: Gen2FullCardNumberAndGeneration, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
+export type Gen2VuGnssadRecord = { isGen2V2: boolean, timeStamp: TimeReal, cardNumberAndGenDriverSlot: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlot: Gen2FullCardNumberAndGeneration, gnssPlaceRecord: Gen2GnssPlaceRecord | null, gnssPlaceAuthRecord: Gen2GnssPlaceAuthRecord | null, vehicleOdometerValue: OdometerShort, };
 
 export type Gen2VuIdentification = { isGen2V2: boolean, vuManufacturerName: Name, vuManufacturerAddress: Address, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, vuSoftwareIdentification: Gen2VuSoftwareIdentification, vuManufacturingDate: TimeReal, vuApprovalNumber: string, vuGeneration: number, vuAbility: number, vuDigitalMapVersion: string | null, };
 
