@@ -2,12 +2,12 @@ use binary_data::{BinSeek, ReadBytes};
 use log::debug;
 use serde::Serialize;
 
-use crate::Result;
 use crate::gen2::{
     DataInfo, DataInfoGenericRecordArray, SensorExternalGNSSCoupledRecord, SensorPairedRecord, SignatureRecordArray,
     VuCalibrationRecord, VuCardRecord, VuIdentification, VuItsConsentRecord, VuPowerSupplyInterruptionRecord,
 };
 use crate::tacho::VUTransferResponseParameterID;
+use crate::{Error, Result};
 
 /// Data structure generation 2, version 1 (TREP 25 Hex)
 /// Data structure generation 2, version 2 (TREP 35 Hex)
@@ -42,8 +42,20 @@ impl VUTechnicalData {
             DataInfo::read(reader, trep_id)?.parse()?;
         let vu_sensor_external_gnss_coupled_record_array: DataInfoGenericRecordArray<SensorExternalGNSSCoupledRecord> =
             DataInfo::read(reader, trep_id)?.parse()?;
+        let calibration_data = DataInfo::read(reader, trep_id)?;
+        let expected_size = if trep_id == VUTransferResponseParameterID::Gen2v2TechnicalData {
+            VuCalibrationRecord::RECORD_SIZE_V2
+        } else {
+            VuCalibrationRecord::RECORD_SIZE_V1
+        };
+        if calibration_data.record_size != expected_size {
+            return Err(Error::InvalidDataParse(format!(
+                "VU calibration record size: expected {expected_size} bytes, got {}",
+                calibration_data.record_size
+            )));
+        }
         let vu_calibration_record_array: DataInfoGenericRecordArray<VuCalibrationRecord> =
-            DataInfo::read(reader, trep_id)?.parse_with_params()?;
+            calibration_data.parse_with_params()?;
         let vu_card_record_array: DataInfoGenericRecordArray<VuCardRecord> = DataInfo::read(reader, trep_id)?.parse()?;
         let vu_its_consent_record_array: DataInfoGenericRecordArray<VuItsConsentRecord> =
             DataInfo::read(reader, trep_id)?.parse()?;

@@ -1,7 +1,7 @@
-use binary_data::BigEndian;
+use binary_data::{BigEndian, BinMemoryBuffer, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{BCDString, Readable};
+use crate::{BCDString, Readable, Result};
 
 /// Unique identification of an equipment. It can also be used as an
 /// equipment Public Key Identifier.
@@ -20,10 +20,19 @@ pub struct ExtendedSerialNumber {
 
 impl ExtendedSerialNumber {
     pub(crate) const MONTH_YEAR_LENGTH: usize = 2;
+
+    pub(crate) fn read_optional<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<Option<Self>> {
+        let bytes = reader.read_bytes::<8>()?;
+        // Appendix 1 uses all-FF for unknown or not-applicable equipment.
+        if bytes == [0xFF; 8] {
+            return Ok(None);
+        }
+        Self::read(&mut BinMemoryBuffer::from(bytes.as_slice())).map(Some)
+    }
 }
 
 impl Readable for ExtendedSerialNumber {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<ExtendedSerialNumber> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<ExtendedSerialNumber> {
         let serial_number = reader.read_u32::<BigEndian>()?;
         let month_year = BCDString::decode(&reader.read_bytes::<{ ExtendedSerialNumber::MONTH_YEAR_LENGTH }>()?)?;
         let serial_type = reader.read_u8()?;

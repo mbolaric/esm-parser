@@ -1,10 +1,10 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::gen2::SealDataVu;
+use crate::gen2::{LoadType, SealDataVu};
 use crate::tacho::{
-    Address, CalibrationPurpose, FullCardNumber, Name, OdometerShort, TimeReal, VUTransferResponseParameterID,
-    VehicleRegistrationIdentification,
+    Address, CalibrationPurpose, ExtendedSerialNumber, FullCardNumber, Name, NationNumeric, OdometerShort, TimeReal,
+    VUTransferResponseParameterID, VehicleRegistrationIdentification,
 };
 use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string};
 
@@ -50,17 +50,35 @@ pub struct VuCalibrationRecord {
     pub new_time_value: TimeReal,
     #[serde(rename = "nextCalibrationDate")]
     pub next_calibration_date: TimeReal,
+    #[serde(rename = "sensorSerialNumber")]
+    pub sensor_serial_number: Option<ExtendedSerialNumber>,
+    #[serde(rename = "sensorGnssSerialNumber")]
+    pub sensor_gnss_serial_number: Option<ExtendedSerialNumber>,
+    #[serde(rename = "rcmSerialNumber")]
+    pub rcm_serial_number: Option<ExtendedSerialNumber>,
     #[serde(rename = "sealDataVu")]
     pub seal_data_vu: SealDataVu,
+    #[serde(rename = "byDefaultLoadType")]
+    pub by_default_load_type: Option<LoadType>,
+    #[serde(rename = "calibrationCountry")]
+    pub calibration_country: Option<NationNumeric>,
+    #[serde(rename = "calibrationCountryTimestamp")]
+    pub calibration_country_timestamp: Option<TimeReal>,
 }
 
 const VEHICLE_IDENTIFICATION_NUMBER_LENGTH: u32 = 17;
 const TYRE_SIZE_LENGTH: u32 = 15;
 
+impl VuCalibrationRecord {
+    pub(crate) const RECORD_SIZE_V1: u16 = 222;
+    pub(crate) const RECORD_SIZE_V2: u16 = 252;
+}
+
 impl ReadableWithParams for VuCalibrationRecord {
     type P = VUTransferResponseParameterID;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<VuCalibrationRecord> {
+        let is_gen2_v2 = *params == VUTransferResponseParameterID::Gen2v2TechnicalData;
         let calibration_purpose: CalibrationPurpose = reader.read_u8()?.into();
         let workshop_name = Name::read(reader)?;
         let workshop_address = Address::read(reader)?;
@@ -79,13 +97,13 @@ impl ReadableWithParams for VuCalibrationRecord {
         let old_time_value = TimeReal::read(reader)?;
         let new_time_value = TimeReal::read(reader)?;
         let next_calibration_date = TimeReal::read(reader)?;
+        let sensor_serial_number = if is_gen2_v2 { ExtendedSerialNumber::read_optional(reader)? } else { None };
+        let sensor_gnss_serial_number = if is_gen2_v2 { ExtendedSerialNumber::read_optional(reader)? } else { None };
+        let rcm_serial_number = if is_gen2_v2 { ExtendedSerialNumber::read_optional(reader)? } else { None };
         let seal_data_vu = SealDataVu::read(reader)?;
-
-        let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2Activities;
-        if is_gen2_v2 {
-            // TODO: not implemented for now.
-            let _ = reader.read_bytes::<30>()?;
-        }
+        let by_default_load_type = if is_gen2_v2 { Some(reader.read_u8()?.into()) } else { None };
+        let calibration_country = if is_gen2_v2 { Some(reader.read_u8()?.into()) } else { None };
+        let calibration_country_timestamp = if is_gen2_v2 { Some(TimeReal::read(reader)?) } else { None };
 
         Ok(Self {
             is_gen2_v2,
@@ -106,7 +124,13 @@ impl ReadableWithParams for VuCalibrationRecord {
             old_time_value,
             new_time_value,
             next_calibration_date,
+            sensor_serial_number,
+            sensor_gnss_serial_number,
+            rcm_serial_number,
             seal_data_vu,
+            by_default_load_type,
+            calibration_country,
+            calibration_country_timestamp,
         })
     }
 }
