@@ -72,7 +72,20 @@ impl ReadableWithParams for CardNumber {
         let data = reader.read_bytes::<{ CardNumber::CARD_NUMBER_LENGTH as usize }>()?;
         let number = bytes_to_ia5_fix_string(&data)?;
         // Split physical positions before trimming padding from each component.
-        let identification_length = if equipment_type == EquipmentType::DriverCard { 14 } else { 13 };
+        let identification_length = match equipment_type {
+            EquipmentType::DriverCard => 14,
+            EquipmentType::WorkshopCard | EquipmentType::ControlCard | EquipmentType::CompanyCard => 13,
+            _ => {
+                return Ok(Self {
+                    number,
+                    equipment_type,
+                    identification: String::new(),
+                    card_replacement_index: String::new(),
+                    card_consecutive_index: String::new(),
+                    card_renewal_index: String::new(),
+                });
+            }
+        };
         let identification = bytes_to_ia5_fix_string(&data[..identification_length])?;
         let card_consecutive_index =
             if equipment_type == EquipmentType::DriverCard { String::new() } else { bytes_to_ia5_fix_string(&data[13..14])? };
