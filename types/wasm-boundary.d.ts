@@ -430,7 +430,7 @@ export type Gen2VuFaultRecord = { faultType: EventFaultType, faultRecordPurpose:
 
 export type Gen2VuGnssadRecord = { isGen2V2: boolean, timeStamp: TimeReal, cardNumberAndGenDriverSlot: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlot: Gen2FullCardNumberAndGeneration, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
 
-export type Gen2VuIdentification = { isGen2V2: boolean, vuManufacturerName: Name, vuManufacturerAddress: Address, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, vuSoftwareIdentification: Gen2VuSoftwareIdentification, vuManufacturingDate: TimeReal, vuApprovalNumber: string, vuGeneration: number, vuAbility: number, };
+export type Gen2VuIdentification = { isGen2V2: boolean, vuManufacturerName: Name, vuManufacturerAddress: Address, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, vuSoftwareIdentification: Gen2VuSoftwareIdentification, vuManufacturingDate: TimeReal, vuApprovalNumber: string, vuGeneration: number, vuAbility: number, vuDigitalMapVersion: string | null, };
 
 export type Gen2VuItsConsentRecord = { cardNumberAndGen: Gen2FullCardNumberAndGeneration, consent: boolean, };
 

@@ -3,10 +3,11 @@ use serde::Serialize;
 
 use crate::gen2::VuSoftwareIdentification;
 use crate::tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID};
-use crate::{CodePage, Readable, ReadableWithParams, Result, bytes_to_string};
+use crate::{CodePage, Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, bytes_to_string};
 
 const VU_PART_NUMBER_LENGTH: u32 = 16;
 const VU_APPROVAL_NUMBER_LENGTH: u32 = 16;
+const VU_DIGITAL_MAP_VERSION_LENGTH: usize = 12;
 
 /// Information, stored in a vehicle unit, related to the identification of the
 /// vehicle unit (Annex 1B requirement 075 and Annex 1C requirement 93 and 121).
@@ -34,6 +35,13 @@ pub struct VuIdentification {
     pub vu_generation: u8,
     #[serde(rename = "vuAbility")]
     pub vu_ability: u8,
+    #[serde(rename = "vuDigitalMapVersion")]
+    pub vu_digital_map_version: Option<String>,
+}
+
+impl VuIdentification {
+    pub(crate) const RECORD_SIZE_V1: u16 = 126;
+    pub(crate) const RECORD_SIZE_V2: u16 = 138;
 }
 
 impl ReadableWithParams for VuIdentification {
@@ -50,12 +58,13 @@ impl ReadableWithParams for VuIdentification {
         let vu_generation = reader.read_u8()?;
         let vu_ability = reader.read_u8()?;
 
-        let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2Activities;
-        if is_gen2_v2 {
-            // TODO: not implemented for now.
-            // vuDigitalMapVersion is the version of the digital map stored in the vehicle unit (only present in version 2).
-            let _ = reader.read_bytes::<12>()?;
-        }
+        let is_gen2_v2: bool = *params == VUTransferResponseParameterID::Gen2v2TechnicalData;
+        let vu_digital_map_version = if is_gen2_v2 {
+            let bytes = reader.read_bytes::<VU_DIGITAL_MAP_VERSION_LENGTH>()?;
+            if bytes == [0xFF; VU_DIGITAL_MAP_VERSION_LENGTH] { None } else { Some(bytes_to_ia5_fix_string(&bytes)?) }
+        } else {
+            None
+        };
 
         Ok(Self {
             is_gen2_v2,
@@ -68,6 +77,7 @@ impl ReadableWithParams for VuIdentification {
             vu_approval_number,
             vu_generation,
             vu_ability,
+            vu_digital_map_version,
         })
     }
 }
