@@ -14,7 +14,7 @@ impl Validatable for CardControlActivityDataRecord {
 
 impl Writable for CardControlActivityDataRecord {
     fn write_raw<W: binary_data::WriteBytes + binary_data::BinSeek>(&self, writer: &mut W) -> crate::Result<()> {
-        writer.write_u8(self.control_type as u8)?;
+        writer.write_u8(self.control_type.bits())?;
         self.control_time.write_raw(writer)?;
         self.control_card_number.write_raw(writer)?;
         self.control_vehicle_registration.write_raw(writer)?;
@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn test_card_control_activity_data_record_roundtrip() {
-        let mut data = vec![0x00]; // control_type
+        let mut data = vec![0xC0]; // Card and VU downloaded
         data.extend_from_slice(&[0x00, 0x00, 0x01, 0x00]); // control_time
         // FullCardNumber: 1 byte type, 1 byte nation, 16 bytes number
         data.extend_from_slice(&[0x03, 0x01]);
@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn test_card_control_activity_data_record_validation_and_zero_byte_emission() {
         let invalid = CardControlActivityDataRecord {
-            control_type: ControlType::CardDownloaded,
+            control_type: ControlType::CARD_DOWNLOADED,
             control_time: TimeReal::new(100),
             control_card_number: FullCardNumber {
                 card_type: EquipmentType::ControlCard,

@@ -4,6 +4,8 @@
 /// allowing for conversion from a `u8` value to an enum variant. It assumes
 /// that the enum has a variant named `Unknown` to handle cases where the
 /// `u8` value does not match any of the specified variants.
+/// Add `_ => Unknown(value),` to retain unmapped bytes in `Unknown(u8)` and
+/// generate the reverse `From<Enum> for u8` conversion too.
 ///
 /// # Usage
 ///
@@ -30,6 +32,25 @@
 #[macro_export]
 #[doc(hidden)]
 macro_rules! impl_enum_from_u8 {
+    ($enum_name:ident { $($variant:ident = $value:expr,)+ _ => $unknown:ident($raw:ident) $(,)? }) => {
+        impl From<u8> for $enum_name {
+            fn from(value: u8) -> Self {
+                match value {
+                    $( $value => Self::$variant, )+
+                    $raw => Self::$unknown($raw),
+                }
+            }
+        }
+
+        impl From<$enum_name> for u8 {
+            fn from(value: $enum_name) -> Self {
+                match value {
+                    $( $enum_name::$variant => $value, )+
+                    $enum_name::$unknown(value) => value,
+                }
+            }
+        }
+    };
     ($enum_name:ident { $($variant:ident = $value:expr),+ $(,)? }) => {
         impl From<u8> for $enum_name {
             fn from(value: u8) -> Self {

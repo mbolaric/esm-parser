@@ -55,7 +55,7 @@ export type ActivityType = "Rest" | "Availability" | "Work" | "Driving" | "Unkno
 
 export type Address = string;
 
-export type CalibrationPurpose = "Reserved" | "Activation" | "FirstInstallation" | "Installation" | "PeriodicInspection" | "VRNEntryByCompany" | "TimeAdjustmentWithoutCalibration" | "Unknown";
+export type CalibrationPurpose = "Reserved" | "Activation" | "FirstInstallation" | "Installation" | "PeriodicInspection" | "VRNEntryByCompany" | "TimeAdjustmentWithoutCalibration" | number;
 
 export type CardActivityDailyRecord = { activityPreviousRecordLength: number, activityRecordLength: number, activityRecordDate: TimeReal, activityDailyPresenceCounter: string, activityDayDistance: number, activityChangeInfo: Array<ActivityChangeInfo>, };
 
@@ -71,7 +71,11 @@ controlCardNumber: FullCardNumber,
  */
 controlVehicleRegistration: VehicleRegistrationIdentification, controlDownloadPeriodBegin: TimeReal, controlDownloadPeriodEnd: TimeReal, };
 
-export type CardCurrentUse = { sessionOpenTime: TimeReal, sessionOpenVehicle: VehicleRegistrationIdentification, };
+export type CardCurrentUse = {
+/**
+ * Zero means no current session; the raw timestamp is retained for writing.
+ */
+sessionOpenTime: TimeReal, sessionOpenVehicle: VehicleRegistrationIdentification, };
 
 export type CardDriverActivity = { activityPointerOldestDayRecord: number, activityPointerNewestRecord: number, activityDailyRecords: Array<CardActivityDailyRecord>, };
 
@@ -137,7 +141,7 @@ export type ControlCardHolderIdentification = { controlBodyName: Name, controlBo
 
 export type ControlCardIdentification = { cardIdentification: CardIdentification, companyCardHolderIdentification: ControlCardHolderIdentification, };
 
-export type ControlType = "CardDownloaded" | "VUDownloaded" | "PrintingDone" | "DisplayUsed" | "CalibrationParameters" | "Unknown";
+export type ControlType = number;
 
 export type Datef = { year: string, month: string, day: string, };
 
@@ -155,7 +159,7 @@ export type EquipmentType = "Reserved" | "DriverCard" | "WorkshopCard" | "Contro
 
 export type EventFaultRecordPurpose = "OneOf10MostRecentOrLast" | "LongestEventForOneOfLast10Days" | "OneOf5LongestEventsOverLast365Days" | "LastEventForOneOfLast10Days" | "MostSeriousEventForOneOfLast10Days" | "OneOf5MostSeriousEventsOverLast365Days" | "FirstEventorFaultAfterLastCalibration" | "ActiveEventOrFault" | "Unknown";
 
-export type EventFaultType = "NoFurtherDetails" | "InsertionOfNonValidCard" | "CardConflict" | "TimeOverlap" | "DrivingWithoutAppropriateCard" | "CardInsertionWhileDriving" | "LastCardSessionNotCorrectlyClosed" | "OverSpeeding" | "PowerSupplyInterruption" | "MotionDataError" | "VehicleMotionConflict" | "TimeConflict" | "VuNoFurtherDetails" | "VuMotionSensorAuthenticationFailure" | "VuTachographCardAuthenticationFailure" | "VuUnauthorisedChangeOfMotionSensor" | "VuCardDataInputIntegrityError" | "VuStoredUserDataIntegrityError" | "VuInternalDataTransferError" | "VuUnauthorisedCaseOpening" | "VuHardwareSabotage" | "SensorNoFurtherDetails" | "SensorAuthenticationFailure" | "SensorStoredDataIntegrityError" | "SensorInternalDataTransferError" | "SensorUnauthorisedCaseOpening" | "SensorHardwareSabotage" | "RENoFurtherDetails" | "REVUInternalFault" | "REPrinterFault" | "REDisplayFault" | "REDownloadingFault" | "RESensorFault" | "CardNoFurtherDetails" | "GNSSNofurtherDetails" | "GNSSInternalGNSSReceiverFault" | "GNSSExternalGNSSReceiverFault" | "GNSSExternalGNSSCommunicationFault" | "GNSSNoGNSSPositionData" | "GNSSTamperDetectionOfGNSS" | "GNSSExternalGNSSFacilityCertificateExpired" | "RCMNoFurtherDetails" | "RCMRemoteCommunicationModuleFault" | "RCMRemoteCommunicationModuleCommunicationFault" | "ITSNoFurtherDetails" | "Unknown";
+export type EventFaultType = "NoFurtherDetails" | "InsertionOfNonValidCard" | "CardConflict" | "TimeOverlap" | "DrivingWithoutAppropriateCard" | "CardInsertionWhileDriving" | "LastCardSessionNotCorrectlyClosed" | "OverSpeeding" | "PowerSupplyInterruption" | "MotionDataError" | "VehicleMotionConflict" | "TimeConflict" | "RCMRemoteCommunicationModuleCommunicationFault" | "GNSSNoGNSSPositionData" | "GNSSExternalGNSSCommunicationFault" | "GNSSAnomaly" | "VuNoFurtherDetails" | "VuMotionSensorAuthenticationFailure" | "VuTachographCardAuthenticationFailure" | "VuUnauthorisedChangeOfMotionSensor" | "VuCardDataInputIntegrityError" | "VuStoredUserDataIntegrityError" | "VuInternalDataTransferError" | "VuUnauthorisedCaseOpening" | "VuHardwareSabotage" | "GNSSTamperDetectionOfGNSS" | "GNSSExternalGNSSFacilityAuthenticationFailure" | "GNSSExternalGNSSFacilityCertificateExpired" | "VuMotionDataAndDriverActivityInconsistency" | "SensorNoFurtherDetails" | "SensorAuthenticationFailure" | "SensorStoredDataIntegrityError" | "SensorInternalDataTransferError" | "SensorUnauthorisedCaseOpening" | "SensorHardwareSabotage" | "RENoFurtherDetails" | "REVUInternalFault" | "REPrinterFault" | "REDisplayFault" | "REDownloadingFault" | "RESensorFault" | "GNSSInternalGNSSReceiverFault" | "GNSSExternalGNSSReceiverFault" | "RCMRemoteCommunicationModuleFault" | "REITSInterfaceFault" | "CardNoFurtherDetails" | number;
 
 export type ExtendedSerialNumber = { serialNumber: number, monthYear: string, type: number, manufacturerCode: number, };
 
