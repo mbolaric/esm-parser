@@ -220,3 +220,66 @@ fn imports_v2_files_in_driver_and_workshop_cards_with_both_generation_modes() {
         }
     }
 }
+
+#[test]
+fn imports_normative_border_crossings_in_gen2_only_and_combined_driver_cards() {
+    let first = [13, 17, 0, 0, 0, 100, 1, 0, 0xB9, 0x94, 0, 0x0D, 0x06, 0, 1, 0xE2, 0x40];
+    let last = [17, 13, 0, 0, 0, 200, 7, 0, 0x0D, 0x06, 0, 0xB9, 0x94, 1, 9, 0xFB, 0xF1];
+    let payload = ring(1119, 1120, 17, &first, &last);
+    let signature = [0x52; 64];
+    for combined in [false, true] {
+        let mut bytes = card(EquipmentType::DriverCard, combined);
+        section(&mut bytes, 0x0528, 2, &payload);
+        section(&mut bytes, 0x0528, 3, &signature);
+        let parsed = parse_from_memory(&bytes).unwrap();
+        let json = serde_json::to_value(&parsed).unwrap();
+        let gen2 = &json["cardDataResponses"]["gen2"];
+        let borders = &gen2["borderCrossings"];
+        assert_eq!(borders["borderCrossingPointerNewestRecord"], 1119);
+        let records = borders["cardBorderCrossingRecords"].as_array().unwrap();
+        assert_eq!(records.len(), 2);
+        for (record, left, entered, timestamp, status, odometer) in
+            [(&records[0], "Germany", "France", 100, 0, 123456), (&records[1], "France", "Germany", 200, 1, 654321)]
+        {
+            assert_eq!(record["countryLeft"], left);
+            assert_eq!(record["countryEntered"], entered);
+            assert_eq!(
+                record["gnssPlaceAuthRecord"]["timeStamp"],
+                serde_json::json!(esm_parser::tacho::TimeReal::new(timestamp))
+            );
+            assert_eq!(record["gnssPlaceAuthRecord"]["authenticationStatus"], status);
+            assert_eq!(record["vehicleOdometerValue"], odometer);
+            assert!(record.get("timeStamp").is_none());
+            assert!(record.get("gnssPlaceRecord").is_none());
+        }
+        assert_eq!(gen2["dataFiles"]["BorderCrossings"]["data"], serde_json::json!(payload));
+        assert_eq!(gen2["dataFiles"]["BorderCrossings"]["signature"], serde_json::json!(signature.as_slice()));
+        assert_eq!(json["cardDataResponses"].get("gen1").is_some(), combined);
+        assert!(parsed.to_xml().unwrap().contains("<gnssPlaceAuthRecord>"));
+        let envelope = serde_json::to_value(SerializedTachographData::from(parsed)).unwrap();
+        assert_eq!(envelope["data"]["cardDataResponses"]["gen2"]["borderCrossings"], *borders);
+    }
+}
+
+#[test]
+fn border_crossings_reject_malformed_efs_through_the_public_parser() {
+    let valid = ring(0, 1120, 17, &[0; 17], &[0; 17]);
+    let mut cases = Vec::new();
+    for length in [valid.len() - 1, valid.len() + 1, 2 + 1120 * 20] {
+        let mut payload = valid.clone();
+        payload.resize(length, 0);
+        cases.push(payload);
+    }
+    let mut invalid_pointer = valid.clone();
+    invalid_pointer[..2].copy_from_slice(&1120_u16.to_be_bytes());
+    cases.push(invalid_pointer);
+    for payload in cases {
+        let mut bytes = card(EquipmentType::DriverCard, false);
+        section(&mut bytes, 0x0528, 2, &payload);
+        assert!(parse_from_memory(&bytes).is_err());
+    }
+    let mut bytes = without_files(&card(EquipmentType::DriverCard, false), &[0x0525, 0x0530]);
+    section(&mut bytes, 0x0528, 2, &valid);
+    assert!(matches!(parse_from_memory(&bytes), Err(esm_parser::Error::MissingCardFile(message))
+        if message.contains("ApplicationIdentificationV2") && message.contains("BorderCrossings")));
+}

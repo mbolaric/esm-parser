@@ -272,7 +272,7 @@ export type Gen1WorkshopCardApplicationIdentification = { typeOfTachographCardId
 
 export type Gen1WorkshopCardCalibrationRecord = { calibrationPurpose: CalibrationPurpose, vehicleIdentificationNumber: string, vehicleRegistration: VehicleRegistrationIdentification, wVehicleCharacteristicConstant: number, kConstantOfRecordingEquipment: number, lTyreCircumference: number, tyreSize: string, authorisedSpeed: number, oldOdometerValue: OdometerShort, newOdometerValue: OdometerShort, oldTimeValue: TimeReal, newTimeValue: TimeReal, nextCalibrationDate: TimeReal, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, sensorSerialNumber: ExtendedSerialNumber, };
 
-export type Gen2BorderCrossingRecord = { timeStamp: TimeReal, countryLeft: NationNumeric, countryEntered: NationNumeric, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
+export type Gen2BorderCrossingRecord = { countryLeft: NationNumeric, countryEntered: NationNumeric, gnssPlaceAuthRecord: Gen2GnssPlaceAuthRecord, vehicleOdometerValue: OdometerShort, };
 
 export type Gen2BorderCrossings = { borderCrossingPointerNewestRecord: number, cardBorderCrossingRecords: Array<Gen2BorderCrossingRecord>, };
 
