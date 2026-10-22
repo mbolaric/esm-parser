@@ -42,6 +42,7 @@ export const DataParts = {
     PlacesAuthentication: "placesAuthentication",
     GnssPlacesAuthentication: "gnssPlacesAuthentication",
     BorderCrossings: "borderCrossings",
+    LoadUnloadOperations: "loadUnloadOperations",
     LoadTypeEntries: "loadTypeEntries"
 };
 
@@ -352,6 +353,7 @@ export class DisplayData {
         this.addCardMenu(gen2, "PlacesAuthentication", DataParts.PlacesAuthentication, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "GnssPlacesAuthentication", DataParts.GnssPlacesAuthentication, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "BorderCrossings", DataParts.BorderCrossings, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "LoadUnloadOperations", DataParts.LoadUnloadOperations, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "LoadTypeEntries", DataParts.LoadTypeEntries, CardGeneration.SecondGeneration);
     };
 

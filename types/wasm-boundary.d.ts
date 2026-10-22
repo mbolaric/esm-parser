@@ -352,7 +352,7 @@ export type Gen2LoadTypeEntryRecord = { timeStamp: TimeReal, loadTypeEntered: Lo
 
 export type Gen2LoadUnloadOperations = { loadUnloadPointerNewestRecord: number, cardLoadUnloadRecords: Array<Gen2LoadUnloadRecord>, };
 
-export type Gen2LoadUnloadRecord = { operationType: OperationType, timeStamp: TimeReal, country: NationNumeric, region: RegionNumeric, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
+export type Gen2LoadUnloadRecord = { timeStamp: TimeReal, operationType: OperationType, gnssPlaceAuthRecord: Gen2GnssPlaceAuthRecord, vehicleOdometerValue: OdometerShort, };
 
 export type Gen2ManufacturerSpecificEventFaultData = { manufacturerCode: number, manufacturerSpecificErrorCode: Array<number>, };
 

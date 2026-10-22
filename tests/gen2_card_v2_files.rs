@@ -283,3 +283,73 @@ fn border_crossings_reject_malformed_efs_through_the_public_parser() {
     assert!(matches!(parse_from_memory(&bytes), Err(esm_parser::Error::MissingCardFile(message))
         if message.contains("ApplicationIdentificationV2") && message.contains("BorderCrossings")));
 }
+
+#[test]
+fn imports_load_unload_operations_in_gen2_only_and_combined_driver_cards() {
+    let load = [0, 0, 0, 100, 1, 0, 0, 0, 90, 1, 0, 0xB9, 0x94, 0, 0x0D, 6, 0, 1, 0xE2, 0x40];
+    let unload = [0, 0, 0, 200, 2, 0, 0, 0, 190, 7, 0, 0x0D, 6, 0, 0xB9, 0x94, 1, 9, 0xFB, 0xF1];
+    let both = [0, 0, 1, 44, 3, 0, 0, 1, 34, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 42];
+    let mut payload = ring(1623, 1624, 20, &load, &both);
+    payload[22..42].copy_from_slice(&unload);
+    let signature = [0x53; 64];
+    for combined in [false, true] {
+        let mut bytes = card(EquipmentType::DriverCard, combined);
+        section(&mut bytes, 0x0529, 2, &payload);
+        section(&mut bytes, 0x0529, 3, &signature);
+        let parsed = parse_from_memory(&bytes).unwrap();
+        let json = serde_json::to_value(&parsed).unwrap();
+        let gen2 = &json["cardDataResponses"]["gen2"];
+        let operations = &gen2["loadUnloadOperations"];
+        assert_eq!(operations["loadUnloadPointerNewestRecord"], 1623);
+        let records = operations["cardLoadUnloadRecords"].as_array().unwrap();
+        assert_eq!(records.len(), 3);
+        for (record, operation, timestamp, status, odometer) in [
+            (&records[0], "Load", 100, 0, 123456),
+            (&records[1], "Unload", 200, 1, 654321),
+            (&records[2], "SimultaneousLoadAndUnload", 300, 1, 42),
+        ] {
+            assert_eq!(record["operationType"], operation);
+            assert_eq!(record["timeStamp"], serde_json::json!(esm_parser::tacho::TimeReal::new(timestamp)));
+            assert_eq!(
+                record["gnssPlaceAuthRecord"]["timeStamp"],
+                serde_json::json!(esm_parser::tacho::TimeReal::new(timestamp - 10))
+            );
+            assert_eq!(record["gnssPlaceAuthRecord"]["authenticationStatus"], status);
+            assert_eq!(record["vehicleOdometerValue"], odometer);
+            assert!(record.get("country").is_none());
+            assert!(record.get("region").is_none());
+            assert!(record.get("gnssPlaceRecord").is_none());
+        }
+        assert_eq!(gen2["dataFiles"]["LoadUnloadOperations"]["data"], serde_json::json!(payload));
+        assert_eq!(gen2["dataFiles"]["LoadUnloadOperations"]["signature"], serde_json::json!(signature.as_slice()));
+        assert_eq!(json["cardDataResponses"].get("gen1").is_some(), combined);
+        let xml = parsed.to_xml().unwrap();
+        assert!(xml.contains("<loadUnloadOperations>"));
+        assert!(xml.contains("<gnssPlaceAuthRecord>"));
+        let envelope = serde_json::to_value(SerializedTachographData::from(parsed)).unwrap();
+        assert_eq!(envelope["data"]["cardDataResponses"]["gen2"]["loadUnloadOperations"], *operations);
+    }
+}
+
+#[test]
+fn load_unload_operations_reject_malformed_efs_through_the_public_parser() {
+    let valid = ring(0, 1624, 20, &[0; 20], &[0; 20]);
+    let mut cases = Vec::new();
+    for length in [valid.len() - 1, valid.len() + 1, 2 + 1624 * 21] {
+        let mut payload = valid.clone();
+        payload.resize(length, 0);
+        cases.push(payload);
+    }
+    let mut invalid_pointer = valid.clone();
+    invalid_pointer[..2].copy_from_slice(&1624_u16.to_be_bytes());
+    cases.push(invalid_pointer);
+    for payload in cases {
+        let mut bytes = card(EquipmentType::DriverCard, false);
+        section(&mut bytes, 0x0529, 2, &payload);
+        assert!(parse_from_memory(&bytes).is_err());
+    }
+    let mut bytes = without_files(&card(EquipmentType::DriverCard, false), &[0x0525, 0x0530]);
+    section(&mut bytes, 0x0529, 2, &valid);
+    assert!(matches!(parse_from_memory(&bytes), Err(esm_parser::Error::MissingCardFile(message))
+        if message.contains("ApplicationIdentificationV2") && message.contains("LoadUnloadOperations")));
+}

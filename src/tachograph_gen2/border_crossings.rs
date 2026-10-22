@@ -1,9 +1,10 @@
-use binary_data::{BigEndian, BinSeek, ReadBytes};
+use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::GnssPlaceAuthRecord;
 use crate::tacho::{NationNumeric, OdometerShort};
-use crate::{Error, Readable, ReadableWithParams, Result, read_records};
+use crate::tachograph_gen2::card_records::read_card_records;
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a driver or workshop card, related to border crossings
 /// (Annex IC requirements 306e and 356e; Appendix 1, section 2.11b).
@@ -59,24 +60,13 @@ impl ReadableWithParams for BorderCrossings {
     type P = BorderCrossingsParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<BorderCrossings> {
-        let count = usize::from(params.no_of_border_crossing_records);
-        if count == 0 {
-            return Err(Error::RecordOutOfRange("Border crossing record count must be nonzero".to_owned()));
-        }
-        let expected_size = 2 + count * 17;
-        let remaining = reader.len()?.saturating_sub(reader.pos()?);
-        if remaining != expected_size {
-            return Err(Error::InvalidDataParse(format!(
-                "Border crossings EF size: expected {expected_size} bytes for {count} records, got {remaining}"
-            )));
-        }
-        let border_crossing_pointer_newest_record = reader.read_u16::<BigEndian>()?;
-        if usize::from(border_crossing_pointer_newest_record) >= count {
-            return Err(Error::RecordOutOfRange(format!(
-                "Border crossing newest-record pointer: {border_crossing_pointer_newest_record}, capacity: {count}"
-            )));
-        }
-        let records = read_records(reader, count, BorderCrossingRecord::read)?
+        let (border_crossing_pointer_newest_record, records) = read_card_records::<_, BorderCrossingRecord>(
+            reader,
+            u32::from(params.no_of_border_crossing_records),
+            17,
+            "Border crossings",
+        )?;
+        let records = records
             .into_iter()
             .filter(|record| {
                 let timestamp = &record.gnss_place_auth_record.time_stamp;

@@ -8,6 +8,7 @@ mod border_crossings;
 mod card_authentication;
 mod card_data;
 mod card_place_auth_daily_work_period;
+mod card_records;
 mod card_response_parameter_data;
 mod card_vehicle_record;
 mod card_vehicle_units_used;

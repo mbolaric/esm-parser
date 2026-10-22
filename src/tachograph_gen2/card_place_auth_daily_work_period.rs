@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::gen2::CardAuthenticationRecordsParams;
 use crate::tacho::TimeReal;
-use crate::tachograph_gen2::card_authentication::read_card_authentication_records;
+use crate::tachograph_gen2::card_records::read_card_records;
 use crate::{Readable, ReadableWithParams, Result};
 
 /// Authentication of a daily work period place, matched to PlaceRecord by entryTime (Appendix 1, 2.116b).
@@ -40,7 +40,8 @@ impl ReadableWithParams for CardPlaceAuthDailyWorkPeriod {
     type P = CardAuthenticationRecordsParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<Self> {
-        let (place_auth_pointer_newest_record, place_auth_status_records) = read_card_authentication_records(reader, params)?;
+        let (place_auth_pointer_newest_record, place_auth_status_records) =
+            read_card_records(reader, params.no_of_records, 5, "Card authentication")?;
         Ok(Self { place_auth_pointer_newest_record, place_auth_status_records })
     }
 }
