@@ -173,7 +173,11 @@ impl CardFilesDataByCardGeneration {
     }
 
     pub fn get_card_generation(&self) -> Result<CardGeneration> {
-        match (self.card_files_data_gen1.is_empty(), self.card_files_data_gen2.is_empty()) {
+        let gen2_empty = self.card_files_data_gen2.is_empty();
+        let only_common_gen1 =
+            self.card_files_data_gen1.card_files_data.keys().all(|id| matches!(id, CardFileID::IC | CardFileID::ICC));
+        let gen1_empty = self.card_files_data_gen1.is_empty() || (!gen2_empty && only_common_gen1);
+        match (gen1_empty, gen2_empty) {
             (false, false) => Ok(CardGeneration::Combined),
             (false, true) => Ok(CardGeneration::Gen1),
             (true, false) => Ok(CardGeneration::Gen2),
@@ -357,5 +361,21 @@ mod tests {
 
         gen1_only.card_files_data_gen2.card_files_data.insert(CardFileID::CardDownload, card_file(Vec::new()));
         assert_eq!(gen1_only.get_card_generation().unwrap(), CardGeneration::Combined);
+    }
+
+    #[test]
+    fn shared_ic_files_do_not_create_a_gen1_application_on_a_gen2_card() {
+        let mut files = CardFilesDataByCardGeneration::new();
+        let mut common = card_file(vec![0; 8]);
+        common.card_file_id = CardFileID::IC;
+        files.card_files_data_gen1.card_files_data.insert(CardFileID::IC, common);
+        assert_eq!(files.get_card_generation().unwrap(), CardGeneration::Gen1);
+        let mut application = card_file(vec![1, 1, 0]);
+        application.card_file_id = CardFileID::ApplicationIdentification;
+        application.appendix = 2;
+        files.card_files_data_gen2.card_files_data.insert(CardFileID::ApplicationIdentification, application);
+        assert_eq!(files.get_card_generation().unwrap(), CardGeneration::Gen2);
+        files.card_files_data_gen1.card_files_data.insert(CardFileID::CardDownload, card_file(vec![0; 4]));
+        assert_eq!(files.get_card_generation().unwrap(), CardGeneration::Combined);
     }
 }

@@ -47,7 +47,12 @@ impl CardData {
             return Err(Error::InvalidDataGeneration);
         }
 
-        let CardFilesDataByCardGeneration { card_files_data_gen1, card_files_data_gen2 } = card_data_files_by_gen;
+        let CardFilesDataByCardGeneration { card_files_data_gen1, mut card_files_data_gen2 } = card_data_files_by_gen;
+        for id in [CardFileID::IC, CardFileID::ICC] {
+            if let Some(common_file) = card_files_data_gen1.card_files_data.get(&id) {
+                card_files_data_gen2.card_files_data.entry(id).or_insert_with(|| common_file.clone());
+            }
+        }
 
         debug!(
             "CardData::parse_card - Gen1 - Data Files Count: {:?}, Note: {:?}",
@@ -59,8 +64,9 @@ impl CardData {
             card_files_data_gen2.card_files_data.len(),
             card_files_data_gen2.card_notes
         );
+        let identification_files = if generation == CardGeneration::Gen2 { &card_files_data_gen2 } else { &card_files_data_gen1 };
         let application_identification: ApplicationIdentification =
-            card_files_data_gen1.parse_required(&CardFileID::ApplicationIdentification)?;
+            identification_files.parse_required(&CardFileID::ApplicationIdentification)?;
         trace!("CardData::parse_card - Application identification: {application_identification:?}");
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => {
