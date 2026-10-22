@@ -18,7 +18,7 @@ use crate::tacho::{
     CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal,
     VehiclesUsedParams, sorted_card_files,
 };
-use crate::{Error, Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result};
 
 /// Driver card application generation 2
 #[derive(Debug, Serialize)]
@@ -84,15 +84,6 @@ pub struct DriverCard {
 }
 
 impl DriverCard {
-    fn require_application_identification_v2<'a>(
-        application_identification_v2: Option<&'a DriverCardApplicationIdentificationV2>,
-        required_by: &CardFileID,
-    ) -> Result<&'a DriverCardApplicationIdentificationV2> {
-        application_identification_v2.ok_or_else(|| {
-            Error::MissingCardFile(format!("{} (required to parse {required_by})", CardFileID::ApplicationIdentificationV2))
-        })
-    }
-
     fn new(
         card_chip_identification: CardChipIdentification,
         card_icc_identification: CardIccIdentification,
@@ -247,19 +238,19 @@ impl CardParser for DriverCard {
                 }
                 CardFileID::BorderCrossings => {
                     let application_identification_v2 =
-                        Self::require_application_identification_v2(application_identification_v2.as_ref(), card_item.0)?;
+                        DriverCardApplicationIdentificationV2::require(application_identification_v2.as_ref(), card_item.0)?;
                     let params = BorderCrossingsParams::new(application_identification_v2.no_of_border_crossing_records);
                     driver_card.border_crossings = Some(BorderCrossings::read(&mut reader, &params)?);
                 }
                 CardFileID::LoadUnloadOperations => {
                     let application_identification_v2 =
-                        Self::require_application_identification_v2(application_identification_v2.as_ref(), card_item.0)?;
+                        DriverCardApplicationIdentificationV2::require(application_identification_v2.as_ref(), card_item.0)?;
                     let params = LoadUnloadOperationsParams::new(application_identification_v2.no_of_load_unload_records);
                     driver_card.load_unload_operations = Some(LoadUnloadOperations::read(&mut reader, &params)?);
                 }
                 CardFileID::LoadTypeEntries => {
                     let application_identification_v2 =
-                        Self::require_application_identification_v2(application_identification_v2.as_ref(), card_item.0)?;
+                        DriverCardApplicationIdentificationV2::require(application_identification_v2.as_ref(), card_item.0)?;
                     let params = LoadTypeEntriesParams::new(application_identification_v2.no_of_load_type_entry_records);
                     driver_card.load_type_entries = Some(LoadTypeEntries::read(&mut reader, &params)?);
                 }
@@ -293,21 +284,5 @@ impl CardParser for DriverCard {
 impl DataFiles for DriverCard {
     fn get_data_files(&self) -> &crate::tacho::CardFilesMap {
         &self.data_files
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn v2_only_file_requires_v2_application_identification() {
-        let error = DriverCard::require_application_identification_v2(None, &CardFileID::BorderCrossings).unwrap_err();
-
-        assert!(matches!(
-            error,
-            Error::MissingCardFile(message)
-                if message.contains("ApplicationIdentificationV2") && message.contains("BorderCrossings")
-        ));
     }
 }

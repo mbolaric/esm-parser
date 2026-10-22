@@ -87,6 +87,9 @@ mod vu_transfer_response_parameter_data;
 pub(crate) mod vu_verification;
 mod workshop_card;
 mod workshop_card_application_identification;
+mod workshop_card_application_identification_v2;
+mod workshop_card_calibration_add_data;
+mod workshop_card_calibration_add_data_record;
 mod workshop_card_calibration_record;
 
 pub use border_crossings::{BorderCrossingRecord, BorderCrossings, BorderCrossingsParams};
@@ -175,4 +178,7 @@ pub use vu_time_adjustment_record::VuTimeAdjustmentRecord;
 pub use vu_transfer_response_parameter_data::*;
 pub use workshop_card::WorkshopCard;
 pub use workshop_card_application_identification::WorkshopCardApplicationIdentification;
+pub use workshop_card_application_identification_v2::WorkshopCardApplicationIdentificationV2;
+pub use workshop_card_calibration_add_data::{WorkshopCardCalibrationAddData, WorkshopCardCalibrationAddDataParams};
+pub use workshop_card_calibration_add_data_record::WorkshopCardCalibrationAddDataRecord;
 pub use workshop_card_calibration_record::WorkshopCardCalibrationRecord;

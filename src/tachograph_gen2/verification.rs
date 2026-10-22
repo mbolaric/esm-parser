@@ -693,7 +693,16 @@ mod tests {
         let signed_data = b"Gen2 signed card data".to_vec();
         let signature = sign(&card_key, &signed_data);
         data_files.insert(CardFileID::EventsData, data_file(CardFileID::EventsData, signed_data, Some(signature)));
-        let v2_files = [CardFileID::PlacesAuthentication, CardFileID::GnssPlacesAuthentication, CardFileID::LoadTypeEntries];
+        let v2_files = [
+            CardFileID::PlacesAuthentication,
+            CardFileID::GnssPlacesAuthentication,
+            CardFileID::LoadTypeEntries,
+            CardFileID::ApplicationIdentificationV2,
+            CardFileID::ControlActivityData,
+            CardFileID::BorderCrossings,
+            CardFileID::LoadUnloadOperations,
+            CardFileID::CalibrationAddData,
+        ];
         for id in v2_files {
             let data = vec![0, 0, 0, 0, 0, 42, 1];
             let signature = sign(&card_key, &data);
@@ -704,7 +713,7 @@ mod tests {
 
         let verified = verify(&data_files, &root).unwrap();
         assert!(matches!(verified.status, VerifyResultStatus::Valid));
-        assert_eq!(verified.result.len(), 6);
+        assert_eq!(verified.result.len(), v2_files.len() + 3);
         assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
         assert!(verified.result.iter().all(|item| !matches!(item.card_file_id, CardFileID::IC | CardFileID::ICC)));
         assert!(verified.result.iter().all(|item| item.card_file_id != CardFileID::CardDownload));

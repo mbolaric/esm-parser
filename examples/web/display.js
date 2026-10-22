@@ -31,6 +31,7 @@ export const DataParts = {
     SpecificConditions: "specificConditions",
     ControlActivityData: "controlActivityData",
     Calibration: "calibration",
+    CalibrationAddData: "calibrationAddData",
     CardCertificate: "cardCertificate",
     CACertificate: "caCertificate",
     CardDownload: "cardDownload",
@@ -346,6 +347,7 @@ export class DisplayData {
         this.addCardMenu(gen2, "SpecificConditions", DataParts.SpecificConditions, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "ControlActivityData", DataParts.ControlActivityData, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "Calibration", DataParts.Calibration, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "CalibrationAddData", DataParts.CalibrationAddData, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CardCertificate", DataParts.CardCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CardSignCertificate", DataParts.CardSignCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CACertificate", DataParts.CACertificate, CardGeneration.SecondGeneration);
