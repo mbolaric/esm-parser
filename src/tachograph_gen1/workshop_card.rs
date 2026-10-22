@@ -153,7 +153,7 @@ impl CardParser for WorkshopCard {
                     workshop_card.control_activity_data = Some(CardControlActivityDataRecord::read(&mut reader)?);
                 }
                 CardFileID::SpecificConditions => {
-                    let params = SpecificConditionsParams::new(56);
+                    let params = SpecificConditionsParams::new(2);
                     workshop_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
                 }
                 CardFileID::Identification => {
