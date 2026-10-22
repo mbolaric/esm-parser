@@ -386,7 +386,7 @@ export type Gen2SpecificConditions = { conditionPointerNewestRecord: number, spe
 
 export type Gen2UnsupportedResponse = "Unsupported";
 
-export type Gen2VUActivity = { dateOfDayDownloadedRecordArray: Gen2DataInfoGenericRecordArray<TimeReal>, odometerValueMidnightRecordArray: Gen2DataInfoGenericRecordArray<OdometerShort>, vuCardIWRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuCardIWRecord>, vuActivityDailyRecordArray: Gen2VuActivityDailyRecordArray, vuPlaceDailyWorkPeriodRecordArray: Gen2VuPlaceDailyWorkPeriodRecordArray, vuGnssadRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuGnssadRecord>, vuSpecificConditionRecordArray: Gen2DataInfoGenericRecordArray<SpecificConditionRecord>, signatureRecordArray: Gen2SignatureRecordArray | null, };
+export type Gen2VUActivity = { dateOfDayDownloadedRecordArray: Gen2DataInfoGenericRecordArray<TimeReal>, odometerValueMidnightRecordArray: Gen2DataInfoGenericRecordArray<OdometerShort>, vuCardIWRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuCardIWRecord>, vuActivityDailyRecordArray: Gen2VuActivityDailyRecordArray, vuPlaceDailyWorkPeriodRecordArray: Gen2VuPlaceDailyWorkPeriodRecordArray, vuGnssadRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuGnssadRecord>, vuSpecificConditionRecordArray: Gen2DataInfoGenericRecordArray<SpecificConditionRecord>, vuBorderCrossingRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuBorderCrossingRecord> | null, vuLoadUnloadRecordArray: Gen2DataInfoGenericRecordArray<Gen2VuLoadUnloadRecord> | null, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
 export type Gen2VUCardDownload = { card: Gen2CardData, signatureRecordArray: Gen2SignatureRecordArray | null, };
 
@@ -407,6 +407,8 @@ export type Gen2VehicleIdentificationNumberRecordArray = { noOfRecords: number, 
 export type Gen2VehicleRegistrationNumberRecordArray = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<VehicleRegistrationNumber>, };
 
 export type Gen2VuActivityDailyRecordArray = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<ActivityChangeInfo>, };
+
+export type Gen2VuBorderCrossingRecord = { cardNumberAndGenDriverSlot: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlot: Gen2FullCardNumberAndGeneration, countryLeft: NationNumeric, countryEntered: NationNumeric, gnssPlaceAuthRecord: Gen2GnssPlaceAuthRecord, vehicleOdometerValue: OdometerShort, };
 
 export type Gen2VuCalibrationRecord = { isGen2V2: boolean, calibrationPurpose: CalibrationPurpose, workshopName: Name, workshopAddress: Address, workshopCardNumber: FullCardNumber, workshopCardExpiryDate: TimeReal, vehicleIdentificationNumber: string, vehicleRegistrationIdentification: VehicleRegistrationIdentification, wVehicleCharacteristicConstant: number, kConstantOfRecordingEquipment: number, lTyreCircumference: number, tyreSize: string, authorisedSpeed: number, oldOdometerValue: OdometerShort, newOdometerValue: OdometerShort, oldTimeValue: TimeReal, newTimeValue: TimeReal, nextCalibrationDate: TimeReal, sensorSerialNumber: ExtendedSerialNumber | null, sensorGnssSerialNumber: ExtendedSerialNumber | null, rcmSerialNumber: ExtendedSerialNumber | null, sealDataVu: Gen2SealDataVu, byDefaultLoadType: LoadType | null, calibrationCountry: NationNumeric | null, calibrationCountryTimestamp: TimeReal | null, };
 
@@ -433,6 +435,8 @@ export type Gen2VuGnssadRecord = { isGen2V2: boolean, timeStamp: TimeReal, cardN
 export type Gen2VuIdentification = { isGen2V2: boolean, vuManufacturerName: Name, vuManufacturerAddress: Address, vuPartNumber: string, vuSerialNumber: ExtendedSerialNumber, vuSoftwareIdentification: Gen2VuSoftwareIdentification, vuManufacturingDate: TimeReal, vuApprovalNumber: string, vuGeneration: number, vuAbility: number, vuDigitalMapVersion: string | null, };
 
 export type Gen2VuItsConsentRecord = { cardNumberAndGen: Gen2FullCardNumberAndGeneration, consent: boolean, };
+
+export type Gen2VuLoadUnloadRecord = { timeStamp: TimeReal, operationType: OperationType, cardNumberAndGenDriverSlot: Gen2FullCardNumberAndGeneration, cardNumberAndGenCodriverSlot: Gen2FullCardNumberAndGeneration, gnssPlaceAuthRecord: Gen2GnssPlaceAuthRecord, vehicleOdometerValue: OdometerShort, };
 
 export type Gen2VuOverSpeedingEventRecord = { cardNumberAndGen: EventFaultType, eventRecordPurpose: EventFaultRecordPurpose, eventBeginTime: TimeReal, eventEndTime: TimeReal, maxSpeedValue: number, averageSpeedValue: number, cardNumberAndGenDriverSlotBegin: Gen2FullCardNumberAndGeneration, similarEventsNumber: number, };
 

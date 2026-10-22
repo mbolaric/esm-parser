@@ -3,10 +3,10 @@ use log::debug;
 use serde::Serialize;
 
 use crate::gen2::{
-    DataInfo, DataInfoGenericRecordArray, SignatureRecordArray, VuActivityDailyRecordArray, VuCardIWRecord, VuGnssadRecord,
-    VuPlaceDailyWorkPeriodRecordArray,
+    DataInfo, DataInfoGenericRecordArray, SignatureRecordArray, VuActivityDailyRecordArray, VuBorderCrossingRecord,
+    VuCardIWRecord, VuGnssadRecord, VuLoadUnloadRecord, VuPlaceDailyWorkPeriodRecordArray,
 };
-use crate::tacho::{OdometerShort, SpecificConditionRecord, TimeReal, VUTransferResponseParameterID};
+use crate::tacho::{OdometerShort, RecordType, SpecificConditionRecord, TimeReal, VUTransferResponseParameterID};
 use crate::{Error, Result};
 
 /// Data structure generation 2, version 1 (TREP 22 Hex)
@@ -29,6 +29,10 @@ pub struct VUActivity {
     pub vu_gnssad_record_array: DataInfoGenericRecordArray<VuGnssadRecord>,
     #[serde(rename = "vuSpecificConditionRecordArray")]
     pub vu_specific_condition_record_array: DataInfoGenericRecordArray<SpecificConditionRecord>,
+    #[serde(rename = "vuBorderCrossingRecordArray")]
+    pub vu_border_crossing_record_array: Option<DataInfoGenericRecordArray<VuBorderCrossingRecord>>,
+    #[serde(rename = "vuLoadUnloadRecordArray")]
+    pub vu_load_unload_record_array: Option<DataInfoGenericRecordArray<VuLoadUnloadRecord>>,
     #[serde(rename = "signatureRecordArray")]
     pub signature_record_array: Option<SignatureRecordArray>,
 }
@@ -60,11 +64,18 @@ impl VUActivity {
         let vu_specific_condition_record_array: DataInfoGenericRecordArray<SpecificConditionRecord> =
             DataInfo::read(reader, trep_id)?.parse()?;
 
-        if trep_id == VUTransferResponseParameterID::Gen2v2Activities {
-            // Two record are not in use
-            DataInfo::read(reader, trep_id)?;
-            DataInfo::read(reader, trep_id)?;
-        }
+        let (vu_border_crossing_record_array, vu_load_unload_record_array) =
+            if trep_id == VUTransferResponseParameterID::Gen2v2Activities {
+                let borders = DataInfo::read(reader, trep_id)?.parse_record_array::<VuBorderCrossingRecord>(
+                    RecordType::VuBorderCrossingRecord,
+                    VuBorderCrossingRecord::RECORD_SIZE,
+                )?;
+                let operations = DataInfo::read(reader, trep_id)?
+                    .parse_record_array::<VuLoadUnloadRecord>(RecordType::VuLoadUnloadRecord, VuLoadUnloadRecord::RECORD_SIZE)?;
+                (Some(borders), Some(operations))
+            } else {
+                (None, None)
+            };
         let signature_record_array: Option<SignatureRecordArray> = Some(DataInfo::read(reader, trep_id)?.parse()?);
 
         Ok(Self {
@@ -75,6 +86,8 @@ impl VUActivity {
             vu_place_daily_work_period_record_array,
             vu_gnssad_record_array,
             vu_specific_condition_record_array,
+            vu_border_crossing_record_array,
+            vu_load_unload_record_array,
             signature_record_array,
         })
     }
