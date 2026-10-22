@@ -693,15 +693,28 @@ mod tests {
         let signed_data = b"Gen2 signed card data".to_vec();
         let signature = sign(&card_key, &signed_data);
         data_files.insert(CardFileID::EventsData, data_file(CardFileID::EventsData, signed_data, Some(signature)));
+        let v2_files = [CardFileID::PlacesAuthentication, CardFileID::GnssPlacesAuthentication, CardFileID::LoadTypeEntries];
+        for id in v2_files {
+            let data = vec![0, 0, 0, 0, 0, 42, 1];
+            let signature = sign(&card_key, &data);
+            data_files.insert(id, data_file(id, data, Some(signature)));
+        }
         data_files.insert(CardFileID::CACertificate, data_file(CardFileID::CACertificate, msca.to_vec(), None));
         data_files.insert(CardFileID::CardSignCertificate, data_file(CardFileID::CardSignCertificate, card_sign.to_vec(), None));
 
         let verified = verify(&data_files, &root).unwrap();
         assert!(matches!(verified.status, VerifyResultStatus::Valid));
-        assert_eq!(verified.result.len(), 3);
+        assert_eq!(verified.result.len(), 6);
         assert!(verified.result.iter().all(|item| matches!(item.status, VerifyStatus::Valid)));
         assert!(verified.result.iter().all(|item| !matches!(item.card_file_id, CardFileID::IC | CardFileID::ICC)));
         assert!(verified.result.iter().all(|item| item.card_file_id != CardFileID::CardDownload));
+        for id in v2_files {
+            assert!(verified.result.iter().any(|item| item.card_file_id == id && matches!(item.status, VerifyStatus::Valid)));
+            let mut tampered_files = data_files.clone();
+            tampered_files.get_mut(&id).unwrap().data.as_mut().unwrap()[6] ^= 0x01;
+            let tampered = verify(&tampered_files, &root).unwrap();
+            assert!(tampered.result.iter().any(|item| item.card_file_id == id && matches!(item.status, VerifyStatus::Invalid)));
+        }
 
         data_files.get_mut(&CardFileID::EventsData).unwrap().data.as_mut().unwrap()[0] ^= 0x01;
         let tampered = verify(&data_files, &root).unwrap();

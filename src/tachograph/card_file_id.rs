@@ -55,12 +55,16 @@ pub enum CardFileID {
     VehicleUnitsUsed = 0x523,
     /// GNSS places.
     GnssPlaces = 0x524,
+    /// Authentication status of daily work period places.
+    PlacesAuthentication = 0x526,
+    /// Authentication status of accumulated driving GNSS positions.
+    GnssPlacesAuthentication = 0x527,
     /// Border crossings.
     BorderCrossings = 0x528,
     /// Load/unload operations.
     LoadUnloadOperations = 0x529,
     /// Load type entries.
-    LoadTypeEntries = 0x52A,
+    LoadTypeEntries = 0x530,
     /// Calibration additional data.
     CalibrationAddData = 0x531,
     /// VU configuration.
@@ -103,6 +107,8 @@ impl fmt::Display for CardFileID {
             CardFileID::SpecificConditions => "SpecificConditions",
             CardFileID::VehicleUnitsUsed => "VehicleUnitsUsed",
             CardFileID::GnssPlaces => "GnssPlaces",
+            CardFileID::PlacesAuthentication => "PlacesAuthentication",
+            CardFileID::GnssPlacesAuthentication => "GnssPlacesAuthentication",
             CardFileID::BorderCrossings => "BorderCrossings",
             CardFileID::LoadUnloadOperations => "LoadUnloadOperations",
             CardFileID::LoadTypeEntries => "LoadTypeEntries",
@@ -143,9 +149,11 @@ impl_enum_from_u16!(
         SpecificConditions = 0x522,
         VehicleUnitsUsed = 0x523,
         GnssPlaces = 0x524,
+        PlacesAuthentication = 0x526,
+        GnssPlacesAuthentication = 0x527,
         BorderCrossings = 0x528,
         LoadUnloadOperations = 0x529,
-        LoadTypeEntries = 0x52A,
+        LoadTypeEntries = 0x530,
         CalibrationAddData = 0x531,
         VUConfiguration = 0x540,
         CardCertificate = 0xC100,

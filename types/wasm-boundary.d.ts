@@ -91,7 +91,7 @@ export type CardFaultRecord = { faultType: EventFaultType, faultBeginTime: TimeR
 
 export type CardFileData = { cardFileId: CardFileID, appendix: number, cardFileNotes: string, size: number, signature: Array<number> | null, data: Array<number> | null, };
 
-export type CardFileID = "Unknown" | "ICC" | "IC" | "Tachograph" | "ApplicationIdentification" | "ApplicationIdentificationV2" | "EventsData" | "FaultsData" | "DriverActivityData" | "VehiclesUsed" | "Places" | "CurrentUsage" | "ControlActivityData" | "Calibration" | "SensorInstallationData" | "ControllerActivityData" | "CompanyActivityData" | "CardDownload" | "Identification" | "DrivingLicenseInfo" | "SpecificConditions" | "VehicleUnitsUsed" | "GnssPlaces" | "BorderCrossings" | "LoadUnloadOperations" | "LoadTypeEntries" | "CalibrationAddData" | "VUConfiguration" | "CardCertificate" | "CardSignCertificate" | "CACertificate" | "LinkCertificate" | "MF";
+export type CardFileID = "Unknown" | "ICC" | "IC" | "Tachograph" | "ApplicationIdentification" | "ApplicationIdentificationV2" | "EventsData" | "FaultsData" | "DriverActivityData" | "VehiclesUsed" | "Places" | "CurrentUsage" | "ControlActivityData" | "Calibration" | "SensorInstallationData" | "ControllerActivityData" | "CompanyActivityData" | "CardDownload" | "Identification" | "DrivingLicenseInfo" | "SpecificConditions" | "VehicleUnitsUsed" | "GnssPlaces" | "PlacesAuthentication" | "GnssPlacesAuthentication" | "BorderCrossings" | "LoadUnloadOperations" | "LoadTypeEntries" | "CalibrationAddData" | "VUConfiguration" | "CardCertificate" | "CardSignCertificate" | "CACertificate" | "LinkCertificate" | "MF";
 
 export type CardIccIdentification = { clockStop: number, cardExtendedSerialNumber: ExtendedSerialNumber, cardApprovalNumber: string, cardPersonaliserID: number, embedderIcAssemblerId: EmbedderIcAssemblerId, icIdentifier: Array<number>, };
 
@@ -278,6 +278,8 @@ export type Gen2BorderCrossings = { borderCrossingPointerNewestRecord: number, c
 
 export type Gen2CardData = { header: TachographHeader, cardDataResponses: Gen2CardResponseParameterData, };
 
+export type Gen2CardPlaceAuthDailyWorkPeriod = { placeAuthPointerNewestRecord: number, placeAuthStatusRecords: Array<Gen2PlaceAuthStatusRecord>, };
+
 export type Gen2CardResponseParameterData = Gen2UnsupportedResponse | Gen2ParsedCard<Gen1DriverCard, Gen2DriverCard> | Gen2ParsedCard<Gen1CompanyCard, Gen2CompanyCard> | Gen2ParsedCard<Gen1WorkshopCard, Gen2WorkshopCard> | Gen2ParsedCard<Gen1ControlCard, Gen2ControlCard>;
 
 export type Gen2CardVehicleRecord = { vehicleOdometerBegin: OdometerShort, vehicleOdometerEnd: OdometerShort, vehicleFirstUse: TimeReal, vehicleLastUse: TimeReal, vehicleRegistration: VehicleRegistrationIdentification, vuDataBlockCounter: string, vehicleIdentificationNumber: string, };
@@ -310,7 +312,7 @@ export type Gen2DataInfo = { trepId: VUTransferResponseParameterID, recordType: 
 
 export type Gen2DataInfoGenericRecordArray<T> = { noOfRecords: number, recordSize: number, recordType: RecordType, records: Array<T>, };
 
-export type Gen2DriverCard = { cardGeneration: ParsedCardGeneration, cardChipIdentification: CardChipIdentification, cardIccIdentification: CardIccIdentification, applicationIdentification: Gen2DriverCardApplicationIdentification, applicationIdentificationV2: Gen2DriverCardApplicationIdentificationV2 | null, cardDownload: TimeReal | null, eventsData: CardEventData | null, faultsData: CardFaultData | null, driverActivityData: CardDriverActivity | null, vehiclesUsed: CardVehiclesUsed<Gen2CardVehicleRecord> | null, places: CardPlaceDailyWorkPeriod<Gen2PlaceRecord> | null, currentUsage: CardCurrentUse | null, controlActivityData: CardControlActivityDataRecord | null, identification: Identification | null, drivingLicenceInformation: CardDrivingLicenceInformation | null, specificConditions: Gen2SpecificConditions | null, vehicleUnitsUsed: Gen2CardVehicleUnitsUsed | null, gnssPlaces: Gen2GnssAccumulatedDriving | null, borderCrossings: Gen2BorderCrossings | null, loadUnloadOperations: Gen2LoadUnloadOperations | null, loadTypeEntries: Gen2LoadTypeEntries | null, cardCertificate: Gen2Certificate | null, caCertificate: Gen2Certificate | null, cardSignCertificate: Gen2Certificate | null, linkCertificate: Gen2Certificate | null, cardNotes: string, dataFiles: { [key in CardFileID]?: CardFileData }, };
+export type Gen2DriverCard = { cardGeneration: ParsedCardGeneration, cardChipIdentification: CardChipIdentification, cardIccIdentification: CardIccIdentification, applicationIdentification: Gen2DriverCardApplicationIdentification, applicationIdentificationV2: Gen2DriverCardApplicationIdentificationV2 | null, cardDownload: TimeReal | null, eventsData: CardEventData | null, faultsData: CardFaultData | null, driverActivityData: CardDriverActivity | null, vehiclesUsed: CardVehiclesUsed<Gen2CardVehicleRecord> | null, places: CardPlaceDailyWorkPeriod<Gen2PlaceRecord> | null, currentUsage: CardCurrentUse | null, controlActivityData: CardControlActivityDataRecord | null, identification: Identification | null, drivingLicenceInformation: CardDrivingLicenceInformation | null, specificConditions: Gen2SpecificConditions | null, vehicleUnitsUsed: Gen2CardVehicleUnitsUsed | null, gnssPlaces: Gen2GnssAccumulatedDriving | null, placesAuthentication: Gen2CardPlaceAuthDailyWorkPeriod | null, gnssPlacesAuthentication: Gen2GnssAuthAccumulatedDriving | null, borderCrossings: Gen2BorderCrossings | null, loadUnloadOperations: Gen2LoadUnloadOperations | null, loadTypeEntries: Gen2LoadTypeEntries | null, cardCertificate: Gen2Certificate | null, caCertificate: Gen2Certificate | null, cardSignCertificate: Gen2Certificate | null, linkCertificate: Gen2Certificate | null, cardNotes: string, dataFiles: { [key in CardFileID]?: CardFileData }, };
 
 export type Gen2DriverCardApplicationIdentification = { typeOfTachographCardId: EquipmentType, cardStructureVersion: CardStructureVersion, noOfEventsPerType: number, noOfFaultsPerType: number, activityStructureLength: number, noOfCardVehicleRecords: number, noOfCardPlaceRecords: number, noOfGnssadRecords: number, noOfSpecificConditionRecords: number, noOfCardVehicleUnitRecords: number, };
 
@@ -336,6 +338,10 @@ export type Gen2GnssAccumulatedDriving = { gnssADPointerNewestRecord: number, gn
 
 export type Gen2GnssAccumulatedDrivingRecord = { timeStamp: TimeReal, gnssPlaceRecord: Gen2GnssPlaceRecord, vehicleOdometerValue: OdometerShort, };
 
+export type Gen2GnssAuthAccumulatedDriving = { gnssAuthADPointerNewestRecord: number, gnssAuthStatusADRecords: Array<Gen2GnssAuthStatusADRecord>, };
+
+export type Gen2GnssAuthStatusADRecord = { timeStamp: TimeReal, authenticationStatus: number, };
+
 export type Gen2GnssPlaceAuthRecord = { timeStamp: TimeReal, gnssAccuracy: number, geoCoordinates: Gen2GeoCoordinate, authenticationStatus: number, };
 
 export type Gen2GnssPlaceRecord = { timeStamp: TimeReal, gnssAccuracy: number, geoCoordinates: Gen2GeoCoordinate, };
@@ -357,6 +363,8 @@ export type Gen2NoParsedCard = null;
 export type Gen2ParsedCard<TGen1, TGen2> = { gen1: TGen1, } | { gen2: TGen2, } | { gen1: TGen1, gen2: TGen2, } | Gen2NoParsedCard;
 
 export type Gen2PlaceAuthRecord = { entryTime: TimeReal, entryTypeDailyWorkPeriod: EntryTypeDailyWorkPeriod, dailyWorkPeriodCountry: NationNumeric, dailyWorkPeriodRegion: RegionNumeric, vehicleOdometerValue: OdometerShort, entryGnssPlaceAuthRecord: Gen2GnssPlaceAuthRecord, };
+
+export type Gen2PlaceAuthStatusRecord = { entryTime: TimeReal, authenticationStatus: number, };
 
 export type Gen2PlaceRecord = { entryTime: TimeReal, entryTypeDailyWorkPeriod: EntryTypeDailyWorkPeriod, dailyWorkPeriodCountry: NationNumeric, dailyWorkPeriodRegion: RegionNumeric, vehicleOdometerValue: OdometerShort, entryGnssPlaceRecord: Gen2GnssPlaceRecord, };
 
@@ -438,7 +446,7 @@ export type Gen2VuSoftwareIdentification = { vuSoftwareVersion: string, vuSoftIn
 
 export type Gen2VuTimeAdjustmentRecord = { oldTimeValue: TimeReal, newTimeValue: TimeReal, workshopName: Name, workshopAddress: Address, workshopCardNumberAndGeneration: Gen2FullCardNumberAndGeneration, };
 
-export type Gen2WorkshopCard = { cardGeneration: ParsedCardGeneration, cardChipIdentification: CardChipIdentification, cardIccIdentification: CardIccIdentification, applicationIdentification: Gen2WorkshopCardApplicationIdentification, eventsData: CardEventData | null, faultsData: CardFaultData | null, currentUsage: CardCurrentUse | null, vehiclesUsed: CardVehiclesUsed<Gen2CardVehicleRecord> | null, places: CardPlaceDailyWorkPeriod<Gen2PlaceRecord> | null, specificConditions: Gen2SpecificConditions | null, driverActivityData: CardDriverActivity | null, calibration: WorkshopCardCalibrationData<Gen2WorkshopCardCalibrationRecord> | null, vehicleUnitsUsed: Gen2CardVehicleUnitsUsed | null, identification: Identification | null, gnssPlaces: Gen2GnssAccumulatedDriving | null, cardCertificate: Gen2Certificate | null, caCertificate: Gen2Certificate | null, cardSignCertificate: Gen2Certificate | null, linkCertificate: Gen2Certificate | null, cardNotes: string, dataFiles: { [key in CardFileID]?: CardFileData }, };
+export type Gen2WorkshopCard = { cardGeneration: ParsedCardGeneration, cardChipIdentification: CardChipIdentification, cardIccIdentification: CardIccIdentification, applicationIdentification: Gen2WorkshopCardApplicationIdentification, eventsData: CardEventData | null, faultsData: CardFaultData | null, currentUsage: CardCurrentUse | null, vehiclesUsed: CardVehiclesUsed<Gen2CardVehicleRecord> | null, places: CardPlaceDailyWorkPeriod<Gen2PlaceRecord> | null, specificConditions: Gen2SpecificConditions | null, driverActivityData: CardDriverActivity | null, calibration: WorkshopCardCalibrationData<Gen2WorkshopCardCalibrationRecord> | null, vehicleUnitsUsed: Gen2CardVehicleUnitsUsed | null, identification: Identification | null, gnssPlaces: Gen2GnssAccumulatedDriving | null, placesAuthentication: Gen2CardPlaceAuthDailyWorkPeriod | null, gnssPlacesAuthentication: Gen2GnssAuthAccumulatedDriving | null, loadTypeEntries: Gen2LoadTypeEntries | null, cardCertificate: Gen2Certificate | null, caCertificate: Gen2Certificate | null, cardSignCertificate: Gen2Certificate | null, linkCertificate: Gen2Certificate | null, cardNotes: string, dataFiles: { [key in CardFileID]?: CardFileData }, };
 
 export type Gen2WorkshopCardApplicationIdentification = { typeOfTachographCardId: EquipmentType, cardStructureVersion: CardStructureVersion, noOfEventsPerType: number, noOfFaultsPerType: number, activityStructureLength: number, noOfCardVehicleRecords: number, noOfCardPlaceRecords: number, noOfCalibrationRecords: number, noOfGnssadRecords: number, noOfSpecificConditionRecords: number, noOfCardVehicleUnitRecords: number, };
 

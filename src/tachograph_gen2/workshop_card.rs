@@ -5,9 +5,10 @@ use log::{debug, trace};
 use serde::Serialize;
 
 use crate::gen2::{
-    CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate, CertificateParams, GnssAccumulatedDriving,
-    GnssAccumulatedDrivingParams, PlaceRecord, SpecificConditions, SpecificConditionsParams,
-    WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
+    CardAuthenticationRecordsParams, CardPlaceAuthDailyWorkPeriod, CardVehicleRecord, CardVehicleUnitsUsed,
+    CardVehicleUnitsUsedParams, Certificate, CertificateParams, DriverCardApplicationIdentificationV2, GnssAccumulatedDriving,
+    GnssAccumulatedDrivingParams, GnssAuthAccumulatedDriving, LoadTypeEntries, LoadTypeEntriesParams, PlaceRecord,
+    SpecificConditions, SpecificConditionsParams, WorkshopCardApplicationIdentification, WorkshopCardCalibrationRecord,
 };
 use crate::tacho::{
     CardChipIdentification, CardCurrentUse, CardDriverActivity, CardDriverActivityParams, CardEventData, CardEventDataParams,
@@ -16,7 +17,7 @@ use crate::tacho::{
     Identification, IdentificationParams, VehiclesUsedParams, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams,
     sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Error, Readable, ReadableWithParams, Result};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -49,6 +50,12 @@ pub struct WorkshopCard {
     pub identification: Option<Identification>,
     #[serde(rename = "gnssPlaces")]
     pub gnss_places: Option<GnssAccumulatedDriving>,
+    #[serde(rename = "placesAuthentication")]
+    pub places_authentication: Option<CardPlaceAuthDailyWorkPeriod>,
+    #[serde(rename = "gnssPlacesAuthentication")]
+    pub gnss_places_authentication: Option<GnssAuthAccumulatedDriving>,
+    #[serde(rename = "loadTypeEntries")]
+    pub load_type_entries: Option<LoadTypeEntries>,
     #[serde(rename = "cardCertificate")]
     pub card_certificate: Option<Certificate>,
     #[serde(rename = "caCertificate")]
@@ -87,6 +94,9 @@ impl WorkshopCard {
             vehicle_units_used: None,
             identification: None,
             gnss_places: None,
+            places_authentication: None,
+            gnss_places_authentication: None,
+            load_type_entries: None,
             card_certificate: None,
             ca_certificate: None,
             card_sign_certificate: None,
@@ -103,6 +113,9 @@ impl CardParser for WorkshopCard {
         let card_icc_identification = card_files.parse_required(&CardFileID::ICC)?;
         let application_identification =
             card_files.parse_required::<WorkshopCardApplicationIdentification>(&CardFileID::ApplicationIdentification)?;
+        // Driver and workshop V2 application capacities have the same binary layout.
+        let application_identification_v2 =
+            card_files.parse_optional::<DriverCardApplicationIdentificationV2>(&CardFileID::ApplicationIdentificationV2)?;
 
         let mut workshop_card = WorkshopCard::new(
             card_chip_identification,
@@ -124,7 +137,9 @@ impl CardParser for WorkshopCard {
             );
             match card_item.0 {
                 CardFileID::Calibration => {
-                    let params = WorkshopCardCalibrationDataParams::new(application_identification.no_off_calibration_records);
+                    let count = u8::try_from(application_identification.no_off_calibration_records)
+                        .map_err(|_| Error::RecordOutOfRange("Workshop calibration capacity exceeds 255".to_owned()))?;
+                    let params = WorkshopCardCalibrationDataParams::new(count);
                     workshop_card.calibration =
                         Some(WorkshopCardCalibrationData::<WorkshopCardCalibrationRecord>::read(&mut reader, &params)?);
                 }
@@ -167,6 +182,21 @@ impl CardParser for WorkshopCard {
                     let params = GnssAccumulatedDrivingParams::new(application_identification.no_of_gnssad_records);
                     workshop_card.gnss_places = Some(GnssAccumulatedDriving::read(&mut reader, &params)?);
                 }
+                CardFileID::PlacesAuthentication => {
+                    let params = CardAuthenticationRecordsParams::new(application_identification.no_of_card_place_records);
+                    workshop_card.places_authentication = Some(CardPlaceAuthDailyWorkPeriod::read(&mut reader, &params)?);
+                }
+                CardFileID::GnssPlacesAuthentication => {
+                    let params = CardAuthenticationRecordsParams::new(application_identification.no_of_gnssad_records);
+                    workshop_card.gnss_places_authentication = Some(GnssAuthAccumulatedDriving::read(&mut reader, &params)?);
+                }
+                CardFileID::LoadTypeEntries => {
+                    let application_identification_v2 = application_identification_v2.as_ref().ok_or_else(|| {
+                        Error::MissingCardFile("ApplicationIdentificationV2 (required to parse LoadTypeEntries)".to_owned())
+                    })?;
+                    let params = LoadTypeEntriesParams::new(application_identification_v2.no_of_load_type_entry_records);
+                    workshop_card.load_type_entries = Some(LoadTypeEntries::read(&mut reader, &params)?);
+                }
                 CardFileID::CardCertificate => {
                     let params = CertificateParams::new(None);
                     workshop_card.card_certificate = Some(Certificate::read(&mut reader, &params)?);
@@ -183,7 +213,10 @@ impl CardParser for WorkshopCard {
                     let params = CertificateParams::new(None);
                     workshop_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
-                CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
+                CardFileID::IC
+                | CardFileID::ICC
+                | CardFileID::ApplicationIdentification
+                | CardFileID::ApplicationIdentificationV2 => {
                     trace!("WorkshopCard::parse - Already parsed: {:?}", card_item.0)
                 }
                 _ => trace!("WorkshopCard::parse - Not Parsed: {:?}", card_item.0),

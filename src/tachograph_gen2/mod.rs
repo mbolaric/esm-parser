@@ -5,7 +5,9 @@
 //! support for new features like GNSS data and updated record formats.
 
 mod border_crossings;
+mod card_authentication;
 mod card_data;
+mod card_place_auth_daily_work_period;
 mod card_response_parameter_data;
 mod card_vehicle_record;
 mod card_vehicle_units_used;
@@ -29,6 +31,7 @@ mod extended_seal_identifier;
 mod full_card_number_and_generation;
 mod geo_coordinate;
 mod gnss_accumulated_driving;
+mod gnss_auth_accumulated_driving;
 mod gnss_place_auth_record;
 mod gnss_place_record;
 mod load_type;
@@ -84,7 +87,9 @@ mod workshop_card_application_identification;
 mod workshop_card_calibration_record;
 
 pub use border_crossings::{BorderCrossingRecord, BorderCrossings, BorderCrossingsParams};
+pub use card_authentication::CardAuthenticationRecordsParams;
 pub use card_data::CardData;
+pub use card_place_auth_daily_work_period::{CardPlaceAuthDailyWorkPeriod, PlaceAuthStatusRecord};
 pub use card_response_parameter_data::{CardResponseParameterData, ParsedCard};
 pub use card_vehicle_record::CardVehicleRecord;
 pub use card_vehicle_units_used::{CardVehicleUnitRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams};
@@ -108,6 +113,7 @@ pub use extended_seal_identifier::ExtendedSealIdentifier;
 pub use full_card_number_and_generation::FullCardNumberAndGeneration;
 pub use geo_coordinate::GeoCoordinate;
 pub use gnss_accumulated_driving::{GnssAccumulatedDriving, GnssAccumulatedDrivingParams, GnssAccumulatedDrivingRecord};
+pub use gnss_auth_accumulated_driving::{GnssAuthAccumulatedDriving, GnssAuthStatusADRecord};
 pub use gnss_place_auth_record::GnssPlaceAuthRecord;
 pub use gnss_place_record::GnssPlaceRecord;
 pub use load_type::LoadType;

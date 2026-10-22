@@ -5,10 +5,11 @@ use log::{debug, trace};
 use serde::Serialize;
 
 use crate::gen2::{
-    BorderCrossings, BorderCrossingsParams, CardVehicleRecord, CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate,
-    CertificateParams, DriverCardApplicationIdentification, DriverCardApplicationIdentificationV2, GnssAccumulatedDriving,
-    GnssAccumulatedDrivingParams, LoadTypeEntries, LoadTypeEntriesParams, LoadUnloadOperations, LoadUnloadOperationsParams,
-    PlaceRecord, SpecificConditions, SpecificConditionsParams,
+    BorderCrossings, BorderCrossingsParams, CardAuthenticationRecordsParams, CardPlaceAuthDailyWorkPeriod, CardVehicleRecord,
+    CardVehicleUnitsUsed, CardVehicleUnitsUsedParams, Certificate, CertificateParams, DriverCardApplicationIdentification,
+    DriverCardApplicationIdentificationV2, GnssAccumulatedDriving, GnssAccumulatedDrivingParams, GnssAuthAccumulatedDriving,
+    LoadTypeEntries, LoadTypeEntriesParams, LoadUnloadOperations, LoadUnloadOperationsParams, PlaceRecord, SpecificConditions,
+    SpecificConditionsParams,
 };
 use crate::tacho::{
     CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
@@ -58,6 +59,10 @@ pub struct DriverCard {
     pub vehicle_units_used: Option<CardVehicleUnitsUsed>,
     #[serde(rename = "gnssPlaces")]
     pub gnss_places: Option<GnssAccumulatedDriving>,
+    #[serde(rename = "placesAuthentication")]
+    pub places_authentication: Option<CardPlaceAuthDailyWorkPeriod>,
+    #[serde(rename = "gnssPlacesAuthentication")]
+    pub gnss_places_authentication: Option<GnssAuthAccumulatedDriving>,
     #[serde(rename = "borderCrossings")]
     pub border_crossings: Option<BorderCrossings>,
     #[serde(rename = "loadUnloadOperations")]
@@ -114,6 +119,8 @@ impl DriverCard {
             specific_conditions: None,
             vehicle_units_used: None,
             gnss_places: None,
+            places_authentication: None,
+            gnss_places_authentication: None,
             border_crossings: None,
             load_unload_operations: None,
             load_type_entries: None,
@@ -229,6 +236,14 @@ impl CardParser for DriverCard {
                 CardFileID::GnssPlaces => {
                     let params = GnssAccumulatedDrivingParams::new(application_identification.no_gnssad_records);
                     driver_card.gnss_places = Some(GnssAccumulatedDriving::read(&mut reader, &params)?);
+                }
+                CardFileID::PlacesAuthentication => {
+                    let params = CardAuthenticationRecordsParams::new(application_identification.no_of_card_place_records);
+                    driver_card.places_authentication = Some(CardPlaceAuthDailyWorkPeriod::read(&mut reader, &params)?);
+                }
+                CardFileID::GnssPlacesAuthentication => {
+                    let params = CardAuthenticationRecordsParams::new(application_identification.no_gnssad_records);
+                    driver_card.gnss_places_authentication = Some(GnssAuthAccumulatedDriving::read(&mut reader, &params)?);
                 }
                 CardFileID::BorderCrossings => {
                     let application_identification_v2 =

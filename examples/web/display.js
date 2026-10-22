@@ -38,7 +38,10 @@ export const DataParts = {
     LinkCertificate: "linkCertificate",
     CardDownload: "cardDownload",
     VehicleUnitsUsed: "vehicleUnitsUsed",
-    GnssPlaces: "gnssPlaces"
+    GnssPlaces: "gnssPlaces",
+    PlacesAuthentication: "placesAuthentication",
+    GnssPlacesAuthentication: "gnssPlacesAuthentication",
+    LoadTypeEntries: "loadTypeEntries"
 };
 
 const ec_pk_gen2 = new Uint8Array([
@@ -345,6 +348,9 @@ export class DisplayData {
         this.addCardMenu(gen2, "CardDownload", DataParts.CardDownload, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "VehicleUnitsUsed", DataParts.VehicleUnitsUsed, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "GnssPlaces", DataParts.GnssPlaces, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "PlacesAuthentication", DataParts.PlacesAuthentication, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "GnssPlacesAuthentication", DataParts.GnssPlacesAuthentication, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "LoadTypeEntries", DataParts.LoadTypeEntries, CardGeneration.SecondGeneration);
     };
 
     processSecondGenerationCard = (dataType, data) => {
