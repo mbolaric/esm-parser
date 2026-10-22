@@ -58,46 +58,6 @@ impl CardNumber {
             String::new()
         }
     }
-
-    /// Entity Identification The first 13 or 14 characters identify the entity uniquely.
-    fn get_identification<'a>(number: &'a str, equipment_type: &EquipmentType) -> &'a str {
-        if number.len() < 13 {
-            return "";
-        }
-        match equipment_type {
-            EquipmentType::DriverCard => &number[0..14],
-            _ => &number[0..13],
-        }
-    }
-
-    /// The 14th or 15th character is a sequential number, used when an entity is issued multiple cards.
-    /// This helps distinguish between those different cards.
-    /// If a company has three driver cards, the first two might have "1" and "2" as the 14th character, while the third would have "3".
-    fn get_consecutive_index<'a>(number: &'a str, equipment_type: &EquipmentType) -> &'a str {
-        if number.len() <= 14 {
-            return "";
-        }
-        match equipment_type {
-            EquipmentType::DriverCard => "",
-            _ => &number[13..14],
-        }
-    }
-
-    /// Card replacement index: The 15th or 16th character in this sequence is a specific indicator of a card replacement.
-    /// Each time a driver card is replaced, the value at index 15 is increased. This helps track how many times a card has been replaced.
-    fn get_replacement_index(number: &str) -> &str {
-        if number.len() <= 14 {
-            return "";
-        }
-        &number[14..15]
-    }
-
-    fn get_renewal_index(number: &str) -> &str {
-        if number.len() <= 15 {
-            return "";
-        }
-        &number[15..16]
-    }
 }
 
 impl CardNumber {
@@ -109,11 +69,15 @@ impl ReadableWithParams for CardNumber {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardNumber> {
         let equipment_type = params.equipment_type;
-        let number = bytes_to_ia5_fix_string(&reader.read_into_vec(CardNumber::CARD_NUMBER_LENGTH)?)?;
-        let identification = CardNumber::get_identification(&number, &equipment_type).to_string();
-        let card_replacement_index = CardNumber::get_replacement_index(&number).to_string();
-        let card_consecutive_index = CardNumber::get_consecutive_index(&number, &equipment_type).to_string();
-        let card_renewal_index = CardNumber::get_renewal_index(&number).to_string();
+        let data = reader.read_bytes::<{ CardNumber::CARD_NUMBER_LENGTH as usize }>()?;
+        let number = bytes_to_ia5_fix_string(&data)?;
+        // Split physical positions before trimming padding from each component.
+        let identification_length = if equipment_type == EquipmentType::DriverCard { 14 } else { 13 };
+        let identification = bytes_to_ia5_fix_string(&data[..identification_length])?;
+        let card_consecutive_index =
+            if equipment_type == EquipmentType::DriverCard { String::new() } else { bytes_to_ia5_fix_string(&data[13..14])? };
+        let card_replacement_index = bytes_to_ia5_fix_string(&data[14..15])?;
+        let card_renewal_index = bytes_to_ia5_fix_string(&data[15..16])?;
         Ok(Self { number, equipment_type, identification, card_replacement_index, card_consecutive_index, card_renewal_index })
     }
 }
