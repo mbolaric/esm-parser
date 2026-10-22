@@ -11,7 +11,7 @@ use crate::gen1::{
 use crate::tacho::{
     CardChipIdentification, CardControlActivityDataRecord, CardCurrentUse, CardDriverActivity, CardDriverActivityParams,
     CardEventData, CardEventDataParams, CardFaultData, CardFaultDataParams, CardFileData, CardFileID,
-    CardFilesDataByCardGenerationItem, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod,
+    CardFilesDataByCardGenerationItem, CardGeneration, CardIccIdentification, CardParser, CardPlaceDailyWorkPeriod,
     CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, VehiclesUsedParams,
     WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, sorted_card_files,
 };
@@ -119,7 +119,10 @@ impl CardParser for WorkshopCard {
                     workshop_card.no_of_calibrations_since_download = reader.read_u16::<BigEndian>()?;
                 }
                 CardFileID::Calibration => {
-                    let params = WorkshopCardCalibrationDataParams::new(application_identification.no_off_calibration_records);
+                    let params = WorkshopCardCalibrationDataParams::new(
+                        u16::from(application_identification.no_off_calibration_records),
+                        CardGeneration::Gen1,
+                    );
                     workshop_card.calibration =
                         Some(WorkshopCardCalibrationData::<WorkshopCardCalibrationRecord>::read(&mut reader, &params)?);
                 }

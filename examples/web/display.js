@@ -30,6 +30,7 @@ export const DataParts = {
     DriverActivityData: "driverActivityData",
     SpecificConditions: "specificConditions",
     ControlActivityData: "controlActivityData",
+    Calibration: "calibration",
     CardCertificate: "cardCertificate",
     CACertificate: "caCertificate",
     CardDownload: "cardDownload",
@@ -326,6 +327,7 @@ export class DisplayData {
         this.addCardMenu(gen1, "DriverActivityData", DataParts.DriverActivityData, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "SpecificConditions", DataParts.SpecificConditions, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "ControlActivityData", DataParts.ControlActivityData, CardGeneration.FirstGeneration);
+        this.addCardMenu(gen1, "Calibration", DataParts.Calibration, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "CardCertificate", DataParts.CardCertificate, CardGeneration.FirstGeneration);
         this.addCardMenu(gen1, "CACertificate", DataParts.CACertificate, CardGeneration.FirstGeneration);
     };
@@ -343,6 +345,7 @@ export class DisplayData {
         this.addCardMenu(gen2, "DriverActivityData", DataParts.DriverActivityData, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "SpecificConditions", DataParts.SpecificConditions, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "ControlActivityData", DataParts.ControlActivityData, CardGeneration.SecondGeneration);
+        this.addCardMenu(gen2, "Calibration", DataParts.Calibration, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CardCertificate", DataParts.CardCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CardSignCertificate", DataParts.CardSignCertificate, CardGeneration.SecondGeneration);
         this.addCardMenu(gen2, "CACertificate", DataParts.CACertificate, CardGeneration.SecondGeneration);

@@ -137,9 +137,10 @@ impl CardParser for WorkshopCard {
             );
             match card_item.0 {
                 CardFileID::Calibration => {
-                    let count = u8::try_from(application_identification.no_off_calibration_records)
-                        .map_err(|_| Error::RecordOutOfRange("Workshop calibration capacity exceeds 255".to_owned()))?;
-                    let params = WorkshopCardCalibrationDataParams::new(count);
+                    let params = WorkshopCardCalibrationDataParams::new(
+                        application_identification.no_off_calibration_records,
+                        CardGeneration::Gen2,
+                    );
                     workshop_card.calibration =
                         Some(WorkshopCardCalibrationData::<WorkshopCardCalibrationRecord>::read(&mut reader, &params)?);
                 }

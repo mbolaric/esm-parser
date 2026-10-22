@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::SealRecord;
-use crate::{Readable, Result, read_records};
+use crate::{Error, Readable, Result, read_records};
 
 /// This data type stores information about the seals that are attached to the
 /// different components of a vehicle and is intended for storage on a card.
@@ -20,6 +20,10 @@ pub struct SealDataCard {
 impl Readable for SealDataCard {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<SealDataCard> {
         let no_of_seal_records = reader.read_u8()?;
+        // Zero is the default for unused calibration slots; recorded seal lists have at most five entries.
+        if no_of_seal_records > 5 {
+            return Err(Error::RecordOutOfRange(format!("Card seal record count: {no_of_seal_records}")));
+        }
         let records = read_records(reader, no_of_seal_records as usize, |reader| SealRecord::read(reader))?;
         Ok(Self { no_of_seal_records, seal_records: records })
     }
