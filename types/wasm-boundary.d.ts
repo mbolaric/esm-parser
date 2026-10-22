@@ -97,7 +97,7 @@ export type CardIccIdentification = { clockStop: number, cardExtendedSerialNumbe
 
 export type CardIdentification = { cardIssuingMemberState: NationNumeric, cardNumber: CardNumber, cardIssuingAuthorityName: Name, cardIssueDate: TimeReal, cardValidityBegin: TimeReal, cardExpiryDate: TimeReal, };
 
-export type CardNumber = { cardIssuingMemberState: EquipmentType, number: string, identification: string, cardReplacementindex: string, cardConsecutiveindex: string, cardRenewalindex: string, };
+export type CardNumber = { equipmentType: EquipmentType, number: string, identification: string, cardReplacementindex: string, cardConsecutiveindex: string, cardRenewalindex: string, };
 
 export type CardPlaceDailyWorkPeriod<T> = { placePointerNewestRecord: number, placeRecords: Array<T>, };
 

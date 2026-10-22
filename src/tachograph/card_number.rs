@@ -32,7 +32,7 @@ impl CardNumberParams {
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
 pub struct CardNumber {
-    #[serde(rename = "cardIssuingMemberState")]
+    #[serde(rename = "equipmentType")]
     pub equipment_type: EquipmentType,
     pub number: String,
     pub identification: String,
@@ -123,6 +123,7 @@ mod tests {
     use binary_data::BinMemoryBuffer;
 
     use super::*;
+    use crate::Export;
 
     #[test]
     fn test_read_driver_card_number() {
@@ -150,6 +151,25 @@ mod tests {
         assert_eq!(card_number.card_consecutive_index, "9");
         assert_eq!(card_number.card_replacement_index, "8");
         assert_eq!(card_number.card_renewal_index, "7");
+    }
+
+    #[test]
+    fn test_export_card_number_uses_equipment_type() {
+        for equipment_type in
+            [EquipmentType::DriverCard, EquipmentType::WorkshopCard, EquipmentType::ControlCard, EquipmentType::CompanyCard]
+        {
+            let mut reader = BinMemoryBuffer::from(b"ABC1234567890123".to_vec());
+            let card_number = CardNumber::read(&mut reader, &CardNumberParams::new(equipment_type)).unwrap();
+
+            let json: serde_json::Value = serde_json::from_str(&card_number.to_json().unwrap()).unwrap();
+            assert_eq!(json["equipmentType"], serde_json::to_value(equipment_type).unwrap());
+            assert!(json.get("cardIssuingMemberState").is_none());
+            assert_eq!(json["number"], "ABC1234567890123");
+
+            let xml = card_number.to_xml().unwrap();
+            assert!(xml.contains(&format!("<equipmentType>{equipment_type}</equipmentType>")));
+            assert!(!xml.contains("cardIssuingMemberState"));
+        }
     }
 
     #[test]
