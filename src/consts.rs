@@ -12,6 +12,3 @@ pub(crate) const VU_HEADER_G2_V2: [u8; 2] = [0x76, 0x31];
 pub(crate) const CARD_HEADER: [u8; 2] = [0x00, 0x2];
 /// Header for card data embedded within a Vehicle Unit (VU) data file.
 pub(crate) const CARD_HEADER_VU_DATA: [u8; 2] = [0x76, 0x6];
-
-/// Minimum expected data length for a Generation 2 (G2) card, used for validation.
-pub(crate) const MINIMUM_G2_CARD_DATA_LENGTH: u64 = 30000;

@@ -1,8 +1,9 @@
+use binary_data::{BinMemoryBuffer, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::error::{Error, Result};
 use crate::tacho::{TachographDataGeneration, TachographDataType};
-use crate::{CARD_HEADER, CARD_HEADER_VU_DATA, MINIMUM_G2_CARD_DATA_LENGTH, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2};
+use crate::{CARD_HEADER, CARD_HEADER_VU_DATA, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2};
 
 /// Represents the header of a tachograph file.
 #[derive(Debug, Clone, Serialize)]
@@ -19,69 +20,135 @@ pub struct TachographHeader {
 }
 
 impl TachographHeader {
-    /// Creates a new `TachographHeader` from the given data.
+    /// Detects type and generation from complete download bytes.
     ///
-    /// # Arguments
-    ///
-    /// * `data` - The header data.
-    /// * `data_length` - The length of the data.
-    ///
-    /// # Returns
-    ///
-    /// A new `TachographHeader` instance.
-    pub fn from_data(data: &[u8], data_length: u64) -> Result<TachographHeader> {
-        if data.len() != 2 {
-            return Err(Error::InvalidHeaderLength);
-        }
-
-        TachographHeader::parse_header(data, data_length)
+    /// VUs use their overview TREP identifier. Cards use their section appendices,
+    /// including Gen2 sections in combined cards. File size is never used to infer generation.
+    pub fn from_data(data: &[u8]) -> Result<Self> {
+        Self::from_reader(&mut BinMemoryBuffer::from(data))
     }
 
-    /// Parses the header data and returns a new `TachographHeader`.
-    ///
-    /// # Arguments
-    ///
-    /// * `header` - The header data.
-    /// * `data_length` - The length of the data.
-    ///
-    /// # Returns
-    ///
-    /// A new `TachographHeader` instance.
-    fn parse_header(header: &[u8], data_length: u64) -> Result<TachographHeader> {
-        if header.eq(&VU_HEADER_G1) {
-            return Ok(TachographHeader {
+    /// Detects the download header from the start of a seekable reader.
+    /// Restores the original reader position on success and on detection failure.
+    pub fn from_reader<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<Self> {
+        let original_position = reader.pos()?;
+        let result = Self::detect(reader);
+        reader.seek(original_position)?;
+        result
+    }
+
+    fn detect<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<Self> {
+        reader.seek(0)?;
+        let length = reader.len()?;
+        if length < 2 {
+            return Err(Error::InvalidHeaderLength);
+        }
+        let prefix = reader.read_bytes::<2>()?;
+        match prefix {
+            VU_HEADER_G1 => Ok(Self {
                 generation: TachographDataGeneration::FirstGeneration,
                 data_type: TachographDataType::VU,
                 card_in_vu_data: false,
-            });
-        }
-
-        if header.eq(&VU_HEADER_G2) || header.eq(&VU_HEADER_G2_V2) {
-            return Ok(TachographHeader {
+            }),
+            VU_HEADER_G2 | VU_HEADER_G2_V2 => Ok(Self {
                 generation: TachographDataGeneration::SecondGeneration,
                 data_type: TachographDataType::VU,
                 card_in_vu_data: false,
-            });
+            }),
+            CARD_HEADER | CARD_HEADER_VU_DATA => {
+                let card_in_vu_data = prefix == CARD_HEADER_VU_DATA;
+                reader.seek(if card_in_vu_data { 2 } else { 0 })?;
+                let mut generation = TachographDataGeneration::FirstGeneration;
+                while reader.pos()? < length {
+                    if length - reader.pos()? < 5 {
+                        return Err(Error::PartialCardFile);
+                    }
+                    let section = reader.read_bytes::<5>()?;
+                    match section[2] {
+                        0 | 1 => (),
+                        2 | 3 => generation = TachographDataGeneration::SecondGeneration,
+                        appendix => return Err(Error::InvalidCardFileAppendix(appendix)),
+                    }
+                    let size = usize::from(u16::from_be_bytes([section[3], section[4]]));
+                    let position = reader.pos()?;
+                    if size > length - position {
+                        return Err(Error::PartialCardFile);
+                    }
+                    reader.seek(position + size)?;
+                }
+                Ok(Self { generation, data_type: TachographDataType::Card, card_in_vu_data })
+            }
+            _ => Err(Error::InvalidHeaderData),
         }
+    }
+}
 
-        if header.eq(&CARD_HEADER) {
-            let generation: TachographDataGeneration = if data_length >= MINIMUM_G2_CARD_DATA_LENGTH {
-                TachographDataGeneration::SecondGeneration
-            } else {
-                TachographDataGeneration::FirstGeneration
-            };
-            return Ok(TachographHeader { generation, data_type: TachographDataType::Card, card_in_vu_data: false });
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn section(appendix: u8, payload: &[u8]) -> Vec<u8> {
+        let mut bytes = vec![0, 2, appendix];
+        bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
+        bytes.extend(payload);
+        bytes
+    }
+
+    #[test]
+    fn detects_cards_from_section_boundaries_instead_of_size() {
+        let large_gen1 = section(0, &vec![0x02; 40_000]);
+        let small_gen2 = section(2, &[0]);
+        let gen1_with_embedded_markers = section(0, &[0, 2, 2, 0, 0, 0, 2, 3, 0, 0]);
+        let combined = [section(0, &[0]), section(2, &[0]), section(1, &[0])].concat();
+        for (bytes, expected) in [
+            (large_gen1, TachographDataGeneration::FirstGeneration),
+            (small_gen2, TachographDataGeneration::SecondGeneration),
+            (gen1_with_embedded_markers, TachographDataGeneration::FirstGeneration),
+            (combined, TachographDataGeneration::SecondGeneration),
+        ] {
+            for wrapped in [false, true] {
+                let data = if wrapped { [CARD_HEADER_VU_DATA.to_vec(), bytes.clone()].concat() } else { bytes.clone() };
+                let header = TachographHeader::from_data(&data).unwrap();
+                assert_eq!(header.generation, expected);
+                assert_eq!(header.data_type, TachographDataType::Card);
+                assert_eq!(header.card_in_vu_data, wrapped);
+            }
         }
+    }
 
-        if header.eq(&CARD_HEADER_VU_DATA) {
-            let generation: TachographDataGeneration = if data_length >= MINIMUM_G2_CARD_DATA_LENGTH {
-                TachographDataGeneration::SecondGeneration
-            } else {
-                TachographDataGeneration::FirstGeneration
-            };
-            return Ok(TachographHeader { generation, data_type: TachographDataType::Card, card_in_vu_data: true });
+    #[test]
+    fn detects_vu_generations_from_overview_trep() {
+        for (prefix, generation) in [
+            (VU_HEADER_G1, TachographDataGeneration::FirstGeneration),
+            (VU_HEADER_G2, TachographDataGeneration::SecondGeneration),
+            (VU_HEADER_G2_V2, TachographDataGeneration::SecondGeneration),
+        ] {
+            let header = TachographHeader::from_data(&prefix).unwrap();
+            assert_eq!(header.generation, generation);
+            assert_eq!(header.data_type, TachographDataType::VU);
+            assert!(!header.card_in_vu_data);
         }
+    }
 
-        Err(Error::InvalidHeaderData)
+    #[test]
+    fn rejects_truncated_sections_invalid_appendices_and_unknown_headers() {
+        for data in [Vec::new(), vec![0]] {
+            assert!(matches!(TachographHeader::from_data(&data), Err(Error::InvalidHeaderLength)));
+        }
+        assert!(matches!(TachographHeader::from_data(&[0xFF, 0xFF]), Err(Error::InvalidHeaderData)));
+        for data in [vec![0, 2], vec![0, 2, 0, 0], vec![0, 2, 0, 0, 2, 1], vec![0x76, 6, 0, 2]] {
+            assert!(matches!(TachographHeader::from_data(&data), Err(Error::PartialCardFile)));
+        }
+        assert!(matches!(TachographHeader::from_data(&section(4, &[])), Err(Error::InvalidCardFileAppendix(4))));
+    }
+
+    #[test]
+    fn reader_position_is_preserved_on_success_and_failure() {
+        for (data, valid) in [(section(2, &[0]), true), (vec![0, 2, 0, 0, 2, 1], false)] {
+            let mut reader = BinMemoryBuffer::from(data);
+            reader.seek(3).unwrap();
+            assert_eq!(TachographHeader::from_reader(&mut reader).is_ok(), valid);
+            assert_eq!(reader.pos().unwrap(), 3);
+        }
     }
 }
