@@ -204,3 +204,139 @@ fn writer_roundtrips_every_space_padded_length_for_both_card_number_layouts() {
         }
     }
 }
+
+#[cfg(feature = "write")]
+#[test]
+fn writer_constructs_components_at_their_fixed_physical_positions() {
+    use esm_parser::writer::Writable;
+
+    for kind in CARD_TYPES {
+        let identification_length = if kind == EquipmentType::DriverCard { 14 } else { 13 };
+        for length in 0..=identification_length {
+            let identification = if length == 3 { "ABC".to_owned() } else { "A".repeat(length) };
+            for indices in [["", "", ""], ["", "1", "2"], ["", "", "2"], ["", "1", ""], ["3", "1", "2"]] {
+                if kind == EquipmentType::DriverCard && !indices[0].is_empty() {
+                    continue;
+                }
+                let card = CardNumber {
+                    equipment_type: kind,
+                    number: String::new(),
+                    identification: identification.clone(),
+                    card_consecutive_index: indices[0].into(),
+                    card_replacement_index: indices[1].into(),
+                    card_renewal_index: indices[2].into(),
+                };
+                let bytes = card.to_bytes().unwrap();
+                let mut expected = [b' '; 16];
+                expected[..length].copy_from_slice(identification.as_bytes());
+                for (offset, index) in [(13, indices[0]), (14, indices[1]), (15, indices[2])] {
+                    if !index.is_empty() {
+                        expected[offset] = index.as_bytes()[0];
+                    }
+                }
+                assert_eq!(bytes, expected, "{kind:?}, identification length {length}, indices {indices:?}");
+                let decoded = read_number(&bytes, kind).unwrap();
+                assert_eq!(decoded.identification, card.identification);
+                assert_eq!(decoded.card_consecutive_index, card.card_consecutive_index);
+                assert_eq!(decoded.card_replacement_index, card.card_replacement_index);
+                assert_eq!(decoded.card_renewal_index, card.card_renewal_index);
+                assert_eq!(decoded.number, std::str::from_utf8(&expected).unwrap().trim());
+            }
+        }
+    }
+}
+
+#[cfg(feature = "write")]
+#[test]
+fn writer_rejects_invalid_components_before_emitting_bytes() {
+    use esm_parser::writer::{Validatable, Writable};
+
+    for kind in CARD_TYPES {
+        let identification_length = if kind == EquipmentType::DriverCard { 14 } else { 13 };
+        for field in 0..4 {
+            for invalid in ["A".repeat(if field == 0 { identification_length + 1 } else { 2 }), "Ä".into()] {
+                let mut card = CardNumber {
+                    equipment_type: kind,
+                    number: String::new(),
+                    identification: "ABC".into(),
+                    card_consecutive_index: String::new(),
+                    card_replacement_index: "1".into(),
+                    card_renewal_index: "2".into(),
+                };
+                match field {
+                    0 => card.identification = invalid,
+                    1 => card.card_consecutive_index = invalid,
+                    2 => card.card_replacement_index = invalid,
+                    _ => card.card_renewal_index = invalid,
+                }
+                assert!(card.validate().is_err(), "{kind:?}, field {field}");
+                let mut writer = BinMemoryBuffer::new();
+                assert!(card.write(&mut writer).is_err());
+                assert!(writer.as_slice().is_empty());
+                assert!(card.write_raw(&mut writer).is_err());
+                assert!(writer.as_slice().is_empty());
+            }
+        }
+        if kind == EquipmentType::DriverCard {
+            let card = CardNumber {
+                equipment_type: kind,
+                number: String::new(),
+                identification: "ABC".into(),
+                card_consecutive_index: "3".into(),
+                card_replacement_index: "1".into(),
+                card_renewal_index: "2".into(),
+            };
+            assert!(card.validate().is_err());
+        }
+    }
+}
+
+#[cfg(feature = "write")]
+#[test]
+fn writer_preserves_explicit_numbers_and_blank_defaults_for_all_equipment_types() {
+    use esm_parser::writer::Writable;
+
+    for code in 0..=u8::MAX {
+        let kind = EquipmentType::from(code);
+        let mut card = CardNumber {
+            equipment_type: kind,
+            number: "EXPLICIT".into(),
+            identification: "Ä".into(),
+            card_consecutive_index: "TOO LONG".into(),
+            card_replacement_index: "TOO LONG".into(),
+            card_renewal_index: "TOO LONG".into(),
+        };
+        assert_eq!(card.to_bytes().unwrap(), b"EXPLICIT        ");
+        card.number.clear();
+        card.identification.clear();
+        card.card_consecutive_index.clear();
+        card.card_replacement_index.clear();
+        card.card_renewal_index.clear();
+        assert_eq!(card.to_bytes().unwrap(), [b' '; 16]);
+    }
+}
+
+#[cfg(feature = "write")]
+#[test]
+fn writer_rejects_component_construction_without_a_known_card_layout() {
+    use esm_parser::writer::{Validatable, Writable};
+
+    for code in 0..=u8::MAX {
+        let kind = EquipmentType::from(code);
+        if CARD_TYPES.contains(&kind) {
+            continue;
+        }
+        let card = CardNumber {
+            equipment_type: kind,
+            number: String::new(),
+            identification: "ABC".into(),
+            card_consecutive_index: String::new(),
+            card_replacement_index: "1".into(),
+            card_renewal_index: "2".into(),
+        };
+        assert!(card.validate().is_err());
+        let mut writer = BinMemoryBuffer::new();
+        assert!(card.write(&mut writer).is_err());
+        assert!(writer.as_slice().is_empty());
+    }
+}

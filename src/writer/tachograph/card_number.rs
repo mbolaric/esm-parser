@@ -1,18 +1,54 @@
 use binary_data::{BinSeek, WriteBytes};
 
-use crate::Result;
-use crate::tacho::CardNumber;
-use crate::writer::{Validatable, Writable, validate_ia5_string, write_ia5_string};
+use crate::tacho::{CardNumber, EquipmentType};
+use crate::writer::{Validatable, Writable, encode_ia5_padded, validate_ia5_string};
+use crate::{Error, Result};
+
+impl CardNumber {
+    fn encoded_number(&self) -> Result<[u8; CardNumber::CARD_NUMBER_LENGTH as usize]> {
+        if !self.number.is_empty() {
+            return encode_ia5_padded("CardNumber", &self.number);
+        }
+        let mut number = [b' '; CardNumber::CARD_NUMBER_LENGTH as usize];
+        if self.identification.is_empty()
+            && self.card_consecutive_index.is_empty()
+            && self.card_replacement_index.is_empty()
+            && self.card_renewal_index.is_empty()
+        {
+            return Ok(number);
+        }
+        match self.equipment_type {
+            EquipmentType::DriverCard => {
+                validate_ia5_string::<0>("CardNumber.card_consecutive_index", &self.card_consecutive_index)?;
+                number[..14].copy_from_slice(&encode_ia5_padded::<14>("CardNumber.identification", &self.identification)?);
+            }
+            EquipmentType::WorkshopCard | EquipmentType::ControlCard | EquipmentType::CompanyCard => {
+                number[..13].copy_from_slice(&encode_ia5_padded::<13>("CardNumber.identification", &self.identification)?);
+                number[13] = encode_ia5_padded::<1>("CardNumber.card_consecutive_index", &self.card_consecutive_index)?[0];
+            }
+            _ => {
+                return Err(Error::ValidationError(format!(
+                    "Cannot construct CardNumber components for {:?}",
+                    self.equipment_type
+                )));
+            }
+        }
+        number[14] = encode_ia5_padded::<1>("CardNumber.card_replacement_index", &self.card_replacement_index)?[0];
+        number[15] = encode_ia5_padded::<1>("CardNumber.card_renewal_index", &self.card_renewal_index)?[0];
+        Ok(number)
+    }
+}
 
 impl Validatable for CardNumber {
     fn validate(&self) -> Result<()> {
-        validate_ia5_string::<{ CardNumber::CARD_NUMBER_LENGTH as usize }>("CardNumber", &self.effective_number())
+        self.encoded_number().map(|_| ())
     }
 }
 
 impl Writable for CardNumber {
     fn write_raw<W: WriteBytes + BinSeek>(&self, writer: &mut W) -> Result<()> {
-        write_ia5_string::<{ CardNumber::CARD_NUMBER_LENGTH as usize }, _>(writer, "CardNumber", &self.effective_number())
+        writer.write_all(&self.encoded_number()?)?;
+        Ok(())
     }
 }
 

@@ -45,22 +45,6 @@ pub struct CardNumber {
 }
 
 impl CardNumber {
-    #[allow(dead_code, reason = "used by the opt-in writer")]
-    pub(crate) fn effective_number(&self) -> String {
-        if !self.number.is_empty() {
-            self.number.clone()
-        } else if !self.identification.is_empty() {
-            format!(
-                "{}{}{}{}",
-                self.identification, self.card_consecutive_index, self.card_replacement_index, self.card_renewal_index
-            )
-        } else {
-            String::new()
-        }
-    }
-}
-
-impl CardNumber {
     pub(crate) const CARD_NUMBER_LENGTH: u32 = 16;
 }
 
