@@ -1,4 +1,8 @@
+#[path = "common/card.rs"]
+mod card;
+
 use binary_data::{BinMemoryBuffer, BinRingMemoryBuffer};
+use card::section;
 use esm_parser::gen2::{SpecificConditions, SpecificConditionsParams};
 use esm_parser::tacho::{CardActivityDailyRecord, CardDriverActivity, CardDriverActivityParams};
 use esm_parser::{Error, Readable, ReadableWithParams, parse_from_memory};
@@ -43,10 +47,7 @@ fn files(kind: u8, gen1: bool, gen2: bool) -> Vec<Section> {
 fn download(files: &[Section]) -> Vec<u8> {
     let mut bytes = Vec::new();
     for (id, appendix, payload) in files {
-        bytes.extend(id.to_be_bytes());
-        bytes.push(*appendix);
-        bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-        bytes.extend(payload);
+        section(&mut bytes, *id, *appendix, payload);
     }
     bytes
 }

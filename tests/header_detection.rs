@@ -1,6 +1,10 @@
+#[path = "common/card.rs"]
+mod card;
+
 use std::io::Write;
 use std::path::PathBuf;
 
+use card::section;
 use esm_parser::tacho::{TachographDataGeneration, TachographHeader};
 use esm_parser::{TachographData, parse_from_file, parse_from_memory};
 
@@ -20,10 +24,7 @@ fn card(generation: u8, wrapped: bool) -> Vec<u8> {
     };
     let mut bytes = if wrapped { vec![0x76, 0x06] } else { Vec::new() };
     for (id, appendix, payload) in [(2_u16, 0, vec![0; 25]), (5, 0, vec![0; 8]), (0x0501, generation * 2, application)] {
-        bytes.extend(id.to_be_bytes());
-        bytes.push(appendix);
-        bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-        bytes.extend(payload);
+        section(&mut bytes, id, appendix, &payload);
     }
     bytes
 }

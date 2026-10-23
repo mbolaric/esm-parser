@@ -1,4 +1,8 @@
+#[path = "common/card.rs"]
+mod card;
+
 use binary_data::{BinMemoryBuffer, BinSeek, ReadBytes};
+use card::section;
 use esm_parser::gen2::VuCardRecord;
 use esm_parser::tacho::{CardIdentification, CardNumber, CardNumberParams, EquipmentType, TimeReal};
 use esm_parser::{Export, Readable, ReadableWithParams, Result, SerializedTachographData, parse_from_memory};
@@ -21,13 +25,6 @@ fn identification(number: &[u8; 16]) -> Vec<u8> {
     }
     assert_eq!(bytes.len(), 65);
     bytes
-}
-
-fn section(bytes: &mut Vec<u8>, id: u16, appendix: u8, payload: &[u8]) {
-    bytes.extend(id.to_be_bytes());
-    bytes.push(appendix);
-    bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-    bytes.extend(payload);
 }
 
 fn card(gen1: bool, gen2: bool, number: &[u8; 16]) -> Vec<u8> {

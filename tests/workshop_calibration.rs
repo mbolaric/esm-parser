@@ -1,14 +1,11 @@
+#[path = "common/card.rs"]
+mod card;
+
 use binary_data::{BinMemoryBuffer, BinSeek};
+use card::section;
 use esm_parser::tacho::{CalibrationPurpose, CardGeneration, WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams};
 use esm_parser::{Export, Readable, ReadableWithParams, SerializedTachographData, parse_from_memory};
 use serde_json::{Value, json};
-
-fn section(bytes: &mut Vec<u8>, appendix: u8, id: u16, payload: &[u8]) {
-    bytes.extend(id.to_be_bytes());
-    bytes.push(appendix);
-    bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-    bytes.extend(payload);
-}
 
 fn record(gen2: bool, index: u32, seals: u8) -> Vec<u8> {
     let mut bytes = vec![0; if gen2 { 178 } else { 105 }];
@@ -74,25 +71,25 @@ fn calibration(gen2: bool, capacity: u16, pointer: u16) -> Vec<u8> {
 
 fn card(gen1: bool, gen2_version: Option<u8>) -> Vec<u8> {
     let mut bytes = Vec::new();
-    section(&mut bytes, 0, 0x0002, &[0; 25]);
-    section(&mut bytes, 0, 0x0005, &[0; 8]);
+    section(&mut bytes, 0x0002, 0, &[0; 25]);
+    section(&mut bytes, 0x0005, 0, &[0; 8]);
     if gen1 {
         let mut app = vec![2, 0, 0, 3, 1];
         app.extend(492_u16.to_be_bytes());
         app.extend(4_u16.to_be_bytes());
         app.extend([3, 88]);
-        section(&mut bytes, 0, 0x0501, &app);
-        section(&mut bytes, 0, 0x050A, &calibration(false, 88, 87));
-        section(&mut bytes, 1, 0x050A, &[0x11; 128]);
+        section(&mut bytes, 0x0501, 0, &app);
+        section(&mut bytes, 0x050A, 0, &calibration(false, 88, 87));
+        section(&mut bytes, 0x050A, 1, &[0x11; 128]);
     }
     if let Some(version) = gen2_version {
         let mut app = vec![2, 1, version, 3, 6];
         for capacity in [492_u16, 8, 8, 255, 24, 4, 8] {
             app.extend(capacity.to_be_bytes());
         }
-        section(&mut bytes, 2, 0x0501, &app);
-        section(&mut bytes, 2, 0x050A, &calibration(true, 255, 254));
-        section(&mut bytes, 3, 0x050A, &[0x22; 64]);
+        section(&mut bytes, 0x0501, 2, &app);
+        section(&mut bytes, 0x050A, 2, &calibration(true, 255, 254));
+        section(&mut bytes, 0x050A, 3, &[0x22; 64]);
     }
     bytes
 }

@@ -1,15 +1,12 @@
+#[path = "common/card.rs"]
+mod card;
+
 use binary_data::{BinMemoryBuffer, BinSeek};
+use card::section;
 use esm_parser::gen2::{CardAuthenticationRecordsParams, CardPlaceAuthDailyWorkPeriod, GnssAuthAccumulatedDriving};
 use esm_parser::tacho::{CardFileID, EquipmentType};
 use esm_parser::{Export, ReadableWithParams, SerializedTachographData, parse_from_memory};
 use serde_json::Value;
-
-fn section(bytes: &mut Vec<u8>, id: u16, appendix: u8, payload: &[u8]) {
-    bytes.extend(id.to_be_bytes());
-    bytes.push(appendix);
-    bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-    bytes.extend(payload);
-}
 
 fn ring(pointer: u16, count: usize, size: usize, first: &[u8], last: &[u8]) -> Vec<u8> {
     assert_eq!(first.len(), size);

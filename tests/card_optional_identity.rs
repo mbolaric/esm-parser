@@ -1,5 +1,9 @@
+#[path = "common/card.rs"]
+mod card;
+
 use std::path::PathBuf;
 
+use card::section;
 use esm_parser::tacho::{TachographDataGeneration, TachographDataType, TachographHeader};
 use esm_parser::{parse_from_file, parse_from_memory};
 use serde_json::Value;
@@ -47,10 +51,7 @@ fn sections(kind: u8, gen1: bool, gen2: bool) -> Vec<Section> {
 fn download(sections: &[Section], wrapped: bool) -> Vec<u8> {
     let mut bytes = if wrapped { vec![0x76, 0x06] } else { Vec::new() };
     for (id, appendix, payload) in sections {
-        bytes.extend(id.to_be_bytes());
-        bytes.push(*appendix);
-        bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-        bytes.extend(payload);
+        section(&mut bytes, *id, *appendix, payload);
     }
     bytes
 }

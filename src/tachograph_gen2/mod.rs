@@ -51,6 +51,8 @@ mod sensor_external_gnss_coupled_record;
 mod sensor_paired_record;
 mod signature_record_array;
 mod specific_conditions;
+#[cfg(test)]
+mod test_helpers;
 mod vehicle_identification_number_record_array;
 mod vehicle_registration_identification_record_array;
 mod vehicle_registration_number_record_array;

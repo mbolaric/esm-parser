@@ -1,17 +1,14 @@
+#[path = "common/card.rs"]
+mod card;
+
 use binary_data::{BinMemoryBuffer, BinSeek, ReadBytes};
+use card::section;
 use esm_parser::gen2::{
     WorkshopCardCalibrationAddData, WorkshopCardCalibrationAddDataParams, WorkshopCardCalibrationAddDataRecord,
 };
 use esm_parser::tacho::TimeReal;
 use esm_parser::{Export, Readable, ReadableWithParams, SerializedTachographData, parse_from_memory};
 use serde_json::json;
-
-fn section(bytes: &mut Vec<u8>, id: u16, appendix: u8, payload: &[u8]) {
-    bytes.extend(id.to_be_bytes());
-    bytes.push(appendix);
-    bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-    bytes.extend(payload);
-}
 
 fn ring(count: usize, size: usize, pointer: u16, records: &[(usize, Vec<u8>)]) -> Vec<u8> {
     let mut bytes = pointer.to_be_bytes().to_vec();

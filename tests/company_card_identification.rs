@@ -1,4 +1,8 @@
+#[path = "common/card.rs"]
+mod card;
+
 use binary_data::{BinMemoryBuffer, BinSeek, ReadBytes};
+use card::section;
 use esm_parser::tacho::{EquipmentType, Identification, IdentificationParams};
 use esm_parser::{Export, ReadableWithParams, SerializedTachographData, parse_from_memory};
 use serde_json::json;
@@ -18,13 +22,6 @@ fn identification(kind: EquipmentType) -> Vec<u8> {
     };
     bytes.resize(65 + holder_size, 0);
     bytes
-}
-
-fn section(bytes: &mut Vec<u8>, id: u16, appendix: u8, payload: &[u8]) {
-    bytes.extend(id.to_be_bytes());
-    bytes.push(appendix);
-    bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-    bytes.extend(payload);
 }
 
 fn card(gen1: bool, gen2: bool) -> Vec<u8> {

@@ -1,12 +1,9 @@
+#[path = "common/card.rs"]
+mod card;
+
+use card::section;
 use esm_parser::{Error, Export, SerializedTachographData, parse_from_memory};
 use serde_json::{Value, json};
-
-fn section(bytes: &mut Vec<u8>, id: u16, appendix: u8, payload: &[u8]) {
-    bytes.extend(id.to_be_bytes());
-    bytes.push(appendix);
-    bytes.extend(u16::try_from(payload.len()).unwrap().to_be_bytes());
-    bytes.extend(payload);
-}
 
 fn application(kind: u8, gen2: bool) -> Vec<u8> {
     let mut bytes = vec![kind, u8::from(gen2), 0];
