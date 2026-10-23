@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::{Certificate, CertificateParams, DataInfoReadable};
 use crate::tacho::RecordType;
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{ReadableWithParams, Result, read_records};
+use crate::{ReadableWithParams, Result};
 
 /// The VU certificate plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
@@ -25,9 +25,10 @@ impl DataInfoReadable for VuCertificateRecordArray {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
         let record_type = config.record_type;
+        config.validate_layout(RecordType::VuCertificate, record_size)?;
 
         let params = CertificateParams::new(Some(record_size));
-        let records = read_records(reader, no_of_records as usize, |reader| Certificate::read(reader, &params))?;
+        let records = config.read_records(reader, |reader| Certificate::read(reader, &params))?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

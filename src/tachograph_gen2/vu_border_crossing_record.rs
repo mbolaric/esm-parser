@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::{FullCardNumberAndGeneration, GnssPlaceAuthRecord};
-use crate::tacho::{NationNumeric, OdometerShort};
+use crate::tacho::{NationNumeric, OdometerShort, RecordType, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// A border crossing stored in a generation 2 version 2 vehicle unit
@@ -25,10 +25,6 @@ pub struct VuBorderCrossingRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl VuBorderCrossingRecord {
-    pub(crate) const RECORD_SIZE: u16 = 55;
-}
-
 impl Readable for VuBorderCrossingRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuBorderCrossingRecord> {
         let card_number_and_gen_driver_slot = FullCardNumberAndGeneration::read(reader)?;
@@ -47,4 +43,9 @@ impl Readable for VuBorderCrossingRecord {
             vehicle_odometer_value,
         })
     }
+}
+
+impl VuRecordLayout for VuBorderCrossingRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuBorderCrossingRecord;
+    const RECORD_SIZE: u16 = 55;
 }

@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use crate::Readable;
-use crate::tacho::{SpecificConditionType, TimeReal};
+use crate::tacho::{RecordType, SpecificConditionType, TimeReal, VuRecordLayout};
 
 /// Information, stored in a driver card, a workshop card or a vehicle unit,
 /// related to a specific condition (requirements Annex 1C 130, 276, 301, 328, and 355).
@@ -20,4 +20,9 @@ impl Readable for SpecificConditionRecord {
         let specific_condition_type: SpecificConditionType = reader.read_u8()?.into();
         Ok(Self { entry_time, specific_condition_type })
     }
+}
+
+impl VuRecordLayout for SpecificConditionRecord {
+    const RECORD_TYPE: RecordType = RecordType::SpecificConditionRecord;
+    const RECORD_SIZE: u16 = 5;
 }

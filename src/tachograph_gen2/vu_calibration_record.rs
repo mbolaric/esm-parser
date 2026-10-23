@@ -3,8 +3,8 @@ use serde::Serialize;
 
 use crate::gen2::{LoadType, SealDataVu};
 use crate::tacho::{
-    Address, CalibrationPurpose, ExtendedSerialNumber, FullCardNumber, Name, NationNumeric, OdometerShort, TimeReal,
-    VUTransferResponseParameterID, VehicleRegistrationIdentification,
+    Address, CalibrationPurpose, ExtendedSerialNumber, FullCardNumber, Name, NationNumeric, OdometerShort, RecordType, TimeReal,
+    VUTransferResponseParameterID, VehicleRegistrationIdentification, VuRecordLayout,
 };
 use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string};
 
@@ -132,5 +132,14 @@ impl ReadableWithParams for VuCalibrationRecord {
             calibration_country,
             calibration_country_timestamp,
         })
+    }
+}
+
+impl VuRecordLayout for VuCalibrationRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuCalibrationRecord;
+    const RECORD_SIZE: u16 = 222;
+
+    fn record_size(trep_id: VUTransferResponseParameterID) -> u16 {
+        if trep_id == VUTransferResponseParameterID::Gen2v2TechnicalData { Self::RECORD_SIZE_V2 } else { Self::RECORD_SIZE_V1 }
     }
 }

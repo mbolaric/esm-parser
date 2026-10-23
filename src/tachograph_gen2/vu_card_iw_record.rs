@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::{FullCardNumberAndGeneration, PreviousVehicleInfo};
-use crate::tacho::{CardSlotNumber, HolderName, ManualInputFlag, OdometerShort, TimeReal};
+use crate::tacho::{CardSlotNumber, HolderName, ManualInputFlag, OdometerShort, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to an insertion and withdrawal
@@ -60,4 +60,9 @@ impl Readable for VuCardIWRecord {
             manual_input_flag,
         })
     }
+}
+
+impl VuRecordLayout for VuCardIWRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuCardIWRecord;
+    const RECORD_SIZE: u16 = 131;
 }

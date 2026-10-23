@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::{DataInfoReadable, FullCardNumberAndGeneration, PlaceAuthRecord, PlaceRecord};
 use crate::tacho::{RecordType, VUTransferResponseParameterID};
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{Readable, ReadableWithParams, Result, read_records};
+use crate::{Readable, ReadableWithParams, Result};
 
 pub struct VuPlaceDailyWorkPeriodRecordParams {
     pub is_gen2_v2: bool,
@@ -64,9 +64,13 @@ impl DataInfoReadable for VuPlaceDailyWorkPeriodRecordArray {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
         let record_type = config.record_type;
+        config.validate_layout(
+            RecordType::VuPlaceDailyWorkPeriodRecord,
+            if config.trep_id == VUTransferResponseParameterID::Gen2v2Activities { 41 } else { 40 },
+        )?;
 
         let is_gen2_v2: bool = config.trep_id == VUTransferResponseParameterID::Gen2v2Activities;
-        let records = read_records(reader, no_of_records as usize, |reader| {
+        let records = config.read_records(reader, |reader| {
             VuPlaceDailyWorkPeriodRecord::read(reader, &VuPlaceDailyWorkPeriodRecordParams { is_gen2_v2 })
         })?;
         Ok(Self { is_gen2_v2, no_of_records, record_size, record_type, records })

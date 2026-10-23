@@ -1,7 +1,7 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::Readable;
+use crate::{Error, Readable, Result};
 
 /// Information, stored in a control card related to the identification of the
 /// application of the card (Annex IC requirement 363a).
@@ -16,10 +16,13 @@ pub struct ControlCardApplicationIdentificationV2 {
 }
 
 impl Readable for ControlCardApplicationIdentificationV2 {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<ControlCardApplicationIdentificationV2> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> Result<ControlCardApplicationIdentificationV2> {
         let length_of_following_data = reader.read_u16::<BigEndian>()?;
+        if length_of_following_data != 2 {
+            return Err(Error::InvalidDataParse(format!(
+                "Unsupported control ApplicationIdentificationV2 lengthOfFollowingData: {length_of_following_data}, expected 2"
+            )));
+        }
         let vu_configuration_length_range = reader.read_u16::<BigEndian>()?;
 
         Ok(Self { length_of_following_data, vu_configuration_length_range })

@@ -8,7 +8,7 @@ use crate::gen2::{
     VehicleIdentificationNumberRecordArray, VehicleRegistrationIdentificationRecordArray, VehicleRegistrationNumberRecordArray,
     VuCertificateRecordArray, VuCompanyLocksRecord, VuControlActivityRecord, VuDownloadActivityData, VuDownloadablePeriod,
 };
-use crate::tacho::{CardSlotStatus, RecordType, TimeReal, VUTransferResponseParameterID};
+use crate::tacho::{CardSlotStatus, TimeReal, VUTransferResponseParameterID};
 
 /// Data structure generation 2, version 1 (TREP 21 Hex)
 /// Data structure generation 2, version 2 (TREP 31 Hex)
@@ -64,9 +64,9 @@ impl VUOverview {
         let registration = DataInfo::read(reader, trep_id)?;
         let (vehicle_registration_number_record_array, vehicle_registration_identification_record_array) =
             if trep_id == VUTransferResponseParameterID::Gen2v2Overview {
-                (None, Some(registration.parse_record_array(RecordType::VehicleRegistrationIdentification, 15)?))
+                (None, Some(registration.parse()?))
             } else {
-                (Some(registration.parse_record_array(RecordType::VehicleRegistrationNumber, 14)?), None)
+                (Some(registration.parse()?), None)
             };
 
         let current_date_time_record_array: DataInfoGenericRecordArray<TimeReal> = DataInfo::read(reader, trep_id)?.parse()?;

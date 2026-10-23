@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::{FullCardNumberAndGeneration, GnssPlaceAuthRecord, GnssPlaceRecord};
-use crate::tacho::{OdometerShort, TimeReal, VUTransferResponseParameterID};
+use crate::tacho::{OdometerShort, RecordType, TimeReal, VUTransferResponseParameterID, VuRecordLayout};
 use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a vehicle unit, related to the GNSS position of the
@@ -54,5 +54,14 @@ impl ReadableWithParams for VuGnssadRecord {
             gnss_place_auth_record,
             vehicle_odometer_value,
         })
+    }
+}
+
+impl VuRecordLayout for VuGnssadRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuGNSSADRecord;
+    const RECORD_SIZE: u16 = 56;
+
+    fn record_size(trep_id: VUTransferResponseParameterID) -> u16 {
+        if trep_id == VUTransferResponseParameterID::Gen2v2Activities { Self::RECORD_SIZE_V2 } else { Self::RECORD_SIZE_V1 }
     }
 }

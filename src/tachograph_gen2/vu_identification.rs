@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::VuSoftwareIdentification;
-use crate::tacho::{Address, ExtendedSerialNumber, Name, TimeReal, VUTransferResponseParameterID};
+use crate::tacho::{Address, ExtendedSerialNumber, Name, RecordType, TimeReal, VUTransferResponseParameterID, VuRecordLayout};
 use crate::{CodePage, Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, bytes_to_string};
 
 const VU_PART_NUMBER_LENGTH: u32 = 16;
@@ -79,5 +79,14 @@ impl ReadableWithParams for VuIdentification {
             vu_ability,
             vu_digital_map_version,
         })
+    }
+}
+
+impl VuRecordLayout for VuIdentification {
+    const RECORD_TYPE: RecordType = RecordType::VuIdentification;
+    const RECORD_SIZE: u16 = 126;
+
+    fn record_size(trep_id: VUTransferResponseParameterID) -> u16 {
+        if trep_id == VUTransferResponseParameterID::Gen2v2TechnicalData { Self::RECORD_SIZE_V2 } else { Self::RECORD_SIZE_V1 }
     }
 }

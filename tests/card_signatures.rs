@@ -150,13 +150,17 @@ fn signatures_are_independent_for_different_files_and_generations() {
 }
 
 #[test]
-fn empty_signature_sections_cannot_bypass_duplicate_detection() {
-    for appendix in [0, 2] {
-        for (first, second) in [(vec![], vec![0x22; 64]), (vec![0x11; 64], vec![]), (vec![], vec![])] {
+fn empty_signature_sections_are_rejected_before_they_can_replace_data() {
+    for (appendix, size) in [(0, 128), (2, 64)] {
+        for (first, second) in [(vec![], vec![0x22; size]), (vec![0x11; size], vec![]), (vec![], vec![])] {
             let mut bytes = card(1, appendix == 0, appendix == 2);
             section(&mut bytes, 0x0501, appendix + 1, &first);
             section(&mut bytes, 0x0501, appendix + 1, &second);
-            assert!(matches!(parse_from_memory(&bytes), Err(Error::DuplicateCardFile)));
+            match parse_from_memory(&bytes) {
+                Err(Error::DuplicateCardFile) => (),
+                Err(Error::InvalidDataParse(message)) => assert!(message.contains("Signature") && message.contains("size")),
+                _ => panic!("An empty signature must not be accepted"),
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ use crate::tacho::{
     CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, VehiclesUsedParams,
     WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, ensure_consumed};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -197,7 +197,7 @@ impl CardParser for WorkshopCard {
                     workshop_card.identification = Some(Identification::read(&mut reader, &params)?);
                 }
                 CardFileID::SpecificConditions => {
-                    let params = SpecificConditionsParams::new(application_identification.no_of_specific_condition_records as u8);
+                    let params = SpecificConditionsParams::new(application_identification.no_of_specific_condition_records);
                     workshop_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
                 }
                 CardFileID::VehicleUnitsUsed => {
@@ -260,10 +260,15 @@ impl CardParser for WorkshopCard {
                 | CardFileID::ICC
                 | CardFileID::ApplicationIdentification
                 | CardFileID::ApplicationIdentificationV2 => {
-                    trace!("WorkshopCard::parse - Already parsed: {:?}", card_item.0)
+                    trace!("WorkshopCard::parse - Already parsed: {:?}", card_item.0);
+                    continue;
                 }
-                _ => trace!("WorkshopCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => {
+                    trace!("WorkshopCard::parse - Not Parsed: {:?}", card_item.0);
+                    continue;
+                }
             }
+            ensure_consumed(&mut reader, &card_file.card_file_id.to_string())?;
         }
         Ok(Box::new(workshop_card))
     }

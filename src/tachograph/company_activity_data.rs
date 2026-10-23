@@ -1,7 +1,7 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, ReadableWithParams, Result, read_records};
+use crate::{Readable, ReadableWithParams, Result, read_records, validate_ring_pointer};
 
 #[derive(Debug)]
 pub struct CompanyActivityDataParams {
@@ -30,6 +30,11 @@ impl<T: Readable> ReadableWithParams for CompanyActivityData<T> {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CompanyActivityData<T>> {
         let company_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        validate_ring_pointer(
+            company_pointer_newest_record as u32,
+            params.no_of_company_activity_records,
+            "company_pointer_newest_record",
+        )?;
         let company_activity_records =
             read_records(reader, params.no_of_company_activity_records as usize, |reader| T::read(reader))?;
         Ok(Self { company_pointer_newest_record, company_activity_records })

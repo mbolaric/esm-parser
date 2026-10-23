@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
-use crate::tacho::{Name, TimeReal};
+use crate::tacho::{Name, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to its last download (Annex
@@ -26,4 +26,9 @@ impl Readable for VuDownloadActivityData {
         let company_or_workshop_name = Name::read(reader)?;
         Ok(Self { downloading_time, full_card_number_and_generation, company_or_workshop_name })
     }
+}
+
+impl VuRecordLayout for VuDownloadActivityData {
+    const RECORD_TYPE: RecordType = RecordType::VuDownloadActivityData;
+    const RECORD_SIZE: u16 = 59;
 }

@@ -15,7 +15,7 @@ use crate::tacho::{
     CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal,
     VehiclesUsedParams, sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, ensure_consumed};
 
 /// Driver Card application generation 1
 #[derive(Debug, Serialize)]
@@ -186,10 +186,15 @@ impl CardParser for DriverCard {
                     driver_card.ca_certificate = Some(Certificate::read(&mut reader)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
-                    trace!("DriverCard::parse - Already parsed: {:?}", card_item.0)
+                    trace!("DriverCard::parse - Already parsed: {:?}", card_item.0);
+                    continue;
                 }
-                _ => trace!("DriverCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => {
+                    trace!("DriverCard::parse - Not Parsed: {:?}", card_item.0);
+                    continue;
+                }
             }
+            ensure_consumed(&mut reader, &card_file.card_file_id.to_string())?;
         }
 
         Ok(Box::new(driver_card))

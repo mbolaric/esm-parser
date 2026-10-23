@@ -1,8 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{CardStructureVersion, EquipmentType};
+use crate::{Error, Readable, Result};
 
 /// Information, stored in a driver card related to the identification of the
 /// application of the card (Annex 1C requirement 253 and 278).
@@ -33,9 +33,7 @@ pub struct DriverCardApplicationIdentification {
 }
 
 impl Readable for DriverCardApplicationIdentification {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<DriverCardApplicationIdentification> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> Result<DriverCardApplicationIdentification> {
         let type_of_tachograph_card_id = reader.read_u8()?.into();
         let card_structure_version = CardStructureVersion::read(reader)?;
 
@@ -47,6 +45,11 @@ impl Readable for DriverCardApplicationIdentification {
 
         let no_gnssad_records = reader.read_u16::<BigEndian>()? as u32;
         let no_of_specific_condition_records = reader.read_u16::<BigEndian>()? as u32;
+        if no_of_specific_condition_records > 112 {
+            return Err(Error::RecordOutOfRange(format!(
+                "Driver specific-condition capacity: {no_of_specific_condition_records}"
+            )));
+        }
         let no_card_vehicle_units_records = reader.read_u16::<BigEndian>()? as u32;
 
         Ok(Self {

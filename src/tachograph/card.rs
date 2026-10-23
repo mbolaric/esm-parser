@@ -6,7 +6,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::tacho::CardFileID;
-use crate::{Error, Readable, Result};
+use crate::{Error, Readable, Result, ensure_consumed};
 
 pub type CardFilesMap = HashMap<CardFileID, CardFileData>;
 
@@ -100,18 +100,16 @@ impl CardFileData {
 }
 
 impl Readable for CardFileData {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardFileData> {
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CardFileData> {
         let card_file_id: CardFileID = reader.read_u16::<BigEndian>()?.into();
         let appendix = reader.read_u8()?;
         let size = reader.read_u16::<BigEndian>()? as u32;
 
-        let mut card_file_notes: String = "".to_owned();
-        let data = if reader.pos()? == reader.len()? {
-            card_file_notes = "Missing card file data after header".to_owned();
-            None
-        } else {
-            Some(reader.read_into_vec(size)?)
-        };
+        if size as usize > reader.len()?.saturating_sub(reader.pos()?) {
+            return Err(Error::PartialCardFile);
+        }
+        let card_file_notes = String::new();
+        let data = Some(reader.read_into_vec(size)?);
 
         Ok(Self { card_file_id, appendix, card_file_notes, size, signature: None, data })
     }
@@ -138,7 +136,9 @@ impl CardFilesDataByCardGenerationItem {
 
     pub(crate) fn parse_required<T: Readable>(&self, card_file_id: &CardFileID) -> Result<T> {
         let mut reader = self.data_into_reader(card_file_id)?;
-        T::read(&mut reader)
+        let value = T::read(&mut reader)?;
+        ensure_consumed(&mut reader, &card_file_id.to_string())?;
+        Ok(value)
     }
 
     pub(crate) fn parse_optional<T: Readable>(&self, card_file_id: &CardFileID) -> Result<Option<T>> {
@@ -146,7 +146,9 @@ impl CardFilesDataByCardGenerationItem {
             .get(card_file_id)
             .map(|card_file| {
                 let mut reader = card_file.data_into_reader()?;
-                T::read(&mut reader)
+                let value = T::read(&mut reader)?;
+                ensure_consumed(&mut reader, &card_file_id.to_string())?;
+                Ok(value)
             })
             .transpose()
     }
@@ -224,6 +226,14 @@ impl CardReader {
                 let card_file = generation_files.card_files_data.get_mut(&card_file_id).ok_or(Error::SignatureBeforeCardFile)?;
                 if card_file.signature.is_some() {
                     return Err(Error::DuplicateCardFile);
+                }
+                let valid_size = if section == CardFileSection::Gen1Signature {
+                    data_file.size == 128
+                } else {
+                    (64..=132).contains(&data_file.size)
+                };
+                if !valid_size {
+                    return Err(Error::InvalidDataParse(format!("Invalid {section:?} size: {}", data_file.size)));
                 }
                 if !data_file.card_file_notes.is_empty() {
                     generation_files
@@ -329,11 +339,11 @@ mod tests {
 
         let mut gen1_data = card_file(vec![1]);
         gen1_data.appendix = 0;
-        let mut gen1_signature = card_file(vec![2]);
+        let mut gen1_signature = card_file(vec![2; 128]);
         gen1_signature.appendix = 1;
         let mut gen2_data = card_file(vec![3]);
         gen2_data.appendix = 2;
-        let mut gen2_signature = card_file(vec![4]);
+        let mut gen2_signature = card_file(vec![4; 64]);
         gen2_signature.appendix = 3;
 
         CardReader::process_card_data_file(gen1_data, &mut card_files).unwrap();
@@ -341,8 +351,8 @@ mod tests {
         CardReader::process_card_data_file(gen2_data, &mut card_files).unwrap();
         CardReader::process_card_data_file(gen2_signature, &mut card_files).unwrap();
 
-        assert_eq!(card_files.card_files_data_gen1.card_files_data[&CardFileID::CardDownload].signature, Some(vec![2]));
-        assert_eq!(card_files.card_files_data_gen2.card_files_data[&CardFileID::CardDownload].signature, Some(vec![4]));
+        assert_eq!(card_files.card_files_data_gen1.card_files_data[&CardFileID::CardDownload].signature, Some(vec![2; 128]));
+        assert_eq!(card_files.card_files_data_gen2.card_files_data[&CardFileID::CardDownload].signature, Some(vec![4; 64]));
     }
 
     #[test]
@@ -352,7 +362,8 @@ mod tests {
             let mut data = card_file(vec![1]);
             data.appendix = appendix;
             CardReader::process_card_data_file(data, &mut card_files).unwrap();
-            let mut signature = card_file(vec![0x11; 64]);
+            let size = if appendix == 0 { 128 } else { 64 };
+            let mut signature = card_file(vec![0x11; size]);
             signature.appendix = appendix + 1;
             CardReader::process_card_data_file(signature, &mut card_files).unwrap();
             let mut duplicate = card_file(vec![0x22; 64]);
@@ -360,7 +371,7 @@ mod tests {
             duplicate.card_file_notes = "must not be appended on rejection".to_owned();
             assert!(matches!(CardReader::process_card_data_file(duplicate, &mut card_files), Err(Error::DuplicateCardFile)));
             let generation = if appendix == 0 { &card_files.card_files_data_gen1 } else { &card_files.card_files_data_gen2 };
-            assert_eq!(generation.card_files_data[&CardFileID::CardDownload].signature, Some(vec![0x11; 64]));
+            assert_eq!(generation.card_files_data[&CardFileID::CardDownload].signature, Some(vec![0x11; size]));
             assert!(generation.card_notes.is_empty());
         }
     }

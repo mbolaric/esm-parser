@@ -2,6 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
+use crate::tacho::{RecordType, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information stored in a vehicle unit, related to the consent of a driver to
@@ -21,4 +22,9 @@ impl Readable for VuItsConsentRecord {
         let consent: bool = reader.read_u8()? == 1;
         Ok(Self { card_number_and_generation, consent })
     }
+}
+
+impl VuRecordLayout for VuItsConsentRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuITSConsentRecord;
+    const RECORD_SIZE: u16 = 20;
 }

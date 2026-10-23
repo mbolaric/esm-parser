@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
-use crate::tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal};
+use crate::tacho::{EventFaultRecordPurpose, EventFaultType, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to over speeding events
@@ -51,4 +51,9 @@ impl Readable for VuOverSpeedingEventRecord {
             similar_events_number,
         })
     }
+}
+
+impl VuRecordLayout for VuOverSpeedingEventRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuOverSpeedingEventRecord;
+    const RECORD_SIZE: u16 = 32;
 }

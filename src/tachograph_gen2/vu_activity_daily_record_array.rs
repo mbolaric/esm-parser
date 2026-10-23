@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::DataInfoReadable;
 use crate::tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, RecordType};
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{ReadableWithParams, Result, read_records};
+use crate::{ReadableWithParams, Result};
 
 /// Information, stored in a VU, related to changes of activity and/or
 /// changes of driving status and/or changes of card status for a given
@@ -27,9 +27,10 @@ impl DataInfoReadable for VuActivityDailyRecordArray {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
         let record_type = config.record_type;
+        config.validate_layout(RecordType::ActivityChangeInfo, 2)?;
 
         let params = ActivityChangeInfoParams::new(ActivityCard::Vu);
-        let records = read_records(reader, no_of_records as usize, |reader| ActivityChangeInfo::read(reader, &params))?;
+        let records = config.read_records(reader, |reader| ActivityChangeInfo::read(reader, &params))?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

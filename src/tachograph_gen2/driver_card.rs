@@ -18,7 +18,7 @@ use crate::tacho::{
     CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, TimeReal,
     VehiclesUsedParams, sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, ensure_consumed};
 
 /// Driver card application generation 2
 #[derive(Debug, Serialize)]
@@ -157,9 +157,6 @@ impl CardParser for DriverCard {
                 card_file.signature.is_some()
             );
             match card_item.0 {
-                CardFileID::ApplicationIdentificationV2 => {
-                    driver_card.application_identification_v2 = application_identification_v2.clone();
-                }
                 CardFileID::CardDownload => {
                     driver_card.card_download = Some(TimeReal::read(&mut reader)?);
                 }
@@ -217,7 +214,7 @@ impl CardParser for DriverCard {
                     driver_card.driving_license_info = Some(CardDrivingLicenceInformation::read(&mut reader)?);
                 }
                 CardFileID::SpecificConditions => {
-                    let params = SpecificConditionsParams::new(application_identification.no_of_specific_condition_records as u8);
+                    let params = SpecificConditionsParams::new(application_identification.no_of_specific_condition_records);
                     driver_card.specific_conditions = Some(SpecificConditions::read(&mut reader, &params)?);
                 }
                 CardFileID::VehicleUnitsUsed => {
@@ -270,11 +267,19 @@ impl CardParser for DriverCard {
                     let params = CertificateParams::new(None);
                     driver_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
-                CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
-                    trace!("DriverCard::parse - Already parsed: {:?}", card_item.0)
+                CardFileID::IC
+                | CardFileID::ICC
+                | CardFileID::ApplicationIdentification
+                | CardFileID::ApplicationIdentificationV2 => {
+                    trace!("DriverCard::parse - Already parsed: {:?}", card_item.0);
+                    continue;
                 }
-                _ => trace!("DriverCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => {
+                    trace!("DriverCard::parse - Not Parsed: {:?}", card_item.0);
+                    continue;
+                }
             }
+            ensure_consumed(&mut reader, &card_file.card_file_id.to_string())?;
         }
 
         Ok(Box::new(driver_card))

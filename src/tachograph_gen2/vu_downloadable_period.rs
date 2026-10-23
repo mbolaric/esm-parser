@@ -1,7 +1,7 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::tacho::TimeReal;
+use crate::tacho::{RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Oldest and latest dates for which a vehicle unit holds data related to
@@ -23,4 +23,9 @@ impl Readable for VuDownloadablePeriod {
         let max_downloadable_time = TimeReal::read(reader)?;
         Ok(Self { min_downloadable_time, max_downloadable_time })
     }
+}
+
+impl VuRecordLayout for VuDownloadablePeriod {
+    const RECORD_TYPE: RecordType = RecordType::VuDownloadablePeriod;
+    const RECORD_SIZE: u16 = 8;
 }

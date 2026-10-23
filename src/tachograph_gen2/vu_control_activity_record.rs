@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
-use crate::tacho::{ControlType, TimeReal};
+use crate::tacho::{ControlType, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to a control performed using
@@ -30,6 +30,7 @@ impl Readable for VuControlActivityRecord {
         let control_card_number_and_generation = FullCardNumberAndGeneration::read(reader)?;
         let download_period_begin_time = TimeReal::read(reader)?;
         let download_period_end_time = TimeReal::read(reader)?;
+
         Ok(Self {
             control_type,
             control_time,
@@ -38,4 +39,9 @@ impl Readable for VuControlActivityRecord {
             download_period_end_time,
         })
     }
+}
+
+impl VuRecordLayout for VuControlActivityRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuControlActivityRecord;
+    const RECORD_SIZE: u16 = 32;
 }

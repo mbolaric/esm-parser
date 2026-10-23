@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use crate::Readable;
-use crate::tacho::CardSlotStatusType;
+use crate::tacho::{CardSlotStatusType, RecordType, VuRecordLayout};
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -20,4 +20,9 @@ impl Readable for CardSlotStatus {
         let driver_slot: CardSlotStatusType = (data & 0xF).into();
         Ok(Self { data, driver_slot, co_driver_slot })
     }
+}
+
+impl VuRecordLayout for CardSlotStatus {
+    const RECORD_TYPE: RecordType = RecordType::CardSlotStatus;
+    const RECORD_SIZE: u16 = 1;
 }

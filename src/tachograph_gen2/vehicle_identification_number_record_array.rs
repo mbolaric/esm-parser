@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::DataInfoReadable;
 use crate::tacho::RecordType;
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{CodePage, Result, bytes_to_string, read_records};
+use crate::{CodePage, Result, bytes_to_string};
 
 /// The Vehicle Idenification Number plus metadata as used in the download protocol.
 #[derive(Debug, Serialize)]
@@ -25,8 +25,9 @@ impl DataInfoReadable for VehicleIdentificationNumberRecordArray {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
         let record_type = config.record_type;
+        config.validate_layout(RecordType::VehicleIdentificationNumber, 17)?;
 
-        let records = read_records(reader, no_of_records as usize, |reader| {
+        let records = config.read_records(reader, |reader| {
             Ok(bytes_to_string(&reader.read_into_vec(record_size as u32)?, &CodePage::IsoIec8859_1))
         })?;
         Ok(Self { no_of_records, record_size, record_type, records })

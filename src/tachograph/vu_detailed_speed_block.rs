@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::tacho::TimeReal;
+use crate::tacho::{RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, read_records};
 
 /// Information, stored in a vehicle unit, related to the vehicle's detailed
@@ -21,4 +21,9 @@ impl Readable for VuDetailedSpeedBlock {
         let speeds_per_second = read_records(reader, 60, |reader| Ok(reader.read_u8()?))?;
         Ok(Self { speed_block_begin_date, speeds_per_second })
     }
+}
+
+impl VuRecordLayout for VuDetailedSpeedBlock {
+    const RECORD_TYPE: RecordType = RecordType::VuDetailedSpeedBlock;
+    const RECORD_SIZE: u16 = 64;
 }

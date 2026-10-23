@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
-use crate::tacho::{CardNumber, CardNumberParams, CardStructureVersion, ExtendedSerialNumber};
+use crate::tacho::{CardNumber, CardNumberParams, CardStructureVersion, ExtendedSerialNumber, RecordType, VuRecordLayout};
 use crate::{Readable, ReadableWithParams, Result};
 
 /// Information, stored in a vehicle unit, about a tachograph card used (Annex IC requirement 132).
@@ -27,6 +27,12 @@ impl Readable for VuCardRecord {
         let card_structure_version = CardStructureVersion::read(reader)?;
         let params = CardNumberParams::new(full_card_number_and_generation.full_card_number.card_type);
         let card_number = CardNumber::read(reader, &params)?;
+
         Ok(Self { full_card_number_and_generation, card_extended_serial_number, card_structure_version, card_number })
     }
+}
+
+impl VuRecordLayout for VuCardRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuCardRecord;
+    const RECORD_SIZE: u16 = 45;
 }

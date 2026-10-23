@@ -2,7 +2,7 @@ use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::tacho::TimeReal;
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Error, Readable, ReadableWithParams, Result, validate_ring_pointer};
 
 pub trait CardPlace {
     fn get_entry_time(&self) -> &TimeReal;
@@ -36,11 +36,17 @@ impl<T: Readable + CardPlace> ReadableWithParams for CardPlaceDailyWorkPeriod<T>
     type P = CardPlaceDailyWorkPeriodParams;
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardPlaceDailyWorkPeriod<T>> {
+        if !matches!(params.size_of_newest_place_record, 1 | 2)
+            || (params.size_of_newest_place_record == 1 && params.no_of_records > u32::from(u8::MAX))
+        {
+            return Err(Error::RecordOutOfRange("Place pointer width or capacity".to_owned()));
+        }
         let place_pointer_newest_record = if params.size_of_newest_place_record == 1 {
             reader.read_u8()? as i32
         } else {
             reader.read_u16::<BigEndian>()? as i32
         };
+        validate_ring_pointer(place_pointer_newest_record as u32, params.no_of_records, "place_pointer_newest_record")?;
 
         let mut place_records: Vec<T> = Vec::new();
         for _ in 0..params.no_of_records {

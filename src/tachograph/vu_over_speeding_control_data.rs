@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use crate::Readable;
-use crate::tacho::TimeReal;
+use crate::tacho::{RecordType, TimeReal, VuRecordLayout};
 
 /// Information, stored in a vehicle unit, related to over speeding events
 /// since the last over speeding control (Annex 1B requirement 095 and
@@ -24,4 +24,9 @@ impl Readable for VuOverSpeedingControlData {
         let number_of_overspeed_since = reader.read_u8()?;
         Ok(Self { last_overspeed_control_time, first_overspeed_since, number_of_overspeed_since })
     }
+}
+
+impl VuRecordLayout for VuOverSpeedingControlData {
+    const RECORD_TYPE: RecordType = RecordType::VuOverSpeedingControlData;
+    const RECORD_SIZE: u16 = 9;
 }

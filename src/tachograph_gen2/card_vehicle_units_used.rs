@@ -2,7 +2,7 @@ use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::tacho::TimeReal;
-use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string};
+use crate::{Readable, ReadableWithParams, Result, bytes_to_ia5_fix_string, validate_ring_pointer};
 
 const VU_SOFTWARE_VERSION_LENGTH: u32 = 4;
 
@@ -60,6 +60,11 @@ impl ReadableWithParams for CardVehicleUnitsUsed {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardVehicleUnitsUsed> {
         let vehicle_unit_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        validate_ring_pointer(
+            vehicle_unit_pointer_newest_record as u32,
+            params.no_of_card_vehicle_unit_records,
+            "vehicle_unit_pointer_newest_record",
+        )?;
         let mut records: Vec<CardVehicleUnitRecord> = Vec::new();
         for _ in 0..params.no_of_card_vehicle_unit_records {
             let record = CardVehicleUnitRecord::read(reader)?;

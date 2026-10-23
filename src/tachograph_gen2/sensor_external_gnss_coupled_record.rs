@@ -1,7 +1,7 @@
 use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::tacho::{ExtendedSerialNumber, TimeReal};
+use crate::tacho::{ExtendedSerialNumber, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result, bytes_to_ia5_fix_string};
 
 /// Information, stored in a vehicle unit, related to the identification of the
@@ -26,4 +26,9 @@ impl Readable for SensorExternalGNSSCoupledRecord {
 
         Ok(Self { sensor_serial_number, sensor_approval_number, sensor_coupling_date })
     }
+}
+
+impl VuRecordLayout for SensorExternalGNSSCoupledRecord {
+    const RECORD_TYPE: RecordType = RecordType::SensorExternalGNSSCoupledRecord;
+    const RECORD_SIZE: u16 = 28;
 }

@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
-use crate::tacho::{Address, Name, TimeReal};
+use crate::tacho::{Address, Name, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to one company lock
@@ -30,6 +30,12 @@ impl Readable for VuCompanyLocksRecord {
         let company_name = Name::read(reader)?;
         let company_address = Address::read(reader)?;
         let company_card_number_and_generation = FullCardNumberAndGeneration::read(reader)?;
+
         Ok(Self { lock_in_time, lock_out_time, company_name, company_address, company_card_number_and_generation })
     }
+}
+
+impl VuRecordLayout for VuCompanyLocksRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuCompanyLocksRecord;
+    const RECORD_SIZE: u16 = 99;
 }

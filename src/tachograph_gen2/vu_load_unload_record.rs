@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::{FullCardNumberAndGeneration, GnssPlaceAuthRecord, OperationType};
-use crate::tacho::{OdometerShort, TimeReal};
+use crate::tacho::{OdometerShort, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// A load/unload operation stored in a generation 2 version 2 vehicle unit
@@ -25,10 +25,6 @@ pub struct VuLoadUnloadRecord {
     pub vehicle_odometer_value: OdometerShort,
 }
 
-impl VuLoadUnloadRecord {
-    pub(crate) const RECORD_SIZE: u16 = 58;
-}
-
 impl Readable for VuLoadUnloadRecord {
     fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<VuLoadUnloadRecord> {
         let time_stamp = TimeReal::read(reader)?;
@@ -47,4 +43,9 @@ impl Readable for VuLoadUnloadRecord {
             vehicle_odometer_value,
         })
     }
+}
+
+impl VuRecordLayout for VuLoadUnloadRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuLoadUnloadRecord;
+    const RECORD_SIZE: u16 = 58;
 }

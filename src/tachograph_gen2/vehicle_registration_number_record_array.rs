@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::gen2::DataInfoReadable;
 use crate::tacho::{RecordType, VehicleRegistrationNumber};
 use crate::tachograph_gen2::data_info::DataConfig;
-use crate::{Readable, Result, read_records};
+use crate::{Readable, Result};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -24,8 +24,9 @@ impl DataInfoReadable for VehicleRegistrationNumberRecordArray {
         let no_of_records = config.no_of_records;
         let record_size = config.record_size;
         let record_type = config.record_type;
+        config.validate_layout(RecordType::VehicleRegistrationNumber, 14)?;
 
-        let records = read_records(reader, no_of_records as usize, |reader| VehicleRegistrationNumber::read(reader))?;
+        let records = config.read_records(reader, VehicleRegistrationNumber::read)?;
         Ok(Self { no_of_records, record_size, record_type, records })
     }
 }

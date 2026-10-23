@@ -2,7 +2,7 @@ use binary_data::{BigEndian, BinRingMemoryBuffer, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::tacho::{ActivityCard, ActivityChangeInfo, ActivityChangeInfoParams, TimeReal};
-use crate::{BCDString, Error, Readable, ReadableWithParams, Result};
+use crate::{BCDString, Error, Readable, ReadableWithParams, Result, read_records};
 
 /// Information, stored in a card, related to the driver activities for a
 /// particular calendar day. This data type is related to Annex 1C
@@ -25,13 +25,15 @@ pub struct CardActivityDailyRecord {
 }
 
 impl Readable for CardActivityDailyRecord {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> crate::Result<CardActivityDailyRecord> {
-        let position = reader.pos()?;
+    fn read<R: ReadBytes + BinSeek>(reader: &mut R) -> Result<CardActivityDailyRecord> {
         let reader_length = reader.len()?;
         let activity_previous_record_length = reader.read_u16::<BigEndian>()?;
         let activity_record_length = reader.read_u16::<BigEndian>()?;
         if activity_record_length % 2 != 0 {
             return Err(Error::CardActivityDailyRecord("Card Activity Record Length is not even".to_owned()));
+        }
+        if activity_record_length != 0 && (activity_record_length < 12 || usize::from(activity_record_length) > reader_length) {
+            return Err(Error::CardActivityDailyRecord("Card Activity Record Length is outside its buffer".to_owned()));
         }
         let record_date = TimeReal::read(reader)?;
         let daily_presence_counter = BCDString::decode(&reader.read_into_vec(2)?)?;
@@ -48,23 +50,14 @@ impl Readable for CardActivityDailyRecord {
             });
         }
 
-        let mut end_pos = position + activity_record_length as usize;
-        if end_pos >= reader_length {
-            end_pos -= reader_length;
+        let activity_count = usize::from(activity_record_length - 12) / 2;
+        if activity_count > 1440 {
+            return Err(Error::CardActivityDailyRecord(
+                "Card with ActivityDailyRecord has more than 1440 activities in day".to_owned(),
+            ));
         }
-        let mut activity_infos: Vec<ActivityChangeInfo> = Vec::new();
-        let mut activity_counter = 0;
         let params = ActivityChangeInfoParams::new(ActivityCard::Card);
-        while reader.pos()? != end_pos {
-            let activity_info = ActivityChangeInfo::read(reader, &params)?;
-            activity_infos.push(activity_info);
-            activity_counter += 1;
-            if activity_counter > 1440 {
-                return Err(Error::CardActivityDailyRecord(
-                    "Card with ActivityDailyRecord has more than 1440 activities in day".to_owned(),
-                ));
-            }
-        }
+        let activity_infos = read_records(reader, activity_count, |reader| ActivityChangeInfo::read(reader, &params))?;
         Ok(Self {
             activity_previous_record_length,
             activity_record_length,
@@ -105,6 +98,12 @@ impl ReadableWithParams for CardDriverActivity {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardDriverActivity> {
         let card_activity_length_range = params.card_activity_length_range;
+        let remaining = reader.len()?.saturating_sub(reader.pos()?);
+        if !(12..=u32::from(u16::MAX) - 4).contains(&card_activity_length_range)
+            || remaining < card_activity_length_range as usize + 4
+        {
+            return Err(Error::CardActivityDailyRecord("Card activity EF size does not match its capacity".to_owned()));
+        }
         let activity_pointer_oldest_day_record = reader.read_u16::<BigEndian>()? as u32;
         let activity_pointer_newest_record = reader.read_u16::<BigEndian>()? as u32;
         let activity_daily_records_raw = reader.read_into_vec(card_activity_length_range)?;
@@ -120,9 +119,16 @@ impl ReadableWithParams for CardDriverActivity {
         let mut activity_reader =
             BinRingMemoryBuffer::new_with_offset(activity_daily_records_raw, activity_pointer_oldest_day_record as usize);
 
+        let mut consumed = 0;
         loop {
             let position = activity_reader.pos()?;
             let record = CardActivityDailyRecord::read(&mut activity_reader)?;
+            consumed += usize::from(record.activity_record_length).max(12);
+            if consumed > card_activity_length_range as usize {
+                return Err(Error::CardActivityDailyRecord(
+                    "Newest record pointer is not on the activity record chain".to_owned(),
+                ));
+            }
             daily_records.push(record);
 
             if position == activity_pointer_newest_record as usize {

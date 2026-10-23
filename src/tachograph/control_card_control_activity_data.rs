@@ -1,7 +1,7 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
-use crate::{Readable, ReadableWithParams, Result, read_records};
+use crate::{Readable, ReadableWithParams, Result, read_records, validate_ring_pointer};
 
 #[derive(Debug)]
 pub struct ControlCardControlActivityDataParams {
@@ -30,6 +30,11 @@ impl<T: Readable> ReadableWithParams for ControlCardControlActivityData<T> {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<ControlCardControlActivityData<T>> {
         let control_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        validate_ring_pointer(
+            control_pointer_newest_record as u32,
+            params.no_of_control_card_activity_records,
+            "control_pointer_newest_record",
+        )?;
         let control_activity_records =
             read_records(reader, params.no_of_control_card_activity_records as usize, |reader| T::read(reader))?;
         Ok(Self { control_pointer_newest_record, control_activity_records })

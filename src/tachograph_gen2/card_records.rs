@@ -1,6 +1,6 @@
 use binary_data::{BigEndian, BinSeek, ReadBytes};
 
-use crate::{Error, Readable, Result, read_records};
+use crate::{Error, Readable, Result, read_records_with_size};
 
 /// Reads a Gen2 card EF's two-byte slot pointer and fixed-size records, retaining every physical slot.
 pub(super) fn read_card_records<R: ReadBytes + BinSeek, T: Readable>(
@@ -23,7 +23,7 @@ pub(super) fn read_card_records<R: ReadBytes + BinSeek, T: Readable>(
     if u32::from(pointer) >= count {
         return Err(Error::RecordOutOfRange(format!("{name} newest-record pointer: {pointer}, capacity: {count}")));
     }
-    let records = read_records(reader, count as usize, T::read)?;
+    let records = read_records_with_size(reader, count as usize, record_size, T::read)?;
     if reader.pos()? != reader.len()? {
         return Err(Error::InvalidDataParse(format!("{name} record parser did not consume the complete EF")));
     }

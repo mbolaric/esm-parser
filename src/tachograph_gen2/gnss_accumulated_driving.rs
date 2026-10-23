@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::gen2::GnssPlaceRecord;
 use crate::tacho::{OdometerShort, TimeReal};
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, validate_ring_pointer};
 
 /// Information, stored in a driver or workshop card, related to the GNSS
 /// position of the vehicle if the accumulated driving time reaches a multiple
@@ -58,6 +58,11 @@ impl ReadableWithParams for GnssAccumulatedDriving {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<GnssAccumulatedDriving> {
         let gnss_ad_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        validate_ring_pointer(
+            gnss_ad_pointer_newest_record as u32,
+            params.no_of_gnss_ad_records,
+            "gnss_ad_pointer_newest_record",
+        )?;
         let mut records: Vec<GnssAccumulatedDrivingRecord> = Vec::new();
         for _ in 0..params.no_of_gnss_ad_records {
             let record = GnssAccumulatedDrivingRecord::read(reader)?;

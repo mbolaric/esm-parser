@@ -1,8 +1,8 @@
 use binary_data::BigEndian;
 use serde::Serialize;
 
-use crate::Readable;
 use crate::tacho::{CardStructureVersion, EquipmentType};
+use crate::{Error, Readable, Result};
 
 /// Information, stored in a workshop card related to the identification of the
 /// application of the card (Annex 1C requirement 307 and 330).
@@ -35,9 +35,7 @@ pub struct WorkshopCardApplicationIdentification {
 }
 
 impl Readable for WorkshopCardApplicationIdentification {
-    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(
-        reader: &mut R,
-    ) -> crate::Result<WorkshopCardApplicationIdentification> {
+    fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> Result<WorkshopCardApplicationIdentification> {
         let type_of_tachograph_card_id = reader.read_u8()?.into();
         let card_structure_version = CardStructureVersion::read(reader)?;
         let no_events_per_type = reader.read_u8()?;
@@ -49,6 +47,11 @@ impl Readable for WorkshopCardApplicationIdentification {
 
         let no_of_gnssad_records = reader.read_u16::<BigEndian>()? as u32;
         let no_of_specific_condition_records = reader.read_u16::<BigEndian>()? as u32;
+        if no_of_specific_condition_records > 4 {
+            return Err(Error::RecordOutOfRange(format!(
+                "Workshop specific-condition capacity: {no_of_specific_condition_records}"
+            )));
+        }
         let no_of_card_vehicle_unit_records = reader.read_u16::<BigEndian>()? as u32;
 
         Ok(Self {

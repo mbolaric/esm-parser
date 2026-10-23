@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::{FullCardNumberAndGeneration, ManufacturerSpecificEventFaultData};
-use crate::tacho::{EventFaultRecordPurpose, EventFaultType, TimeReal};
+use crate::tacho::{EventFaultRecordPurpose, EventFaultType, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related to an event (Annex 1B
@@ -59,4 +59,9 @@ impl Readable for VuEventRecord {
             manufacturer_specific_event_fault_data,
         })
     }
+}
+
+impl VuRecordLayout for VuEventRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuEventRecord;
+    const RECORD_SIZE: u16 = 91;
 }

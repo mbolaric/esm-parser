@@ -4,6 +4,7 @@ use time::OffsetDateTime;
 use time::macros::format_description;
 
 use crate::Readable;
+use crate::tacho::{RecordType, VUTransferResponseParameterID, VuRecordLayout};
 
 /// Represents a real-time timestamp from a tachograph DDD file, stored as a u32 Unix timestamp.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -91,6 +92,19 @@ impl Serialize for TimeReal {
             serializer.serialize_str(&s)
         } else {
             serializer.serialize_none()
+        }
+    }
+}
+
+impl VuRecordLayout for TimeReal {
+    const RECORD_TYPE: RecordType = RecordType::CurrentDateTime;
+    const RECORD_SIZE: u16 = 4;
+
+    fn record_type(trep_id: VUTransferResponseParameterID) -> RecordType {
+        if matches!(trep_id, VUTransferResponseParameterID::Gen2Activities | VUTransferResponseParameterID::Gen2v2Activities) {
+            RecordType::DateOfDayDownloaded
+        } else {
+            Self::RECORD_TYPE
         }
     }
 }

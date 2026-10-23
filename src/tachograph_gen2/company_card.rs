@@ -10,7 +10,7 @@ use crate::tacho::{
     CardParser, CompanyActivityData, CompanyActivityDataParams, CompanyActivityRecord, CompanyCardApplicationIdentification,
     DataFiles, Identification, IdentificationParams, sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, ensure_consumed};
 
 /// Company card application generation 2
 #[derive(Debug, Serialize)]
@@ -117,10 +117,15 @@ impl CardParser for CompanyCard {
                     company_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
-                    trace!("CompanyCard::parse - Already parsed: {:?}", card_item.0)
+                    trace!("CompanyCard::parse - Already parsed: {:?}", card_item.0);
+                    continue;
                 }
-                _ => trace!("CompanyCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => {
+                    trace!("CompanyCard::parse - Not Parsed: {:?}", card_item.0);
+                    continue;
+                }
             }
+            ensure_consumed(&mut reader, &card_file.card_file_id.to_string())?;
         }
 
         Ok(Box::new(company_card))

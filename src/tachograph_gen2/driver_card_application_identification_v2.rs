@@ -24,6 +24,11 @@ pub struct DriverCardApplicationIdentificationV2 {
 impl Readable for DriverCardApplicationIdentificationV2 {
     fn read<R: binary_data::ReadBytes + binary_data::BinSeek>(reader: &mut R) -> Result<DriverCardApplicationIdentificationV2> {
         let length_of_following_data = reader.read_u16::<BigEndian>()?;
+        if length_of_following_data != 8 {
+            return Err(Error::InvalidDataParse(format!(
+                "Unsupported driver ApplicationIdentificationV2 lengthOfFollowingData: {length_of_following_data}, expected 8"
+            )));
+        }
         let no_of_border_crossing_records = reader.read_u16::<BigEndian>()?;
         let no_of_load_unload_records = reader.read_u16::<BigEndian>()?;
         let no_of_load_type_entry_records = reader.read_u16::<BigEndian>()?;

@@ -2,6 +2,7 @@ use binary_data::BigEndian;
 use serde::Serialize;
 
 use crate::Readable;
+use crate::tacho::{RecordType, VuRecordLayout};
 
 /// the odometer value.
 #[derive(Debug, PartialEq, Eq)]
@@ -29,4 +30,9 @@ impl Serialize for OdometerShort {
     {
         if let Some(val) = self.data { serializer.serialize_u32(val) } else { serializer.serialize_none() }
     }
+}
+
+impl VuRecordLayout for OdometerShort {
+    const RECORD_TYPE: RecordType = RecordType::OdometerValueMidnight;
+    const RECORD_SIZE: u16 = 3;
 }

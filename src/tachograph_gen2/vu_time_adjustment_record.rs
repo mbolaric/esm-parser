@@ -2,7 +2,7 @@ use binary_data::{BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::gen2::FullCardNumberAndGeneration;
-use crate::tacho::{Address, Name, TimeReal};
+use crate::tacho::{Address, Name, RecordType, TimeReal, VuRecordLayout};
 use crate::{Readable, Result};
 
 /// Information, stored in a vehicle unit, related a time adjustment
@@ -34,4 +34,9 @@ impl Readable for VuTimeAdjustmentRecord {
 
         Ok(Self { old_time_value, new_time_value, workshop_name, workshop_address, workshop_card_number_and_generation })
     }
+}
+
+impl VuRecordLayout for VuTimeAdjustmentRecord {
+    const RECORD_TYPE: RecordType = RecordType::VuTimeAdjustmentRecord;
+    const RECORD_SIZE: u16 = 99;
 }

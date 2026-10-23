@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::gen2::LoadType;
 use crate::tacho::TimeReal;
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, validate_ring_pointer};
 
 /// Information, stored in a driver or workshop card, related to load type entries
 /// (Annex IC requirements 306j and 356j)
@@ -52,6 +52,11 @@ impl ReadableWithParams for LoadTypeEntries {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<LoadTypeEntries> {
         let load_type_entry_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        validate_ring_pointer(
+            load_type_entry_pointer_newest_record as u32,
+            u32::from(params.no_of_load_type_entry_records),
+            "load_type_entry_pointer_newest_record",
+        )?;
         let mut records: Vec<LoadTypeEntryRecord> = Vec::new();
         for _ in 0..params.no_of_load_type_entry_records {
             let record = LoadTypeEntryRecord::read(reader)?;

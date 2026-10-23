@@ -2,7 +2,7 @@ use binary_data::{BigEndian, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::tacho::TimeReal;
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, validate_ring_pointer};
 
 pub trait VehicleUse {
     fn get_vehicle_first_use(&self) -> &TimeReal;
@@ -36,6 +36,11 @@ impl<T: Readable + VehicleUse> ReadableWithParams for CardVehiclesUsed<T> {
 
     fn read<R: ReadBytes + BinSeek>(reader: &mut R, params: &Self::P) -> Result<CardVehiclesUsed<T>> {
         let vehicle_pointer_newest_record = reader.read_u16::<BigEndian>()?;
+        validate_ring_pointer(
+            vehicle_pointer_newest_record as u32,
+            params.no_of_card_vehicle_records,
+            "vehicle_pointer_newest_record",
+        )?;
         let mut vehicle_records: Vec<T> = Vec::new();
         for _ in 0..params.no_of_card_vehicle_records {
             let record = T::read(reader)?;

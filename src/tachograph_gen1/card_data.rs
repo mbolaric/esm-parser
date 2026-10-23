@@ -7,7 +7,7 @@ use crate::tacho::{
     ApplicationIdentification, CardFileID, CardFilesDataByCardGeneration, CardGeneration, CardParser, CardReader, EquipmentType,
     TachographHeader,
 };
-use crate::{Error, Result};
+use crate::{Error, Readable, Result};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "typescript", derive(ts_rs::TS))]
@@ -40,8 +40,8 @@ impl CardData {
             card_files.card_files_data.len(),
             card_files.card_notes
         );
-        let application_identification: ApplicationIdentification =
-            card_files.parse_required(&CardFileID::ApplicationIdentification)?;
+        let mut application_reader = card_files.data_into_reader(&CardFileID::ApplicationIdentification)?;
+        let application_identification = ApplicationIdentification::read(&mut application_reader)?;
         trace!("CardData::parse_card - Application identification: {application_identification:?}");
         match application_identification.type_of_tachograph_card_id {
             EquipmentType::DriverCard => Ok(CardResponseParameterData::DriverCard(DriverCard::parse(card_files)?)),

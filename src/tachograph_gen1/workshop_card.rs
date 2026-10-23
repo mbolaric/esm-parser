@@ -15,7 +15,7 @@ use crate::tacho::{
     CardPlaceDailyWorkPeriodParams, CardVehiclesUsed, DataFiles, Identification, IdentificationParams, VehiclesUsedParams,
     WorkshopCardCalibrationData, WorkshopCardCalibrationDataParams, sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, ensure_consumed};
 
 /// Workshop card application generation 1
 #[derive(Debug, Serialize)]
@@ -167,10 +167,15 @@ impl CardParser for WorkshopCard {
                     workshop_card.ca_certificate = Some(Certificate::read(&mut reader)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
-                    trace!("WorkshopCard::parse - Already parsed: {:?}", card_item.0)
+                    trace!("WorkshopCard::parse - Already parsed: {:?}", card_item.0);
+                    continue;
                 }
-                _ => trace!("WorkshopCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => {
+                    trace!("WorkshopCard::parse - Not Parsed: {:?}", card_item.0);
+                    continue;
+                }
             }
+            ensure_consumed(&mut reader, &card_file.card_file_id.to_string())?;
         }
 
         Ok(Box::new(workshop_card))

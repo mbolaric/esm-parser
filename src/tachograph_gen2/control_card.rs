@@ -10,7 +10,7 @@ use crate::tacho::{
     CardParser, ControlCardActivityRecord, ControlCardApplicationIdentification, ControlCardControlActivityData,
     ControlCardControlActivityDataParams, DataFiles, Identification, IdentificationParams, sorted_card_files,
 };
-use crate::{Readable, ReadableWithParams, Result};
+use crate::{Readable, ReadableWithParams, Result, ensure_consumed};
 
 /// Control card application generation 2
 #[derive(Debug, Serialize)]
@@ -118,10 +118,15 @@ impl CardParser for ControlCard {
                     control_card.link_certificate = Some(Certificate::read(&mut reader, &params)?);
                 }
                 CardFileID::IC | CardFileID::ICC | CardFileID::ApplicationIdentification => {
-                    trace!("ControlCard::parse - Already parsed: {:?}", card_item.0)
+                    trace!("ControlCard::parse - Already parsed: {:?}", card_item.0);
+                    continue;
                 }
-                _ => trace!("ControlCard::parse - Not Parsed: {:?}", card_item.0),
+                _ => {
+                    trace!("ControlCard::parse - Not Parsed: {:?}", card_item.0);
+                    continue;
+                }
             }
+            ensure_consumed(&mut reader, &card_file.card_file_id.to_string())?;
         }
 
         Ok(Box::new(control_card))
