@@ -2,8 +2,8 @@ use binary_data::{BinMemoryBuffer, BinSeek, ReadBytes};
 use serde::Serialize;
 
 use crate::error::{Error, Result};
-use crate::tacho::{TachographDataGeneration, TachographDataType};
-use crate::{CARD_HEADER, CARD_HEADER_VU_DATA, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2};
+use crate::tacho::{CardFileID, TachographDataGeneration, TachographDataType};
+use crate::{CARD_HEADER_VU_DATA, VU_HEADER_G1, VU_HEADER_G2, VU_HEADER_G2_V2};
 
 /// Represents the header of a tachograph file.
 #[derive(Debug, Clone, Serialize)]
@@ -55,15 +55,21 @@ impl TachographHeader {
                 data_type: TachographDataType::VU,
                 card_in_vu_data: false,
             }),
-            CARD_HEADER | CARD_HEADER_VU_DATA => {
+            prefix if prefix == CARD_HEADER_VU_DATA || CardFileID::from(u16::from_be_bytes(prefix)) != CardFileID::Unknown => {
                 let card_in_vu_data = prefix == CARD_HEADER_VU_DATA;
                 reader.seek(if card_in_vu_data { 2 } else { 0 })?;
+                if reader.pos()? == length {
+                    return Err(Error::PartialCardFile);
+                }
                 let mut generation = TachographDataGeneration::FirstGeneration;
                 while reader.pos()? < length {
                     if length - reader.pos()? < 5 {
                         return Err(Error::PartialCardFile);
                     }
                     let section = reader.read_bytes::<5>()?;
+                    if CardFileID::from(u16::from_be_bytes([section[0], section[1]])) == CardFileID::Unknown {
+                        return Err(Error::UnknownCardType);
+                    }
                     match section[2] {
                         0 | 1 => (),
                         2 | 3 => generation = TachographDataGeneration::SecondGeneration,
@@ -131,20 +137,57 @@ mod tests {
     }
 
     #[test]
+    fn cards_can_start_with_any_known_ef() {
+        for id in [CardFileID::IC, CardFileID::ApplicationIdentification, CardFileID::CardCertificate, CardFileID::Identification]
+        {
+            for appendix in [0, 2] {
+                let mut bytes = section(appendix, &[0]);
+                bytes[..2].copy_from_slice(&(id as u16).to_be_bytes());
+                for wrapped in [false, true] {
+                    let bytes = if wrapped { [CARD_HEADER_VU_DATA.to_vec(), bytes.clone()].concat() } else { bytes.clone() };
+                    let header = TachographHeader::from_data(&bytes).unwrap();
+                    assert_eq!(header.data_type, TachographDataType::Card);
+                    assert_eq!(header.card_in_vu_data, wrapped);
+                    assert_eq!(
+                        header.generation,
+                        if appendix == 2 {
+                            TachographDataGeneration::SecondGeneration
+                        } else {
+                            TachographDataGeneration::FirstGeneration
+                        }
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
     fn rejects_truncated_sections_invalid_appendices_and_unknown_headers() {
         for data in [Vec::new(), vec![0]] {
             assert!(matches!(TachographHeader::from_data(&data), Err(Error::InvalidHeaderLength)));
         }
         assert!(matches!(TachographHeader::from_data(&[0xFF, 0xFF]), Err(Error::InvalidHeaderData)));
-        for data in [vec![0, 2], vec![0, 2, 0, 0], vec![0, 2, 0, 0, 2, 1], vec![0x76, 6, 0, 2]] {
+        for data in [
+            vec![0, 2],
+            vec![0, 2, 0, 0],
+            vec![0, 2, 0, 0, 2, 1],
+            vec![0x76, 6, 0, 2],
+            vec![0x76, 6],
+            vec![5, 1],
+            vec![5, 1, 0, 0, 2, 1],
+        ] {
             assert!(matches!(TachographHeader::from_data(&data), Err(Error::PartialCardFile)));
+        }
+        let unknown = vec![0xFF, 0xFF, 0, 0, 0];
+        for bytes in [[CARD_HEADER_VU_DATA.to_vec(), unknown.clone()].concat(), [section(0, &[]), unknown].concat()] {
+            assert!(matches!(TachographHeader::from_data(&bytes), Err(Error::UnknownCardType)));
         }
         assert!(matches!(TachographHeader::from_data(&section(4, &[])), Err(Error::InvalidCardFileAppendix(4))));
     }
 
     #[test]
     fn reader_position_is_preserved_on_success_and_failure() {
-        for (data, valid) in [(section(2, &[0]), true), (vec![0, 2, 0, 0, 2, 1], false)] {
+        for (data, valid) in [(section(2, &[0]), true), (vec![5, 1, 0, 0, 0], true), (vec![5, 1, 0, 0, 2, 1], false)] {
             let mut reader = BinMemoryBuffer::from(data);
             reader.seek(3).unwrap();
             assert_eq!(TachographHeader::from_reader(&mut reader).is_ok(), valid);

@@ -28,9 +28,9 @@ pub struct WorkshopCard {
     #[serde(rename = "cardGeneration")]
     pub card_generation: CardGeneration,
     #[serde(rename = "cardChipIdentification")]
-    pub card_chip_identification: CardChipIdentification,
+    pub card_chip_identification: Option<CardChipIdentification>,
     #[serde(rename = "cardIccIdentification")]
-    pub card_icc_identification: CardIccIdentification,
+    pub card_icc_identification: Option<CardIccIdentification>,
     #[serde(rename = "applicationIdentification")]
     pub application_identification: WorkshopCardApplicationIdentification,
     #[serde(rename = "applicationIdentificationV2")]
@@ -85,8 +85,8 @@ pub struct WorkshopCard {
 
 impl WorkshopCard {
     fn new(
-        card_chip_identification: CardChipIdentification,
-        card_icc_identification: CardIccIdentification,
+        card_chip_identification: Option<CardChipIdentification>,
+        card_icc_identification: Option<CardIccIdentification>,
         application_identification: WorkshopCardApplicationIdentification,
         card_notes: String,
         data_files: HashMap<CardFileID, CardFileData>,
@@ -127,8 +127,8 @@ impl WorkshopCard {
 
 impl CardParser for WorkshopCard {
     fn parse(card_files: CardFilesDataByCardGenerationItem) -> Result<Box<WorkshopCard>> {
-        let card_chip_identification = card_files.parse_required(&CardFileID::IC)?;
-        let card_icc_identification = card_files.parse_required(&CardFileID::ICC)?;
+        let card_chip_identification = card_files.parse_optional(&CardFileID::IC)?;
+        let card_icc_identification = card_files.parse_optional(&CardFileID::ICC)?;
         let application_identification =
             card_files.parse_required::<WorkshopCardApplicationIdentification>(&CardFileID::ApplicationIdentification)?;
         let application_identification_v2 =

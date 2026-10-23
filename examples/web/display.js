@@ -305,8 +305,8 @@ export class DisplayData {
     processCardAllGenHeader = (data) => {
         this.addMenuHeader(data.applicationIdentification.typeOfTachographCardId);
         this.addMenuElement("Identification", DataParts.Identification, data.cardGeneration);
-        this.addMenuElement("IC", DataParts.IC, data.cardGeneration);
-        this.addMenuElement("ICC", DataParts.ICC, data.cardGeneration);
+        this.addCardMenu(data, "IC", DataParts.IC, data.cardGeneration);
+        this.addCardMenu(data, "ICC", DataParts.ICC, data.cardGeneration);
         this.addMenuDivider();
     };
 

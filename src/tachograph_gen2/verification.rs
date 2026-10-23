@@ -323,10 +323,6 @@ pub fn verify_with_time(
     erca_pk: &[u8; GEN2_CERTIFICATE_SIZE],
     validation_time: Option<u32>,
 ) -> Result<VerifyResult> {
-    if !data_files.contains_key(&CardFileID::IC) || !data_files.contains_key(&CardFileID::ICC) {
-        return Ok(VerifyResult { status: VerifyResultStatus::Unsigned, result: Vec::new() });
-    }
-
     let msca_cert_file = data_files
         .get(&CardFileID::CACertificate)
         .ok_or_else(|| Error::VerifyError("Missing MSCA Certificate (CACertificate).".to_string()))?;
@@ -719,6 +715,20 @@ mod tests {
         assert!(verified.result.iter().all(|item| item.card_file_id != CardFileID::CardDownload));
         for id in v2_files {
             assert!(verified.result.iter().any(|item| item.card_file_id == id && matches!(item.status, VerifyStatus::Valid)));
+        }
+
+        for missing in [vec![CardFileID::IC], vec![CardFileID::ICC], vec![CardFileID::IC, CardFileID::ICC]] {
+            let mut without_common_files = data_files.clone();
+            for id in missing {
+                without_common_files.remove(&id);
+            }
+            let verified = verify(&without_common_files, &root).unwrap();
+            assert!(matches!(verified.status, VerifyResultStatus::Valid));
+            assert_eq!(verified.result.len(), v2_files.len() + 3);
+        }
+        data_files.remove(&CardFileID::IC);
+        data_files.remove(&CardFileID::ICC);
+        for id in v2_files {
             let mut tampered_files = data_files.clone();
             tampered_files.get_mut(&id).unwrap().data.as_mut().unwrap()[6] ^= 0x01;
             let tampered = verify(&tampered_files, &root).unwrap();
@@ -734,6 +744,16 @@ mod tests {
                 .iter()
                 .any(|item| { item.card_file_id == CardFileID::EventsData && matches!(item.status, VerifyStatus::Invalid) })
         );
+    }
+
+    #[test]
+    fn missing_common_efs_do_not_bypass_certificate_requirements() {
+        assert!(matches!(verify(&CardFilesMap::new(), &[0; GEN2_CERTIFICATE_SIZE]),
+            Err(Error::VerifyError(message)) if message.contains("Missing MSCA Certificate")));
+        let mut files = CardFilesMap::new();
+        files.insert(CardFileID::CACertificate, data_file(CardFileID::CACertificate, vec![0; GEN2_CERTIFICATE_SIZE], None));
+        assert!(matches!(verify(&files, &[0; GEN2_CERTIFICATE_SIZE]),
+            Err(Error::VerifyError(message)) if message.contains("Missing Card Sign Certificate")));
     }
 
     #[test]
